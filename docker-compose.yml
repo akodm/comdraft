@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/app/next-app-boilerplate
+      - /app/next-app-boilerplate/node_modules
+    working_dir: /app/next-app-boilerplate
+    command: tail -f /dev/null
