@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.10",
+    "@octokit/app": "16.1.4",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.0",
     "@vercel/speed-insights": "^2.0.0",

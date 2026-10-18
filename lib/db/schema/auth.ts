@@ -7,7 +7,7 @@ import { comdraftSchema } from '@/lib/db/pg-schema';
  * - TS 프로퍼티명은 Better Auth 필드명(camelCase)과 일치해야 어댑터가 매핑할 수 있음
  * - 실제 컬럼명은 snake_case 로 저장
  * - 모든 테이블은 comdraft 스키마에 생성 (public 미사용)
- * - 저장소 권한(GitHub App 설치) 관련 테이블은 별도 스키마 파일로 추가 예정
+ * - 저장소 권한(GitHub App 설치) 관련 테이블은 github.ts 참고
  */
 
 export const user = comdraftSchema.table('user', {
