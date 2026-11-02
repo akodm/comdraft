@@ -1,5 +1,12 @@
 import { relations } from 'drizzle-orm';
-import { boolean, index, text, timestamp } from 'drizzle-orm/pg-core';
+import {
+  bigint,
+  boolean,
+  index,
+  integer,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 import { comdraftSchema } from '@/lib/db/pg-schema';
 
 /**
@@ -16,6 +23,8 @@ export const user = comdraftSchema.table('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').default(false).notNull(),
   image: text('image'),
+  // 온보딩 완료 시각 (null 이면 GitHub 인증만 끝난 가입 미완료 상태 → /onboarding 으로 유도)
+  onboardedAt: timestamp('onboarded_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()
@@ -85,6 +94,15 @@ export const verification = comdraftSchema.table(
   },
   (table) => [index('verification_identifier_idx').on(table.identifier)],
 );
+
+// 요청 횟수 제한 카운터 (서버리스 인스턴스 간 공유를 위해 메모리 대신 DB 에 저장)
+// key = "IP|경로", lastRequest = 마지막 요청 시각(ms)
+export const rateLimit = comdraftSchema.table('rate_limit', {
+  id: text('id').primaryKey(),
+  key: text('key').notNull().unique(),
+  count: integer('count').notNull(),
+  lastRequest: bigint('last_request', { mode: 'number' }).notNull(),
+});
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),

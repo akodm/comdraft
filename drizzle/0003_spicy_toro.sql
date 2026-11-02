@@ -1,0 +1,1 @@
+ALTER TABLE "comdraft"."user" ADD COLUMN "onboarded_at" timestamp;

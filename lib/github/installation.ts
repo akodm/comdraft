@@ -1,3 +1,4 @@
+import 'server-only';
 import { db } from '@/lib/db';
 import { githubInstallation } from '@/lib/db/schema';
 import type { GithubUserInstallation } from '@/lib/github/user-api';

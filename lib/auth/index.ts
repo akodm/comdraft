@@ -1,4 +1,6 @@
+import 'server-only';
 import { betterAuth } from 'better-auth/minimal';
+import { APIError } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { db } from '@/lib/db';
@@ -41,12 +43,38 @@ export const auth = betterAuth({
       clientId: requireEnv('GITHUB_CLIENT_ID'),
       clientSecret: requireEnv('GITHUB_SECRET_KEY'),
       redirectURI: process.env.REDIRECT_URL,
-      // 이메일을 비공개로 둔 사용자나 이메일 권한이 없는 경우 GitHub noreply 주소로 대체
-      mapProfileToUser: (profile) => ({
-        email:
-          profile.email ??
-          `${profile.id}+${profile.login}@users.noreply.github.com`,
-      }),
+      // 이메일 대체값을 두지 않음
+      // → 이메일 권한(/user/emails) 미동의로 이메일을 못 받으면 Better Auth 가 email_not_found 로 가입 차단
+    },
+  },
+  user: {
+    additionalFields: {
+      // 세션 user 객체에 포함시키기 위해 등록
+      // input: false → 클라이언트(updateUser 등)에서 임의로 설정 불가, 온보딩 서버 액션에서만 기록
+      onboardedAt: {
+        type: 'date',
+        required: false,
+        input: false,
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        // GitHub 에서 검증된 실제 이메일을 받은 경우에만 회원가입 허용
+        // (emailVerified 는 /user/emails 응답 기준이라, 이메일 권한 미동의 시 공개 프로필 이메일만 있어도 false)
+        before: async (user) => {
+          if (
+            !user.emailVerified ||
+            user.email.toLowerCase().endsWith('@users.noreply.github.com')
+          ) {
+            throw new APIError('FORBIDDEN', {
+              code: 'email_not_verified',
+              message: 'GitHub 이메일 제공에 동의해야 가입할 수 있습니다.',
+            });
+          }
+        },
+      },
     },
   },
   session: {
@@ -56,6 +84,11 @@ export const auth = betterAuth({
     cookieCache: {
       enabled: false,
     },
+  },
+  rateLimit: {
+    // 기본 메모리 저장소는 서버리스(Vercel) 인스턴스마다 따로 카운트되어 효과가 없으므로 DB 에 저장
+    // enabled 는 기본값(프로덕션에서만 활성화) 유지
+    storage: 'database',
   },
   account: {
     // DB 에 저장되는 GitHub 사용자 액세스/리프레시 토큰 암호화

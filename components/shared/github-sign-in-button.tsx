@@ -17,10 +17,11 @@ const GithubSignInButton = ({
     setIsPending(true);
     setErrorMessage(null);
 
-    // GitHub 인증 페이지로 리다이렉트, 최초 로그인 시 자동으로 회원가입 처리
+    // GitHub 인증 페이지로 리다이렉트, 최초 로그인 시 자동으로 회원가입 처리 후 온보딩으로 이동
     const { error } = await signIn.social({
       provider: 'github',
       callbackURL,
+      newUserCallbackURL: '/onboarding',
       errorCallbackURL: '/sign-in',
     });
 

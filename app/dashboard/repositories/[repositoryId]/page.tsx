@@ -6,7 +6,7 @@ import SubmitButton from '@/components/shared/submit-button';
 import {
   disconnectRepository,
   syncRepository,
-} from '@/app/dashboard/repositories/actions';
+} from '@/lib/actions/repositories';
 import { requireSession } from '@/lib/auth/session';
 import { formatDateTime, getCommitTitle } from '@/lib/dashboard/format';
 import { getRepositoryStats, getUserRepository } from '@/lib/dashboard/queries';

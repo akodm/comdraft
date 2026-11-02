@@ -11,6 +11,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
+  if (!session.user.onboardedAt) {
+    return NextResponse.redirect(new URL('/onboarding', request.url));
+  }
+
   const state = await createInstallState();
 
   return NextResponse.redirect(getInstallationUrl(state));

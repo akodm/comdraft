@@ -26,6 +26,10 @@ export async function GET(request: NextRequest) {
     return redirectTo('/sign-in');
   }
 
+  if (!session.user.onboardedAt) {
+    return redirectTo('/onboarding');
+  }
+
   const setupAction = searchParams.get('setup_action');
 
   if (setupAction === 'request') {

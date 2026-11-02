@@ -1,0 +1,17 @@
+import { completeOnboarding } from '@/lib/actions/onboarding';
+import SubmitButton from '@/components/shared/submit-button';
+import { requireOnboardingSession } from '@/lib/auth/session';
+
+// 온보딩 흐름 확인용 최소 화면 (실제 화면으로 교체 예정)
+export default async function OnboardingPage() {
+  const { user } = await requireOnboardingSession();
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6">
+      <h1 className="text-2xl font-bold">{user.name} 님, 환영합니다</h1>
+      <form action={completeOnboarding}>
+        <SubmitButton pendingText="처리 중...">시작하기</SubmitButton>
+      </form>
+    </main>
+  );
+}

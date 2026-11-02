@@ -4,7 +4,7 @@ import Link from 'next/link';
 import StatusMessage from '@/components/dashboard/status-message';
 import GithubSignInButton from '@/components/shared/github-sign-in-button';
 import SubmitButton from '@/components/shared/submit-button';
-import { connectRepository } from '@/app/dashboard/repositories/actions';
+import { connectRepository } from '@/lib/actions/repositories';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { githubRepository, userRepository } from '@/lib/db/schema';

@@ -1,3 +1,4 @@
+import 'server-only';
 import { eq, max } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import {

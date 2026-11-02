@@ -1,3 +1,4 @@
+import 'server-only';
 import { App } from '@octokit/app';
 import { getGithubAppEnv } from '@/lib/github/env';
 

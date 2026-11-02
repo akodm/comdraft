@@ -2,6 +2,14 @@ import { redirect } from 'next/navigation';
 import GithubSignInButton from '@/components/shared/github-sign-in-button';
 import { getSession } from '@/lib/auth/session';
 
+// Better Auth OAuth 콜백이 ?error= 로 넘겨주는 코드별 안내 문구
+const ERROR_MESSAGES: Record<string, string> = {
+  email_not_found:
+    'GitHub 이메일 정보를 받지 못했습니다. 이메일 제공에 동의한 뒤 다시 시도해주세요.',
+  email_not_verified:
+    'GitHub 에서 인증된 이메일을 확인할 수 없습니다. 이메일 제공에 동의한 뒤 다시 시도해주세요.',
+};
+
 interface SignInPageProps {
   searchParams: Promise<{ error?: string }>;
 }
@@ -24,7 +32,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
       </p>
       {error && (
         <p role="alert" className="text-sm text-red-600">
-          로그인 중 문제가 발생했습니다. ({error})
+          {ERROR_MESSAGES[error] ?? `로그인 중 문제가 발생했습니다. (${error})`}
         </p>
       )}
       <GithubSignInButton />
