@@ -6,6 +6,8 @@ import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { db } from '@/lib/db';
 import * as schema from '@/lib/db/schema';
 
+const NOREPLY_EMAIL_SUFFIX = '@users.noreply.github.com';
+
 const requireEnv = (key: string) => {
   const value = process.env[key];
 
@@ -43,8 +45,13 @@ export const auth = betterAuth({
       clientId: requireEnv('GITHUB_CLIENT_ID'),
       clientSecret: requireEnv('GITHUB_SECRET_KEY'),
       redirectURI: process.env.REDIRECT_URL,
-      // 이메일 대체값을 두지 않음
-      // → 이메일 권한(/user/emails) 미동의로 이메일을 못 받으면 Better Auth 가 email_not_found 로 가입 차단
+      // Better Auth 는 계정 조회 전에 이메일 유무를 검사하므로, 대체 주소가 없으면 기존 사용자의 재로그인까지 막힘
+      // → 이메일을 못 받으면 대체 주소를 넘기고, 신규 가입은 아래 user.create.before 훅에서 차단
+      mapProfileToUser: (profile) => ({
+        email:
+          profile.email ??
+          `${profile.id}+${profile.login}${NOREPLY_EMAIL_SUFFIX}`,
+      }),
     },
   },
   user: {
@@ -62,15 +69,20 @@ export const auth = betterAuth({
     user: {
       create: {
         // GitHub 에서 검증된 실제 이메일을 받은 경우에만 회원가입 허용
-        // (emailVerified 는 /user/emails 응답 기준이라, 이메일 권한 미동의 시 공개 프로필 이메일만 있어도 false)
         before: async (user) => {
-          if (
-            !user.emailVerified ||
-            user.email.toLowerCase().endsWith('@users.noreply.github.com')
-          ) {
+          if (user.email.toLowerCase().endsWith(NOREPLY_EMAIL_SUFFIX)) {
+            throw new APIError('FORBIDDEN', {
+              code: 'email_not_found',
+              message: 'GitHub 이메일 정보를 받지 못해 가입할 수 없습니다.',
+            });
+          }
+
+          // emailVerified 는 /user/emails 응답 기준
+          // → 앱 권한이 없거나, API 호출이 실패했거나, GitHub 에서 미인증인 이메일이면 false
+          if (!user.emailVerified) {
             throw new APIError('FORBIDDEN', {
               code: 'email_not_verified',
-              message: 'GitHub 이메일 제공에 동의해야 가입할 수 있습니다.',
+              message: 'GitHub 에서 인증된 이메일을 확인할 수 없습니다.',
             });
           }
         },
@@ -97,6 +109,10 @@ export const auth = betterAuth({
     accountLinking: {
       enabled: false,
     },
+  },
+  // OAuth state 를 복원하기 전에 실패한 경우에도 기본 오류 페이지 대신 로그인 페이지에서 안내
+  onAPIError: {
+    errorURL: '/sign-in',
   },
   advanced: {
     cookiePrefix: 'comdraft',

@@ -1,4 +1,5 @@
 import 'server-only';
+import { APIError } from 'better-auth/api';
 import { and, eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -42,6 +43,15 @@ export interface GithubUserRepository {
 
 export class GithubUserTokenError extends Error {}
 
+export class GithubApiError extends Error {
+  status: number;
+
+  constructor(status: number, path: string) {
+    super(`GitHub API 요청 실패 (${status}): ${path}`);
+    this.status = status;
+  }
+}
+
 // Better Auth 가 저장한 GitHub 토큰을 복호화해서 가져옴 (만료 시 refresh token 으로 자동 갱신)
 export const getGithubUserToken = async (userId: string, headers: Headers) => {
   const [githubAccount] = await db
@@ -54,10 +64,21 @@ export const getGithubUserToken = async (userId: string, headers: Headers) => {
     throw new GithubUserTokenError('연결된 GitHub 계정이 없습니다.');
   }
 
-  const { accessToken } = await auth.api.getAccessToken({
-    body: { accountId: githubAccount.id, userId },
-    headers,
-  });
+  // 토큰 갱신 실패(APIError)도 호출부의 재로그인 안내로 이어지도록 변환
+  const { accessToken } = await auth.api
+    .getAccessToken({
+      body: { accountId: githubAccount.id, userId },
+      headers,
+    })
+    .catch((error: unknown) => {
+      if (error instanceof APIError) {
+        throw new GithubUserTokenError(
+          'GitHub 토큰을 갱신하지 못했습니다. 다시 로그인해주세요.',
+        );
+      }
+
+      throw error;
+    });
 
   if (!accessToken) {
     throw new GithubUserTokenError(
@@ -85,7 +106,7 @@ const githubUserFetch = async <T>(token: string, path: string) => {
   }
 
   if (!response.ok) {
-    throw new Error(`GitHub API 요청 실패 (${response.status}): ${path}`);
+    throw new GithubApiError(response.status, path);
   }
 
   return (await response.json()) as T;

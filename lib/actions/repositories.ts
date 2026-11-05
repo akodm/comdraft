@@ -16,6 +16,7 @@ import { syncRepositoryCommits } from '@/lib/github/sync';
 import {
   findUserInstallation,
   getGithubUserToken,
+  GithubApiError,
   GithubUserTokenError,
   listUserInstallationRepositories,
 } from '@/lib/github/user-api';
@@ -160,7 +161,15 @@ export async function syncRepository(formData: FormData) {
     const repositories = await listUserInstallationRepositories(
       token,
       repository.installationId,
-    ).catch(() => []);
+    ).catch((error: unknown) => {
+      // 설치/저장소 접근 권한이 없을 때만 404 → 권한 해제로 처리
+      // 토큰 만료(401)와 일시적 오류(403 rate limit, 5xx)는 권한 해제가 아니므로 그대로 전달
+      if (error instanceof GithubApiError && error.status === 404) {
+        return [];
+      }
+
+      throw error;
+    });
 
     return repositories.some(({ id }) => id === repository.githubRepoId);
   });

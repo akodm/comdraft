@@ -1,4 +1,5 @@
 import { completeOnboarding } from '@/lib/actions/onboarding';
+import SignOutButton from '@/components/shared/sign-out-button';
 import SubmitButton from '@/components/shared/submit-button';
 import { requireOnboardingSession } from '@/lib/auth/session';
 
@@ -12,6 +13,8 @@ export default async function OnboardingPage() {
       <form action={completeOnboarding}>
         <SubmitButton pendingText="처리 중...">시작하기</SubmitButton>
       </form>
+      {/* 다른 GitHub 계정으로 가입하려는 경우의 탈출구 (온보딩 전에는 대시보드에 접근 불가) */}
+      <SignOutButton />
     </main>
   );
 }

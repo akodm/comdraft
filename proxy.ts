@@ -12,6 +12,12 @@ export function proxy(request: NextRequest) {
   });
 
   if (!sessionCookie) {
+    // Server Action POST 는 307 을 클라이언트가 처리하지 못함
+    // → 통과시켜 액션의 requireSession/requireOnboardingSession 이 /sign-in 으로 이동시킴
+    if (request.headers.has('next-action')) {
+      return NextResponse.next();
+    }
+
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
