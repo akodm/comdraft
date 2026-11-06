@@ -7,7 +7,7 @@ import { account } from '@/lib/db/schema';
 
 /**
  * 로그인한 사용자의 GitHub 사용자 토큰(user-to-server)으로 호출하는 API
- * - "이 사용자가 실제로 접근 가능한 설치/저장소인지" 검증하는 용도로만 사용
+ * - "이 사용자가 실제로 접근 가능한 설치/저장소인지" 검증, 사용자 본인 권한 기준의 커밋 조회에 사용
  * - GitHub App 의 사용자 토큰은 앱 권한과 사용자 권한의 교집합만 접근 가능
  */
 
@@ -89,7 +89,8 @@ export const getGithubUserToken = async (userId: string, headers: Headers) => {
   return accessToken;
 };
 
-const githubUserFetch = async <T>(token: string, path: string) => {
+// 상태 코드 확인까지 마친 응답 (본문 외에 Link 헤더 등이 필요할 때 직접 사용)
+const githubUserResponse = async (token: string, path: string) => {
   const response = await fetch(`${GITHUB_API_URL}${path}`, {
     headers: {
       Accept: 'application/vnd.github+json',
@@ -108,6 +109,12 @@ const githubUserFetch = async <T>(token: string, path: string) => {
   if (!response.ok) {
     throw new GithubApiError(response.status, path);
   }
+
+  return response;
+};
+
+const githubUserFetch = async <T>(token: string, path: string) => {
+  const response = await githubUserResponse(token, path);
 
   return (await response.json()) as T;
 };
@@ -172,4 +179,60 @@ export const findUserInstallation = async (
   const installations = await listUserInstallations(token);
 
   return installations.find(({ id }) => id === installationId) ?? null;
+};
+
+export interface GithubUserCommit {
+  sha: string;
+  html_url: string;
+  commit: {
+    message: string;
+    author: { name?: string; date?: string } | null;
+    committer: { date?: string } | null;
+  };
+  // GitHub 계정과 연결되지 않은 커밋(이메일 미등록 등)은 null
+  author: { login: string; avatar_url: string } | null;
+}
+
+// Link 헤더에 rel="next" 가 있으면 다음 페이지 존재 (커밋 목록 API 는 전체 개수를 주지 않음)
+const hasNextPage = (linkHeader: string | null) => {
+  return (
+    linkHeader?.split(',').some((link) => /rel="next"/.test(link)) ?? false
+  );
+};
+
+/**
+ * 브랜치의 커밋 목록 한 페이지 (최신순)
+ * - 사용자 토큰으로 호출하므로 GitHub 에서 저장소 권한이 해제되면 404
+ * - 목록 API 는 메시지/작성자 등 메타데이터만 반환 (변경 파일/diff 미포함)
+ */
+export const listUserBranchCommits = async (
+  token: string,
+  {
+    owner,
+    repo,
+    branch,
+    page,
+    perPage,
+  }: {
+    owner: string;
+    repo: string;
+    branch: string;
+    page: number;
+    perPage: number;
+  },
+) => {
+  const query = new URLSearchParams({
+    sha: branch,
+    per_page: String(perPage),
+    page: String(page),
+  });
+  const response = await githubUserResponse(
+    token,
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits?${query}`,
+  );
+
+  return {
+    commits: (await response.json()) as GithubUserCommit[],
+    hasNextPage: hasNextPage(response.headers.get('link')),
+  };
 };

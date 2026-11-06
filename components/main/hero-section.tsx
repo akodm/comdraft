@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import { Trans } from '@lingui/react/macro';
 import HeroPreview from '@/components/main/hero-preview';
+import GithubSignInButton from '@/components/shared/github-sign-in-button';
 
 // 메인 카피와 시작 버튼, 초안 작성 화면 예시
 const HeroSection = () => {
@@ -23,21 +23,12 @@ const HeroSection = () => {
               </Trans>
             </p>
           </div>
-          {/* 시작 동작(GitHub 로그인 연결)은 아직 정해지지 않아 디자인만 구현 */}
-          <button
-            type="button"
-            className="flex h-13 w-full items-center justify-center gap-2.5 rounded border border-ink bg-ink px-5.5 pc:w-fit"
-          >
-            <Image
-              src="/images/main/github-mark.svg"
-              alt=""
-              width={20}
-              height={20}
-            />
-            <span className="text-[15px] leading-[1.2] font-bold whitespace-nowrap text-white">
+          {/* 바로 GitHub 로그인 시작 (최초 로그인이면 회원가입 후 온보딩, 아니면 대시보드로 이동) */}
+          <GithubSignInButton className="pc:w-fit">
+            <span className="text-[15px]">
               <Trans>GitHub로 시작하기</Trans>
             </span>
-          </button>
+          </GithubSignInButton>
         </div>
         <HeroPreview />
       </div>

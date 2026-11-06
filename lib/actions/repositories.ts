@@ -4,44 +4,12 @@ import { and, count, eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
-import {
-  githubInstallation,
-  githubRepository,
-  userRepository,
-} from '@/lib/db/schema';
+import { githubRepository, userRepository } from '@/lib/db/schema';
 import { connectUserRepository } from '@/lib/github/repository-connection';
-import {
-  pruneUntrackedBranchCommits,
-  syncRepositoryCommits,
-} from '@/lib/github/sync';
-import {
-  getGithubUserToken,
-  GithubApiError,
-  GithubUserTokenError,
-  listUserInstallationRepositories,
-} from '@/lib/github/user-api';
 import { localizedRedirect, revalidateLocalizedPath } from '@/lib/i18n/request';
 import { parseGithubId } from '@/utils';
 
-// GitHub 토큰 만료 시 재로그인 안내 화면으로 이동
-const withGithubToken = async <T>(
-  userId: string,
-  callback: (token: string) => Promise<T>,
-) => {
-  try {
-    const token = await getGithubUserToken(userId, await headers());
-
-    return await callback(token);
-  } catch (error) {
-    if (error instanceof GithubUserTokenError) {
-      return localizedRedirect('/dashboard/repositories?status=github_reauth');
-    }
-
-    throw error;
-  }
-};
-
-// 설치된 저장소 중 하나를 기본 브랜치 기준으로 대시보드 추적 대상에 등록하고 커밋 동기화
+// 설치된 저장소 중 하나를 기본 브랜치 기준으로 대시보드 추적 대상에 등록
 export async function connectRepository(formData: FormData) {
   const { user } = await requireSession();
   const installationId = parseGithubId(formData.get('installationId'));
@@ -67,75 +35,7 @@ export async function connectRepository(formData: FormData) {
   await localizedRedirect(`/dashboard/repositories/${result.repositoryId}`);
 }
 
-// 사용자가 등록한 저장소인지 확인 후 반환
-const findUserRepository = async (userId: string, repositoryId: string) => {
-  const [repository] = await db
-    .select({
-      id: githubRepository.id,
-      githubRepoId: githubRepository.githubRepoId,
-      installationId: githubInstallation.installationId,
-    })
-    .from(userRepository)
-    .innerJoin(
-      githubRepository,
-      eq(userRepository.repositoryId, githubRepository.id),
-    )
-    .innerJoin(
-      githubInstallation,
-      eq(githubRepository.installationId, githubInstallation.id),
-    )
-    .where(
-      and(
-        eq(userRepository.userId, userId),
-        eq(userRepository.repositoryId, repositoryId),
-      ),
-    )
-    .limit(1);
-
-  return repository ?? null;
-};
-
-// 수동 커밋 동기화 (GitHub 상의 접근 권한이 유지되고 있는지 재확인 후 진행)
-export async function syncRepository(formData: FormData) {
-  const { user } = await requireSession();
-  const repositoryId = String(formData.get('repositoryId') ?? '');
-  const repository = await findUserRepository(user.id, repositoryId);
-
-  if (!repository) {
-    return localizedRedirect('/dashboard?status=invalid_repository');
-  }
-
-  const hasAccess = await withGithubToken(user.id, async (token) => {
-    const repositories = await listUserInstallationRepositories(
-      token,
-      repository.installationId,
-    ).catch((error: unknown) => {
-      // 설치/저장소 접근 권한이 없을 때만 404 → 권한 해제로 처리
-      // 토큰 만료(401)와 일시적 오류(403 rate limit, 5xx)는 권한 해제가 아니므로 그대로 전달
-      if (error instanceof GithubApiError && error.status === 404) {
-        return [];
-      }
-
-      throw error;
-    });
-
-    return repositories.some(({ id }) => id === repository.githubRepoId);
-  });
-
-  if (!hasAccess) {
-    return localizedRedirect(
-      `/dashboard/repositories/${repositoryId}?status=access_revoked`,
-    );
-  }
-
-  await syncRepositoryCommits(repository.id);
-
-  revalidateLocalizedPath('/dashboard');
-  revalidateLocalizedPath(`/dashboard/repositories/${repositoryId}`);
-}
-
-// 대시보드에서 저장소 제거
-// (다른 사용자가 등록하지 않은 저장소면 커밋 데이터까지, 남은 사용자가 있으면 내가 추적하던 브랜치의 커밋만 삭제)
+// 대시보드에서 저장소 제거 (다른 사용자가 등록하지 않은 저장소면 저장소 정보까지 삭제)
 export async function disconnectRepository(formData: FormData) {
   const { user } = await requireSession();
   const repositoryId = String(formData.get('repositoryId') ?? '');
@@ -165,8 +65,6 @@ export async function disconnectRepository(formData: FormData) {
       await tx
         .delete(githubRepository)
         .where(eq(githubRepository.id, repositoryId));
-    } else {
-      await pruneUntrackedBranchCommits(tx, repositoryId);
     }
   });
 

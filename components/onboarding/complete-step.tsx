@@ -6,6 +6,9 @@ import {
   OnboardingStepContent,
 } from '@/components/onboarding/onboarding-step';
 import { PRIMARY_BUTTON_CLASS } from '@/components/shared/button-styles';
+import Spinner from '@/components/shared/spinner';
+import SubmitButton from '@/components/shared/submit-button';
+import { completeOnboarding } from '@/lib/actions/onboarding';
 
 // 3단계: 연동 완료 안내와 초안 작성 유도
 const CompleteStep = () => {
@@ -36,10 +39,15 @@ const CompleteStep = () => {
         <DraftExample />
       </OnboardingStepContent>
       <OnboardingStepActions step={3}>
-        {/* 초안 작성 화면이 아직 없어 동작 없음 */}
-        <button type="button" className={PRIMARY_BUTTON_CLASS}>
-          <Trans>작성 하러 가기</Trans>
-        </button>
+        {/* 초안 작성 화면이 아직 없어 온보딩을 마치고 대시보드로 이동 (작성 화면이 생기면 이동할 곳만 변경) */}
+        <form action={completeOnboarding} className="w-full">
+          <SubmitButton
+            className={PRIMARY_BUTTON_CLASS}
+            pendingText={<Spinner label={<Trans>이동 중...</Trans>} />}
+          >
+            <Trans>작성 하러 가기</Trans>
+          </SubmitButton>
+        </form>
       </OnboardingStepActions>
     </div>
   );

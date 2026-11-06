@@ -36,6 +36,13 @@
       "when": 1793948173606,
       "tag": "0004_chubby_sphinx",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793950662971,
+      "tag": "0005_skinny_paper_doll",
+      "breakpoints": true
     }
   ]
 }

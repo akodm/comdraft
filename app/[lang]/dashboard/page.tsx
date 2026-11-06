@@ -1,12 +1,11 @@
-import { Plural, Trans } from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 import StatusMessage from '@/components/dashboard/status-message';
 import PageLayout from '@/components/layout/page-layout';
 import LocalizedLink from '@/components/shared/localized-link';
 import SignOutButton from '@/components/shared/sign-out-button';
 import { requireSession } from '@/lib/auth/session';
-import { formatDateTime } from '@/lib/dashboard/format';
 import { getUserRepositories } from '@/lib/dashboard/queries';
-import { getLocale, initLingui } from '@/lib/i18n/server';
+import { initLingui } from '@/lib/i18n/server';
 
 interface DashboardPageProps {
   searchParams: Promise<{ status?: string }>;
@@ -16,7 +15,6 @@ export default async function DashboardPage({
   searchParams,
 }: DashboardPageProps) {
   await initLingui();
-  const locale = await getLocale();
   // proxy 의 쿠키 존재 확인과 별개로, 페이지에서 DB 기준 세션 검증
   const { user } = await requireSession();
   const { status } = await searchParams;
@@ -60,15 +58,7 @@ export default async function DashboardPage({
         ) : (
           <ul className="flex flex-col divide-y rounded-md border">
             {repositories.map((repository) => {
-              const commitCount = repository.commitCount;
-              const latestCommittedAt = formatDateTime(
-                repository.latestCommittedAt,
-                locale,
-              );
-              const lastSyncedAt = formatDateTime(
-                repository.lastSyncedAt,
-                locale,
-              );
+              const branch = repository.branch;
 
               return (
                 <li key={repository.id}>
@@ -85,15 +75,8 @@ export default async function DashboardPage({
                       )}
                     </div>
                     <p className="text-sm text-gray-600">
-                      <Plural value={commitCount} other="커밋 #개" /> ·{' '}
-                      <Trans>최근 커밋 {latestCommittedAt}</Trans> ·{' '}
-                      <Trans>마지막 동기화 {lastSyncedAt}</Trans>
+                      <Trans>추적 브랜치 {branch}</Trans>
                     </p>
-                    {repository.lastSyncError && (
-                      <p className="text-sm text-red-600">
-                        {repository.lastSyncError}
-                      </p>
-                    )}
                   </LocalizedLink>
                 </li>
               );

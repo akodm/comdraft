@@ -19,14 +19,6 @@ msgstr "메뉴 열기"
 msgid "브랜치명"
 msgstr "브랜치명"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:76
-msgid "동기화 중..."
-msgstr "동기화 중..."
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:77
-msgid "동기화"
-msgstr "동기화"
-
 #: components/main/sample-commits.ts:21
 msgid "cleanup에서 disconnect() 호출"
 msgstr "cleanup에서 disconnect() 호출"
@@ -52,7 +44,7 @@ msgstr "대시보드로 이동"
 msgid "기술 개발 블로그 습관"
 msgstr "기술 개발 블로그 습관"
 
-#: components/main/main-header.tsx:38
+#: components/main/language-menu.tsx:38
 msgid "언어 변경"
 msgstr "언어 변경"
 
@@ -64,7 +56,7 @@ msgstr "로그인 중 문제가 발생했습니다. ({error})"
 msgid "IntersectionObserver로 화면 진입 감지"
 msgstr "IntersectionObserver로 화면 진입 감지"
 
-#: components/main/profile-menu.tsx:159
+#: components/main/profile-menu.tsx:115
 msgid "회원탈퇴"
 msgstr "회원탈퇴"
 
@@ -80,7 +72,7 @@ msgstr "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. �
 msgid "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저장소 권한 추가하기</0>"
 msgstr "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저장소 권한 추가하기</0>"
 
-#: components/onboarding/complete-step.tsx:41
+#: components/onboarding/complete-step.tsx:48
 msgid "작성 하러 가기"
 msgstr "작성 하러 가기"
 
@@ -98,10 +90,6 @@ msgstr "작성 예시"
 msgid "새 초안"
 msgstr "새 초안"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:113
-msgid "기여자"
-msgstr "기여자"
-
 #: components/main/notice-section.tsx:8
 msgid "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
 msgstr "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
@@ -110,7 +98,7 @@ msgstr "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
 msgid "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
 msgstr "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
 
-#: components/onboarding/complete-step.tsx:16
+#: components/onboarding/complete-step.tsx:19
 msgid "첫 저장소 연동이<0/>완료되었습니다."
 msgstr "첫 저장소 연동이<0/>완료되었습니다."
 
@@ -134,7 +122,7 @@ msgstr "개발자 이메일 · 예시 주소"
 msgid "메뉴"
 msgstr "메뉴"
 
-#: components/main/main-header.tsx:31
+#: components/main/main-header.tsx:32
 #: components/main/mobile-menu.tsx:162
 msgid "게시글"
 msgstr "게시글"
@@ -143,8 +131,8 @@ msgstr "게시글"
 msgid "언어 선택"
 msgstr "언어 선택"
 
-#: components/main/profile-menu.tsx:119
-#: components/main/profile-menu.tsx:133
+#: components/main/profile-menu.tsx:75
+#: components/main/profile-menu.tsx:89
 msgid "프로필 메뉴"
 msgstr "프로필 메뉴"
 
@@ -175,11 +163,7 @@ msgstr "로그아웃"
 msgid "IntersectionObserver로 이미지 지연 로딩 구현하기"
 msgstr "IntersectionObserver로 이미지 지연 로딩 구현하기"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:143
-msgid "주요 기여자"
-msgstr "주요 기여자"
-
-#: components/onboarding/complete-step.tsx:33
+#: components/onboarding/complete-step.tsx:36
 msgid "지금 바로 AI 초안을 작성해보세요."
 msgstr "지금 바로 AI 초안을 작성해보세요."
 
@@ -191,14 +175,10 @@ msgstr "메뉴 닫기"
 msgid "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
 msgstr "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:69
+#: app/[lang]/dashboard/page.tsx:78
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:55
 msgid "추적 브랜치 {branch}"
 msgstr "추적 브랜치 {branch}"
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:123
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:181
-msgid "최근 커밋"
-msgstr "최근 커밋"
 
 #: app/[lang]/sign-in/page.tsx:70
 msgid "회원가입 / 로그인"
@@ -217,11 +197,7 @@ msgstr "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게�
 msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 msgstr "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 
-#: app/[lang]/dashboard/page.tsx:89
-msgid "최근 커밋 {latestCommittedAt}"
-msgstr "최근 커밋 {latestCommittedAt}"
-
-#: components/main/profile-menu.tsx:96
+#: components/main/profile-menu.tsx:62
 msgid "로그인"
 msgstr "로그인"
 
@@ -229,7 +205,7 @@ msgstr "로그인"
 msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgstr "서비스 이해를 위한 샘플 저장소와 초안입니다."
 
-#: components/main/main-header.tsx:26
+#: components/main/main-header.tsx:27
 #: components/main/mobile-menu.tsx:152
 msgid "주요 메뉴"
 msgstr "주요 메뉴"
@@ -240,23 +216,15 @@ msgstr "주요 메뉴"
 msgid "AI 초안 · 게시 전 검토 필요"
 msgstr "AI 초안 · 게시 전 검토 필요"
 
-#: components/dashboard/status-message.tsx:51
-msgid "이 저장소에 대한 GitHub 접근 권한이 해제되어 동기화할 수 없습니다."
-msgstr "이 저장소에 대한 GitHub 접근 권한이 해제되어 동기화할 수 없습니다."
-
-#: components/dashboard/commit-activity.tsx:20
-msgid "{day}: {commits, plural, other {#개}}"
-msgstr "{day}: {commits, plural, other {#개}}"
-
 #: components/main/main-footer.tsx:31
 msgid "푸터 메뉴"
 msgstr "푸터 메뉴"
 
-#: app/[lang]/dashboard/page.tsx:43
+#: app/[lang]/dashboard/page.tsx:41
 msgid "추적 중인 저장소"
 msgstr "추적 중인 저장소"
 
-#: components/main/hero-section.tsx:38
+#: components/main/hero-section.tsx:29
 msgid "GitHub로 시작하기"
 msgstr "GitHub로 시작하기"
 
@@ -292,7 +260,7 @@ msgstr "설치 요청이 만료되었거나 유효하지 않습니다. 다시 �
 msgid "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
 msgstr "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
 
-#: app/[lang]/dashboard/page.tsx:31
+#: app/[lang]/dashboard/page.tsx:29
 msgid "{userName} 님의 대시보드"
 msgstr "{userName} 님의 대시보드"
 
@@ -304,9 +272,9 @@ msgstr "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 
 msgid "Github 계정으로 로그인합니다"
 msgstr "Github 계정으로 로그인합니다"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:53
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:39
 #: app/[lang]/dashboard/repositories/page.tsx:62
-#: components/main/profile-menu.tsx:143
+#: components/main/profile-menu.tsx:99
 msgid "대시보드"
 msgstr "대시보드"
 
@@ -329,10 +297,6 @@ msgstr "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다
 #: components/dashboard/status-message.tsx:23
 msgid "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
 msgstr "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:170
-msgid "{commits, plural, other {#개}}"
-msgstr "{commits, plural, other {#개}}"
 
 #: components/main/notice-section.tsx:7
 msgid "제 3자인 LLM API 에 코드가 보내집니다. 조직 및 비공개 저장소는 권하지 않습니다."
@@ -357,10 +321,6 @@ msgstr "일시 중지됨"
 #: components/main/sample-commit-panel.tsx:83
 msgid "이 기록을 하나의 글로 정리"
 msgstr "이 기록을 하나의 글로 정리"
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:108
-msgid "전체 커밋"
-msgstr "전체 커밋"
 
 #: app/[lang]/dashboard/repositories/page.tsx:93
 msgid "아직 GitHub App 이 설치된 계정이 없습니다. 상단의 \"GitHub 저장소 권한 부여\" 버튼으로 커밋을 가져올 저장소를 선택해주세요."
@@ -400,28 +360,19 @@ msgstr "Github App 인증"
 msgid "문의하기"
 msgstr "문의하기"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:83
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:62
 msgid "제거 중..."
 msgstr "제거 중..."
 
-#: app/[lang]/dashboard/page.tsx:90
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:70
-msgid "마지막 동기화 {lastSyncedAt}"
-msgstr "마지막 동기화 {lastSyncedAt}"
-
-#: components/main/profile-menu.tsx:149
+#: components/main/profile-menu.tsx:105
 msgid "계정"
 msgstr "계정"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:147
-msgid "커밋 내역이 없습니다."
-msgstr "커밋 내역이 없습니다."
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:86
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:65
 msgid "제거"
 msgstr "제거"
 
-#: app/[lang]/dashboard/page.tsx:55
+#: app/[lang]/dashboard/page.tsx:53
 msgid "아직 등록된 저장소가 없습니다. GitHub App 으로 저장소 권한을 부여하고 저장소를 추가해주세요."
 msgstr "아직 등록된 저장소가 없습니다. GitHub App 으로 저장소 권한을 부여하고 저장소를 추가해주세요."
 
@@ -433,17 +384,9 @@ msgstr "무엇을 확인할까요?"
 msgid "저장소의 커밋 내역을 불러오고 선택합니다."
 msgstr "저장소의 커밋 내역을 불러오고 선택합니다."
 
-#: app/[lang]/dashboard/page.tsx:88
-msgid "{commitCount, plural, other {커밋 #개}}"
-msgstr "{commitCount, plural, other {커밋 #개}}"
-
 #: components/main/main-footer.tsx:54
 msgid "© 2026 comdraft. All rights reserved."
 msgstr "© 2026 comdraft. All rights reserved."
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:136
-msgid "최근 30일 커밋"
-msgstr "최근 30일 커밋"
 
 #: app/[lang]/dashboard/repositories/page.tsx:115
 msgid "개인"
@@ -460,6 +403,10 @@ msgstr "브랜치명을 입력하세요"
 #: app/[lang]/sign-in/page.tsx:105
 msgid "대시보드로 돌아가기"
 msgstr "대시보드로 돌아가기"
+
+#: components/onboarding/complete-step.tsx:46
+msgid "이동 중..."
+msgstr "이동 중..."
 
 #: components/main/sample-draft-editor.tsx:90
 msgid "이미지 최적화"
@@ -531,7 +478,7 @@ msgstr "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세
 msgid "왜 바꿨나요?"
 msgstr "왜 바꿨나요?"
 
-#: app/[lang]/dashboard/page.tsx:49
+#: app/[lang]/dashboard/page.tsx:47
 #: app/[lang]/dashboard/repositories/page.tsx:65
 msgid "저장소 추가"
 msgstr "저장소 추가"
@@ -561,10 +508,6 @@ msgstr "선택한 커밋을 AI 초안으로"
 #: components/main/notice-section.tsx:29
 msgid "초안을 만들기 전 반드시 확인해주세요."
 msgstr "초안을 만들기 전 반드시 확인해주세요."
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:118
-msgid "첫 커밋"
-msgstr "첫 커밋"
 
 #: app/[lang]/dashboard/repositories/page.tsx:189
 msgid "커밋 가져오는 중..."

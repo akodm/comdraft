@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId } from 'react';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
   DROPDOWN_ITEM_BASE_CLASS,
@@ -11,6 +10,7 @@ import {
 } from '@/components/shared/dropdown-styles';
 import LocalizedLink from '@/components/shared/localized-link';
 import SignOutButton from '@/components/shared/sign-out-button';
+import { useDropdown } from '@/hooks/use-dropdown';
 
 interface ProfileMenuProps {
   isSignedIn: boolean;
@@ -51,43 +51,9 @@ const ProfileIcon = () => {
  */
 const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
   const { t } = useLingui();
-  const pathname = usePathname();
   const menuId = useId();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const firstItemRef = useRef<HTMLAnchorElement>(null);
-  // 연 시점의 경로를 기억해 경로가 바뀌면 자동으로 닫힌 상태가 되도록 함
-  const [openedPath, setOpenedPath] = useState<string | null>(null);
-  const isOpen = openedPath !== null && openedPath === pathname;
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    firstItemRef.current?.focus();
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        setOpenedPath(null);
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setOpenedPath(null);
-        triggerRef.current?.focus();
-      }
-    };
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen]);
+  const { isOpen, toggle, containerRef, triggerRef, firstItemRef, handleBlur } =
+    useDropdown<HTMLAnchorElement>();
 
   if (!isSignedIn) {
     return (
@@ -101,16 +67,6 @@ const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
     );
   }
 
-  // 드롭다운 안에서 포커스가 빠져나가면 닫음 (Tab 으로 다음 요소로 이동한 경우)
-  const handleBlur = (event: React.FocusEvent<HTMLDivElement>) => {
-    if (
-      event.relatedTarget &&
-      !event.currentTarget.contains(event.relatedTarget as Node)
-    ) {
-      setOpenedPath(null);
-    }
-  };
-
   return (
     <div ref={containerRef} className="relative" onBlur={handleBlur}>
       <button
@@ -119,7 +75,7 @@ const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
         aria-label={t`프로필 메뉴`}
         aria-expanded={isOpen}
         aria-controls={menuId}
-        onClick={() => setOpenedPath(isOpen ? null : pathname)}
+        onClick={toggle}
         className={PROFILE_BUTTON_CLASS}
       >
         <ProfileIcon />

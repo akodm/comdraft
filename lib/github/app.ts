@@ -5,7 +5,7 @@ import { getGithubAppEnv } from '@/lib/github/env';
 /**
  * GitHub App 자체 인증 (앱 private key 로 JWT 서명 → 설치별 액세스 토큰 발급)
  * - 설치 토큰은 1시간 유효하며 @octokit/auth-app 이 내부에서 캐시/재발급
- * - 저장소 데이터(커밋 등) 조회는 사용자 토큰이 아닌 설치 토큰으로 수행
+ * - 사용자 권한과 무관한 저장소 확인(브랜치 존재 여부 등)에 사용, 커밋 조회는 사용자 토큰으로 수행 (lib/github/commits.ts)
  */
 const globalForGithubApp = globalThis as unknown as {
   githubApp?: App;

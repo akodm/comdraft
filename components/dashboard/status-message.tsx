@@ -45,13 +45,6 @@ const STATUS_MESSAGES = new Map<string, StatusMessageEntry>([
       isError: true,
     },
   ],
-  [
-    'access_revoked',
-    {
-      text: msg`이 저장소에 대한 GitHub 접근 권한이 해제되어 동기화할 수 없습니다.`,
-      isError: true,
-    },
-  ],
 ]);
 
 export const getStatusMessage = (status?: string) =>

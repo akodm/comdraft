@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import { Trans, useLingui } from '@lingui/react/macro';
 import BrandLogo from '@/components/main/brand-logo';
+import LanguageMenu from '@/components/main/language-menu';
 import MobileMenu from '@/components/main/mobile-menu';
 import ProfileMenu from '@/components/main/profile-menu';
 
@@ -13,7 +13,8 @@ interface MainHeaderProps {
  * 메인 헤더
  * - 프로필: 로그인 상태면 드롭다운, 아니면 로그인 페이지로 이동
  * - 모바일 메뉴: 사이드 메뉴 열기
- * - 게시글, 언어 변경 버튼은 동작이 아직 정해지지 않아 디자인만 구현
+ * - 언어 변경: 언어 선택 드롭다운
+ * - 게시글 버튼은 동작이 아직 정해지지 않아 디자인만 구현
  */
 const MainHeader = ({ isSignedIn }: MainHeaderProps) => {
   const { t } = useLingui();
@@ -33,42 +34,7 @@ const MainHeader = ({ isSignedIn }: MainHeaderProps) => {
           </nav>
         </div>
         <div className="flex items-center gap-1 pc:gap-6">
-          <button
-            type="button"
-            aria-label={t`언어 변경`}
-            className="flex h-10 w-15.5 items-center justify-center pc:w-auto pc:border pc:border-line pc:bg-white pc:px-2.75"
-          >
-            <span className="flex h-7 w-13.5 items-center justify-center gap-1.25 rounded border border-line bg-white px-1.5 pc:contents">
-              <Image
-                src="/images/main/globe-mobile.svg"
-                alt=""
-                width={17}
-                height={17}
-                className="pc:hidden"
-              />
-              <Image
-                src="/images/main/chevron-down-mobile.svg"
-                alt=""
-                width={12}
-                height={12}
-                className="pc:hidden"
-              />
-              <Image
-                src="/images/main/globe.svg"
-                alt=""
-                width={19}
-                height={19}
-                className="hidden pc:block"
-              />
-              <Image
-                src="/images/main/chevron-down.svg"
-                alt=""
-                width={14}
-                height={14}
-                className="hidden pc:block"
-              />
-            </span>
-          </button>
+          <LanguageMenu />
           <ProfileMenu isSignedIn={isSignedIn} />
           <MobileMenu />
         </div>

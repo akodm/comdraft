@@ -2,11 +2,7 @@ import 'server-only';
 import { db } from '@/lib/db';
 import { githubRepository, userRepository } from '@/lib/db/schema';
 import { upsertInstallation } from '@/lib/github/installation';
-import {
-  hasRepositoryBranch,
-  pruneUntrackedBranchCommits,
-  syncRepositoryCommits,
-} from '@/lib/github/sync';
+import { hasRepositoryBranch } from '@/lib/github/commits';
 import {
   findUserInstallation,
   getGithubUserToken,
@@ -50,8 +46,9 @@ const findAccessibleRepository = async (
 };
 
 /**
- * 설치된 저장소 중 하나를 사용자의 추적 대상(저장소 + 브랜치)으로 등록하고 커밋 동기화
- * - 이미 등록한 저장소면 추적 브랜치만 바꾸고, 아무도 추적하지 않게 된 브랜치의 커밋은 삭제
+ * 설치된 저장소 중 하나를 사용자의 추적 대상(저장소 + 브랜치)으로 등록
+ * - 접근 권한과 브랜치 존재 여부만 확인하고 등록 (커밋은 저장하지 않고 필요할 때 GitHub 에서 조회)
+ * - 이미 등록한 저장소면 추적 브랜치만 변경
  */
 export const connectUserRepository = async ({
   userId,
@@ -132,13 +129,8 @@ export const connectUserRepository = async ({
         set: { branch: trackedBranch },
       });
 
-    await pruneUntrackedBranchCommits(tx, repositoryRow.id);
-
     return repositoryRow.id;
   });
-
-  // 브랜치별로 마지막 커밋 이후만 가져오므로 이미 동기화된 브랜치는 금방 끝남
-  await syncRepositoryCommits(repositoryId);
 
   revalidateLocalizedPath('/dashboard');
 

@@ -6,21 +6,19 @@ import {
   primaryKey,
   text,
   timestamp,
-  unique,
 } from 'drizzle-orm/pg-core';
 import { comdraftSchema } from '@/lib/db/pg-schema';
 import { user } from '@/lib/db/schema/auth';
 
 /**
- * GitHub App 저장소 권한/커밋 대시보드 테이블
+ * GitHub App 저장소 권한/추적 저장소 테이블
+ * - 커밋 내역(메시지, 작성자 등)은 보안상 저장하지 않고, 필요할 때마다 GitHub API 로 조회 (lib/github/commits.ts)
  *
  * - github_installation: GitHub App 설치 정보 (사용자/조직 계정 단위)
  *   → 어떤 사용자가 어떤 설치에 접근 가능한지는 저장하지 않고,
  *     매번 사용자 토큰으로 GitHub(GET /user/installations)에 확인해 GitHub 권한을 그대로 따름
  * - github_repository: 설치를 통해 접근 가능한 저장소 중 추적(대시보드화) 대상으로 등록된 저장소
  * - user_repository: 사용자별 대시보드에 등록한 저장소와 추적할 브랜치
- *   (같은 저장소·브랜치를 여러 사용자가 등록해도 커밋은 한 번만 저장)
- * - github_commit: 브랜치별로 동기화된 커밋 내역 (여러 브랜치에 포함된 커밋은 브랜치마다 저장)
  */
 
 export const githubInstallation = comdraftSchema.table('github_installation', {
@@ -65,8 +63,6 @@ export const githubRepository = comdraftSchema.table(
     isPrivate: boolean('is_private').notNull(),
     defaultBranch: text('default_branch').notNull(),
     htmlUrl: text('html_url').notNull(),
-    lastSyncedAt: timestamp('last_synced_at', { withTimezone: true }),
-    lastSyncError: text('last_sync_error'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -100,42 +96,6 @@ export const userRepository = comdraftSchema.table(
   ],
 );
 
-export const githubCommit = comdraftSchema.table(
-  'github_commit',
-  {
-    id: text('id').primaryKey(),
-    repositoryId: text('repository_id')
-      .notNull()
-      .references(() => githubRepository.id, { onDelete: 'cascade' }),
-    branch: text('branch').notNull(),
-    sha: text('sha').notNull(),
-    message: text('message').notNull(),
-    authorName: text('author_name'),
-    authorEmail: text('author_email'),
-    // GitHub 계정과 연결되지 않은 커밋(이메일 미등록 등)은 null
-    authorLogin: text('author_login'),
-    authorAvatarUrl: text('author_avatar_url'),
-    authoredAt: timestamp('authored_at', { withTimezone: true }),
-    committedAt: timestamp('committed_at', { withTimezone: true }).notNull(),
-    htmlUrl: text('html_url').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    unique('github_commit_repository_id_branch_sha_unique').on(
-      table.repositoryId,
-      table.branch,
-      table.sha,
-    ),
-    index('github_commit_repository_id_branch_committed_at_idx').on(
-      table.repositoryId,
-      table.branch,
-      table.committedAt,
-    ),
-  ],
-);
-
 export const githubInstallationRelations = relations(
   githubInstallation,
   ({ one, many }) => ({
@@ -154,7 +114,6 @@ export const githubRepositoryRelations = relations(
       fields: [githubRepository.installationId],
       references: [githubInstallation.id],
     }),
-    commits: many(githubCommit),
     users: many(userRepository),
   }),
 );
@@ -166,13 +125,6 @@ export const userRepositoryRelations = relations(userRepository, ({ one }) => ({
   }),
   repository: one(githubRepository, {
     fields: [userRepository.repositoryId],
-    references: [githubRepository.id],
-  }),
-}));
-
-export const githubCommitRelations = relations(githubCommit, ({ one }) => ({
-  repository: one(githubRepository, {
-    fields: [githubCommit.repositoryId],
     references: [githubRepository.id],
   }),
 }));
