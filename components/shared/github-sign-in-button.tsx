@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import Image from 'next/image';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocale } from '@/hooks/use-locale';
 import { signIn } from '@/lib/auth/client';
@@ -9,10 +10,16 @@ import { localizePath } from '@/lib/i18n/config';
 interface GithubSignInButtonProps {
   // 로케일 접두사 없는 경로 (현재 로케일을 붙여 이동)
   callbackURL?: string;
+  // 버튼 문구 (생략하면 "GitHub 로 시작하기")
+  children?: ReactNode;
+  // 버튼과 오류 문구를 감싸는 영역 (폭 지정용), 지정하지 않으면 문구 길이만큼
+  className?: string;
 }
 
 const GithubSignInButton = ({
   callbackURL = '/dashboard',
+  children,
+  className = '',
 }: GithubSignInButtonProps) => {
   const { t } = useLingui();
   const locale = useLocale();
@@ -39,21 +46,29 @@ const GithubSignInButton = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className={`flex flex-col gap-2 ${className}`}>
       <button
         type="button"
         onClick={handleSignIn}
         disabled={isPending}
-        className="rounded-md bg-black px-4 py-2 text-white disabled:opacity-50"
+        className="flex h-13 w-full items-center justify-center gap-2.5 rounded border border-ink bg-ink px-5.5 disabled:opacity-50"
       >
-        {isPending ? (
-          <Trans>GitHub 로 이동 중...</Trans>
-        ) : (
-          <Trans>GitHub 로 시작하기</Trans>
-        )}
+        <Image
+          src="/images/main/github-mark.svg"
+          alt=""
+          width={20}
+          height={20}
+        />
+        <span className="text-[14px] leading-[1.2] font-bold whitespace-nowrap text-white pc:text-[15px]">
+          {isPending ? (
+            <Trans>GitHub 로 이동 중...</Trans>
+          ) : (
+            (children ?? <Trans>GitHub 로 시작하기</Trans>)
+          )}
+        </span>
       </button>
       {errorMessage && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-[12px] leading-[1.6] text-danger">
           {errorMessage}
         </p>
       )}

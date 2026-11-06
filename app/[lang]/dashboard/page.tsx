@@ -1,5 +1,6 @@
 import { Plural, Trans } from '@lingui/react/macro';
 import StatusMessage from '@/components/dashboard/status-message';
+import PageLayout from '@/components/layout/page-layout';
 import LocalizedLink from '@/components/shared/localized-link';
 import SignOutButton from '@/components/shared/sign-out-button';
 import { requireSession } from '@/lib/auth/session';
@@ -23,7 +24,7 @@ export default async function DashboardPage({
   const userName = user.name;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 px-4 py-10">
+    <PageLayout className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-10">
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">
@@ -100,6 +101,6 @@ export default async function DashboardPage({
           </ul>
         )}
       </section>
-    </main>
+    </PageLayout>
   );
 }

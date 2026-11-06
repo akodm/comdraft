@@ -1,6 +1,7 @@
 'use client';
 
 import { Trans } from '@lingui/react/macro';
+import PageLayout from '@/components/layout/page-layout';
 
 interface ErrorPageProps {
   retry: () => void;
@@ -10,7 +11,7 @@ interface ErrorPageProps {
 // ([lang]/layout 안쪽에서 렌더링되므로 LinguiClientProvider 의 번역을 그대로 사용)
 const ErrorPage = ({ retry }: ErrorPageProps) => {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6">
+    <PageLayout className="flex flex-col items-center justify-center gap-6">
       <p role="alert" className="text-sm text-red-600">
         <Trans>요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.</Trans>
       </p>
@@ -21,7 +22,7 @@ const ErrorPage = ({ retry }: ErrorPageProps) => {
       >
         <Trans>다시 시도</Trans>
       </button>
-    </main>
+    </PageLayout>
   );
 };
 

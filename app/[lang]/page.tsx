@@ -1,3 +1,4 @@
+import PageLayout from '@/components/layout/page-layout';
 import DraftExampleSection from '@/components/main/draft-example-section';
 import HeroSection from '@/components/main/hero-section';
 import MainFooter from '@/components/main/main-footer';
@@ -13,15 +14,14 @@ export default async function Home() {
   const session = await getSession();
 
   return (
-    <>
-      <MainHeader isSignedIn={session !== null} />
-      <main>
-        <HeroSection />
-        <StepsSection />
-        <DraftExampleSection />
-        <NoticeSection />
-      </main>
-      <MainFooter />
-    </>
+    <PageLayout
+      header={<MainHeader isSignedIn={session !== null} />}
+      footer={<MainFooter />}
+    >
+      <HeroSection />
+      <StepsSection />
+      <DraftExampleSection />
+      <NoticeSection />
+    </PageLayout>
   );
 }

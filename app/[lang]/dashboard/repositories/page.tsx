@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { Trans } from '@lingui/react/macro';
 import StatusMessage from '@/components/dashboard/status-message';
+import PageLayout from '@/components/layout/page-layout';
 import GithubSignInButton from '@/components/shared/github-sign-in-button';
 import LocalizedLink from '@/components/shared/localized-link';
 import SubmitButton from '@/components/shared/submit-button';
@@ -92,7 +93,7 @@ export default async function RepositoriesPage({
   );
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 px-4 py-10">
+    <PageLayout className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-10">
       <header className="flex items-center justify-between">
         <div>
           <LocalizedLink href="/dashboard" className="text-sm text-gray-600">
@@ -238,6 +239,6 @@ export default async function RepositoriesPage({
           ))}
         </>
       )}
-    </main>
+    </PageLayout>
   );
 }

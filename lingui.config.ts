@@ -10,6 +10,7 @@ export default defineConfig({
   fallbackLocales: {
     default: DEFAULT_LOCALE,
   },
+  orderBy: 'messageId',
   catalogs: [
     {
       path: '<rootDir>/locales/{locale}',

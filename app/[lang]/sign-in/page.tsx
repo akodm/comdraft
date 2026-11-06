@@ -1,5 +1,10 @@
+import Image from 'next/image';
 import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
+import AuthIntro from '@/components/auth/auth-intro';
+import PageLayout from '@/components/layout/page-layout';
+import BrandLogo from '@/components/main/brand-logo';
+import MainFooter from '@/components/main/main-footer';
 import GithubSignInButton from '@/components/shared/github-sign-in-button';
 import LocalizedLink from '@/components/shared/localized-link';
 import { getSession } from '@/lib/auth/session';
@@ -41,29 +46,68 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const errorMessage = error ? ERROR_MESSAGES.get(error) : undefined;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6">
-      <h1 className="text-2xl font-bold">comdraft</h1>
-      <p className="text-sm text-gray-600">
-        <Trans>
-          GitHub 계정으로 회원가입/로그인합니다. 저장소 권한은 가입 후 별도로
-          연결합니다.
-        </Trans>
-      </p>
-      {error && (
-        <p role="alert" className="text-sm text-red-600">
-          {errorMessage ? (
-            i18n._(errorMessage)
-          ) : (
-            <Trans>로그인 중 문제가 발생했습니다. ({error})</Trans>
-          )}
-        </p>
-      )}
-      <GithubSignInButton />
-      {session && (
-        <LocalizedLink href="/dashboard" className="text-sm text-gray-600">
-          <Trans>대시보드로 돌아가기</Trans>
+    <PageLayout className="flex" footer={<MainFooter width="wide" />}>
+      <section className="relative flex min-h-140 w-full flex-col items-center justify-center px-5 pt-6 pb-22 pc:w-1/2 pc:px-0 pc:pb-0">
+        {/* PC 에서는 안내 영역 왼쪽 끝에 아이콘을 맞춤 (영역 폭 400px, 버튼 안쪽 여백 4px) */}
+        <LocalizedLink
+          href="/"
+          aria-label={i18n._(msg`홈으로 이동`)}
+          className="absolute top-3.75 left-2.75 flex size-8 items-center justify-center pc:top-37.75 pc:left-[calc(50%-204px)]"
+        >
+          <Image
+            src="/images/auth/home.svg"
+            alt=""
+            width={24}
+            height={24}
+            className="size-3.5 pc:size-6"
+          />
         </LocalizedLink>
-      )}
-    </main>
+        <div className="flex w-full max-w-100 flex-col gap-8 pc:gap-12">
+          <BrandLogo placement="auth" />
+          <div className="flex flex-col gap-4">
+            <h1 className="text-[26px] leading-[1.4] font-bold tracking-[-1px] text-ink pc:text-[36px] pc:tracking-[-1.4px]">
+              <Trans>회원가입 / 로그인</Trans>
+            </h1>
+            <p className="text-[14px] leading-[1.85] text-ink-muted pc:text-[16px]">
+              <Trans>Github 계정으로 시작하세요.</Trans>
+            </p>
+          </div>
+          <div className="flex flex-col gap-5">
+            {error && (
+              <p role="alert" className="text-[13px] leading-[1.6] text-danger">
+                {errorMessage ? (
+                  i18n._(errorMessage)
+                ) : (
+                  <Trans>로그인 중 문제가 발생했습니다. ({error})</Trans>
+                )}
+              </p>
+            )}
+            <GithubSignInButton className="w-full">
+              <Trans>Github 로 회원가입/로그인</Trans>
+            </GithubSignInButton>
+            {/* 약관 페이지가 아직 없어 텍스트로만 표시 */}
+            <p className="text-[10px] leading-[1.6] text-ink-faint pc:text-[12px] pc:leading-[1.9]">
+              <Trans>
+                계속하시면{' '}
+                <span className="text-ink-muted underline">이용약관</span> 및{' '}
+                <span className="text-ink-muted underline">
+                  개인정보처리방침
+                </span>
+                에 동의하게 됩니다.
+              </Trans>
+            </p>
+            {session && (
+              <LocalizedLink
+                href="/dashboard"
+                className="text-[13px] leading-[1.6] text-ink-muted underline"
+              >
+                <Trans>대시보드로 돌아가기</Trans>
+              </LocalizedLink>
+            )}
+          </div>
+        </div>
+      </section>
+      <AuthIntro />
+    </PageLayout>
   );
 }

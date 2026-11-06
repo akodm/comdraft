@@ -4,16 +4,28 @@ import BrandLogo from '@/components/main/brand-logo';
 // 개발자 연락처는 디자인의 예시 주소 (실제 주소가 정해지면 교체)
 const DEVELOPER_EMAIL = 'developer@example.com';
 
+// PC 콘텐츠 최대 폭 (wide: 회원가입/로그인처럼 좌우로 나뉜 화면)
+const WIDTH_CLASS = {
+  default: 'pc:max-w-7xl',
+  wide: 'pc:max-w-360',
+};
+
+interface MainFooterProps {
+  width?: keyof typeof WIDTH_CLASS;
+}
+
 /**
  * 메인 푸터
  * - 약관/문의 페이지가 아직 없어 메뉴는 텍스트로만 표시
  */
-const MainFooter = () => {
+const MainFooter = ({ width = 'default' }: MainFooterProps) => {
   const { t } = useLingui();
 
   return (
     <footer className="bg-ink px-5 py-10 pc:py-14">
-      <div className="flex flex-col gap-7 pc:mx-auto pc:max-w-7xl pc:gap-10">
+      <div
+        className={`flex flex-col gap-7 pc:mx-auto pc:gap-10 ${WIDTH_CLASS[width]}`}
+      >
         <div className="flex flex-col gap-7 pc:flex-row pc:items-start pc:justify-between">
           <BrandLogo tone="dark" placement="footer" />
           <nav aria-label={t`푸터 메뉴`}>
