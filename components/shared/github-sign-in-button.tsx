@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react';
 import Image from 'next/image';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { GITHUB_BUTTON_CLASS } from '@/components/shared/button-styles';
 import { useLocale } from '@/hooks/use-locale';
 import { signIn } from '@/lib/auth/client';
 import { localizePath } from '@/lib/i18n/config';
@@ -51,7 +52,7 @@ const GithubSignInButton = ({
         type="button"
         onClick={handleSignIn}
         disabled={isPending}
-        className="flex h-13 w-full items-center justify-center gap-2.5 rounded border border-ink bg-ink px-5.5 disabled:opacity-50"
+        className={`${GITHUB_BUTTON_CLASS} disabled:opacity-50`}
       >
         <Image
           src="/images/main/github-mark.svg"
@@ -59,7 +60,7 @@ const GithubSignInButton = ({
           width={20}
           height={20}
         />
-        <span className="text-[14px] leading-[1.2] font-bold whitespace-nowrap text-white pc:text-[15px]">
+        <span>
           {isPending ? (
             <Trans>GitHub 로 이동 중...</Trans>
           ) : (

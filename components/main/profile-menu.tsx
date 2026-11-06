@@ -4,6 +4,11 @@ import { useEffect, useId, useRef, useState } from 'react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Trans, useLingui } from '@lingui/react/macro';
+import {
+  DROPDOWN_ITEM_BASE_CLASS,
+  DROPDOWN_ITEM_CLASS,
+  DROPDOWN_PANEL_CLASS,
+} from '@/components/shared/dropdown-styles';
 import LocalizedLink from '@/components/shared/localized-link';
 import SignOutButton from '@/components/shared/sign-out-button';
 
@@ -15,10 +20,8 @@ const PROFILE_BUTTON_CLASS =
   'flex size-10 items-center justify-center rounded-full border border-line bg-white';
 
 // 드롭다운 항목 (첫 항목은 열릴 때 포커스되며 강조 표시)
-const MENU_ITEM_BASE_CLASS =
-  'block w-full px-3 py-2.5 text-left text-[13px] leading-4 whitespace-nowrap outline-none hover:bg-surface focus:bg-surface';
-const MENU_ITEM_CLASS = `${MENU_ITEM_BASE_CLASS} text-ink-muted hover:font-medium hover:text-ink focus:font-medium focus:text-ink`;
-const DANGER_MENU_ITEM_CLASS = `${MENU_ITEM_BASE_CLASS} text-danger`;
+const MENU_ITEM_CLASS = `${DROPDOWN_ITEM_CLASS} whitespace-nowrap`;
+const DANGER_MENU_ITEM_CLASS = `${DROPDOWN_ITEM_BASE_CLASS} whitespace-nowrap text-danger`;
 
 const ProfileIcon = () => {
   return (
@@ -124,7 +127,7 @@ const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
       {isOpen && (
         <div
           id={menuId}
-          className="absolute top-[calc(100%+8px)] right-0 z-20 flex w-60 flex-col gap-1 border border-line bg-white p-3"
+          className={`absolute top-[calc(100%+8px)] right-0 w-60 ${DROPDOWN_PANEL_CLASS}`}
         >
           <p className="text-[12px] leading-[1.2] font-bold whitespace-nowrap text-ink">
             <Trans>프로필 메뉴</Trans>

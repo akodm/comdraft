@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm';
-import { headers } from 'next/headers';
 import { Trans } from '@lingui/react/macro';
 import StatusMessage from '@/components/dashboard/status-message';
 import PageLayout from '@/components/layout/page-layout';
@@ -10,23 +9,12 @@ import { connectRepository } from '@/lib/actions/repositories';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { githubRepository, userRepository } from '@/lib/db/schema';
-import {
-  getGithubUserToken,
-  GithubUserTokenError,
-  listUserInstallationRepositories,
-  listUserInstallations,
-  type GithubUserInstallation,
-  type GithubUserRepository,
-} from '@/lib/github/user-api';
+import { type GithubUserInstallation } from '@/lib/github/user-api';
+import { loadUserInstallations } from '@/lib/github/user-installations';
 import { initLingui } from '@/lib/i18n/server';
 
 interface RepositoriesPageProps {
   searchParams: Promise<{ status?: string }>;
-}
-
-interface InstallationWithRepositories {
-  installation: GithubUserInstallation;
-  repositories: GithubUserRepository[];
 }
 
 // GitHub 의 설치 권한 관리 페이지 (저장소 추가/제거, 앱 삭제)
@@ -39,32 +27,6 @@ const getInstallationSettingsUrl = ({
     : `https://github.com/settings/installations/${id}`;
 };
 
-// 사용자 토큰으로 GitHub 에서 직접 조회 → 사용자가 실제 접근 가능한 설치/저장소만 노출
-const loadInstallations = async (userId: string) => {
-  try {
-    const token = await getGithubUserToken(userId, await headers());
-    const installations = await listUserInstallations(token);
-
-    const result: InstallationWithRepositories[] = await Promise.all(
-      installations.map(async (installation) => ({
-        installation,
-        repositories: await listUserInstallationRepositories(
-          token,
-          installation.id,
-        ),
-      })),
-    );
-
-    return { installations: result, needsReauth: false };
-  } catch (error) {
-    if (error instanceof GithubUserTokenError) {
-      return { installations: [], needsReauth: true };
-    }
-
-    throw error;
-  }
-};
-
 export default async function RepositoriesPage({
   searchParams,
 }: RepositoriesPageProps) {
@@ -74,7 +36,7 @@ export default async function RepositoriesPage({
 
   const [{ installations, needsReauth }, trackedRepositories] =
     await Promise.all([
-      loadInstallations(user.id),
+      loadUserInstallations(user.id),
       db
         .select({
           id: githubRepository.id,

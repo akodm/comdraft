@@ -42,8 +42,8 @@ export default async function RepositoryPage({
   }
 
   const { summary, activity, topAuthors, recentCommits } =
-    await getRepositoryStats(repository.id);
-  const defaultBranch = repository.defaultBranch;
+    await getRepositoryStats(repository.id, repository.branch);
+  const branch = repository.branch;
   const lastSyncedAt = formatDateTime(repository.lastSyncedAt, locale);
 
   return (
@@ -66,7 +66,7 @@ export default async function RepositoryPage({
               <p className="text-sm text-gray-600">{repository.description}</p>
             )}
             <p className="text-xs text-gray-500">
-              <Trans>기본 브랜치 {defaultBranch}</Trans> ·{' '}
+              <Trans>추적 브랜치 {branch}</Trans> ·{' '}
               <Trans>마지막 동기화 {lastSyncedAt}</Trans>
             </p>
           </div>

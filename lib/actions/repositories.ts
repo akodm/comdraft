@@ -9,22 +9,19 @@ import {
   githubRepository,
   userRepository,
 } from '@/lib/db/schema';
-import { upsertInstallation } from '@/lib/github/installation';
-import { syncRepositoryCommits } from '@/lib/github/sync';
+import { connectUserRepository } from '@/lib/github/repository-connection';
 import {
-  findUserInstallation,
+  pruneUntrackedBranchCommits,
+  syncRepositoryCommits,
+} from '@/lib/github/sync';
+import {
   getGithubUserToken,
   GithubApiError,
   GithubUserTokenError,
   listUserInstallationRepositories,
 } from '@/lib/github/user-api';
 import { localizedRedirect, revalidateLocalizedPath } from '@/lib/i18n/request';
-
-const parseId = (value: FormDataEntryValue | null) => {
-  const id = Number(value);
-
-  return Number.isSafeInteger(id) && id > 0 ? id : null;
-};
+import { parseGithubId } from '@/utils';
 
 // GitHub 토큰 만료 시 재로그인 안내 화면으로 이동
 const withGithubToken = async <T>(
@@ -44,11 +41,11 @@ const withGithubToken = async <T>(
   }
 };
 
-// 설치된 저장소 중 하나를 대시보드 추적 대상으로 등록하고 최초 커밋 동기화
+// 설치된 저장소 중 하나를 기본 브랜치 기준으로 대시보드 추적 대상에 등록하고 커밋 동기화
 export async function connectRepository(formData: FormData) {
   const { user } = await requireSession();
-  const installationId = parseId(formData.get('installationId'));
-  const githubRepoId = parseId(formData.get('githubRepoId'));
+  const installationId = parseGithubId(formData.get('installationId'));
+  const githubRepoId = parseGithubId(formData.get('githubRepoId'));
 
   if (!installationId || !githubRepoId) {
     return localizedRedirect(
@@ -56,70 +53,18 @@ export async function connectRepository(formData: FormData) {
     );
   }
 
-  // 사용자가 GitHub 상에서 해당 설치와 저장소에 실제로 접근 가능한지 확인
-  const verified = await withGithubToken(user.id, async (token) => {
-    const installation = await findUserInstallation(token, installationId);
-
-    if (!installation) {
-      return null;
-    }
-
-    const repositories = await listUserInstallationRepositories(
-      token,
-      installationId,
-    );
-    const repository = repositories.find(({ id }) => id === githubRepoId);
-
-    return repository ? { installation, repository } : null;
+  const result = await connectUserRepository({
+    userId: user.id,
+    requestHeaders: await headers(),
+    installationId,
+    githubRepoId,
   });
 
-  if (!verified) {
-    return localizedRedirect(
-      '/dashboard/repositories?status=invalid_repository',
-    );
+  if (result.status !== 'connected') {
+    return localizedRedirect(`/dashboard/repositories?status=${result.status}`);
   }
 
-  const { installation, repository } = verified;
-  const installationRow = await upsertInstallation(installation, user.id);
-
-  const metadata = {
-    installationId: installationRow.id,
-    ownerLogin: repository.owner.login,
-    name: repository.name,
-    fullName: repository.full_name,
-    description: repository.description,
-    isPrivate: repository.private,
-    defaultBranch: repository.default_branch,
-    htmlUrl: repository.html_url,
-  };
-
-  const [repositoryRow] = await db
-    .insert(githubRepository)
-    .values({
-      id: crypto.randomUUID(),
-      githubRepoId: repository.id,
-      ...metadata,
-    })
-    .onConflictDoUpdate({
-      target: githubRepository.githubRepoId,
-      set: metadata,
-    })
-    .returning({
-      id: githubRepository.id,
-      lastSyncedAt: githubRepository.lastSyncedAt,
-    });
-
-  await db
-    .insert(userRepository)
-    .values({ userId: user.id, repositoryId: repositoryRow.id })
-    .onConflictDoNothing();
-
-  if (!repositoryRow.lastSyncedAt) {
-    await syncRepositoryCommits(repositoryRow.id);
-  }
-
-  revalidateLocalizedPath('/dashboard');
-  await localizedRedirect(`/dashboard/repositories/${repositoryRow.id}`);
+  await localizedRedirect(`/dashboard/repositories/${result.repositoryId}`);
 }
 
 // 사용자가 등록한 저장소인지 확인 후 반환
@@ -189,7 +134,8 @@ export async function syncRepository(formData: FormData) {
   revalidateLocalizedPath(`/dashboard/repositories/${repositoryId}`);
 }
 
-// 대시보드에서 저장소 제거 (다른 사용자가 등록하지 않은 저장소면 커밋 데이터까지 삭제)
+// 대시보드에서 저장소 제거
+// (다른 사용자가 등록하지 않은 저장소면 커밋 데이터까지, 남은 사용자가 있으면 내가 추적하던 브랜치의 커밋만 삭제)
 export async function disconnectRepository(formData: FormData) {
   const { user } = await requireSession();
   const repositoryId = String(formData.get('repositoryId') ?? '');
@@ -219,6 +165,8 @@ export async function disconnectRepository(formData: FormData) {
       await tx
         .delete(githubRepository)
         .where(eq(githubRepository.id, repositoryId));
+    } else {
+      await pruneUntrackedBranchCommits(tx, repositoryId);
     }
   });
 

@@ -1,49 +1,31 @@
 'use client';
 
 import Image from 'next/image';
-import {
-  motion,
-  useReducedMotion,
-  type TargetAndTransition,
-  type Transition,
-} from 'motion/react';
+import { motion, type TargetAndTransition } from 'motion/react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { SAMPLE_COMMITS } from '@/components/main/sample-commits';
+import {
+  arrowNudge,
+  commitPulse,
+  draftLift,
+  loop,
+  useSampleAnimate,
+} from '@/components/shared/sample-motion';
 
 // 커밋 선택 → 변환 → 초안 → 내보내기 순으로 한 번씩 강조하는 6초 반복 타임라인
-const loop = (times: number[]): Transition => ({
-  duration: 6,
-  times,
-  ease: 'easeInOut',
-  repeat: Infinity,
-});
-
-// 커밋 카드가 위에서부터 차례로 오른쪽으로 밀렸다 돌아옴 (SAMPLE_COMMITS 순서)
-const COMMIT_PULSE_TIMES = [
+// 커밋 카드는 위에서부터 차례로 강조 (SAMPLE_COMMITS 순서)
+const COMMIT_PULSES = [
   [0, 0.05, 0.1, 0.175, 1],
   [0, 0.1583, 0.2083, 0.2833, 1],
   [0, 0.2667, 0.3167, 0.3917, 1],
-];
+].map((times) => commitPulse(loop(times)));
 
-const commitPulse = (times: number[]): TargetAndTransition => ({
-  x: [0, 0, 4, 0, 0],
-  opacity: [1, 1, 0.55, 1, 1],
-  transition: loop(times),
-});
+const ARROW_NUDGE = arrowNudge(loop([0, 0.3167, 0.3833, 0.45, 1]));
 
-const ARROW_NUDGE: TargetAndTransition = {
-  y: [0, 0, 4, 0, 0],
-  transition: loop([0, 0.3167, 0.3833, 0.45, 1]),
-};
-
-const DRAFT_LIFT: TargetAndTransition = {
-  y: [0, 0, -4, 0, 0],
-  opacity: [1, 0.78, 1, 1],
-  transition: {
-    y: loop([0, 0.4, 0.5167, 0.6667, 1]),
-    opacity: loop([0, 0.4, 0.5167, 1]),
-  },
-};
+const DRAFT_LIFT = draftLift(
+  loop([0, 0.4, 0.5167, 0.6667, 1]),
+  loop([0, 0.4, 0.5167, 1]),
+);
 
 const FORMATS_BLINK: TargetAndTransition = {
   opacity: [1, 1, 0.6, 1, 1],
@@ -60,9 +42,7 @@ const FORMAT_CLASS =
  */
 const CommitToDraftMotion = () => {
   const { i18n } = useLingui();
-  const shouldReduceMotion = useReducedMotion();
-  const animate = (target: TargetAndTransition) =>
-    shouldReduceMotion ? undefined : target;
+  const animate = useSampleAnimate();
 
   return (
     <div className="flex w-full flex-col overflow-hidden border border-line">
@@ -79,7 +59,7 @@ const CommitToDraftMotion = () => {
           {SAMPLE_COMMITS.map((commit, index) => (
             <motion.li
               key={commit.hash}
-              animate={animate(commitPulse(COMMIT_PULSE_TIMES[index]))}
+              animate={animate(COMMIT_PULSES[index])}
               className="flex h-13 items-center gap-3.5 border-t border-line-dark"
             >
               <Image

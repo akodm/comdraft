@@ -3,8 +3,8 @@
 import LocaleSwitcher from '@/components/shared/locale-switcher';
 import { useLocalizedPathname } from '@/hooks/use-localized-pathname';
 
-// 메인: 헤더의 언어 변경 버튼과 겹침, 회원가입/로그인: 디자인에 언어 전환이 없음
-const HIDDEN_PATHS = new Set(['/', '/sign-in']);
+// 메인: 헤더의 언어 변경 버튼과 겹침, 회원가입/로그인 · 온보딩: 디자인에 언어 전환이 없음
+const HIDDEN_PATHS = new Set(['/', '/sign-in', '/onboarding']);
 
 // 화면 우측 상단에 고정된 언어 전환 링크
 const FloatingLocaleSwitcher = () => {

@@ -17,6 +17,7 @@ import { getRequestLocale } from '@/lib/i18n/request';
  * - setup_action=request: 조직 소유자 승인 대기
  * 어떤 경우든 installation_id 는 위조 가능하므로 사용자 토큰으로 GitHub 에 접근 권한을 재확인
  * GitHub 에 등록된 주소라 로케일 접두사 없이 유지하고, 이동할 페이지는 마지막 방문 로케일 쿠키 기준으로 결정
+ * 온보딩 중인 사용자는 저장소 관리 화면 대신 온보딩 화면(저장소 선택 단계)으로 돌려보냄
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -30,28 +31,29 @@ export async function GET(request: NextRequest) {
     return redirectTo('/sign-in');
   }
 
-  if (!session.user.onboardedAt) {
-    return redirectTo('/onboarding');
-  }
+  const isOnboarding = !session.user.onboardedAt;
+  const basePath = isOnboarding ? '/onboarding' : '/dashboard/repositories';
+  const redirectWithStatus = (status: string) =>
+    redirectTo(`${basePath}?status=${status}`);
 
   const setupAction = searchParams.get('setup_action');
 
   if (setupAction === 'request') {
-    return redirectTo('/dashboard/repositories?status=requested');
+    return redirectWithStatus('requested');
   }
 
   if (setupAction === 'install') {
     const isValidState = await consumeInstallState(searchParams.get('state'));
 
     if (!isValidState) {
-      return redirectTo('/dashboard/repositories?status=invalid_state');
+      return redirectWithStatus('invalid_state');
     }
   }
 
   const installationId = Number(searchParams.get('installation_id'));
 
   if (!Number.isSafeInteger(installationId) || installationId <= 0) {
-    return redirectTo('/dashboard/repositories?status=invalid_installation');
+    return redirectWithStatus('invalid_installation');
   }
 
   try {
@@ -59,19 +61,22 @@ export async function GET(request: NextRequest) {
     const installation = await findUserInstallation(token, installationId);
 
     if (!installation) {
-      return redirectTo('/dashboard/repositories?status=invalid_installation');
+      return redirectWithStatus('invalid_installation');
     }
 
     await upsertInstallation(installation, session.user.id);
   } catch (error) {
     if (error instanceof GithubUserTokenError) {
-      return redirectTo('/dashboard/repositories?status=github_reauth');
+      // 온보딩 화면은 GitHub 토큰 없이 진행할 수 없으므로 재로그인 화면으로 보냄
+      return isOnboarding
+        ? redirectTo('/sign-in?error=github_reauth')
+        : redirectWithStatus('github_reauth');
     }
 
     throw error;
   }
 
-  return redirectTo(
-    `/dashboard/repositories?status=installed&installation=${installationId}`,
-  );
+  return isOnboarding
+    ? redirectTo('/onboarding')
+    : redirectWithStatus(`installed&installation=${installationId}`);
 }

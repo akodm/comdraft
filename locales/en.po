@@ -7,534 +7,610 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
-#: app/[lang]/dashboard/page.tsx:88
-msgid "{commitCount, plural, other {커밋 #개}}"
-msgstr "{commitCount, plural, one {# commit} other {# commits}}"
+#: app/[lang]/sign-in/page.tsx:87
+msgid "Github 로 회원가입/로그인"
+msgstr "Sign up / Sign in with GitHub"
 
-#: components/main/sample-commit-panel.tsx:17
-msgid "{commitCount}개 선택"
-msgstr "{commitCount} selected"
+#: components/main/mobile-menu.tsx:105
+msgid "메뉴 열기"
+msgstr "Open menu"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:170
-msgid "{commits, plural, other {#개}}"
-msgstr "{commits, plural, one {# commit} other {# commits}}"
+#: components/onboarding/repository-step.tsx:116
+msgid "브랜치명"
+msgstr "Branch name"
 
-#: components/dashboard/commit-activity.tsx:20
-msgid "{day}: {commits, plural, other {#개}}"
-msgstr "{day}: {commits, plural, one {# commit} other {# commits}}"
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:76
+msgid "동기화 중..."
+msgstr "Syncing..."
 
-#: app/[lang]/onboarding/page.tsx:18
-msgid "{userName} 님, 환영합니다"
-msgstr "Welcome, {userName}"
-
-#: app/[lang]/dashboard/page.tsx:31
-msgid "{userName} 님의 대시보드"
-msgstr "{userName}'s dashboard"
-
-#: components/main/main-footer.tsx:54
-msgid "© 2026 comdraft. All rights reserved."
-msgstr "© 2026 comdraft. All rights reserved."
-
-#: components/auth/commit-to-draft-motion.tsx:131
-#: components/main/hero-preview.tsx:80
-msgid "AI 초안 · 게시 전 검토 필요"
-msgstr "AI draft · Review before publishing"
-
-#: components/main/steps-section.tsx:15
-msgid "AI 초안 작성"
-msgstr "Write an AI draft"
-
-#: components/main/sample-draft-editor.tsx:117
-msgid "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게시하세요."
-msgstr "This draft was written by AI. Review the code and explanations before publishing."
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:77
+msgid "동기화"
+msgstr "Sync"
 
 #: components/main/sample-commits.ts:21
 msgid "cleanup에서 disconnect() 호출"
 msgstr "Call disconnect() in cleanup"
 
-#: components/main/hero-preview.tsx:49
-#: components/main/sample-commits.ts:7
-msgid "feat: 이미지 지연 로딩 적용"
-msgstr "feat: apply lazy image loading"
-
-#: components/main/sample-commits.ts:19
-msgid "fix: 언마운트 시 observer 해제"
-msgstr "fix: disconnect observer on unmount"
-
-#: components/dashboard/status-message.tsx:16
-msgid "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
-msgstr "The GitHub App has been installed. Choose the repositories to add to your dashboard."
-
-#: components/main/hero-section.tsx:19
-msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
-msgstr "Turn your GitHub commits into tech blog drafts, <0/>then polish and publish them anywhere."
-
-#: components/main/steps-section.tsx:8
-msgid "Github 계정으로 로그인합니다"
-msgstr "Sign in with your GitHub account."
-
-#: app/[lang]/sign-in/page.tsx:72
-msgid "Github 계정으로 시작하세요."
-msgstr "Get started with your GitHub account."
-
-#: components/shared/github-sign-in-button.tsx:66
-msgid "GitHub 로 시작하기"
-msgstr "Continue with GitHub"
-
-#: components/shared/github-sign-in-button.tsx:64
-msgid "GitHub 로 이동 중..."
-msgstr "Redirecting to GitHub..."
-
-#: app/[lang]/sign-in/page.tsx:86
-msgid "Github 로 회원가입/로그인"
-msgstr "Sign up / Sign in with GitHub"
-
-#: components/shared/github-sign-in-button.tsx:43
-msgid "GitHub 로그인에 실패했습니다."
-msgstr "GitHub sign-in failed."
-
-#: app/[lang]/sign-in/page.tsx:24
-msgid "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 기본 이메일의 인증 여부를 확인한 뒤 다시 시도해주세요."
-msgstr "We couldn't find a verified email on GitHub. Make sure your primary GitHub email is verified, then try again."
+#: components/main/notice-section.tsx:9
+msgid "커밋 내 코드를 사이트 어디에도 저장하지 않습니다."
+msgstr "Code in your commits is never stored anywhere on the site."
 
 #: components/main/steps-section.tsx:7
 msgid "Github 연결"
 msgstr "Connect GitHub"
 
-#: app/[lang]/sign-in/page.tsx:20
-msgid "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
-msgstr "We didn't receive your email address from GitHub. Make sure you granted the GitHub app access to your email, then try again."
+#: components/main/hero-preview.tsx:72
+#: components/onboarding/draft-example.tsx:109
+msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
+msgstr "Images now load starting with the ones on screen. This post covers how it was implemented and what to check."
 
-#: app/[lang]/sign-in/page.tsx:28
-msgid "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
-msgstr "The GitHub sign-in request has expired or is invalid. Please try again."
+#: components/onboarding/onboarding-flow.tsx:40
+msgid "대시보드로 이동"
+msgstr "Go to dashboard"
 
-#: app/[lang]/dashboard/repositories/page.tsx:120
-msgid "GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올 수 있습니다."
-msgstr "Your GitHub authorization has expired. Sign in again to load your repositories."
+#: components/main/draft-example-section.tsx:12
+msgid "기술 개발 블로그 습관"
+msgstr "A tech blogging habit"
 
-#: app/[lang]/dashboard/repositories/page.tsx:111
-msgid "GitHub 저장소 권한 부여"
-msgstr "Grant GitHub repository access"
+#: components/main/main-header.tsx:38
+msgid "언어 변경"
+msgstr "Change language"
 
-#: components/main/hero-section.tsx:38
-msgid "GitHub로 시작하기"
-msgstr "Get started with GitHub"
-
-#: components/auth/commit-to-draft-motion.tsx:135
-#: components/main/hero-preview.tsx:69
-#: components/main/sample-draft-editor.tsx:94
-msgid "IntersectionObserver로 이미지 지연 로딩 구현하기"
-msgstr "Implementing lazy image loading with IntersectionObserver"
-
-#: components/main/sample-draft-editor.tsx:13
-msgid "IntersectionObserver로 이미지의 화면 진입을 감지합니다. 관찰 로직은 useLazyImage 훅으로 분리하고, 컴포넌트가 언마운트되면 observer를 해제하도록 정리했습니다."
-msgstr "IntersectionObserver detects when an image enters the viewport. The observing logic lives in a useLazyImage hook, and the observer is disconnected when the component unmounts."
+#: app/[lang]/sign-in/page.tsx:82
+msgid "로그인 중 문제가 발생했습니다. ({error})"
+msgstr "Something went wrong while signing in. ({error})"
 
 #: components/main/sample-commits.ts:9
 msgid "IntersectionObserver로 화면 진입 감지"
 msgstr "Detect viewport entry with IntersectionObserver"
 
-#: components/main/sample-commits.ts:13
-msgid "refactor: 이미지 로딩 훅 분리"
-msgstr "refactor: extract image loading hook"
+#: components/main/profile-menu.tsx:159
+msgid "회원탈퇴"
+msgstr "Delete account"
 
-#: components/main/draft-example-section.tsx:15
-msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
-msgstr "Start simply, generate drafts, and keep writing consistently."
+#: components/auth/commit-to-draft-motion.tsx:118
+msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 구현 과정과 관찰 로직을 정리하고, 게시 전 확인할 점을 살펴봅니다."
+msgstr "Images now load as they enter the viewport. This post covers the implementation and observer logic, and what to check before publishing."
 
-#: components/main/main-footer.tsx:46
-msgid "개발자 이메일 · 예시 주소"
-msgstr "Developer email · Example address"
+#: app/[lang]/sign-in/page.tsx:28
+msgid "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
+msgstr "The GitHub sign-in request has expired or is invalid. Please try again."
 
-#: app/[lang]/dashboard/repositories/page.tsx:153
-msgid "개인"
-msgstr "Personal"
+#: components/onboarding/repository-select.tsx:180
+msgid "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저장소 권한 추가하기</0>"
+msgstr "No repositories available. <0>Add repository access in the GitHub App</0>"
 
-#: components/auth/commit-to-draft-motion.tsx:75
-#: components/main/sample-commit-panel.tsx:33
-msgid "개인 공개 저장소 · main"
-msgstr "Personal public repository · main"
-
-#: components/main/main-footer.tsx:34
-msgid "개인정보처리방침"
-msgstr "Privacy Policy"
+#: components/onboarding/complete-step.tsx:41
+msgid "작성 하러 가기"
+msgstr "Start writing"
 
 #: components/main/sample-draft-editor.tsx:64
 msgid "검토 전 초안"
 msgstr "Draft awaiting review"
 
-#: components/main/steps-section.tsx:19
-msgid "검토 후 게시 및 내보내기"
-msgstr "Review, publish, and export"
+#: components/onboarding/draft-example.tsx:38
+msgid "작성 예시"
+msgstr "Example"
+
+#: components/auth/commit-to-draft-motion.tsx:108
+#: components/main/hero-preview.tsx:25
+#: components/onboarding/draft-example.tsx:99
+msgid "새 초안"
+msgstr "New draft"
+
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:113
+msgid "기여자"
+msgstr "Contributors"
+
+#: components/main/notice-section.tsx:8
+msgid "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
+msgstr "Do not send commits that contain sensitive code."
+
+#: app/[lang]/sign-in/page.tsx:20
+msgid "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
+msgstr "We didn't receive your email address from GitHub. Make sure you granted the GitHub app access to your email, then try again."
+
+#: components/onboarding/complete-step.tsx:16
+msgid "첫 저장소 연동이<0/>완료되었습니다."
+msgstr "Your first repository<0/>is connected."
+
+#: components/main/draft-example-section.tsx:15
+msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
+msgstr "Start simply, generate drafts, and keep writing consistently."
+
+#: components/dashboard/status-message.tsx:37
+msgid "접근 권한이 없는 GitHub App 설치입니다."
+msgstr "You don't have access to this GitHub App installation."
+
+#: components/main/sample-draft-editor.tsx:12
+msgid "어떻게 구현했나요?"
+msgstr "How was it implemented?"
+
+#: components/main/main-footer.tsx:46
+msgid "개발자 이메일 · 예시 주소"
+msgstr "Developer email · Example address"
+
+#: components/main/mobile-menu.tsx:132
+msgid "메뉴"
+msgstr "Menu"
 
 #: components/main/main-header.tsx:31
 #: components/main/mobile-menu.tsx:162
 msgid "게시글"
 msgstr "Posts"
 
-#: components/auth/commit-to-draft-motion.tsx:161
-#: components/main/sample-draft-editor.tsx:81
-msgid "게시하기"
-msgstr "Publish"
+#: components/shared/locale-switcher.tsx:19
+msgid "언어 선택"
+msgstr "Choose language"
 
-#: app/[lang]/sign-in/page.tsx:90
-msgid "계속하시면 <0>이용약관</0> 및 <1>개인정보처리방침</1>에 동의하게 됩니다."
-msgstr "By continuing, you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
+#: components/main/profile-menu.tsx:119
+#: components/main/profile-menu.tsx:133
+msgid "프로필 메뉴"
+msgstr "Profile menu"
 
-#: components/main/profile-menu.tsx:146
-msgid "계정"
-msgstr "Account"
-
-#: components/main/sample-commits.ts:15
-msgid "관찰 로직을 재사용 가능한 훅으로 분리"
-msgstr "Extract the observing logic into a reusable hook"
+#: components/onboarding/repository-select.tsx:166
+msgid "저장소를 선택하세요"
+msgstr "Select a repository"
 
 #: app/[lang]/dashboard/repositories/page.tsx:174
-msgid "권한 설정 변경"
-msgstr "Change access settings"
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:69
-msgid "기본 브랜치 {defaultBranch}"
-msgstr "Default branch {defaultBranch}"
-
-#: components/main/draft-example-section.tsx:12
-msgid "기술 개발 블로그 습관"
-msgstr "A tech blogging habit"
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:113
-msgid "기여자"
-msgstr "Contributors"
-
-#: components/main/notice-section.tsx:26
-msgid "꼭 확인하세요"
-msgstr "Please read first"
-
-#: components/auth/commit-to-draft-motion.tsx:145
-msgid "다듬고, 검토한 뒤 어디든."
-msgstr "Refine, review, publish anywhere."
-
-#: app/[lang]/error.tsx:23
-msgid "다시 시도"
-msgstr "Try again"
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:53
-#: app/[lang]/dashboard/repositories/page.tsx:100
-#: components/main/profile-menu.tsx:140
-msgid "대시보드"
-msgstr "Dashboard"
-
-#: app/[lang]/dashboard/repositories/page.tsx:212
 msgid "대시보드 보기"
 msgstr "View dashboard"
-
-#: app/[lang]/sign-in/page.tsx:104
-msgid "대시보드로 돌아가기"
-msgstr "Back to dashboard"
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:77
-msgid "동기화"
-msgstr "Sync"
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:76
-msgid "동기화 중..."
-msgstr "Syncing..."
-
-#: components/shared/sign-out-button.tsx:29
-msgid "로그아웃"
-msgstr "Sign out"
-
-#: components/main/profile-menu.tsx:93
-msgid "로그인"
-msgstr "Sign in"
-
-#: app/[lang]/sign-in/page.tsx:81
-msgid "로그인 중 문제가 발생했습니다. ({error})"
-msgstr "Something went wrong while signing in. ({error})"
-
-#: app/[lang]/dashboard/page.tsx:90
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:70
-msgid "마지막 동기화 {lastSyncedAt}"
-msgstr "Last synced {lastSyncedAt}"
-
-#: components/main/mobile-menu.tsx:132
-msgid "메뉴"
-msgstr "Menu"
-
-#: components/main/mobile-menu.tsx:138
-msgid "메뉴 닫기"
-msgstr "Close menu"
-
-#: components/main/mobile-menu.tsx:105
-msgid "메뉴 열기"
-msgstr "Open menu"
-
-#: app/[lang]/dashboard/repositories/page.tsx:157
-msgid "모든 저장소"
-msgstr "All repositories"
-
-#: components/main/sample-draft-editor.tsx:16
-msgid "무엇을 확인할까요?"
-msgstr "What should you check?"
-
-#: components/main/main-footer.tsx:40
-msgid "문의하기"
-msgstr "Contact"
-
-#: components/main/notice-section.tsx:8
-msgid "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
-msgstr "Do not send commits that contain sensitive code."
 
 #: components/main/steps-section.tsx:32
 msgid "바로 시작해보세요."
 msgstr "Get started right away."
 
-#: components/main/steps-section.tsx:20
-msgid "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
-msgstr "Publish it on the site, or export it to use anywhere else."
+#: app/[lang]/error.tsx:23
+msgid "다시 시도"
+msgstr "Try again"
 
-#: components/auth/commit-to-draft-motion.tsx:128
-#: components/main/hero-preview.tsx:25
-msgid "새 초안"
-msgstr "New draft"
+#: components/shared/sign-out-button.tsx:29
+msgid "로그아웃"
+msgstr "Sign out"
 
-#: components/main/draft-example-section.tsx:26
-msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
-msgstr "A sample repository and draft to show how the service works."
-
-#: app/[lang]/dashboard/repositories/page.tsx:159
-msgid "선택한 저장소"
-msgstr "Selected repositories"
-
-#: components/main/sample-commit-panel.tsx:14
-msgid "선택한 커밋"
-msgstr "Selected commits"
-
-#: components/auth/commit-to-draft-motion.tsx:119
-msgid "선택한 커밋을 AI 초안으로"
-msgstr "Selected commits into an AI draft"
-
-#: components/dashboard/status-message.tsx:30
-msgid "설치 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
-msgstr "The installation request has expired or is invalid. Please try again."
-
-#: components/main/sample-draft-editor.tsx:17
-msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
-msgstr "Check that images appear correctly while scrolling and that observers are cleaned up once they leave the viewport. Actual performance gains need to be measured separately."
-
-#: app/[lang]/onboarding/page.tsx:22
-msgid "시작하기"
-msgstr "Get started"
-
-#: app/[lang]/dashboard/repositories/page.tsx:131
-msgid "아직 GitHub App 이 설치된 계정이 없습니다. 상단의 \"GitHub 저장소 권한 부여\" 버튼으로 커밋을 가져올 저장소를 선택해주세요."
-msgstr "No account has the GitHub App installed yet. Use the \"Grant GitHub repository access\" button above to choose the repositories to import commits from."
-
-#: app/[lang]/dashboard/page.tsx:55
-msgid "아직 등록된 저장소가 없습니다. GitHub App 으로 저장소 권한을 부여하고 저장소를 추가해주세요."
-msgstr "No repositories yet. Grant repository access with the GitHub App, then add a repository."
-
-#: components/main/sample-draft-editor.tsx:12
-msgid "어떻게 구현했나요?"
-msgstr "How was it implemented?"
-
-#: components/main/main-header.tsx:38
-msgid "언어 변경"
-msgstr "Change language"
-
-#: components/shared/locale-switcher.tsx:19
-msgid "언어 선택"
-msgstr "Choose language"
-
-#: components/main/draft-example-section.tsx:23
-msgid "예시"
-msgstr "Example"
-
-#: components/main/sample-draft-editor.tsx:8
-msgid "왜 바꿨나요?"
-msgstr "Why the change?"
-
-#: app/[lang]/error.tsx:16
-msgid "요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요."
-msgstr "We couldn't process your request. Please try again in a moment."
-
-#: components/main/sample-commit-panel.tsx:83
-msgid "이 기록을 하나의 글로 정리"
-msgstr "Turn this history into one post"
-
-#: components/dashboard/status-message.tsx:51
-msgid "이 저장소에 대한 GitHub 접근 권한이 해제되어 동기화할 수 없습니다."
-msgstr "GitHub access to this repository has been revoked, so it can't be synced."
-
-#: components/main/sample-draft-editor.tsx:90
-msgid "이미지 최적화"
-msgstr "Image optimization"
-
-#: components/main/main-footer.tsx:37
-msgid "이용약관"
-msgstr "Terms of Service"
-
-#: app/[lang]/dashboard/repositories/page.tsx:164
-msgid "일시 중지됨"
-msgstr "Suspended"
-
-#: components/main/hero-preview.tsx:29
-msgid "작성 화면 예시"
-msgstr "Editor preview"
-
-#: components/auth/auth-intro.tsx:11
-#: components/main/hero-section.tsx:13
-msgid "작업 과정을 <0>글 초안으로.</0>"
-msgstr "Turn your work <0>into drafts.</0>"
-
-#: components/auth/auth-intro.tsx:16
-msgid "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
-msgstr "Turn your work into tech blog drafts and publish them anywhere."
-
-#: app/[lang]/dashboard/page.tsx:49
-#: app/[lang]/dashboard/repositories/page.tsx:103
-msgid "저장소 추가"
-msgstr "Add repository"
-
-#: components/main/steps-section.tsx:11
-msgid "저장소/커밋 내역"
-msgstr "Repositories & commits"
-
-#: components/main/steps-section.tsx:12
-msgid "저장소의 커밋 내역을 불러오고 선택합니다."
-msgstr "Load your repository's commit history and pick commits."
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:108
-msgid "전체 커밋"
-msgstr "Total commits"
-
-#: app/[lang]/dashboard/repositories/page.tsx:180
-msgid "접근 가능한 저장소가 없습니다."
-msgstr "No accessible repositories."
-
-#: components/dashboard/status-message.tsx:44
-msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
-msgstr "You don't have access to this repository, or it isn't part of the installation."
-
-#: components/dashboard/status-message.tsx:37
-msgid "접근 권한이 없는 GitHub App 설치입니다."
-msgstr "You don't have access to this GitHub App installation."
-
-#: components/main/notice-section.tsx:7
-msgid "제 3자인 LLM API 에 코드가 보내집니다. 조직 및 비공개 저장소는 권하지 않습니다."
-msgstr "Your code is sent to a third-party LLM API. We do not recommend using organization or private repositories."
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:86
-msgid "제거"
-msgstr "Remove"
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:83
-msgid "제거 중..."
-msgstr "Removing..."
-
-#: app/[lang]/dashboard/repositories/page.tsx:151
-msgid "조직"
-msgstr "Organization"
-
-#: components/dashboard/status-message.tsx:23
-msgid "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
-msgstr "We've asked the organization owner to approve the installation. You can choose repositories once it's approved."
+#: components/auth/commit-to-draft-motion.tsx:115
+#: components/main/hero-preview.tsx:69
+#: components/main/sample-draft-editor.tsx:94
+#: components/onboarding/draft-example.tsx:106
+msgid "IntersectionObserver로 이미지 지연 로딩 구현하기"
+msgstr "Implementing lazy image loading with IntersectionObserver"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:143
 msgid "주요 기여자"
 msgstr "Top contributors"
 
-#: components/main/main-header.tsx:26
-#: components/main/mobile-menu.tsx:152
-msgid "주요 메뉴"
-msgstr "Main menu"
+#: components/onboarding/complete-step.tsx:33
+msgid "지금 바로 AI 초안을 작성해보세요."
+msgstr "Write your first AI draft now."
 
-#: app/[lang]/onboarding/page.tsx:21
-msgid "처리 중..."
-msgstr "Processing..."
+#: components/main/mobile-menu.tsx:138
+msgid "메뉴 닫기"
+msgstr "Close menu"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:118
-msgid "첫 커밋"
-msgstr "First commit"
+#: components/main/sample-draft-editor.tsx:9
+msgid "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
+msgstr "Instead of requesting every image at once, including off-screen ones, images now load as they enter the viewport."
 
-#: components/main/sample-draft-editor.tsx:61
-msgid "초안 편집기"
-msgstr "Draft editor"
-
-#: components/main/notice-section.tsx:29
-msgid "초안을 만들기 전 반드시 확인해주세요."
-msgstr "Please check these before creating a draft."
-
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:136
-msgid "최근 30일 커밋"
-msgstr "Commits in the last 30 days"
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:69
+msgid "추적 브랜치 {branch}"
+msgstr "Tracked branch {branch}"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:123
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:181
 msgid "최근 커밋"
 msgstr "Latest commit"
 
+#: app/[lang]/sign-in/page.tsx:70
+msgid "회원가입 / 로그인"
+msgstr "Sign up / Sign in"
+
+#: components/auth/auth-intro.tsx:11
+#: components/main/hero-section.tsx:13
+msgid "작업 과정을 <0>글 초안으로.</0>"
+msgstr "Turn your work <0>into drafts.</0>"
+
+#: components/main/sample-draft-editor.tsx:117
+msgid "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게시하세요."
+msgstr "This draft was written by AI. Review the code and explanations before publishing."
+
+#: components/main/sample-draft-editor.tsx:17
+msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
+msgstr "Check that images appear correctly while scrolling and that observers are cleaned up once they leave the viewport. Actual performance gains need to be measured separately."
+
 #: app/[lang]/dashboard/page.tsx:89
 msgid "최근 커밋 {latestCommittedAt}"
 msgstr "Latest commit {latestCommittedAt}"
 
-#: app/[lang]/dashboard/repositories/page.tsx:229
-msgid "추가"
-msgstr "Add"
+#: components/main/profile-menu.tsx:96
+msgid "로그인"
+msgstr "Sign in"
 
-#: app/[lang]/dashboard/page.tsx:43
-msgid "추적 중인 저장소"
-msgstr "Tracked repositories"
+#: components/main/draft-example-section.tsx:26
+msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
+msgstr "A sample repository and draft to show how the service works."
 
-#: app/[lang]/dashboard/repositories/page.tsx:227
-msgid "커밋 가져오는 중..."
-msgstr "Importing commits..."
+#: components/main/main-header.tsx:26
+#: components/main/mobile-menu.tsx:152
+msgid "주요 메뉴"
+msgstr "Main menu"
 
-#: components/main/notice-section.tsx:9
-msgid "커밋 내 코드를 사이트 어디에도 저장하지 않습니다."
-msgstr "Code in your commits is never stored anywhere on the site."
+#: components/auth/commit-to-draft-motion.tsx:111
+#: components/main/hero-preview.tsx:80
+#: components/onboarding/draft-example.tsx:102
+msgid "AI 초안 · 게시 전 검토 필요"
+msgstr "AI draft · Review before publishing"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:147
-msgid "커밋 내역이 없습니다."
-msgstr "No commits yet."
+#: components/dashboard/status-message.tsx:51
+msgid "이 저장소에 대한 GitHub 접근 권한이 해제되어 동기화할 수 없습니다."
+msgstr "GitHub access to this repository has been revoked, so it can't be synced."
 
-#: components/main/steps-section.tsx:16
-msgid "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
-msgstr "Add a description of your commits to the prompt to generate a draft."
-
-#: components/main/hero-preview.tsx:64
-msgid "커밋의 맥락을 글의 흐름으로"
-msgstr "From commit context to a story"
+#: components/dashboard/commit-activity.tsx:20
+msgid "{day}: {commits, plural, other {#개}}"
+msgstr "{day}: {commits, plural, one {# commit} other {# commits}}"
 
 #: components/main/main-footer.tsx:31
 msgid "푸터 메뉴"
 msgstr "Footer menu"
 
-#: components/main/profile-menu.tsx:116
-#: components/main/profile-menu.tsx:130
-msgid "프로필 메뉴"
-msgstr "Profile menu"
+#: app/[lang]/dashboard/page.tsx:43
+msgid "추적 중인 저장소"
+msgstr "Tracked repositories"
 
-#: app/[lang]/sign-in/page.tsx:54
+#: components/main/hero-section.tsx:38
+msgid "GitHub로 시작하기"
+msgstr "Get started with GitHub"
+
+#: components/shared/github-sign-in-button.tsx:44
+msgid "GitHub 로그인에 실패했습니다."
+msgstr "GitHub sign-in failed."
+
+#: components/main/steps-section.tsx:15
+msgid "AI 초안 작성"
+msgstr "Write an AI draft"
+
+#: app/[lang]/dashboard/repositories/page.tsx:142
+msgid "접근 가능한 저장소가 없습니다."
+msgstr "No accessible repositories."
+
+#: components/main/main-footer.tsx:37
+msgid "이용약관"
+msgstr "Terms of Service"
+
+#: app/[lang]/dashboard/repositories/page.tsx:136
+msgid "권한 설정 변경"
+msgstr "Change access settings"
+
+#: components/auth/commit-to-draft-motion.tsx:125
+msgid "다듬고, 검토한 뒤 어디든."
+msgstr "Refine, review, publish anywhere."
+
+#: components/dashboard/status-message.tsx:30
+msgid "설치 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
+msgstr "The installation request has expired or is invalid. Please try again."
+
+#: components/dashboard/status-message.tsx:16
+msgid "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
+msgstr "The GitHub App has been installed. Choose the repositories to add to your dashboard."
+
+#: app/[lang]/dashboard/page.tsx:31
+msgid "{userName} 님의 대시보드"
+msgstr "{userName}'s dashboard"
+
+#: app/[lang]/sign-in/page.tsx:24
+msgid "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 기본 이메일의 인증 여부를 확인한 뒤 다시 시도해주세요."
+msgstr "We couldn't find a verified email on GitHub. Make sure your primary GitHub email is verified, then try again."
+
+#: components/main/steps-section.tsx:8
+msgid "Github 계정으로 로그인합니다"
+msgstr "Sign in with your GitHub account."
+
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:53
+#: app/[lang]/dashboard/repositories/page.tsx:62
+#: components/main/profile-menu.tsx:143
+msgid "대시보드"
+msgstr "Dashboard"
+
+#: components/onboarding/install-step.tsx:80
+msgid "나중에 할게요"
+msgstr "Maybe later"
+
+#: app/[lang]/sign-in/page.tsx:91
+msgid "계속하시면 <0>이용약관</0> 및 <1>개인정보처리방침</1>에 동의하게 됩니다."
+msgstr "By continuing, you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
+
+#: components/onboarding/install-step.tsx:58
+msgid "Github App 에서<0/>저장소 권한을 승인해주세요."
+msgstr "Approve repository access<0/>in the GitHub App."
+
+#: components/main/steps-section.tsx:16
+msgid "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
+msgstr "Add a description of your commits to the prompt to generate a draft."
+
+#: components/dashboard/status-message.tsx:23
+msgid "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
+msgstr "We've asked the organization owner to approve the installation. You can choose repositories once it's approved."
+
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:170
+msgid "{commits, plural, other {#개}}"
+msgstr "{commits, plural, one {# commit} other {# commits}}"
+
+#: components/main/notice-section.tsx:7
+msgid "제 3자인 LLM API 에 코드가 보내집니다. 조직 및 비공개 저장소는 권하지 않습니다."
+msgstr "Your code is sent to a third-party LLM API. We do not recommend using organization or private repositories."
+
+#: components/auth/auth-intro.tsx:16
+msgid "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
+msgstr "Turn your work into tech blog drafts and publish them anywhere."
+
+#: components/main/notice-section.tsx:26
+msgid "꼭 확인하세요"
+msgstr "Please read first"
+
+#: app/[lang]/dashboard/repositories/page.tsx:121
+msgid "선택한 저장소"
+msgstr "Selected repositories"
+
+#: app/[lang]/dashboard/repositories/page.tsx:126
+msgid "일시 중지됨"
+msgstr "Suspended"
+
+#: components/main/sample-commit-panel.tsx:83
+msgid "이 기록을 하나의 글로 정리"
+msgstr "Turn this history into one post"
+
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:108
+msgid "전체 커밋"
+msgstr "Total commits"
+
+#: app/[lang]/dashboard/repositories/page.tsx:93
+msgid "아직 GitHub App 이 설치된 계정이 없습니다. 상단의 \"GitHub 저장소 권한 부여\" 버튼으로 커밋을 가져올 저장소를 선택해주세요."
+msgstr "No account has the GitHub App installed yet. Use the \"Grant GitHub repository access\" button above to choose the repositories to import commits from."
+
+#: app/[lang]/dashboard/repositories/page.tsx:82
+msgid "GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올 수 있습니다."
+msgstr "Your GitHub authorization has expired. Sign in again to load your repositories."
+
+#: components/onboarding/repository-step.tsx:133
+msgid "저장소에서 브랜치를 찾을 수 없습니다. 브랜치명을 확인해주세요."
+msgstr "Branch not found in this repository. Please check the branch name."
+
+#: components/main/sample-commits.ts:13
+msgid "refactor: 이미지 로딩 훅 분리"
+msgstr "refactor: extract image loading hook"
+
+#: components/main/sample-commits.ts:15
+msgid "관찰 로직을 재사용 가능한 훅으로 분리"
+msgstr "Extract the observing logic into a reusable hook"
+
+#: components/main/hero-section.tsx:19
+msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
+msgstr "Turn your GitHub commits into tech blog drafts, <0/>then polish and publish them anywhere."
+
+#: components/auth/commit-to-draft-motion.tsx:55
+#: components/main/sample-commit-panel.tsx:33
+#: components/onboarding/draft-example.tsx:51
+msgid "개인 공개 저장소 · main"
+msgstr "Personal public repository · main"
+
+#: components/onboarding/install-step.tsx:100
+msgid "Github App 인증"
+msgstr "Authorize GitHub App"
+
+#: components/main/main-footer.tsx:40
+msgid "문의하기"
+msgstr "Contact"
+
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:83
+msgid "제거 중..."
+msgstr "Removing..."
+
+#: app/[lang]/dashboard/page.tsx:90
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:70
+msgid "마지막 동기화 {lastSyncedAt}"
+msgstr "Last synced {lastSyncedAt}"
+
+#: components/main/profile-menu.tsx:149
+msgid "계정"
+msgstr "Account"
+
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:147
+msgid "커밋 내역이 없습니다."
+msgstr "No commits yet."
+
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:86
+msgid "제거"
+msgstr "Remove"
+
+#: app/[lang]/dashboard/page.tsx:55
+msgid "아직 등록된 저장소가 없습니다. GitHub App 으로 저장소 권한을 부여하고 저장소를 추가해주세요."
+msgstr "No repositories yet. Grant repository access with the GitHub App, then add a repository."
+
+#: components/main/sample-draft-editor.tsx:16
+msgid "무엇을 확인할까요?"
+msgstr "What should you check?"
+
+#: components/main/steps-section.tsx:12
+msgid "저장소의 커밋 내역을 불러오고 선택합니다."
+msgstr "Load your repository's commit history and pick commits."
+
+#: app/[lang]/dashboard/page.tsx:88
+msgid "{commitCount, plural, other {커밋 #개}}"
+msgstr "{commitCount, plural, one {# commit} other {# commits}}"
+
+#: components/main/main-footer.tsx:54
+msgid "© 2026 comdraft. All rights reserved."
+msgstr "© 2026 comdraft. All rights reserved."
+
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:136
+msgid "최근 30일 커밋"
+msgstr "Commits in the last 30 days"
+
+#: app/[lang]/dashboard/repositories/page.tsx:115
+msgid "개인"
+msgstr "Personal"
+
+#: components/main/sample-commit-panel.tsx:14
+msgid "선택한 커밋"
+msgstr "Selected commits"
+
+#: components/onboarding/repository-step.tsx:123
+msgid "브랜치명을 입력하세요"
+msgstr "Enter a branch name"
+
+#: app/[lang]/sign-in/page.tsx:105
+msgid "대시보드로 돌아가기"
+msgstr "Back to dashboard"
+
+#: components/main/sample-draft-editor.tsx:90
+msgid "이미지 최적화"
+msgstr "Image optimization"
+
+#: components/onboarding/onboarding-step.tsx:49
+msgid "{total}단계 중 {step}단계"
+msgstr "Step {step} of {total}"
+
+#: components/main/hero-preview.tsx:49
+#: components/main/sample-commits.ts:7
+msgid "feat: 이미지 지연 로딩 적용"
+msgstr "feat: apply lazy image loading"
+
+#: components/onboarding/install-step.tsx:90
+#: components/shared/github-sign-in-button.tsx:65
+msgid "GitHub 로 이동 중..."
+msgstr "Redirecting to GitHub..."
+
+#: components/main/sample-commit-panel.tsx:17
+msgid "{commitCount}개 선택"
+msgstr "{commitCount} selected"
+
+#: app/[lang]/dashboard/repositories/page.tsx:191
+msgid "추가"
+msgstr "Add"
+
+#: components/main/steps-section.tsx:19
+msgid "검토 후 게시 및 내보내기"
+msgstr "Review, publish, and export"
+
+#: app/[lang]/dashboard/repositories/page.tsx:113
+msgid "조직"
+msgstr "Organization"
+
+#: app/[lang]/dashboard/repositories/page.tsx:73
+msgid "GitHub 저장소 권한 부여"
+msgstr "Grant GitHub repository access"
+
+#: components/main/sample-commits.ts:19
+msgid "fix: 언마운트 시 observer 해제"
+msgstr "fix: disconnect observer on unmount"
+
+#: components/onboarding/draft-example.tsx:41
+msgid "실제 데이터가 아닌 예시입니다"
+msgstr "Sample data, not your own"
+
+#: app/[lang]/error.tsx:16
+msgid "요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요."
+msgstr "We couldn't process your request. Please try again in a moment."
+
+#: components/main/draft-example-section.tsx:23
+msgid "예시"
+msgstr "Example"
+
+#: components/main/steps-section.tsx:11
+msgid "저장소/커밋 내역"
+msgstr "Repositories & commits"
+
+#: app/[lang]/sign-in/page.tsx:55
 msgid "홈으로 이동"
 msgstr "Go to home"
 
-#: components/main/sample-draft-editor.tsx:9
-msgid "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
-msgstr "Instead of requesting every image at once, including off-screen ones, images now load as they enter the viewport."
+#: components/main/steps-section.tsx:20
+msgid "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
+msgstr "Publish it on the site, or export it to use anywhere else."
 
-#: components/auth/commit-to-draft-motion.tsx:138
-msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 구현 과정과 관찰 로직을 정리하고, 게시 전 확인할 점을 살펴봅니다."
-msgstr "Images now load as they enter the viewport. This post covers the implementation and observer logic, and what to check before publishing."
+#: components/main/sample-draft-editor.tsx:8
+msgid "왜 바꿨나요?"
+msgstr "Why the change?"
 
-#: components/main/hero-preview.tsx:72
-msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
-msgstr "Images now load starting with the ones on screen. This post covers how it was implemented and what to check."
+#: app/[lang]/dashboard/page.tsx:49
+#: app/[lang]/dashboard/repositories/page.tsx:65
+msgid "저장소 추가"
+msgstr "Add repository"
 
-#: app/[lang]/sign-in/page.tsx:69
-msgid "회원가입 / 로그인"
-msgstr "Sign up / Sign in"
+#: components/auth/commit-to-draft-motion.tsx:141
+#: components/main/sample-draft-editor.tsx:81
+msgid "게시하기"
+msgstr "Publish"
 
-#: components/main/profile-menu.tsx:156
-msgid "회원탈퇴"
-msgstr "Delete account"
+#: components/dashboard/status-message.tsx:44
+#: components/onboarding/repository-step.tsx:108
+msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
+msgstr "You don't have access to this repository, or it isn't part of the installation."
+
+#: components/main/main-footer.tsx:34
+msgid "개인정보처리방침"
+msgstr "Privacy Policy"
+
+#: components/onboarding/repository-step.tsx:82
+msgid "저장소"
+msgstr "Repository"
+
+#: components/auth/commit-to-draft-motion.tsx:99
+msgid "선택한 커밋을 AI 초안으로"
+msgstr "Selected commits into an AI draft"
+
+#: components/main/notice-section.tsx:29
+msgid "초안을 만들기 전 반드시 확인해주세요."
+msgstr "Please check these before creating a draft."
+
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:118
+msgid "첫 커밋"
+msgstr "First commit"
+
+#: app/[lang]/dashboard/repositories/page.tsx:189
+msgid "커밋 가져오는 중..."
+msgstr "Importing commits..."
+
+#: app/[lang]/dashboard/repositories/page.tsx:119
+msgid "모든 저장소"
+msgstr "All repositories"
+
+#: app/[lang]/sign-in/page.tsx:73
+msgid "Github 계정으로 시작하세요."
+msgstr "Get started with your GitHub account."
+
+#: components/onboarding/repository-step.tsx:149
+msgid "저장소 연동 중..."
+msgstr "Connecting repository..."
+
+#: components/onboarding/repository-step.tsx:151
+msgid "다음"
+msgstr "Next"
+
+#: app/[lang]/sign-in/page.tsx:30
+msgid "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
+msgstr "Your GitHub authorization has expired. Please sign in again."
+
+#: components/onboarding/repository-step.tsx:72
+msgid "저장소를 선택하고<0/>브랜치명을 입력하세요."
+msgstr "Select a repository<0/>and enter a branch name."
+
+#: components/main/sample-draft-editor.tsx:61
+msgid "초안 편집기"
+msgstr "Draft editor"
+
+#: components/main/sample-draft-editor.tsx:13
+msgid "IntersectionObserver로 이미지의 화면 진입을 감지합니다. 관찰 로직은 useLazyImage 훅으로 분리하고, 컴포넌트가 언마운트되면 observer를 해제하도록 정리했습니다."
+msgstr "IntersectionObserver detects when an image enters the viewport. The observing logic lives in a useLazyImage hook, and the observer is disconnected when the component unmounts."
+
+#: components/main/hero-preview.tsx:29
+msgid "작성 화면 예시"
+msgstr "Editor preview"
+
+#: components/main/hero-preview.tsx:64
+#: components/onboarding/draft-example.tsx:90
+msgid "커밋의 맥락을 글의 흐름으로"
+msgstr "From commit context to a story"
+
+#: components/shared/github-sign-in-button.tsx:67
+msgid "GitHub 로 시작하기"
+msgstr "Continue with GitHub"

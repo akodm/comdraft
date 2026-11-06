@@ -54,6 +54,9 @@ const STATUS_MESSAGES = new Map<string, StatusMessageEntry>([
   ],
 ]);
 
+export const getStatusMessage = (status?: string) =>
+  status ? STATUS_MESSAGES.get(status) : undefined;
+
 interface StatusMessageProps {
   status?: string;
 }
@@ -61,7 +64,7 @@ interface StatusMessageProps {
 // Server Component (페이지에서 initLingui 로 설정한 i18n 사용)
 const StatusMessage = ({ status }: StatusMessageProps) => {
   const { i18n } = useLingui();
-  const message = status ? STATUS_MESSAGES.get(status) : undefined;
+  const message = getStatusMessage(status);
 
   if (!message) {
     return null;

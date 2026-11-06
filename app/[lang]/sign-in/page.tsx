@@ -27,6 +27,7 @@ const ERROR_MESSAGES = new Map([
     'state_mismatch',
     msg`GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요.`,
   ],
+  ['github_reauth', msg`GitHub 인증이 만료되었습니다. 다시 로그인해주세요.`],
 ]);
 
 interface SignInPageProps {

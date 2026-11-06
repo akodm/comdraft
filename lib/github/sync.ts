@@ -1,22 +1,26 @@
 import 'server-only';
-import { eq, max } from 'drizzle-orm';
+import { and, eq, max, notInArray } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import {
   githubCommit,
   githubInstallation,
   githubRepository,
+  userRepository,
 } from '@/lib/db/schema';
 import { getInstallationOctokit } from '@/lib/github/app';
 
 /**
  * 저장소 커밋 동기화 (설치 토큰 사용)
- * - 최초 동기화: 기본 브랜치의 최신 커밋부터 최대 MAX_PAGES * PER_PAGE 개
- * - 이후 동기화: 저장된 마지막 커밋 시각 이후만 조회
- * - 같은 sha 는 (repository_id, sha) 유니크 제약으로 중복 저장되지 않음
+ * - 사용자들이 추적 중인 브랜치마다 동기화 (같은 브랜치는 한 번만)
+ * - 최초 동기화: 브랜치의 최신 커밋부터 최대 MAX_PAGES * PER_PAGE 개
+ * - 이후 동기화: 해당 브랜치에 저장된 마지막 커밋 시각 이후만 조회
+ * - 같은 sha 는 (repository_id, branch, sha) 유니크 제약으로 브랜치별로 한 번만 저장
  */
 
 const PER_PAGE = 100;
 const MAX_PAGES = 10;
+
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 const getErrorStatus = (error: unknown) => {
   if (typeof error === 'object' && error !== null && 'status' in error) {
@@ -24,6 +28,52 @@ const getErrorStatus = (error: unknown) => {
   }
 
   return null;
+};
+
+// 저장소에 브랜치가 있는지 확인 (커밋이 하나도 없는 빈 저장소는 브랜치도 없음)
+export const hasRepositoryBranch = async (
+  installationId: number,
+  owner: string,
+  repo: string,
+  branch: string,
+) => {
+  const octokit = await getInstallationOctokit(installationId);
+
+  try {
+    await octokit.request('GET /repos/{owner}/{repo}/branches/{branch}', {
+      owner,
+      repo,
+      branch,
+    });
+
+    return true;
+  } catch (error) {
+    if (getErrorStatus(error) === 404) {
+      return false;
+    }
+
+    throw error;
+  }
+};
+
+// 더 이상 아무도 추적하지 않는 브랜치의 커밋 삭제 (저장소 제거, 추적 브랜치 변경 후 호출)
+export const pruneUntrackedBranchCommits = async (
+  tx: Transaction,
+  repositoryId: string,
+) => {
+  const trackedBranches = tx
+    .selectDistinct({ branch: userRepository.branch })
+    .from(userRepository)
+    .where(eq(userRepository.repositoryId, repositoryId));
+
+  await tx
+    .delete(githubCommit)
+    .where(
+      and(
+        eq(githubCommit.repositoryId, repositoryId),
+        notInArray(githubCommit.branch, trackedBranches),
+      ),
+    );
 };
 
 export const syncRepositoryCommits = async (repositoryId: string) => {
@@ -44,6 +94,11 @@ export const syncRepositoryCommits = async (repositoryId: string) => {
   if (!repository) {
     throw new Error('등록되지 않은 저장소입니다.');
   }
+
+  const trackedBranches = await db
+    .selectDistinct({ branch: userRepository.branch })
+    .from(userRepository)
+    .where(eq(userRepository.repositoryId, repository.id));
 
   try {
     const octokit = await getInstallationOctokit(repository.installationId);
@@ -66,84 +121,110 @@ export const syncRepositoryCommits = async (repositoryId: string) => {
       })
       .where(eq(githubRepository.id, repository.id));
 
-    const [{ latestCommittedAt }] = await db
-      .select({ latestCommittedAt: max(githubCommit.committedAt) })
-      .from(githubCommit)
-      .where(eq(githubCommit.repositoryId, repository.id));
-
     let syncedCount = 0;
+    const missingBranches: string[] = [];
 
-    for (let page = 1; page <= MAX_PAGES; page++) {
-      let commits;
-
-      try {
-        const response = await octokit.request(
-          'GET /repos/{owner}/{repo}/commits',
-          {
-            owner: repo.owner.login,
-            repo: repo.name,
-            sha: repo.default_branch,
-            since: latestCommittedAt?.toISOString(),
-            per_page: PER_PAGE,
-            page,
-          },
+    for (const { branch } of trackedBranches) {
+      const [{ latestCommittedAt }] = await db
+        .select({ latestCommittedAt: max(githubCommit.committedAt) })
+        .from(githubCommit)
+        .where(
+          and(
+            eq(githubCommit.repositoryId, repository.id),
+            eq(githubCommit.branch, branch),
+          ),
         );
 
-        commits = response.data;
-      } catch (error) {
-        // 커밋이 하나도 없는 빈 저장소
-        if (getErrorStatus(error) === 409) {
+      for (let page = 1; page <= MAX_PAGES; page++) {
+        let commits;
+
+        try {
+          const response = await octokit.request(
+            'GET /repos/{owner}/{repo}/commits',
+            {
+              owner: repo.owner.login,
+              repo: repo.name,
+              sha: branch,
+              since: latestCommittedAt?.toISOString(),
+              per_page: PER_PAGE,
+              page,
+            },
+          );
+
+          commits = response.data;
+        } catch (error) {
+          const status = getErrorStatus(error);
+
+          // 409: 커밋이 하나도 없는 빈 저장소
+          if (status === 409) {
+            break;
+          }
+
+          // 404/422: 등록 후 브랜치가 삭제됨 (저장소 접근 권한은 위의 메타데이터 조회에서 확인됨)
+          if (status === 404 || status === 422) {
+            missingBranches.push(branch);
+            break;
+          }
+
+          throw error;
+        }
+
+        if (commits.length === 0) {
           break;
         }
 
-        throw error;
-      }
+        const inserted = await db
+          .insert(githubCommit)
+          .values(
+            commits.map((item) => {
+              const authoredAt = item.commit.author?.date;
+              const committedAt =
+                item.commit.committer?.date ?? authoredAt ?? new Date();
 
-      if (commits.length === 0) {
-        break;
-      }
+              return {
+                id: crypto.randomUUID(),
+                repositoryId: repository.id,
+                branch,
+                sha: item.sha,
+                message: item.commit.message,
+                authorName: item.commit.author?.name ?? null,
+                authorEmail: item.commit.author?.email ?? null,
+                authorLogin: item.author?.login ?? null,
+                authorAvatarUrl: item.author?.avatar_url ?? null,
+                authoredAt: authoredAt ? new Date(authoredAt) : null,
+                committedAt: new Date(committedAt),
+                htmlUrl: item.html_url,
+              };
+            }),
+          )
+          .onConflictDoNothing({
+            target: [
+              githubCommit.repositoryId,
+              githubCommit.branch,
+              githubCommit.sha,
+            ],
+          })
+          .returning({ id: githubCommit.id });
 
-      const inserted = await db
-        .insert(githubCommit)
-        .values(
-          commits.map((item) => {
-            const authoredAt = item.commit.author?.date;
-            const committedAt =
-              item.commit.committer?.date ?? authoredAt ?? new Date();
+        syncedCount += inserted.length;
 
-            return {
-              id: crypto.randomUUID(),
-              repositoryId: repository.id,
-              sha: item.sha,
-              message: item.commit.message,
-              authorName: item.commit.author?.name ?? null,
-              authorEmail: item.commit.author?.email ?? null,
-              authorLogin: item.author?.login ?? null,
-              authorAvatarUrl: item.author?.avatar_url ?? null,
-              authoredAt: authoredAt ? new Date(authoredAt) : null,
-              committedAt: new Date(committedAt),
-              htmlUrl: item.html_url,
-            };
-          }),
-        )
-        .onConflictDoNothing({
-          target: [githubCommit.repositoryId, githubCommit.sha],
-        })
-        .returning({ id: githubCommit.id });
-
-      syncedCount += inserted.length;
-
-      if (commits.length < PER_PAGE) {
-        break;
+        if (commits.length < PER_PAGE) {
+          break;
+        }
       }
     }
 
+    const message =
+      missingBranches.length > 0
+        ? `추적 중인 브랜치를 찾을 수 없습니다: ${missingBranches.join(', ')}`
+        : null;
+
     await db
       .update(githubRepository)
-      .set({ lastSyncedAt: new Date(), lastSyncError: null })
+      .set({ lastSyncedAt: new Date(), lastSyncError: message })
       .where(eq(githubRepository.id, repository.id));
 
-    return { syncedCount };
+    return message ? { syncedCount, error: message } : { syncedCount };
   } catch (error) {
     const status = getErrorStatus(error);
     let message = '커밋 동기화 중 오류가 발생했습니다.';

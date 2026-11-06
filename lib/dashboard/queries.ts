@@ -23,11 +23,12 @@ const DASHBOARD_TIMEZONE = 'Asia/Seoul';
 // 커밋 작성자 식별: GitHub 계정이 연결되어 있으면 login, 아니면 이메일/이름
 const authorKey = sql<string>`coalesce(${githubCommit.authorLogin}, ${githubCommit.authorEmail}, ${githubCommit.authorName}, 'unknown')`;
 
-// 사용자가 등록한 저장소 목록 + 커밋 요약
+// 사용자가 등록한 저장소 목록 + 추적 중인 브랜치의 커밋 요약
 export const getUserRepositories = async (userId: string) => {
   return db
     .select({
       id: githubRepository.id,
+      branch: userRepository.branch,
       fullName: githubRepository.fullName,
       description: githubRepository.description,
       isPrivate: githubRepository.isPrivate,
@@ -42,9 +43,15 @@ export const getUserRepositories = async (userId: string) => {
       githubRepository,
       eq(userRepository.repositoryId, githubRepository.id),
     )
-    .leftJoin(githubCommit, eq(githubCommit.repositoryId, githubRepository.id))
+    .leftJoin(
+      githubCommit,
+      and(
+        eq(githubCommit.repositoryId, githubRepository.id),
+        eq(githubCommit.branch, userRepository.branch),
+      ),
+    )
     .where(eq(userRepository.userId, userId))
-    .groupBy(githubRepository.id)
+    .groupBy(githubRepository.id, userRepository.branch)
     .orderBy(sql`${max(githubCommit.committedAt)} desc nulls last`);
 };
 
@@ -59,7 +66,7 @@ export const getUserRepository = async (
       fullName: githubRepository.fullName,
       description: githubRepository.description,
       isPrivate: githubRepository.isPrivate,
-      defaultBranch: githubRepository.defaultBranch,
+      branch: userRepository.branch,
       htmlUrl: githubRepository.htmlUrl,
       lastSyncedAt: githubRepository.lastSyncedAt,
       lastSyncError: githubRepository.lastSyncError,
@@ -85,9 +92,17 @@ export const getUserRepository = async (
   return repository ?? null;
 };
 
-// 저장소 대시보드 통계
-export const getRepositoryStats = async (repositoryId: string, days = 30) => {
+// 저장소 대시보드 통계 (추적 중인 브랜치 기준)
+export const getRepositoryStats = async (
+  repositoryId: string,
+  branch: string,
+  days = 30,
+) => {
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const isTrackedCommit = and(
+    eq(githubCommit.repositoryId, repositoryId),
+    eq(githubCommit.branch, branch),
+  );
   // SELECT 와 GROUP BY 의 식이 같아야 하므로 타임존은 바인딩 파라미터가 아닌 상수로 삽입
   const day = sql<string>`to_char(${githubCommit.committedAt} at time zone ${sql.raw(`'${DASHBOARD_TIMEZONE}'`)}, 'YYYY-MM-DD')`;
 
@@ -100,17 +115,12 @@ export const getRepositoryStats = async (repositoryId: string, days = 30) => {
         latestCommittedAt: max(githubCommit.committedAt),
       })
       .from(githubCommit)
-      .where(eq(githubCommit.repositoryId, repositoryId))
+      .where(isTrackedCommit)
       .then(([row]) => row),
     db
       .select({ day, commits: count() })
       .from(githubCommit)
-      .where(
-        and(
-          eq(githubCommit.repositoryId, repositoryId),
-          gte(githubCommit.committedAt, since),
-        ),
-      )
+      .where(and(isTrackedCommit, gte(githubCommit.committedAt, since)))
       .groupBy(day)
       .orderBy(day),
     db
@@ -120,7 +130,7 @@ export const getRepositoryStats = async (repositoryId: string, days = 30) => {
         commits: count(),
       })
       .from(githubCommit)
-      .where(eq(githubCommit.repositoryId, repositoryId))
+      .where(isTrackedCommit)
       .groupBy(authorKey)
       .orderBy(desc(count()))
       .limit(5),
@@ -135,7 +145,7 @@ export const getRepositoryStats = async (repositoryId: string, days = 30) => {
         htmlUrl: githubCommit.htmlUrl,
       })
       .from(githubCommit)
-      .where(eq(githubCommit.repositoryId, repositoryId))
+      .where(isTrackedCommit)
       .orderBy(desc(githubCommit.committedAt))
       .limit(50),
   ]);
