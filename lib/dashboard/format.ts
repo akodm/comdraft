@@ -1,11 +1,41 @@
-const dateTimeFormatter = new Intl.DateTimeFormat('ko-KR', {
-  timeZone: 'Asia/Seoul',
-  dateStyle: 'medium',
-  timeStyle: 'short',
-});
+import { DEFAULT_LOCALE, type Locale } from '@/lib/i18n/config';
 
-export const formatDateTime = (date: Date | null | undefined) => {
-  return date ? dateTimeFormatter.format(date) : '-';
+const INTL_LOCALES: Record<Locale, string> = {
+  ko: 'ko-KR',
+  en: 'en-US',
+};
+
+// 로케일별 포매터는 생성 비용이 있으므로 재사용
+const dateTimeFormatters = new Map<Locale, Intl.DateTimeFormat>();
+
+const getDateTimeFormatter = (locale: Locale) => {
+  let formatter = dateTimeFormatters.get(locale);
+
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(INTL_LOCALES[locale], {
+      timeZone: 'Asia/Seoul',
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+    dateTimeFormatters.set(locale, formatter);
+  }
+
+  return formatter;
+};
+
+export const formatDateTime = (
+  date: Date | null | undefined,
+  locale: Locale = DEFAULT_LOCALE,
+) => {
+  return date ? getDateTimeFormatter(locale).format(date) : '-';
+};
+
+// 로케일에 맞는 천 단위 구분 숫자
+export const formatNumber = (
+  value: number,
+  locale: Locale = DEFAULT_LOCALE,
+) => {
+  return value.toLocaleString(INTL_LOCALES[locale]);
 };
 
 // 커밋 메시지의 첫 줄(제목)만 추출

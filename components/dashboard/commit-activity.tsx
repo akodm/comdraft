@@ -1,9 +1,14 @@
+import { plural } from '@lingui/core/macro';
+import { useLingui } from '@lingui/react/macro';
+
 interface CommitActivityProps {
   activity: Array<{ day: string; commits: number }>;
 }
 
 // 최근 N일 일별 커밋 수 막대 그래프
+// Server Component (페이지에서 initLingui 로 설정한 i18n 사용)
 const CommitActivity = ({ activity }: CommitActivityProps) => {
+  const { t } = useLingui();
   const maxCommits = Math.max(1, ...activity.map(({ commits }) => commits));
 
   return (
@@ -12,7 +17,7 @@ const CommitActivity = ({ activity }: CommitActivityProps) => {
         {activity.map(({ day, commits }) => (
           <div
             key={day}
-            title={`${day}: ${commits}개`}
+            title={t`${day}: ${plural(commits, { other: '#개' })}`}
             className="flex-1 rounded-t bg-green-500"
             style={{
               height: `${(commits / maxCommits) * 100}%`,

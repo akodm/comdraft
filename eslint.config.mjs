@@ -56,6 +56,54 @@ export default defineConfig(
     },
   },
   {
+    // 다국어 라우팅: 로케일 접두사 없이 이동하면 proxy 가 쿠키/Accept-Language 로 로케일을 다시 골라
+    // 리다이렉트가 한 번 더 생기고 현재 언어가 바뀔 수 있으므로, 로케일을 유지하는 래퍼만 사용
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'next/link',
+              message:
+                '로케일이 유지되도록 @/components/shared/localized-link 를 사용하세요.',
+            },
+            {
+              name: 'next/navigation',
+              importNames: ['useRouter', 'redirect', 'permanentRedirect'],
+              message:
+                '로케일이 유지되도록 useLocalizedRouter(@/hooks/use-localized-router) 또는 localizedRedirect(@/lib/i18n/request) 를 사용하세요.',
+            },
+          ],
+        },
+      ],
+      // <a href="/dashboard"> 처럼 앱 내부 경로를 직접 쓰는 경우 (/api, //외부 주소는 허용)
+      // esquery 정규식 안에서는 "/" 를 쓸 수 없어 / 로 표기
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "JSXOpeningElement[name.name='a'] > JSXAttribute[name.name='href'] Literal[value=/^\\u002F(?!\\u002F|api(\\u002F|$)|_next\\u002F|_vercel\\u002F)/]",
+          message:
+            '앱 내부 경로는 LocalizedLink 또는 LocalizedAnchor 를 사용하세요.',
+        },
+        {
+          selector:
+            "JSXOpeningElement[name.name='a'] > JSXAttribute[name.name='href'] TemplateElement[value.raw=/^\\u002F(?!\\u002F|api(\\u002F|$)|_next\\u002F|_vercel\\u002F)/]",
+          message:
+            '앱 내부 경로는 LocalizedLink 또는 LocalizedAnchor 를 사용하세요.',
+        },
+      ],
+    },
+  },
+  {
+    // 로케일 리다이렉트 구현부 (redirect 를 감싸는 유일한 곳)
+    files: ['lib/i18n/request.ts'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
+  {
     settings: {
       react: {
         version: 'detect',

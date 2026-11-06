@@ -1,9 +1,7 @@
 'use server';
 
 import { and, count, eq } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import {
@@ -20,6 +18,7 @@ import {
   GithubUserTokenError,
   listUserInstallationRepositories,
 } from '@/lib/github/user-api';
+import { localizedRedirect, revalidateLocalizedPath } from '@/lib/i18n/request';
 
 const parseId = (value: FormDataEntryValue | null) => {
   const id = Number(value);
@@ -38,7 +37,7 @@ const withGithubToken = async <T>(
     return await callback(token);
   } catch (error) {
     if (error instanceof GithubUserTokenError) {
-      redirect('/dashboard/repositories?status=github_reauth');
+      return localizedRedirect('/dashboard/repositories?status=github_reauth');
     }
 
     throw error;
@@ -52,7 +51,9 @@ export async function connectRepository(formData: FormData) {
   const githubRepoId = parseId(formData.get('githubRepoId'));
 
   if (!installationId || !githubRepoId) {
-    redirect('/dashboard/repositories?status=invalid_repository');
+    return localizedRedirect(
+      '/dashboard/repositories?status=invalid_repository',
+    );
   }
 
   // 사용자가 GitHub 상에서 해당 설치와 저장소에 실제로 접근 가능한지 확인
@@ -73,7 +74,9 @@ export async function connectRepository(formData: FormData) {
   });
 
   if (!verified) {
-    redirect('/dashboard/repositories?status=invalid_repository');
+    return localizedRedirect(
+      '/dashboard/repositories?status=invalid_repository',
+    );
   }
 
   const { installation, repository } = verified;
@@ -115,8 +118,8 @@ export async function connectRepository(formData: FormData) {
     await syncRepositoryCommits(repositoryRow.id);
   }
 
-  revalidatePath('/dashboard');
-  redirect(`/dashboard/repositories/${repositoryRow.id}`);
+  revalidateLocalizedPath('/dashboard');
+  await localizedRedirect(`/dashboard/repositories/${repositoryRow.id}`);
 }
 
 // 사용자가 등록한 저장소인지 확인 후 반환
@@ -154,7 +157,7 @@ export async function syncRepository(formData: FormData) {
   const repository = await findUserRepository(user.id, repositoryId);
 
   if (!repository) {
-    redirect('/dashboard?status=invalid_repository');
+    return localizedRedirect('/dashboard?status=invalid_repository');
   }
 
   const hasAccess = await withGithubToken(user.id, async (token) => {
@@ -175,13 +178,15 @@ export async function syncRepository(formData: FormData) {
   });
 
   if (!hasAccess) {
-    redirect(`/dashboard/repositories/${repositoryId}?status=access_revoked`);
+    return localizedRedirect(
+      `/dashboard/repositories/${repositoryId}?status=access_revoked`,
+    );
   }
 
   await syncRepositoryCommits(repository.id);
 
-  revalidatePath('/dashboard');
-  revalidatePath(`/dashboard/repositories/${repositoryId}`);
+  revalidateLocalizedPath('/dashboard');
+  revalidateLocalizedPath(`/dashboard/repositories/${repositoryId}`);
 }
 
 // 대시보드에서 저장소 제거 (다른 사용자가 등록하지 않은 저장소면 커밋 데이터까지 삭제)
@@ -217,6 +222,6 @@ export async function disconnectRepository(formData: FormData) {
     }
   });
 
-  revalidatePath('/dashboard');
-  redirect('/dashboard');
+  revalidateLocalizedPath('/dashboard');
+  await localizedRedirect('/dashboard');
 }

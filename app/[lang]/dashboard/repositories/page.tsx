@@ -1,8 +1,9 @@
 import { eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
-import Link from 'next/link';
+import { Trans } from '@lingui/react/macro';
 import StatusMessage from '@/components/dashboard/status-message';
 import GithubSignInButton from '@/components/shared/github-sign-in-button';
+import LocalizedLink from '@/components/shared/localized-link';
 import SubmitButton from '@/components/shared/submit-button';
 import { connectRepository } from '@/lib/actions/repositories';
 import { requireSession } from '@/lib/auth/session';
@@ -16,6 +17,7 @@ import {
   type GithubUserInstallation,
   type GithubUserRepository,
 } from '@/lib/github/user-api';
+import { initLingui } from '@/lib/i18n/server';
 
 interface RepositoriesPageProps {
   searchParams: Promise<{ status?: string }>;
@@ -65,6 +67,7 @@ const loadInstallations = async (userId: string) => {
 export default async function RepositoriesPage({
   searchParams,
 }: RepositoriesPageProps) {
+  await initLingui();
   const { user } = await requireSession();
   const { status } = await searchParams;
 
@@ -92,17 +95,19 @@ export default async function RepositoriesPage({
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 px-4 py-10">
       <header className="flex items-center justify-between">
         <div>
-          <Link href="/dashboard" className="text-sm text-gray-600">
-            ← 대시보드
-          </Link>
-          <h1 className="text-xl font-bold">저장소 추가</h1>
+          <LocalizedLink href="/dashboard" className="text-sm text-gray-600">
+            ← <Trans>대시보드</Trans>
+          </LocalizedLink>
+          <h1 className="text-xl font-bold">
+            <Trans>저장소 추가</Trans>
+          </h1>
         </div>
         {/* GitHub App 설치 페이지에서 계정/조직과 접근 허용할 저장소를 선택 */}
         <a
           href="/api/github/install"
           className="rounded-md bg-black px-3 py-1.5 text-sm text-white"
         >
-          GitHub 저장소 권한 부여
+          <Trans>GitHub 저장소 권한 부여</Trans>
         </a>
       </header>
 
@@ -111,8 +116,10 @@ export default async function RepositoriesPage({
       {needsReauth || status === 'github_reauth' ? (
         <section className="flex flex-col items-center gap-3 rounded-md border p-6">
           <p className="text-sm text-gray-600">
-            GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올
-            수 있습니다.
+            <Trans>
+              GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올
+              수 있습니다.
+            </Trans>
           </p>
           <GithubSignInButton callbackURL="/dashboard/repositories" />
         </section>
@@ -120,9 +127,11 @@ export default async function RepositoriesPage({
         <>
           {installations.length === 0 && (
             <p className="rounded-md border border-dashed p-6 text-center text-sm text-gray-600">
-              아직 GitHub App 이 설치된 계정이 없습니다. 상단의 &quot;GitHub
-              저장소 권한 부여&quot; 버튼으로 커밋을 가져올 저장소를
-              선택해주세요.
+              <Trans>
+                아직 GitHub App 이 설치된 계정이 없습니다. 상단의 &quot;GitHub
+                저장소 권한 부여&quot; 버튼으로 커밋을 가져올 저장소를
+                선택해주세요.
+              </Trans>
             </p>
           )}
 
@@ -137,16 +146,22 @@ export default async function RepositoriesPage({
                     {installation.account?.login}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {installation.account?.type === 'Organization'
-                      ? '조직'
-                      : '개인'}{' '}
+                    {installation.account?.type === 'Organization' ? (
+                      <Trans>조직</Trans>
+                    ) : (
+                      <Trans>개인</Trans>
+                    )}{' '}
                     ·{' '}
-                    {installation.repository_selection === 'all'
-                      ? '모든 저장소'
-                      : '선택한 저장소'}
+                    {installation.repository_selection === 'all' ? (
+                      <Trans>모든 저장소</Trans>
+                    ) : (
+                      <Trans>선택한 저장소</Trans>
+                    )}
                   </span>
                   {installation.suspended_at && (
-                    <span className="text-xs text-red-600">일시 중지됨</span>
+                    <span className="text-xs text-red-600">
+                      <Trans>일시 중지됨</Trans>
+                    </span>
                   )}
                 </div>
                 <a
@@ -155,13 +170,13 @@ export default async function RepositoriesPage({
                   rel="noreferrer"
                   className="text-sm text-gray-600 underline"
                 >
-                  권한 설정 변경
+                  <Trans>권한 설정 변경</Trans>
                 </a>
               </div>
 
               {repositories.length === 0 ? (
                 <p className="text-sm text-gray-600">
-                  접근 가능한 저장소가 없습니다.
+                  <Trans>접근 가능한 저장소가 없습니다.</Trans>
                 </p>
               ) : (
                 <ul className="flex flex-col divide-y">
@@ -189,12 +204,12 @@ export default async function RepositoriesPage({
                           )}
                         </div>
                         {trackedId ? (
-                          <Link
+                          <LocalizedLink
                             href={`/dashboard/repositories/${trackedId}`}
                             className="shrink-0 text-sm text-gray-600 underline"
                           >
-                            대시보드 보기
-                          </Link>
+                            <Trans>대시보드 보기</Trans>
+                          </LocalizedLink>
                         ) : (
                           <form action={connectRepository} className="shrink-0">
                             <input
@@ -207,8 +222,10 @@ export default async function RepositoriesPage({
                               name="githubRepoId"
                               value={repository.id}
                             />
-                            <SubmitButton pendingText="커밋 가져오는 중...">
-                              추가
+                            <SubmitButton
+                              pendingText={<Trans>커밋 가져오는 중...</Trans>}
+                            >
+                              <Trans>추가</Trans>
                             </SubmitButton>
                           </form>
                         )}

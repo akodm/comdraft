@@ -1,9 +1,9 @@
 'use server';
 
 import { and, eq, isNull } from 'drizzle-orm';
-import { redirect } from 'next/navigation';
 import { requireOnboardingSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
+import { localizedRedirect } from '@/lib/i18n/request';
 import { user } from '@/lib/db/schema';
 
 // 온보딩 완료 처리 후 대시보드로 이동
@@ -16,5 +16,5 @@ export async function completeOnboarding() {
     .set({ onboardedAt: new Date() })
     .where(and(eq(user.id, sessionUser.id), isNull(user.onboardedAt)));
 
-  redirect('/dashboard');
+  await localizedRedirect('/dashboard');
 }

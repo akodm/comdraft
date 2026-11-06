@@ -1,8 +1,8 @@
 import 'server-only';
 import { cache } from 'react';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { localizedRedirect } from '@/lib/i18n/request';
 
 // 서버 컴포넌트/라우트에서 세션을 DB 기준으로 검증해 조회
 // React cache 로 같은 요청 안에서는 layout/page 등 여러 곳에서 호출해도 DB 조회 1회로 공유
@@ -18,11 +18,11 @@ export const requireSession = async () => {
   const session = await getSession();
 
   if (!session) {
-    redirect('/sign-in');
+    return localizedRedirect('/sign-in');
   }
 
   if (!session.user.onboardedAt) {
-    redirect('/onboarding');
+    return localizedRedirect('/onboarding');
   }
 
   return session;
@@ -33,11 +33,11 @@ export const requireOnboardingSession = async () => {
   const session = await getSession();
 
   if (!session) {
-    redirect('/sign-in');
+    return localizedRedirect('/sign-in');
   }
 
   if (session.user.onboardedAt) {
-    redirect('/dashboard');
+    return localizedRedirect('/dashboard');
   }
 
   return session;

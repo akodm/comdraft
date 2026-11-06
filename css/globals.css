@@ -1,6 +1,30 @@
 @import 'tailwindcss';
 @import 'tailwind-scrollbar-hide/v4';
 
+@theme {
+  /* 1320px 이상은 PC 레이아웃, 미만은 모바일 레이아웃 (콘텐츠 최대 폭 1280px + 좌우 여백 20px) */
+  --breakpoint-pc: 1320px;
+
+  --color-brand: #245bff;
+  --color-brand-soft: #edf2ff;
+  --color-ink: #111214;
+  --color-ink-muted: #535961;
+  --color-ink-faint: #747b84;
+  --color-ink-subtle: #a5acb7;
+  --color-line: #dde0e4;
+  --color-line-dark: #35383e;
+  --color-connector: #cbd5e1;
+  --color-surface: #f5f6f8;
+  --color-code: #16181c;
+  --color-danger: #bc242a;
+}
+
+/* next/font 가 <html> 에 선언하는 CSS 변수를 Tailwind 폰트 유틸리티(font-sans, font-mono)에 연결 */
+@theme inline {
+  --font-sans: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, monospace;
+}
+
 @layer base {
   html {
     font-size: 16px;

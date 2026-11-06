@@ -4,7 +4,7 @@ import { useFormStatus } from 'react-dom';
 
 interface SubmitButtonProps {
   children: React.ReactNode;
-  pendingText: string;
+  pendingText: React.ReactNode;
   className?: string;
 }
 
