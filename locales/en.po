@@ -15,9 +15,9 @@ msgstr "Sign up / Sign in with GitHub"
 msgid "메뉴 열기"
 msgstr "Open menu"
 
-#: components/onboarding/repository-step.tsx:116
-msgid "브랜치명"
-msgstr "Branch name"
+#: components/onboarding/repository-step.tsx:217
+msgid "브랜치 목록을 불러오지 못했습니다."
+msgstr "Could not load the branch list."
 
 #: components/main/sample-commits.ts:21
 msgid "cleanup에서 disconnect() 호출"
@@ -68,9 +68,13 @@ msgstr "Images now load as they enter the viewport. This post covers the impleme
 msgid "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
 msgstr "The GitHub sign-in request has expired or is invalid. Please try again."
 
-#: components/onboarding/repository-select.tsx:180
+#: components/onboarding/repository-select.tsx:35
 msgid "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저장소 권한 추가하기</0>"
 msgstr "No repositories available. <0>Add repository access in the GitHub App</0>"
+
+#: components/onboarding/repository-step.tsx:229
+msgid "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를 선택해주세요."
+msgstr "Branch not found in this repository. Please choose another branch."
 
 #: components/onboarding/complete-step.tsx:48
 msgid "작성 하러 가기"
@@ -93,6 +97,10 @@ msgstr "New draft"
 #: components/main/notice-section.tsx:8
 msgid "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
 msgstr "Do not send commits that contain sensitive code."
+
+#: components/onboarding/repository-step.tsx:151
+msgid "저장소와 브랜치를<0/>선택하세요."
+msgstr "Select a repository<0/>and a branch."
 
 #: app/[lang]/sign-in/page.tsx:20
 msgid "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
@@ -136,7 +144,7 @@ msgstr "Choose language"
 msgid "프로필 메뉴"
 msgstr "Profile menu"
 
-#: components/onboarding/repository-select.tsx:166
+#: components/onboarding/repository-select.tsx:33
 msgid "저장소를 선택하세요"
 msgstr "Select a repository"
 
@@ -149,12 +157,17 @@ msgid "바로 시작해보세요."
 msgstr "Get started right away."
 
 #: app/[lang]/error.tsx:23
+#: components/onboarding/repository-step.tsx:223
 msgid "다시 시도"
 msgstr "Try again"
 
 #: components/shared/sign-out-button.tsx:29
 msgid "로그아웃"
 msgstr "Sign out"
+
+#: components/onboarding/repository-step.tsx:204
+msgid "선택할 수 있는 브랜치가 없습니다. 커밋이 있는 저장소인지 확인해주세요."
+msgstr "No branches to choose from. Make sure the repository has at least one commit."
 
 #: components/auth/commit-to-draft-motion.tsx:115
 #: components/main/hero-preview.tsx:69
@@ -330,10 +343,6 @@ msgstr "No account has the GitHub App installed yet. Use the \"Grant GitHub repo
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올 수 있습니다."
 msgstr "Your GitHub authorization has expired. Sign in again to load your repositories."
 
-#: components/onboarding/repository-step.tsx:133
-msgid "저장소에서 브랜치를 찾을 수 없습니다. 브랜치명을 확인해주세요."
-msgstr "Branch not found in this repository. Please check the branch name."
-
 #: components/main/sample-commits.ts:13
 msgid "refactor: 이미지 로딩 훅 분리"
 msgstr "refactor: extract image loading hook"
@@ -359,6 +368,10 @@ msgstr "Authorize GitHub App"
 #: components/main/main-footer.tsx:40
 msgid "문의하기"
 msgstr "Contact"
+
+#: components/onboarding/repository-step.tsx:195
+msgid "브랜치"
+msgstr "Branch"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:62
 msgid "제거 중..."
@@ -396,9 +409,9 @@ msgstr "Personal"
 msgid "선택한 커밋"
 msgstr "Selected commits"
 
-#: components/onboarding/repository-step.tsx:123
-msgid "브랜치명을 입력하세요"
-msgstr "Enter a branch name"
+#: components/onboarding/repository-step.tsx:144
+msgid "브랜치를 선택하세요"
+msgstr "Select a branch"
 
 #: app/[lang]/sign-in/page.tsx:105
 msgid "대시보드로 돌아가기"
@@ -470,6 +483,10 @@ msgstr "Repositories & commits"
 msgid "홈으로 이동"
 msgstr "Go to home"
 
+#: components/onboarding/repository-step.tsx:141
+msgid "브랜치 목록을 불러오는 중..."
+msgstr "Loading branches..."
+
 #: components/main/steps-section.tsx:20
 msgid "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
 msgstr "Publish it on the site, or export it to use anywhere else."
@@ -489,7 +506,7 @@ msgid "게시하기"
 msgstr "Publish"
 
 #: components/dashboard/status-message.tsx:44
-#: components/onboarding/repository-step.tsx:108
+#: components/onboarding/repository-step.tsx:187
 msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 msgstr "You don't have access to this repository, or it isn't part of the installation."
 
@@ -497,7 +514,7 @@ msgstr "You don't have access to this repository, or it isn't part of the instal
 msgid "개인정보처리방침"
 msgstr "Privacy Policy"
 
-#: components/onboarding/repository-step.tsx:82
+#: components/onboarding/repository-step.tsx:161
 msgid "저장소"
 msgstr "Repository"
 
@@ -521,21 +538,17 @@ msgstr "All repositories"
 msgid "Github 계정으로 시작하세요."
 msgstr "Get started with your GitHub account."
 
-#: components/onboarding/repository-step.tsx:149
+#: components/onboarding/repository-step.tsx:246
 msgid "저장소 연동 중..."
 msgstr "Connecting repository..."
 
-#: components/onboarding/repository-step.tsx:151
+#: components/onboarding/repository-step.tsx:248
 msgid "다음"
 msgstr "Next"
 
 #: app/[lang]/sign-in/page.tsx:30
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
 msgstr "Your GitHub authorization has expired. Please sign in again."
-
-#: components/onboarding/repository-step.tsx:72
-msgid "저장소를 선택하고<0/>브랜치명을 입력하세요."
-msgstr "Select a repository<0/>and enter a branch name."
 
 #: components/main/sample-draft-editor.tsx:61
 msgid "초안 편집기"
@@ -557,3 +570,7 @@ msgstr "From commit context to a story"
 #: components/shared/github-sign-in-button.tsx:67
 msgid "GitHub 로 시작하기"
 msgstr "Continue with GitHub"
+
+#: components/onboarding/repository-step.tsx:137
+msgid "저장소를 먼저 선택하세요"
+msgstr "Select a repository first"

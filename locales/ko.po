@@ -15,9 +15,9 @@ msgstr "Github 로 회원가입/로그인"
 msgid "메뉴 열기"
 msgstr "메뉴 열기"
 
-#: components/onboarding/repository-step.tsx:116
-msgid "브랜치명"
-msgstr "브랜치명"
+#: components/onboarding/repository-step.tsx:217
+msgid "브랜치 목록을 불러오지 못했습니다."
+msgstr "브랜치 목록을 불러오지 못했습니다."
 
 #: components/main/sample-commits.ts:21
 msgid "cleanup에서 disconnect() 호출"
@@ -68,9 +68,13 @@ msgstr "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바
 msgid "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
 msgstr "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
 
-#: components/onboarding/repository-select.tsx:180
+#: components/onboarding/repository-select.tsx:35
 msgid "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저장소 권한 추가하기</0>"
 msgstr "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저장소 권한 추가하기</0>"
+
+#: components/onboarding/repository-step.tsx:229
+msgid "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를 선택해주세요."
+msgstr "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를 선택해주세요."
 
 #: components/onboarding/complete-step.tsx:48
 msgid "작성 하러 가기"
@@ -93,6 +97,10 @@ msgstr "새 초안"
 #: components/main/notice-section.tsx:8
 msgid "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
 msgstr "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
+
+#: components/onboarding/repository-step.tsx:151
+msgid "저장소와 브랜치를<0/>선택하세요."
+msgstr "저장소와 브랜치를<0/>선택하세요."
 
 #: app/[lang]/sign-in/page.tsx:20
 msgid "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
@@ -136,7 +144,7 @@ msgstr "언어 선택"
 msgid "프로필 메뉴"
 msgstr "프로필 메뉴"
 
-#: components/onboarding/repository-select.tsx:166
+#: components/onboarding/repository-select.tsx:33
 msgid "저장소를 선택하세요"
 msgstr "저장소를 선택하세요"
 
@@ -149,12 +157,17 @@ msgid "바로 시작해보세요."
 msgstr "바로 시작해보세요."
 
 #: app/[lang]/error.tsx:23
+#: components/onboarding/repository-step.tsx:223
 msgid "다시 시도"
 msgstr "다시 시도"
 
 #: components/shared/sign-out-button.tsx:29
 msgid "로그아웃"
 msgstr "로그아웃"
+
+#: components/onboarding/repository-step.tsx:204
+msgid "선택할 수 있는 브랜치가 없습니다. 커밋이 있는 저장소인지 확인해주세요."
+msgstr "선택할 수 있는 브랜치가 없습니다. 커밋이 있는 저장소인지 확인해주세요."
 
 #: components/auth/commit-to-draft-motion.tsx:115
 #: components/main/hero-preview.tsx:69
@@ -330,10 +343,6 @@ msgstr "아직 GitHub App 이 설치된 계정이 없습니다. 상단의 \"GitH
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올 수 있습니다."
 msgstr "GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올 수 있습니다."
 
-#: components/onboarding/repository-step.tsx:133
-msgid "저장소에서 브랜치를 찾을 수 없습니다. 브랜치명을 확인해주세요."
-msgstr "저장소에서 브랜치를 찾을 수 없습니다. 브랜치명을 확인해주세요."
-
 #: components/main/sample-commits.ts:13
 msgid "refactor: 이미지 로딩 훅 분리"
 msgstr "refactor: 이미지 로딩 훅 분리"
@@ -359,6 +368,10 @@ msgstr "Github App 인증"
 #: components/main/main-footer.tsx:40
 msgid "문의하기"
 msgstr "문의하기"
+
+#: components/onboarding/repository-step.tsx:195
+msgid "브랜치"
+msgstr "브랜치"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:62
 msgid "제거 중..."
@@ -396,9 +409,9 @@ msgstr "개인"
 msgid "선택한 커밋"
 msgstr "선택한 커밋"
 
-#: components/onboarding/repository-step.tsx:123
-msgid "브랜치명을 입력하세요"
-msgstr "브랜치명을 입력하세요"
+#: components/onboarding/repository-step.tsx:144
+msgid "브랜치를 선택하세요"
+msgstr "브랜치를 선택하세요"
 
 #: app/[lang]/sign-in/page.tsx:105
 msgid "대시보드로 돌아가기"
@@ -470,6 +483,10 @@ msgstr "저장소/커밋 내역"
 msgid "홈으로 이동"
 msgstr "홈으로 이동"
 
+#: components/onboarding/repository-step.tsx:141
+msgid "브랜치 목록을 불러오는 중..."
+msgstr "브랜치 목록을 불러오는 중..."
+
 #: components/main/steps-section.tsx:20
 msgid "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
 msgstr "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
@@ -489,7 +506,7 @@ msgid "게시하기"
 msgstr "게시하기"
 
 #: components/dashboard/status-message.tsx:44
-#: components/onboarding/repository-step.tsx:108
+#: components/onboarding/repository-step.tsx:187
 msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 msgstr "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 
@@ -497,7 +514,7 @@ msgstr "접근 권한이 없거나 설치에 포함되지 않은 저장소입니
 msgid "개인정보처리방침"
 msgstr "개인정보처리방침"
 
-#: components/onboarding/repository-step.tsx:82
+#: components/onboarding/repository-step.tsx:161
 msgid "저장소"
 msgstr "저장소"
 
@@ -521,21 +538,17 @@ msgstr "모든 저장소"
 msgid "Github 계정으로 시작하세요."
 msgstr "Github 계정으로 시작하세요."
 
-#: components/onboarding/repository-step.tsx:149
+#: components/onboarding/repository-step.tsx:246
 msgid "저장소 연동 중..."
 msgstr "저장소 연동 중..."
 
-#: components/onboarding/repository-step.tsx:151
+#: components/onboarding/repository-step.tsx:248
 msgid "다음"
 msgstr "다음"
 
 #: app/[lang]/sign-in/page.tsx:30
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
 msgstr "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
-
-#: components/onboarding/repository-step.tsx:72
-msgid "저장소를 선택하고<0/>브랜치명을 입력하세요."
-msgstr "저장소를 선택하고<0/>브랜치명을 입력하세요."
 
 #: components/main/sample-draft-editor.tsx:61
 msgid "초안 편집기"
@@ -557,3 +570,7 @@ msgstr "커밋의 맥락을 글의 흐름으로"
 #: components/shared/github-sign-in-button.tsx:67
 msgid "GitHub 로 시작하기"
 msgstr "GitHub 로 시작하기"
+
+#: components/onboarding/repository-step.tsx:137
+msgid "저장소를 먼저 선택하세요"
+msgstr "저장소를 먼저 선택하세요"

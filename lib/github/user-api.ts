@@ -13,6 +13,8 @@ import { account } from '@/lib/db/schema';
 
 const GITHUB_API_URL = 'https://api.github.com';
 const PER_PAGE = 100;
+// 브랜치 목록 최대 조회 페이지 (PER_PAGE * 10 = 1000개)
+const MAX_BRANCH_PAGES = 10;
 
 export interface GithubAccount {
   id: number;
@@ -198,6 +200,34 @@ const hasNextPage = (linkHeader: string | null) => {
   return (
     linkHeader?.split(',').some((link) => /rel="next"/.test(link)) ?? false
   );
+};
+
+/**
+ * 저장소의 브랜치 이름 목록 (GitHub 응답 순서, 최대 MAX_BRANCH_PAGES 페이지)
+ * - 사용자 토큰으로 호출하므로 GitHub 에서 저장소 권한이 없으면 404
+ * - 커밋이 하나도 없는 빈 저장소는 빈 배열
+ */
+export const listUserRepositoryBranches = async (
+  token: string,
+  { owner, repo }: { owner: string; repo: string },
+) => {
+  const branches: string[] = [];
+
+  for (let page = 1; page <= MAX_BRANCH_PAGES; page++) {
+    const response = await githubUserResponse(
+      token,
+      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/branches?per_page=${PER_PAGE}&page=${page}`,
+    );
+    const data = (await response.json()) as Array<{ name: string }>;
+
+    branches.push(...data.map(({ name }) => name));
+
+    if (!hasNextPage(response.headers.get('link'))) {
+      break;
+    }
+  }
+
+  return branches;
 };
 
 /**

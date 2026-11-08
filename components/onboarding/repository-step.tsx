@@ -1,9 +1,9 @@
 'use client';
 
-import { useActionState, useId, useState } from 'react';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { useActionState, useId, useRef, useState } from 'react';
+import { Trans } from '@lingui/react/macro';
+import OnboardingSelect from '@/components/onboarding/onboarding-select';
 import {
-  FIELD_CLASS,
   FIELD_ERROR_CLASS,
   FIELD_LABEL_CLASS,
   OnboardingStepActions,
@@ -16,6 +16,7 @@ import { PRIMARY_BUTTON_CLASS } from '@/components/shared/button-styles';
 import Spinner from '@/components/shared/spinner';
 import {
   connectOnboardingRepository,
+  listOnboardingRepositoryBranches,
   type ConnectOnboardingRepositoryResult,
 } from '@/lib/actions/onboarding';
 
@@ -25,21 +26,82 @@ interface SubmitResult extends ConnectOnboardingRepositoryResult {
   branch: string;
 }
 
+// 선택한 저장소의 브랜치 목록 조회 상태 (repository 는 조회한 저장소의 선택 값)
+type BranchList =
+  | { repository: string; status: 'loading' }
+  | { repository: string; status: 'ok'; branches: string[] }
+  | { repository: string; status: 'invalid_repository' | 'error' };
+
 interface RepositoryStepProps {
   repositories: OnboardingRepositoryOption[];
   onConnected: () => void;
 }
 
-// 2단계: 저장소와 추적할 브랜치를 골라 연동 (둘 다 채우면 다음 버튼 활성화)
+/**
+ * 2단계: 저장소와 추적할 브랜치를 골라 연동 (둘 다 고르면 다음 버튼 활성화)
+ * - 저장소를 고르면 GitHub 에서 브랜치 목록을 불러와 기본 브랜치를 미리 선택
+ */
 const RepositoryStep = ({ repositories, onConnected }: RepositoryStepProps) => {
-  const { t } = useLingui();
   const repositoryLabelId = useId();
   const repositoryErrorId = useId();
-  const branchInputId = useId();
+  const branchLabelId = useId();
   const branchErrorId = useId();
   const [repositoryValue, setRepositoryValue] = useState<string | null>(null);
-  const [branch, setBranch] = useState('');
+  const [branch, setBranch] = useState<string | null>(null);
+  const [branchList, setBranchList] = useState<BranchList | null>(null);
+  // 저장소를 연달아 바꿨을 때 늦게 도착한 이전 저장소의 응답을 무시하기 위한 요청 번호
+  const branchRequestRef = useRef(0);
   const selected = repositories.find(({ value }) => value === repositoryValue);
+
+  const loadBranches = async (repository: OnboardingRepositoryOption) => {
+    const requestId = ++branchRequestRef.current;
+    const isLatest = () => requestId === branchRequestRef.current;
+
+    setBranch(null);
+    setBranchList({ repository: repository.value, status: 'loading' });
+
+    try {
+      const result = await listOnboardingRepositoryBranches(
+        repository.installationId,
+        repository.githubRepoId,
+      );
+
+      if (!isLatest()) {
+        return;
+      }
+
+      if (result.status !== 'ok') {
+        setBranchList({ repository: repository.value, status: result.status });
+        return;
+      }
+
+      setBranchList({
+        repository: repository.value,
+        status: 'ok',
+        branches: result.branches,
+      });
+      setBranch(
+        result.branches.includes(result.defaultBranch)
+          ? result.defaultBranch
+          : (result.branches[0] ?? null),
+      );
+    } catch {
+      if (isLatest()) {
+        setBranchList({ repository: repository.value, status: 'error' });
+      }
+    }
+  };
+
+  const handleRepositoryChange = (value: string) => {
+    const repository = repositories.find((option) => option.value === value);
+
+    if (!repository || value === repositoryValue) {
+      return;
+    }
+
+    setRepositoryValue(value);
+    void loadBranches(repository);
+  };
 
   const [result, formAction, isPending] = useActionState(
     async (_previous: SubmitResult | null, formData: FormData) => {
@@ -58,21 +120,38 @@ const RepositoryStep = ({ repositories, onConnected }: RepositoryStepProps) => {
     null,
   );
 
+  const branchStatus =
+    branchList?.repository === repositoryValue ? branchList.status : null;
+  const branches = branchList?.status === 'ok' ? branchList.branches : [];
   const hasRepositoryError =
-    result?.status === 'invalid_repository' &&
-    result.repository === repositoryValue;
+    (result?.status === 'invalid_repository' &&
+      result.repository === repositoryValue) ||
+    branchStatus === 'invalid_repository';
   const hasBranchError =
     result?.status === 'invalid_branch' && result.branch === branch;
-  const canSubmit = selected !== undefined && branch.trim() !== '';
+  const canSubmit =
+    selected !== undefined && branch !== null && branchStatus === 'ok';
+
+  const branchPlaceholder = (() => {
+    if (!selected) {
+      return <Trans>저장소를 먼저 선택하세요</Trans>;
+    }
+
+    if (branchStatus === 'loading') {
+      return <Trans>브랜치 목록을 불러오는 중...</Trans>;
+    }
+
+    return <Trans>브랜치를 선택하세요</Trans>;
+  })();
 
   return (
     <form action={formAction} className="flex flex-1 flex-col">
       <OnboardingStepContent
         title={
           <Trans>
-            저장소를 선택하고
+            저장소와 브랜치를
             <br />
-            브랜치명을 입력하세요.
+            선택하세요.
           </Trans>
         }
       >
@@ -85,7 +164,7 @@ const RepositoryStep = ({ repositories, onConnected }: RepositoryStepProps) => {
               labelId={repositoryLabelId}
               options={repositories}
               value={repositoryValue}
-              onChange={setRepositoryValue}
+              onChange={handleRepositoryChange}
               invalid={hasRepositoryError}
               errorId={repositoryErrorId}
             />
@@ -112,26 +191,44 @@ const RepositoryStep = ({ repositories, onConnected }: RepositoryStepProps) => {
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <label htmlFor={branchInputId} className={FIELD_LABEL_CLASS}>
-              <Trans>브랜치명</Trans>
-            </label>
-            <input
-              id={branchInputId}
-              name="branch"
+            <span id={branchLabelId} className={FIELD_LABEL_CLASS}>
+              <Trans>브랜치</Trans>
+            </span>
+            <OnboardingSelect
+              labelId={branchLabelId}
+              options={branches.map((name) => ({ value: name, label: name }))}
               value={branch}
-              onChange={(event) => setBranch(event.target.value)}
-              placeholder={t`브랜치명을 입력하세요`}
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              aria-invalid={hasBranchError}
-              aria-describedby={hasBranchError ? branchErrorId : undefined}
-              className={`${FIELD_CLASS} placeholder:text-ink-faint focus:border-ink`}
+              onChange={setBranch}
+              placeholder={branchPlaceholder}
+              emptyContent={
+                <Trans>
+                  선택할 수 있는 브랜치가 없습니다. 커밋이 있는 저장소인지
+                  확인해주세요.
+                </Trans>
+              }
+              disabled={branchStatus !== 'ok'}
+              busy={branchStatus === 'loading'}
+              invalid={hasBranchError || branchStatus === 'error'}
+              errorId={branchErrorId}
             />
+            <input type="hidden" name="branch" value={branch ?? ''} />
+            {branchStatus === 'error' && selected && (
+              <p id={branchErrorId} role="alert" className={FIELD_ERROR_CLASS}>
+                <Trans>브랜치 목록을 불러오지 못했습니다.</Trans>{' '}
+                <button
+                  type="button"
+                  onClick={() => void loadBranches(selected)}
+                  className="underline"
+                >
+                  <Trans>다시 시도</Trans>
+                </button>
+              </p>
+            )}
             {hasBranchError && (
               <p id={branchErrorId} role="alert" className={FIELD_ERROR_CLASS}>
                 <Trans>
-                  저장소에서 브랜치를 찾을 수 없습니다. 브랜치명을 확인해주세요.
+                  저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를
+                  선택해주세요.
                 </Trans>
               </p>
             )}

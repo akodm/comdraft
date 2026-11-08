@@ -7,9 +7,9 @@
     "pnpm": ">=10.28.0"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3003",
     "build": "pnpm i18n:compile && next build",
-    "start": "next start",
+    "start": "next start -p 3003",
     "eslint": "eslint . --ext .ts,.tsx,.js,.jsx --cache --fix",
     "i18n:extract": "lingui extract --clean",
     "i18n:compile": "lingui compile",

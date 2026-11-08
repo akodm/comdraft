@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - 3000:3000
+      - 3003:3003
     volumes:
       - .:/app/next-app-boilerplate
       - /app/next-app-boilerplate/node_modules
