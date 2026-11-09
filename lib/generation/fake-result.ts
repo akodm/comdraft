@@ -20,6 +20,10 @@ const escapeMarkdown = (text: string) => {
   return text.replace(/([\\`*_{}[\]()#+\-.!|<>])/g, '\\$1');
 };
 
+// 작성하지 않은 빈칸 예시 (편집기의 빈칸 표시와 내보내기 안내 확인용)
+const BLANK_SAMPLE =
+  ':::blank {kind="motivation" hint="이 작업을 시작하게 된 계기를 작성해 주세요"}\n:::';
+
 /**
  * @param commits 최신순 (작업 순서대로 보이도록 오래된 커밋부터 소제목을 만듦)
  */
@@ -49,5 +53,10 @@ export const buildFakeResultMarkdown = ({
     ].join('\n\n');
   });
 
-  return [`# ${escapeMarkdown(title)}`, ...intro, ...sections].join('\n\n');
+  return [
+    `# ${escapeMarkdown(title)}`,
+    ...intro,
+    BLANK_SAMPLE,
+    ...sections,
+  ].join('\n\n');
 };

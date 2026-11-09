@@ -15,6 +15,7 @@ export type DraftHeadingLevel = (typeof DRAFT_HEADING_LEVELS)[number];
 
 export const createDraftSchemaExtensions = (
   codeBlock: AnyExtension = CodeBlock,
+  draftBlank: AnyExtension = DraftBlank,
 ): AnyExtension[] => [
   StarterKit.configure({
     codeBlock: false,
@@ -27,5 +28,5 @@ export const createDraftSchemaExtensions = (
     },
   }),
   codeBlock,
-  DraftBlank,
+  draftBlank,
 ];

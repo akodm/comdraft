@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { JSONContent } from '@tiptap/core';
+import type { Transaction } from '@tiptap/pm/state';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import { getDraftStatusLabel } from '@/components/studio/draft-status';
 import { createEditorExtensions } from '@/components/studio/editor-extensions';
@@ -20,6 +21,7 @@ import {
   OUTLINE_BUTTON_CLASS,
 } from '@/components/studio/studio-styles';
 import { saveDraftContent } from '@/lib/actions/studio';
+import { countEmptyBlanks } from '@/lib/studio/draft-blank';
 import type { StudioDraft } from '@/lib/studio/queries';
 
 // 마지막 입력 후 이 시간이 지나면 자동 저장
@@ -213,6 +215,39 @@ const useAppliedContent = (
   }, [editor, draft, revision, setDraftTitle]);
 };
 
+// 작성하지 않은 빈칸 개수 (편집기 내용이 바뀔 때마다 갱신)
+const useEmptyBlankCount = (editor: Editor | null) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const update = () => setCount(countEmptyBlanks(editor.getJSON()));
+
+    // AI 결과로 본문을 바꿀 때는 update 이벤트가 없어 문서가 바뀐 트랜잭션을 따름
+    const handleTransaction = ({
+      transaction,
+    }: {
+      transaction: Transaction;
+    }) => {
+      if (transaction.docChanged) {
+        update();
+      }
+    };
+
+    update();
+    editor.on('transaction', handleTransaction);
+
+    return () => {
+      editor.off('transaction', handleTransaction);
+    };
+  }, [editor]);
+
+  return count;
+};
+
 interface DraftEditorProps {
   repositoryId: string;
   // null 이면 새 초안 (작성 요청을 보내기 전이라 편집 불가)
@@ -251,6 +286,28 @@ const DraftEditor = ({
         headingPlaceholder: t`제목`,
         paragraphPlaceholder: t`내용을 입력하세요`,
         codeBlock: { copy: t`코드 복사`, copied: t`복사했습니다` },
+        blank: {
+          kinds: {
+            motivation: {
+              label: t`계기`,
+              fallback: t`이 부분에 작업 계기를 작성해 주세요`,
+            },
+            result: {
+              label: t`결과·수치`,
+              fallback: t`이 부분에 결과나 수치를 작성해 주세요`,
+            },
+            lesson: {
+              label: t`배운 점`,
+              fallback: t`이 부분에 배운 점을 작성해 주세요`,
+            },
+            detail: {
+              label: t`설명 필요`,
+              fallback: t`이 부분은 자세한 설명이 필요합니다`,
+            },
+          },
+          done: t`완료`,
+        },
+        blankPlaceholder: t`여기에 직접 작성해 주세요`,
       }),
     [t],
   );
@@ -294,17 +351,30 @@ const DraftEditor = ({
     [draft?.id],
   );
 
+  const emptyBlankCount = useEmptyBlankCount(editor);
+
   useEditorLock(editor, Boolean(draft) && !isLocked);
   useAppliedContent(editor, draft);
 
   const title = draft?.title ?? '';
+  // 작성하지 않은 빈칸이 있으면 내보내기 전에 확인 (취소하면 내보내지 않음)
+  const confirmExport = () => {
+    const count = countEmptyBlanks(editor?.getJSON() ?? {});
+
+    return (
+      count === 0 ||
+      window.confirm(
+        t`작성하지 않은 빈칸이 ${count}개 있어요. 그대로 내보낼까요?`,
+      )
+    );
+  };
   const exportHtml = () => {
-    if (editor) {
+    if (editor && confirmExport()) {
       downloadFile(toFileName(title, 'html'), editor.getHTML(), 'text/html');
     }
   };
   const exportMarkdown = () => {
-    if (editor) {
+    if (editor && confirmExport()) {
       downloadFile(
         toFileName(title, 'md'),
         editor.getMarkdown(),
@@ -327,6 +397,7 @@ const DraftEditor = ({
             ),
           )}
           <span aria-live="polite" className="truncate">
+            {emptyBlankCount > 0 && <Trans>· 빈칸 {emptyBlankCount}개</Trans>}
             {saveState === 'saving' && <Trans>· 저장 중...</Trans>}
             {saveState === 'error' && (
               <span className="text-danger">
