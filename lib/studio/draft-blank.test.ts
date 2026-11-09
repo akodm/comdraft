@@ -13,6 +13,22 @@ describe('normalizeBlankAttrs', () => {
       normalizeBlankAttrs({ kind: 'lesson', hint: 'x'.repeat(100) }).hint,
     ).toHaveLength(80);
   });
+
+  // comdraft-lambda src/generation/validate.ts 의 sanitizeHint 와 같은 규칙
+  it('따옴표·중괄호를 먼저 지운 뒤 콜론 3개 이상 묶음을 지우고 탭까지 공백 한 칸으로', () => {
+    const { hint } = normalizeBlankAttrs({ hint: ':"::a ::::b\tc' });
+
+    expect(hint).not.toContain(':::');
+    expect(hint).not.toContain('\t');
+    expect(hint).toBe('a b c');
+  });
+
+  it('80자 자르기는 코드 포인트 단위라 서로게이트 쌍을 쪼개지 않는다', () => {
+    const { hint } = normalizeBlankAttrs({ hint: 'x'.repeat(79) + '😀😀' });
+
+    expect(Array.from(hint)).toHaveLength(80);
+    expect(hint.endsWith('😀')).toBe(true);
+  });
 });
 
 describe('countEmptyBlanks', () => {

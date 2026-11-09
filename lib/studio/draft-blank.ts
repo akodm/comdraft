@@ -21,13 +21,19 @@ const DEFAULT_BLANK_KIND: BlankKind = 'detail';
 const isBlankKind = (value: unknown): value is BlankKind =>
   BLANK_KINDS.includes(value as BlankKind);
 
-const sanitizeHint = (value: unknown) =>
-  (typeof value === 'string' ? value : '')
-    .replace(/["{}]|:::/g, '')
-    .replace(/\s*[\r\n]+\s*/g, ' ')
-    .replace(/ {2,}/g, ' ')
-    .trim()
-    .slice(0, BLANK_HINT_MAX_LENGTH);
+// comdraft-lambda src/generation/validate.ts 의 sanitizeHint 와 같은 규칙
+const sanitizeHint = (value: unknown) => {
+  const cleaned = (typeof value === 'string' ? value : '')
+    .replace(/["{}]/g, '')
+    // 따옴표 등을 먼저 지운 뒤 콜론 3개 이상 묶음을 통째로 지워 ::: 가 다시 생기지 않게 함
+    .replace(/:{3,}/g, '')
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // 서로게이트 쌍이 쪼개지지 않도록 코드 포인트 단위로 자름
+  return Array.from(cleaned).slice(0, BLANK_HINT_MAX_LENGTH).join('').trim();
+};
 
 export const normalizeBlankAttrs = (
   attrs: Record<string, unknown> | undefined,

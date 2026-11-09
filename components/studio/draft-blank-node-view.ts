@@ -41,7 +41,7 @@ const createElement = <K extends keyof HTMLElementTagNameMap>(
  */
 export const createDraftBlankNodeView =
   (labels: DraftBlankLabels): NodeViewRenderer =>
-  ({ node: initialNode, editor, getPos }) => {
+  ({ node: initialNode, editor, getPos, view }) => {
     let node = initialNode;
 
     const dom = createElement(
@@ -87,14 +87,29 @@ export const createDraftBlankNodeView =
       dom.dataset.kind = kind;
       kindLabel.textContent = label;
       hint.textContent = hintText || fallback;
-      doneButton.disabled = !node.textContent.trim();
+      // 편집 잠금 중(AI 작성 중)에는 완료할 수 없음
+      doneButton.disabled = !editor.isEditable || !node.textContent.trim();
     };
 
     render();
 
+    // 편집 가능 여부만 바뀌면 노드 뷰 update 가 불리지 않으므로,
+    // ProseMirror 가 편집기 DOM 에 반영하는 contenteditable 속성 변경을 보고 다시 그림
+    // (노드 뷰를 처음 만들 때는 editor.view 가 아직 없어 인자로 받은 view 를 씀)
+    const editableObserver = new MutationObserver(render);
+
+    editableObserver.observe(view.dom, {
+      attributes: true,
+      attributeFilter: ['contenteditable'],
+    });
+
     // 버튼을 눌러도 편집기 커서가 움직이지 않도록 함
     doneButton.addEventListener('mousedown', (event) => event.preventDefault());
     doneButton.addEventListener('click', () => {
+      if (!editor.isEditable) {
+        return;
+      }
+
       const pos = getPos();
 
       if (typeof pos === 'number') {
@@ -115,6 +130,7 @@ export const createDraftBlankNodeView =
 
         return true;
       },
+      destroy: () => editableObserver.disconnect(),
       // 머리글은 편집 대상이 아님
       stopEvent: (event) => header.contains(event.target as Node),
       ignoreMutation: (mutation) =>

@@ -398,6 +398,10 @@ const DraftEditor = ({
           )}
           <span aria-live="polite" className="truncate">
             {emptyBlankCount > 0 && <Trans>· 빈칸 {emptyBlankCount}개</Trans>}
+            {/* 빈칸 개수와 저장 상태가 함께 보이면 사이를 띄움 */}
+            {emptyBlankCount > 0 &&
+              (saveState === 'saving' || saveState === 'error') &&
+              ' '}
             {saveState === 'saving' && <Trans>· 저장 중...</Trans>}
             {saveState === 'error' && (
               <span className="text-danger">
