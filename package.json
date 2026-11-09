@@ -17,7 +17,8 @@
     "db:migrate:local": "dotenv -e .env.development -- drizzle-kit migrate",
     "db:migrate:prod": "dotenv -e .env.production -- drizzle-kit migrate",
     "db:studio:local": "dotenv -e .env.development -- drizzle-kit studio",
-    "db:studio:prod": "dotenv -e .env.production -- drizzle-kit studio"
+    "db:studio:prod": "dotenv -e .env.production -- drizzle-kit studio",
+    "test": "vitest run"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.10",
@@ -76,6 +77,7 @@
     "prettier": "^3.8.1",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "typescript-eslint": "^8.56.1"
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^5.1.0"
   }
 }

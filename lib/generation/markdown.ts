@@ -1,5 +1,6 @@
 import { resolveExtensions, type JSONContent } from '@tiptap/core';
 import { MarkdownManager } from '@tiptap/markdown';
+import { normalizeBlankAttrs } from '@/lib/studio/draft-blank';
 import {
   createDraftSchemaExtensions,
   DRAFT_HEADING_LEVELS,
@@ -59,6 +60,14 @@ export const normalizeGeneratedDocument = (node: JSONContent): JSONContent => {
 
   if (node.content) {
     normalized.content = node.content.map(normalizeGeneratedDocument);
+  }
+
+  if (node.type === 'draftBlank') {
+    normalized.attrs = normalizeBlankAttrs(node.attrs);
+    normalized.content =
+      normalized.content && normalized.content.length > 0
+        ? normalized.content
+        : [{ type: 'paragraph' }];
   }
 
   return normalized;

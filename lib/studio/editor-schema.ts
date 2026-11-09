@@ -1,6 +1,7 @@
 import type { AnyExtension } from '@tiptap/core';
 import { CodeBlock } from '@tiptap/extension-code-block';
 import { StarterKit } from '@tiptap/starter-kit';
+import { DraftBlank } from '@/lib/studio/draft-blank-node';
 
 /**
  * 초안 문서 스키마를 정하는 확장 (편집기와 서버의 Markdown → 문서 변환이 같은 노드/마크를 쓰도록 공유)
@@ -26,4 +27,5 @@ export const createDraftSchemaExtensions = (
     },
   }),
   codeBlock,
+  DraftBlank,
 ];
