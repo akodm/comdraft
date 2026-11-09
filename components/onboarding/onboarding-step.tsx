@@ -55,11 +55,13 @@ const StepDots = ({ step }: { step: OnboardingStep }) => {
 };
 
 interface OnboardingStepActionsProps {
-  step: OnboardingStep;
+  // 생략하면 진행 표시 없음 (온보딩 밖에서 재사용하는 화면)
+  step?: OnboardingStep;
   children: ReactNode;
 }
 
 // 화면 아래에 붙는 단계 행동 버튼과 진행 표시 (내용이 길면 내용 아래로 밀려남)
+// 진행 표시가 없어도 같은 하단 여백을 유지
 export const OnboardingStepActions = ({
   step,
   children,
@@ -67,7 +69,7 @@ export const OnboardingStepActions = ({
   return (
     <div className="mt-auto flex flex-col items-center gap-10 pt-10 pb-10 pc:gap-18 pc:pb-16">
       <div className="flex w-full flex-col items-center gap-4">{children}</div>
-      <StepDots step={step} />
+      {step && <StepDots step={step} />}
     </div>
   );
 };

@@ -11,11 +11,15 @@ msgstr ""
 msgid "Github 로 회원가입/로그인"
 msgstr "Github 로 회원가입/로그인"
 
+#: lib/studio/options.ts:59
+msgid "중간"
+msgstr "중간"
+
 #: components/main/mobile-menu.tsx:105
 msgid "메뉴 열기"
 msgstr "메뉴 열기"
 
-#: components/onboarding/repository-step.tsx:217
+#: components/onboarding/repository-connect-form.tsx:241
 msgid "브랜치 목록을 불러오지 못했습니다."
 msgstr "브랜치 목록을 불러오지 못했습니다."
 
@@ -27,6 +31,10 @@ msgstr "cleanup에서 disconnect() 호출"
 msgid "커밋 내 코드를 사이트 어디에도 저장하지 않습니다."
 msgstr "커밋 내 코드를 사이트 어디에도 저장하지 않습니다."
 
+#: components/studio/draft-sidebar.tsx:145
+msgid "초안을 삭제하지 못했습니다. 다시 시도해주세요."
+msgstr "초안을 삭제하지 못했습니다. 다시 시도해주세요."
+
 #: components/main/steps-section.tsx:7
 msgid "Github 연결"
 msgstr "Github 연결"
@@ -36,15 +44,24 @@ msgstr "Github 연결"
 msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
 msgstr "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
 
+#: app/[lang]/dashboard/repositories/page.tsx:47
 #: components/onboarding/onboarding-flow.tsx:40
 msgid "대시보드로 이동"
 msgstr "대시보드로 이동"
+
+#: components/dashboard/empty-repositories.tsx:14
+msgid "저장소를 추가하고 초안을 만들어보세요"
+msgstr "저장소를 추가하고 초안을 만들어보세요"
+
+#: components/studio/draft-editor.tsx:230
+msgid "초안 본문"
+msgstr "초안 본문"
 
 #: components/main/draft-example-section.tsx:12
 msgid "기술 개발 블로그 습관"
 msgstr "기술 개발 블로그 습관"
 
-#: components/main/language-menu.tsx:38
+#: components/main/language-menu.tsx:43
 msgid "언어 변경"
 msgstr "언어 변경"
 
@@ -68,11 +85,27 @@ msgstr "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바
 msgid "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
 msgstr "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
 
+#: components/studio/draft-status.ts:7
+msgid "게시 · 일부 공개"
+msgstr "게시 · 일부 공개"
+
+#: components/studio/draft-editor.tsx:293
+msgid "마크다운 파일로 내보내기"
+msgstr "마크다운 파일로 내보내기"
+
+#: lib/studio/options.ts:58
+msgid "짧게"
+msgstr "짧게"
+
+#: components/studio/reference-links.tsx:38
+msgid "새 탭에서 {host} 열기"
+msgstr "새 탭에서 {host} 열기"
+
 #: components/onboarding/repository-select.tsx:35
 msgid "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저장소 권한 추가하기</0>"
 msgstr "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저장소 권한 추가하기</0>"
 
-#: components/onboarding/repository-step.tsx:229
+#: components/onboarding/repository-connect-form.tsx:253
 msgid "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를 선택해주세요."
 msgstr "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를 선택해주세요."
 
@@ -80,31 +113,73 @@ msgstr "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치�
 msgid "작성 하러 가기"
 msgstr "작성 하러 가기"
 
+#: app/[lang]/dashboard/repositories/page.tsx:66
+msgid "연동"
+msgstr "연동"
+
 #: components/main/sample-draft-editor.tsx:64
 msgid "검토 전 초안"
 msgstr "검토 전 초안"
+
+#: components/studio/prompt-options.tsx:31
+msgid "유형"
+msgstr "유형"
 
 #: components/onboarding/draft-example.tsx:38
 msgid "작성 예시"
 msgstr "작성 예시"
 
+#: components/studio/draft-sidebar.tsx:48
+msgid "초안 목록"
+msgstr "초안 목록"
+
+#: components/studio/prompt-composer.tsx:290
+msgid "초안 목록 열기"
+msgstr "초안 목록 열기"
+
 #: components/auth/commit-to-draft-motion.tsx:108
 #: components/main/hero-preview.tsx:25
 #: components/onboarding/draft-example.tsx:99
+#: components/studio/draft-sidebar.tsx:126
 msgid "새 초안"
 msgstr "새 초안"
+
+#: components/studio/draft-status.ts:8
+msgid "게시 · 비공개"
+msgstr "게시 · 비공개"
+
+#: components/dashboard/empty-repositories.tsx:11
+msgid "연동된 저장소가 없습니다."
+msgstr "연동된 저장소가 없습니다."
+
+#: components/studio/profile-menu.tsx:72
+msgid "저장소 설정"
+msgstr "저장소 설정"
+
+#: components/dashboard/repository-card.tsx:83
+msgid "라이선스"
+msgstr "라이선스"
 
 #: components/main/notice-section.tsx:8
 msgid "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
 msgstr "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
 
-#: components/onboarding/repository-step.tsx:151
+#: app/[lang]/dashboard/repositories/page.tsx:60
+#: components/onboarding/repository-step.tsx:23
 msgid "저장소와 브랜치를<0/>선택하세요."
 msgstr "저장소와 브랜치를<0/>선택하세요."
+
+#: components/studio/draft-sidebar.tsx:137
+msgid "세션"
+msgstr "세션"
 
 #: app/[lang]/sign-in/page.tsx:20
 msgid "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
 msgstr "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
+
+#: components/studio/prompt-options.tsx:164
+msgid "{label} 제거"
+msgstr "{label} 제거"
 
 #: components/onboarding/complete-step.tsx:19
 msgid "첫 저장소 연동이<0/>완료되었습니다."
@@ -114,6 +189,14 @@ msgstr "첫 저장소 연동이<0/>완료되었습니다."
 msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 msgstr "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 
+#: components/studio/editor-toolbar.tsx:49
+msgid "굵게"
+msgstr "굵게"
+
+#: components/studio/editor-toolbar.tsx:63
+msgid "인용"
+msgstr "인용"
+
 #: components/dashboard/status-message.tsx:37
 msgid "접근 권한이 없는 GitHub App 설치입니다."
 msgstr "접근 권한이 없는 GitHub App 설치입니다."
@@ -122,13 +205,30 @@ msgstr "접근 권한이 없는 GitHub App 설치입니다."
 msgid "어떻게 구현했나요?"
 msgstr "어떻게 구현했나요?"
 
+#: components/studio/commit-sidebar.tsx:99
+msgid "커밋 내역을 불러오지 못했습니다."
+msgstr "커밋 내역을 불러오지 못했습니다."
+
+#: components/studio/draft-status.ts:23
+msgid "초안"
+msgstr "초안"
+
 #: components/main/main-footer.tsx:46
 msgid "개발자 이메일 · 예시 주소"
 msgstr "개발자 이메일 · 예시 주소"
 
+#: components/studio/draft-list-item.tsx:27
+#: components/studio/draft-list-item.tsx:117
+msgid "제목 없는 초안"
+msgstr "제목 없는 초안"
+
 #: components/main/mobile-menu.tsx:132
 msgid "메뉴"
 msgstr "메뉴"
+
+#: components/studio/editor-toolbar.tsx:275
+msgid "링크 주소"
+msgstr "링크 주소"
 
 #: components/main/main-header.tsx:32
 #: components/main/mobile-menu.tsx:162
@@ -139,33 +239,63 @@ msgstr "게시글"
 msgid "언어 선택"
 msgstr "언어 선택"
 
+#: components/studio/profile-menu.tsx:90
+msgid "회원 탈퇴"
+msgstr "회원 탈퇴"
+
 #: components/main/profile-menu.tsx:75
 #: components/main/profile-menu.tsx:89
 msgid "프로필 메뉴"
 msgstr "프로필 메뉴"
 
+#: components/studio/draft-editor.tsx:284
+msgid "HTML 파일로 내보내기"
+msgstr "HTML 파일로 내보내기"
+
 #: components/onboarding/repository-select.tsx:33
 msgid "저장소를 선택하세요"
 msgstr "저장소를 선택하세요"
 
-#: app/[lang]/dashboard/repositories/page.tsx:174
-msgid "대시보드 보기"
-msgstr "대시보드 보기"
+#: components/studio/draft-list-item.tsx:75
+msgid "삭제"
+msgstr "삭제"
+
+#: components/studio/reference-link-dialog.tsx:26
+msgid "링크를 추가하지 못했습니다. 다시 시도해주세요."
+msgstr "링크를 추가하지 못했습니다. 다시 시도해주세요."
+
+#: components/studio/commit-sidebar.tsx:88
+msgid "커밋 내역을 불러오는 중..."
+msgstr "커밋 내역을 불러오는 중..."
 
 #: components/main/steps-section.tsx:32
 msgid "바로 시작해보세요."
 msgstr "바로 시작해보세요."
 
+#: components/studio/reference-link-dialog.tsx:23
+msgid "이미 추가한 링크입니다."
+msgstr "이미 추가한 링크입니다."
+
+#: components/studio/commit-sidebar.tsx:145
+msgid "추적 브랜치에 커밋이 없습니다."
+msgstr "추적 브랜치에 커밋이 없습니다."
+
 #: app/[lang]/error.tsx:23
-#: components/onboarding/repository-step.tsx:223
+#: components/dashboard/repository-list.tsx:108
+#: components/onboarding/repository-connect-form.tsx:247
+#: components/studio/commit-sidebar.tsx:105
 msgid "다시 시도"
 msgstr "다시 시도"
 
-#: components/shared/sign-out-button.tsx:29
+#: components/shared/sign-out-button.tsx:33
 msgid "로그아웃"
 msgstr "로그아웃"
 
-#: components/onboarding/repository-step.tsx:204
+#: components/studio/reference-link-dialog.tsx:133
+msgid "닫기"
+msgstr "닫기"
+
+#: components/onboarding/repository-connect-form.tsx:228
 msgid "선택할 수 있는 브랜치가 없습니다. 커밋이 있는 저장소인지 확인해주세요."
 msgstr "선택할 수 있는 브랜치가 없습니다. 커밋이 있는 저장소인지 확인해주세요."
 
@@ -188,14 +318,25 @@ msgstr "메뉴 닫기"
 msgid "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
 msgstr "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
 
-#: app/[lang]/dashboard/page.tsx:78
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:55
 msgid "추적 브랜치 {branch}"
 msgstr "추적 브랜치 {branch}"
 
+#: components/studio/prompt-composer.tsx:68
+msgid "{count, plural, other {커밋 #개}}"
+msgstr "{count, plural, other {커밋 #개}}"
+
 #: app/[lang]/sign-in/page.tsx:70
 msgid "회원가입 / 로그인"
 msgstr "회원가입 / 로그인"
+
+#: components/studio/reference-link-dialog.tsx:25
+msgid "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
+msgstr "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
+
+#: components/dashboard/repository-card.tsx:57
+msgid "개인 저장소"
+msgstr "개인 저장소"
 
 #: components/auth/auth-intro.tsx:11
 #: components/main/hero-section.tsx:13
@@ -210,18 +351,54 @@ msgstr "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게�
 msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 msgstr "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 
+#: components/studio/draft-sidebar.tsx:44
+msgid "GitHub 에서 저장소 열기"
+msgstr "GitHub 에서 저장소 열기"
+
+#: components/studio/editor-toolbar.tsx:22
+msgid "제목 2"
+msgstr "제목 2"
+
+#: components/studio/prompt-composer.tsx:141
+msgid "모두 해제"
+msgstr "모두 해제"
+
+#: lib/studio/options.ts:54
+msgid "실험"
+msgstr "실험"
+
 #: components/main/profile-menu.tsx:62
 msgid "로그인"
 msgstr "로그인"
+
+#: components/studio/commit-sidebar.tsx:229
+msgid "{selectedCount}개 선택"
+msgstr "{selectedCount}개 선택"
 
 #: components/main/draft-example-section.tsx:26
 msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgstr "서비스 이해를 위한 샘플 저장소와 초안입니다."
 
+#: components/studio/draft-list-item.tsx:45
+msgid "{label} 메뉴"
+msgstr "{label} 메뉴"
+
 #: components/main/main-header.tsx:27
 #: components/main/mobile-menu.tsx:152
 msgid "주요 메뉴"
 msgstr "주요 메뉴"
+
+#: components/studio/prompt-composer.tsx:34
+msgid "AI 초안 생성이 아직 연결되지 않아 작성 요청만 기록했습니다."
+msgstr "AI 초안 생성이 아직 연결되지 않아 작성 요청만 기록했습니다."
+
+#: components/studio/prompt-composer.tsx:187
+msgid "+{pcRest}개"
+msgstr "+{pcRest}개"
+
+#: components/studio/reference-links.tsx:109
+msgid "링크를 삭제하지 못했습니다. 다시 시도해주세요."
+msgstr "링크를 삭제하지 못했습니다. 다시 시도해주세요."
 
 #: components/auth/commit-to-draft-motion.tsx:111
 #: components/main/hero-preview.tsx:80
@@ -229,13 +406,34 @@ msgstr "주요 메뉴"
 msgid "AI 초안 · 게시 전 검토 필요"
 msgstr "AI 초안 · 게시 전 검토 필요"
 
+#: components/studio/commit-sidebar.tsx:134
+msgid "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한과 추적 브랜치를 확인해주세요."
+msgstr "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한과 추적 브랜치를 확인해주세요."
+
 #: components/main/main-footer.tsx:31
 msgid "푸터 메뉴"
 msgstr "푸터 메뉴"
 
-#: app/[lang]/dashboard/page.tsx:41
-msgid "추적 중인 저장소"
-msgstr "추적 중인 저장소"
+#: lib/studio/options.ts:47
+msgid "친근하게"
+msgstr "친근하게"
+
+#: components/studio/prompt-options.tsx:191
+msgid "더 보기"
+msgstr "더 보기"
+
+#: components/studio/prompt-composer.tsx:38
+msgid "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
+msgstr "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
+
+#: components/studio/prompt-composer.tsx:320
+#: components/studio/prompt-composer.tsx:332
+msgid "작성 요청"
+msgstr "작성 요청"
+
+#: components/studio/editor-toolbar.tsx:23
+msgid "제목 3"
+msgstr "제목 3"
 
 #: components/main/hero-section.tsx:29
 msgid "GitHub로 시작하기"
@@ -249,17 +447,21 @@ msgstr "GitHub 로그인에 실패했습니다."
 msgid "AI 초안 작성"
 msgstr "AI 초안 작성"
 
-#: app/[lang]/dashboard/repositories/page.tsx:142
-msgid "접근 가능한 저장소가 없습니다."
-msgstr "접근 가능한 저장소가 없습니다."
+#: components/studio/prompt-composer.tsx:37
+msgid "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
+msgstr "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
+
+#: components/studio/editor-toolbar.tsx:64
+msgid "실행 취소"
+msgstr "실행 취소"
+
+#: components/studio/editor-toolbar.tsx:258
+msgid "링크"
+msgstr "링크"
 
 #: components/main/main-footer.tsx:37
 msgid "이용약관"
 msgstr "이용약관"
-
-#: app/[lang]/dashboard/repositories/page.tsx:136
-msgid "권한 설정 변경"
-msgstr "권한 설정 변경"
 
 #: components/auth/commit-to-draft-motion.tsx:125
 msgid "다듬고, 검토한 뒤 어디든."
@@ -273,10 +475,6 @@ msgstr "설치 요청이 만료되었거나 유효하지 않습니다. 다시 �
 msgid "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
 msgstr "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
 
-#: app/[lang]/dashboard/page.tsx:29
-msgid "{userName} 님의 대시보드"
-msgstr "{userName} 님의 대시보드"
-
 #: app/[lang]/sign-in/page.tsx:24
 msgid "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 기본 이메일의 인증 여부를 확인한 뒤 다시 시도해주세요."
 msgstr "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 기본 이메일의 인증 여부를 확인한 뒤 다시 시도해주세요."
@@ -286,10 +484,14 @@ msgid "Github 계정으로 로그인합니다"
 msgstr "Github 계정으로 로그인합니다"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:39
-#: app/[lang]/dashboard/repositories/page.tsx:62
 #: components/main/profile-menu.tsx:99
+#: components/studio/profile-menu.tsx:58
 msgid "대시보드"
 msgstr "대시보드"
+
+#: components/studio/commit-sidebar.tsx:66
+msgid "GitHub 에서 커밋 {sha} 열기"
+msgstr "GitHub 에서 커밋 {sha} 열기"
 
 #: components/onboarding/install-step.tsx:80
 msgid "나중에 할게요"
@@ -307,6 +509,10 @@ msgstr "Github App 에서<0/>저장소 권한을 승인해주세요."
 msgid "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
 msgstr "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
 
+#: components/studio/prompt-composer.tsx:107
+msgid "{sha} 선택 해제"
+msgstr "{sha} 선택 해제"
+
 #: components/dashboard/status-message.tsx:23
 msgid "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
 msgstr "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
@@ -319,29 +525,73 @@ msgstr "제 3자인 LLM API 에 코드가 보내집니다. 조직 및 비공개 
 msgid "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
 msgstr "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
 
+#: components/studio/editor-toolbar.tsx:20
+msgid "본문"
+msgstr "본문"
+
 #: components/main/notice-section.tsx:26
 msgid "꼭 확인하세요"
 msgstr "꼭 확인하세요"
 
-#: app/[lang]/dashboard/repositories/page.tsx:121
-msgid "선택한 저장소"
-msgstr "선택한 저장소"
+#: components/studio/editor-toolbar.tsx:293
+msgid "링크 제거"
+msgstr "링크 제거"
 
-#: app/[lang]/dashboard/repositories/page.tsx:126
-msgid "일시 중지됨"
-msgstr "일시 중지됨"
+#: components/studio/editor-toolbar.tsx:50
+msgid "기울임"
+msgstr "기울임"
+
+#: components/studio/profile-menu.tsx:65
+msgid "계정 설정"
+msgstr "계정 설정"
+
+#: components/studio/prompt-composer.tsx:359
+msgid "작성 요청을 보내는 중..."
+msgstr "작성 요청을 보내는 중..."
+
+#: components/studio/prompt-options.tsx:184
+msgid "필수 항목 더 보기"
+msgstr "필수 항목 더 보기"
+
+#: components/studio/prompt-composer.tsx:35
+msgid "작성 요청을 입력해주세요."
+msgstr "작성 요청을 입력해주세요."
+
+#: lib/studio/options.ts:60
+msgid "길게"
+msgstr "길게"
+
+#: components/studio/reference-links.tsx:101
+msgid "참고 링크"
+msgstr "참고 링크"
+
+#: components/dashboard/repository-card.tsx:57
+msgid "조직 저장소"
+msgstr "조직 저장소"
+
+#: components/dashboard/repository-card.tsx:49
+msgid "공개 저장소"
+msgstr "공개 저장소"
 
 #: components/main/sample-commit-panel.tsx:83
 msgid "이 기록을 하나의 글로 정리"
 msgstr "이 기록을 하나의 글로 정리"
 
-#: app/[lang]/dashboard/repositories/page.tsx:93
-msgid "아직 GitHub App 이 설치된 계정이 없습니다. 상단의 \"GitHub 저장소 권한 부여\" 버튼으로 커밋을 가져올 저장소를 선택해주세요."
-msgstr "아직 GitHub App 이 설치된 계정이 없습니다. 상단의 \"GitHub 저장소 권한 부여\" 버튼으로 커밋을 가져올 저장소를 선택해주세요."
+#: components/studio/prompt-composer.tsx:368
+msgid "제출"
+msgstr "제출"
 
-#: app/[lang]/dashboard/repositories/page.tsx:82
-msgid "GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올 수 있습니다."
-msgstr "GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올 수 있습니다."
+#: components/studio/editor-toolbar.tsx:62
+msgid "코드 블록"
+msgstr "코드 블록"
+
+#: app/[lang]/dashboard/page.tsx:28
+msgid "연동 저장소"
+msgstr "연동 저장소"
+
+#: components/studio/reference-link-dialog.tsx:188
+msgid "취소"
+msgstr "취소"
 
 #: components/main/sample-commits.ts:13
 msgid "refactor: 이미지 로딩 훅 분리"
@@ -355,21 +605,35 @@ msgstr "관찰 로직을 재사용 가능한 훅으로 분리"
 msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 msgstr "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 
+#: components/studio/draft-editor.tsx:201
+msgid "내용을 입력하세요"
+msgstr "내용을 입력하세요"
+
 #: components/auth/commit-to-draft-motion.tsx:55
 #: components/main/sample-commit-panel.tsx:33
 #: components/onboarding/draft-example.tsx:51
 msgid "개인 공개 저장소 · main"
 msgstr "개인 공개 저장소 · main"
 
+#: components/studio/prompt-composer.tsx:36
+msgid "새 초안은 커밋 내역에서 커밋을 하나 이상 선택해야 만들 수 있습니다."
+msgstr "새 초안은 커밋 내역에서 커밋을 하나 이상 선택해야 만들 수 있습니다."
+
 #: components/onboarding/install-step.tsx:100
 msgid "Github App 인증"
 msgstr "Github App 인증"
+
+#: lib/studio/options.ts:48
+msgid "전문적으로"
+msgstr "전문적으로"
 
 #: components/main/main-footer.tsx:40
 msgid "문의하기"
 msgstr "문의하기"
 
-#: components/onboarding/repository-step.tsx:195
+#: components/dashboard/repository-card.tsx:71
+#: components/onboarding/repository-connect-form.tsx:219
+#: components/studio/draft-sidebar.tsx:111
 msgid "브랜치"
 msgstr "브랜치"
 
@@ -377,21 +641,37 @@ msgstr "브랜치"
 msgid "제거 중..."
 msgstr "제거 중..."
 
+#: components/studio/prompt-options.tsx:324
+msgid "기본 옵션 접기"
+msgstr "기본 옵션 접기"
+
 #: components/main/profile-menu.tsx:105
 msgid "계정"
 msgstr "계정"
+
+#: lib/studio/options.ts:53
+msgid "강의"
+msgstr "강의"
+
+#: components/studio/draft-editor.tsx:200
+msgid "제목"
+msgstr "제목"
+
+#: components/studio/editor-toolbar.tsx:21
+msgid "제목 1"
+msgstr "제목 1"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:65
 msgid "제거"
 msgstr "제거"
 
-#: app/[lang]/dashboard/page.tsx:53
-msgid "아직 등록된 저장소가 없습니다. GitHub App 으로 저장소 권한을 부여하고 저장소를 추가해주세요."
-msgstr "아직 등록된 저장소가 없습니다. GitHub App 으로 저장소 권한을 부여하고 저장소를 추가해주세요."
-
 #: components/main/sample-draft-editor.tsx:16
 msgid "무엇을 확인할까요?"
 msgstr "무엇을 확인할까요?"
+
+#: components/dashboard/repository-card.tsx:113
+msgid "초안 보기"
+msgstr "초안 보기"
 
 #: components/main/steps-section.tsx:12
 msgid "저장소의 커밋 내역을 불러오고 선택합니다."
@@ -401,15 +681,20 @@ msgstr "저장소의 커밋 내역을 불러오고 선택합니다."
 msgid "© 2026 comdraft. All rights reserved."
 msgstr "© 2026 comdraft. All rights reserved."
 
-#: app/[lang]/dashboard/repositories/page.tsx:115
-msgid "개인"
-msgstr "개인"
+#: components/studio/editor-toolbar.tsx:51
+msgid "취소선"
+msgstr "취소선"
+
+#: components/studio/commit-sidebar.tsx:122
+msgid "다시 로그인"
+msgstr "다시 로그인"
 
 #: components/main/sample-commit-panel.tsx:14
+#: components/studio/prompt-composer.tsx:85
 msgid "선택한 커밋"
 msgstr "선택한 커밋"
 
-#: components/onboarding/repository-step.tsx:144
+#: components/onboarding/repository-connect-form.tsx:168
 msgid "브랜치를 선택하세요"
 msgstr "브랜치를 선택하세요"
 
@@ -421,9 +706,17 @@ msgstr "대시보드로 돌아가기"
 msgid "이동 중..."
 msgstr "이동 중..."
 
+#: components/studio/draft-editor.tsx:271
+msgid "· 저장 중..."
+msgstr "· 저장 중..."
+
 #: components/main/sample-draft-editor.tsx:90
 msgid "이미지 최적화"
 msgstr "이미지 최적화"
+
+#: components/dashboard/repository-card.tsx:107
+msgid "{draftCount, plural, other {초안 #개}}"
+msgstr "{draftCount, plural, other {초안 #개}}"
 
 #: components/onboarding/onboarding-step.tsx:49
 msgid "{total}단계 중 {step}단계"
@@ -439,29 +732,41 @@ msgstr "feat: 이미지 지연 로딩 적용"
 msgid "GitHub 로 이동 중..."
 msgstr "GitHub 로 이동 중..."
 
+#: components/studio/draft-editor.tsx:202
+msgid "복사했습니다"
+msgstr "복사했습니다"
+
 #: components/main/sample-commit-panel.tsx:17
 msgid "{commitCount}개 선택"
 msgstr "{commitCount}개 선택"
 
-#: app/[lang]/dashboard/repositories/page.tsx:191
+#: components/studio/draft-editor.tsx:274
+msgid "· 저장하지 못했습니다"
+msgstr "· 저장하지 못했습니다"
+
+#: components/studio/reference-link-dialog.tsx:196
 msgid "추가"
 msgstr "추가"
+
+#: components/studio/prompt-options.tsx:324
+msgid "기본 옵션 펼치기"
+msgstr "기본 옵션 펼치기"
 
 #: components/main/steps-section.tsx:19
 msgid "검토 후 게시 및 내보내기"
 msgstr "검토 후 게시 및 내보내기"
 
-#: app/[lang]/dashboard/repositories/page.tsx:113
-msgid "조직"
-msgstr "조직"
-
-#: app/[lang]/dashboard/repositories/page.tsx:73
-msgid "GitHub 저장소 권한 부여"
-msgstr "GitHub 저장소 권한 부여"
+#: components/studio/draft-editor.tsx:259
+msgid "초안 편집"
+msgstr "초안 편집"
 
 #: components/main/sample-commits.ts:19
 msgid "fix: 언마운트 시 observer 해제"
 msgstr "fix: 언마운트 시 observer 해제"
+
+#: components/studio/prompt-options.tsx:149
+msgid "필수 항목"
+msgstr "필수 항목"
 
 #: components/onboarding/draft-example.tsx:41
 msgid "실제 데이터가 아닌 예시입니다"
@@ -475,15 +780,36 @@ msgstr "요청을 처리하지 못했습니다. 잠시 후 다시 시도해주�
 msgid "예시"
 msgstr "예시"
 
+#: components/studio/editor-toolbar.tsx:65
+msgid "다시 실행"
+msgstr "다시 실행"
+
 #: components/main/steps-section.tsx:11
 msgid "저장소/커밋 내역"
 msgstr "저장소/커밋 내역"
+
+#: components/dashboard/repository-list.tsx:102
+msgid "저장소 목록을 불러오지 못했습니다."
+msgstr "저장소 목록을 불러오지 못했습니다."
 
 #: app/[lang]/sign-in/page.tsx:55
 msgid "홈으로 이동"
 msgstr "홈으로 이동"
 
-#: components/onboarding/repository-step.tsx:141
+#: components/studio/prompt-options.tsx:32
+msgid "길이"
+msgstr "길이"
+
+#: components/studio/draft-editor.tsx:202
+msgid "코드 복사"
+msgstr "코드 복사"
+
+#: components/studio/reference-link-dialog.tsx:129
+#: components/studio/reference-links.tsx:96
+msgid "참고 링크 추가"
+msgstr "참고 링크 추가"
+
+#: components/onboarding/repository-connect-form.tsx:165
 msgid "브랜치 목록을 불러오는 중..."
 msgstr "브랜치 목록을 불러오는 중..."
 
@@ -495,26 +821,54 @@ msgstr "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세
 msgid "왜 바꿨나요?"
 msgstr "왜 바꿨나요?"
 
-#: app/[lang]/dashboard/page.tsx:47
-#: app/[lang]/dashboard/repositories/page.tsx:65
-msgid "저장소 추가"
-msgstr "저장소 추가"
+#: components/studio/editor-toolbar.tsx:373
+msgid "편집 서식"
+msgstr "편집 서식"
+
+#: components/studio/editor-toolbar.tsx:300
+msgid "적용"
+msgstr "적용"
+
+#: components/studio/prompt-options.tsx:30
+msgid "말투"
+msgstr "말투"
+
+#: components/studio/reference-link-dialog.tsx:24
+msgid "참고 링크는 최대 {MAX_REFERENCE_LINKS}개까지 추가할 수 있습니다."
+msgstr "참고 링크는 최대 {MAX_REFERENCE_LINKS}개까지 추가할 수 있습니다."
 
 #: components/auth/commit-to-draft-motion.tsx:141
 #: components/main/sample-draft-editor.tsx:81
+#: components/studio/draft-editor.tsx:304
 msgid "게시하기"
 msgstr "게시하기"
 
+#: components/dashboard/repository-list.tsx:98
+msgid "저장소를 더 불러오는 중..."
+msgstr "저장소를 더 불러오는 중..."
+
 #: components/dashboard/status-message.tsx:44
-#: components/onboarding/repository-step.tsx:187
+#: components/onboarding/repository-connect-form.tsx:211
 msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 msgstr "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
+
+#: components/studio/draft-sidebar.tsx:165
+msgid "아직 초안이 없습니다. 커밋을 선택하고 작성 요청을 보내 첫 초안을 만들어 보세요."
+msgstr "아직 초안이 없습니다. 커밋을 선택하고 작성 요청을 보내 첫 초안을 만들어 보세요."
 
 #: components/main/main-footer.tsx:34
 msgid "개인정보처리방침"
 msgstr "개인정보처리방침"
 
-#: components/onboarding/repository-step.tsx:161
+#: lib/studio/options.ts:46
+msgid "담백하게"
+msgstr "담백하게"
+
+#: components/dashboard/repository-card.tsx:49
+msgid "비공개 저장소"
+msgstr "비공개 저장소"
+
+#: components/onboarding/repository-connect-form.tsx:185
 msgid "저장소"
 msgstr "저장소"
 
@@ -522,37 +876,82 @@ msgstr "저장소"
 msgid "선택한 커밋을 AI 초안으로"
 msgstr "선택한 커밋을 AI 초안으로"
 
+#: components/studio/reference-link-dialog.tsx:22
+msgid "올바른 URL을 입력해주세요."
+msgstr "올바른 URL을 입력해주세요."
+
+#: components/studio/commit-sidebar.tsx:205
+#: components/studio/commit-sidebar.tsx:211
+#: components/studio/commit-sidebar.tsx:232
+msgid "커밋 내역"
+msgstr "커밋 내역"
+
 #: components/main/notice-section.tsx:29
 msgid "초안을 만들기 전 반드시 확인해주세요."
 msgstr "초안을 만들기 전 반드시 확인해주세요."
 
-#: app/[lang]/dashboard/repositories/page.tsx:189
-msgid "커밋 가져오는 중..."
-msgstr "커밋 가져오는 중..."
+#: components/studio/editor-toolbar.tsx:52
+msgid "글머리 기호 목록"
+msgstr "글머리 기호 목록"
 
-#: app/[lang]/dashboard/repositories/page.tsx:119
-msgid "모든 저장소"
-msgstr "모든 저장소"
+#: components/studio/draft-status.ts:23
+msgid "임시"
+msgstr "임시"
 
 #: app/[lang]/sign-in/page.tsx:73
 msgid "Github 계정으로 시작하세요."
 msgstr "Github 계정으로 시작하세요."
 
-#: components/onboarding/repository-step.tsx:246
+#: components/studio/draft-sidebar.tsx:95
+#: components/studio/studio-shell.tsx:58
+msgid "사이드바 닫기"
+msgstr "사이드바 닫기"
+
+#: components/dashboard/add-repository-link.tsx:22
+msgid "추가+"
+msgstr "추가+"
+
+#: components/studio/prompt-composer.tsx:333
+msgid "선택한 커밋으로 어떤 글을 쓸지 요청해주세요."
+msgstr "선택한 커밋으로 어떤 글을 쓸지 요청해주세요."
+
+#: components/onboarding/repository-connect-form.tsx:270
 msgid "저장소 연동 중..."
 msgstr "저장소 연동 중..."
 
-#: components/onboarding/repository-step.tsx:248
+#: components/onboarding/repository-step.tsx:29
 msgid "다음"
 msgstr "다음"
+
+#: lib/studio/options.ts:52
+msgid "경험"
+msgstr "경험"
+
+#: components/studio/draft-editor.tsx:321
+msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
+msgstr "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
+
+#: components/studio/prompt-composer.tsx:124
+msgid "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
+msgstr "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
 
 #: app/[lang]/sign-in/page.tsx:30
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
 msgstr "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
 
+#: components/studio/prompt-options.tsx:303
+#: components/studio/prompt-options.tsx:308
+msgid "기본 옵션"
+msgstr "기본 옵션"
+
 #: components/main/sample-draft-editor.tsx:61
 msgid "초안 편집기"
 msgstr "초안 편집기"
+
+#: components/studio/prompt-composer.tsx:133
+#: components/studio/prompt-composer.tsx:298
+msgid "커밋 내역 열기"
+msgstr "커밋 내역 열기"
 
 #: components/main/sample-draft-editor.tsx:13
 msgid "IntersectionObserver로 이미지의 화면 진입을 감지합니다. 관찰 로직은 useLazyImage 훅으로 분리하고, 컴포넌트가 언마운트되면 observer를 해제하도록 정리했습니다."
@@ -571,6 +970,34 @@ msgstr "커밋의 맥락을 글의 흐름으로"
 msgid "GitHub 로 시작하기"
 msgstr "GitHub 로 시작하기"
 
-#: components/onboarding/repository-step.tsx:137
+#: components/studio/editor-toolbar.tsx:151
+msgid "문단 스타일"
+msgstr "문단 스타일"
+
+#: components/studio/draft-status.ts:6
+msgid "게시 · 공개"
+msgstr "게시 · 공개"
+
+#: components/studio/prompt-composer.tsx:70
+msgid "커밋 선택"
+msgstr "커밋 선택"
+
+#: components/onboarding/repository-connect-form.tsx:161
 msgid "저장소를 먼저 선택하세요"
 msgstr "저장소를 먼저 선택하세요"
+
+#: components/studio/commit-sidebar.tsx:215
+msgid "커밋 내역 닫기"
+msgstr "커밋 내역 닫기"
+
+#: components/studio/reference-links.tsx:50
+msgid "{host} 링크 삭제"
+msgstr "{host} 링크 삭제"
+
+#: components/studio/editor-toolbar.tsx:56
+msgid "번호 목록"
+msgstr "번호 목록"
+
+#: components/studio/commit-sidebar.tsx:117
+msgid "GitHub 인증이 만료되었습니다."
+msgstr "GitHub 인증이 만료되었습니다."

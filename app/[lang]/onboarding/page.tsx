@@ -7,6 +7,7 @@ import type { OnboardingRepositoryOption } from '@/components/onboarding/reposit
 import { requireOnboardingSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { userRepository } from '@/lib/db/schema';
+import { toRepositoryOptions } from '@/lib/github/repository-selection';
 import { loadUserInstallations } from '@/lib/github/user-installations';
 import { localizedRedirect } from '@/lib/i18n/request';
 import { initLingui } from '@/lib/i18n/server';
@@ -45,19 +46,7 @@ const loadOnboardingState = async (
     return { step: 1, repositories: [] };
   }
 
-  const repositories = installations
-    .filter(({ installation }) => !installation.suspended_at)
-    .flatMap(({ installation, repositories: installationRepositories }) =>
-      installationRepositories.map((repository) => ({
-        value: `${installation.id}:${repository.id}`,
-        installationId: installation.id,
-        githubRepoId: repository.id,
-        fullName: repository.full_name,
-      })),
-    )
-    .sort((a, b) => a.fullName.localeCompare(b.fullName));
-
-  return { step: 2, repositories };
+  return { step: 2, repositories: toRepositoryOptions(installations) };
 };
 
 export default async function OnboardingPage({

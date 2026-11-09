@@ -43,6 +43,27 @@
       "when": 1793950662971,
       "tag": "0005_skinny_paper_doll",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794134927984,
+      "tag": "0006_foamy_red_wolf",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794138396693,
+      "tag": "0007_simple_the_initiative",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794190133005,
+      "tag": "0008_silly_lorna_dane",
+      "breakpoints": true
     }
   ]
 }

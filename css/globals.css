@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 @import 'tailwind-scrollbar-hide/v4';
+/* prose 클래스는 초안 편집기(components/studio/draft-editor)에만 적용 */
+@plugin '@tailwindcss/typography';
 
 @theme {
   /* 1320px 이상은 PC 레이아웃, 미만은 모바일 레이아웃 (콘텐츠 최대 폭 1280px + 좌우 여백 20px) */
@@ -15,6 +17,9 @@
   --color-line-dark: #35383e;
   --color-connector: #cbd5e1;
   --color-surface: #f5f6f8;
+  /* 초안 작성 스튜디오 사이드바 배경, 스크롤 핸들 */
+  --color-panel: #fafbfc;
+  --color-scroll-thumb: #c8cdd4;
   --color-disabled: #f0f1f3;
   --color-code: #16181c;
   --color-danger: #bc242a;

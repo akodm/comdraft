@@ -3,36 +3,73 @@
 import { and, count, eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { requireSession } from '@/lib/auth/session';
+import {
+  getDashboardRepositoryPage,
+  type DashboardRepositoryPage,
+} from '@/lib/dashboard/queries';
 import { db } from '@/lib/db';
 import { githubRepository, userRepository } from '@/lib/db/schema';
-import { connectUserRepository } from '@/lib/github/repository-connection';
+import {
+  connectSelectedRepository,
+  listSelectableRepositoryBranches,
+  type ConnectRepositoryResult,
+  type RepositoryBranchesResult,
+} from '@/lib/github/repository-selection';
 import { localizedRedirect, revalidateLocalizedPath } from '@/lib/i18n/request';
-import { parseGithubId } from '@/utils';
 
-// 설치된 저장소 중 하나를 기본 브랜치 기준으로 대시보드 추적 대상에 등록
-export async function connectRepository(formData: FormData) {
+// 대시보드 무한 스크롤: 커서 다음의 등록 저장소
+export async function loadDashboardRepositories(
+  cursor: string,
+): Promise<DashboardRepositoryPage> {
   const { user } = await requireSession();
-  const installationId = parseGithubId(formData.get('installationId'));
-  const githubRepoId = parseGithubId(formData.get('githubRepoId'));
 
-  if (!installationId || !githubRepoId) {
-    return localizedRedirect(
-      '/dashboard/repositories?status=invalid_repository',
-    );
-  }
+  return getDashboardRepositoryPage(user.id, cursor);
+}
 
-  const result = await connectUserRepository({
+// 저장소 추가 화면: 선택한 저장소의 브랜치 목록 (브랜치 선택 드롭다운용)
+export async function listDashboardRepositoryBranches(
+  installationId: number,
+  githubRepoId: number,
+): Promise<RepositoryBranchesResult> {
+  const { user } = await requireSession();
+  const result = await listSelectableRepositoryBranches({
     userId: user.id,
     requestHeaders: await headers(),
     installationId,
     githubRepoId,
   });
 
-  if (result.status !== 'connected') {
-    return localizedRedirect(`/dashboard/repositories?status=${result.status}`);
+  if (result.status === 'github_reauth') {
+    return localizedRedirect('/sign-in?error=github_reauth');
   }
 
-  await localizedRedirect(`/dashboard/repositories/${result.repositoryId}`);
+  return result;
+}
+
+/**
+ * 저장소 추가 화면: 선택한 저장소의 브랜치를 추적 대상으로 등록하고 대시보드로 이동
+ * - 온보딩 완료 여부(onboardedAt)는 건드리지 않음
+ * - 실패하면 화면에 오류를 표시할 수 있도록 결과를 반환
+ */
+export async function connectDashboardRepository(
+  formData: FormData,
+): Promise<ConnectRepositoryResult> {
+  const { user } = await requireSession();
+  const result = await connectSelectedRepository({
+    userId: user.id,
+    requestHeaders: await headers(),
+    formData,
+  });
+
+  if (result.status === 'github_reauth') {
+    return localizedRedirect('/sign-in?error=github_reauth');
+  }
+
+  if (result.status === 'connected') {
+    return localizedRedirect('/dashboard');
+  }
+
+  return result;
 }
 
 // 대시보드에서 저장소 제거 (다른 사용자가 등록하지 않은 저장소면 저장소 정보까지 삭제)

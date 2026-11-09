@@ -8,6 +8,7 @@ import {
   getGithubUserToken,
   GithubUserTokenError,
   listUserInstallationRepositories,
+  type GithubUserRepository,
 } from '@/lib/github/user-api';
 import { revalidateLocalizedPath } from '@/lib/i18n/request';
 
@@ -43,6 +44,19 @@ const findAccessibleRepository = async (
   const repository = repositories.find(({ id }) => id === githubRepoId);
 
   return repository ? { installation, repository } : null;
+};
+
+// 카드에 표시할 라이선스 (SPDX 식별자, 목록에 없는 라이선스는 GitHub 의 라이선스 이름)
+export const getLicenseLabel = (license: GithubUserRepository['license']) => {
+  if (!license) {
+    return null;
+  }
+
+  if (license.spdx_id && license.spdx_id !== 'NOASSERTION') {
+    return license.spdx_id;
+  }
+
+  return license.name;
 };
 
 /**
@@ -105,6 +119,7 @@ export const connectUserRepository = async ({
     isPrivate: repository.private,
     defaultBranch: repository.default_branch,
     htmlUrl: repository.html_url,
+    license: getLicenseLabel(repository.license),
   };
 
   const repositoryId = await db.transaction(async (tx) => {
@@ -121,12 +136,20 @@ export const connectUserRepository = async ({
       })
       .returning({ id: githubRepository.id });
 
+    // 다시 등록해도 목록 맨 앞으로 오도록 변경 시각 갱신 (onConflictDoUpdate 는 $onUpdate 를 적용하지 않음)
+    const updatedAt = new Date();
+
     await tx
       .insert(userRepository)
-      .values({ userId, repositoryId: repositoryRow.id, branch: trackedBranch })
+      .values({
+        userId,
+        repositoryId: repositoryRow.id,
+        branch: trackedBranch,
+        updatedAt,
+      })
       .onConflictDoUpdate({
         target: [userRepository.userId, userRepository.repositoryId],
-        set: { branch: trackedBranch },
+        set: { branch: trackedBranch, updatedAt },
       });
 
     return repositoryRow.id;

@@ -63,6 +63,8 @@ export const githubRepository = comdraftSchema.table(
     isPrivate: boolean('is_private').notNull(),
     defaultBranch: text('default_branch').notNull(),
     htmlUrl: text('html_url').notNull(),
+    // 대시보드 카드 표시용 라이선스 (SPDX 식별자, 없으면 GitHub 의 라이선스 이름, 라이선스가 없으면 null)
+    license: text('license'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -89,10 +91,22 @@ export const userRepository = comdraftSchema.table(
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
+    // 등록/추적 브랜치 변경 시각 (대시보드 목록 정렬과 커서 기준)
+    // JS Date 와 정밀도를 맞춰(밀리초) 커서로 받은 값과 그대로 비교되도록 함
+    updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
   (table) => [
     primaryKey({ columns: [table.userId, table.repositoryId] }),
     index('user_repository_repository_id_idx').on(table.repositoryId),
+    // 대시보드 목록: 사용자별 최근 변경순 + 같은 시각이면 저장소 id 순 (커서 기반 조회)
+    index('user_repository_user_updated_idx').on(
+      table.userId,
+      table.updatedAt.desc(),
+      table.repositoryId.desc(),
+    ),
   ],
 );
 

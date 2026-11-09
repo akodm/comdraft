@@ -1,89 +1,43 @@
 import { Trans } from '@lingui/react/macro';
-import StatusMessage from '@/components/dashboard/status-message';
+import AddRepositoryLink from '@/components/dashboard/add-repository-link';
+import EmptyRepositories from '@/components/dashboard/empty-repositories';
+import RepositoryList from '@/components/dashboard/repository-list';
 import PageLayout from '@/components/layout/page-layout';
-import LocalizedLink from '@/components/shared/localized-link';
-import SignOutButton from '@/components/shared/sign-out-button';
+import MainFooter from '@/components/main/main-footer';
+import MainHeader from '@/components/main/main-header';
 import { requireSession } from '@/lib/auth/session';
-import { getUserRepositories } from '@/lib/dashboard/queries';
+import { getDashboardRepositoryPage } from '@/lib/dashboard/queries';
 import { initLingui } from '@/lib/i18n/server';
 
-interface DashboardPageProps {
-  searchParams: Promise<{ status?: string }>;
-}
-
-export default async function DashboardPage({
-  searchParams,
-}: DashboardPageProps) {
+export default async function DashboardPage() {
   await initLingui();
   // proxy 의 쿠키 존재 확인과 별개로, 페이지에서 DB 기준 세션 검증
   const { user } = await requireSession();
-  const { status } = await searchParams;
-  const repositories = await getUserRepositories(user.id);
-  const userName = user.name;
+  const firstPage = await getDashboardRepositoryPage(user.id);
+  const firstPageKey = firstPage.repositories.map(({ id }) => id).join(',');
 
   return (
-    <PageLayout className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-10">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">
-            <Trans>{userName} 님의 대시보드</Trans>
+    <PageLayout
+      header={<MainHeader isSignedIn />}
+      footer={<MainFooter />}
+      className="flex flex-col"
+    >
+      {firstPage.repositories.length > 0 ? (
+        <section className="w-full px-5 pt-8 pb-12 pc:mx-auto pc:max-w-7xl pc:px-0 pc:pt-14 pc:pb-20">
+          <h1 className="sr-only">
+            <Trans>연동 저장소</Trans>
           </h1>
-          <p className="text-sm text-gray-600">{user.email}</p>
-        </div>
-        <SignOutButton />
-      </header>
-
-      <StatusMessage status={status} />
-
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">
-            <Trans>추적 중인 저장소</Trans>
-          </h2>
-          <LocalizedLink
-            href="/dashboard/repositories"
-            className="rounded-md bg-black px-3 py-1.5 text-sm text-white"
-          >
-            <Trans>저장소 추가</Trans>
-          </LocalizedLink>
-        </div>
-
-        {repositories.length === 0 ? (
-          <p className="rounded-md border border-dashed p-6 text-center text-sm text-gray-600">
-            <Trans>
-              아직 등록된 저장소가 없습니다. GitHub App 으로 저장소 권한을
-              부여하고 저장소를 추가해주세요.
-            </Trans>
-          </p>
-        ) : (
-          <ul className="flex flex-col divide-y rounded-md border">
-            {repositories.map((repository) => {
-              const branch = repository.branch;
-
-              return (
-                <li key={repository.id}>
-                  <LocalizedLink
-                    href={`/dashboard/repositories/${repository.id}`}
-                    className="flex flex-col gap-1 p-4 hover:bg-gray-50"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{repository.fullName}</span>
-                      {repository.isPrivate && (
-                        <span className="rounded border px-1.5 text-xs text-gray-600">
-                          Private
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      <Trans>추적 브랜치 {branch}</Trans>
-                    </p>
-                  </LocalizedLink>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+          <div className="flex flex-col gap-6">
+            <div className="flex justify-end">
+              <AddRepositoryLink variant="secondary" />
+            </div>
+            {/* 다시 렌더링된 첫 페이지가 바뀌면(연동/제거 후 복귀) 불러온 목록을 새로 시작 */}
+            <RepositoryList key={firstPageKey} initialPage={firstPage} />
+          </div>
+        </section>
+      ) : (
+        <EmptyRepositories />
+      )}
     </PageLayout>
   );
 }

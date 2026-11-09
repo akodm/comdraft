@@ -1,206 +1,79 @@
-import { eq } from 'drizzle-orm';
+import Image from 'next/image';
+import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
-import StatusMessage from '@/components/dashboard/status-message';
+import { getStatusMessage } from '@/components/dashboard/status-message';
 import PageLayout from '@/components/layout/page-layout';
-import GithubSignInButton from '@/components/shared/github-sign-in-button';
+import RepositoryConnectForm from '@/components/onboarding/repository-connect-form';
 import LocalizedLink from '@/components/shared/localized-link';
-import SubmitButton from '@/components/shared/submit-button';
-import { connectRepository } from '@/lib/actions/repositories';
+import {
+  connectDashboardRepository,
+  listDashboardRepositoryBranches,
+} from '@/lib/actions/repositories';
 import { requireSession } from '@/lib/auth/session';
-import { db } from '@/lib/db';
-import { githubRepository, userRepository } from '@/lib/db/schema';
-import { type GithubUserInstallation } from '@/lib/github/user-api';
+import { toRepositoryOptions } from '@/lib/github/repository-selection';
 import { loadUserInstallations } from '@/lib/github/user-installations';
+import { localizedRedirect } from '@/lib/i18n/request';
 import { initLingui } from '@/lib/i18n/server';
 
-interface RepositoriesPageProps {
+interface AddRepositoryPageProps {
+  // GitHub App 설치/권한 변경 후 돌아올 때 setup 라우트가 넘겨주는 결과
   searchParams: Promise<{ status?: string }>;
 }
 
-// GitHub 의 설치 권한 관리 페이지 (저장소 추가/제거, 앱 삭제)
-const getInstallationSettingsUrl = ({
-  id,
-  account,
-}: GithubUserInstallation) => {
-  return account?.type === 'Organization'
-    ? `https://github.com/organizations/${account.login}/settings/installations/${id}`
-    : `https://github.com/settings/installations/${id}`;
-};
-
-export default async function RepositoriesPage({
+/**
+ * 대시보드 저장소 추가 (온보딩 2단계 화면 재사용, 헤더/푸터 없음)
+ * - 연동하면 대시보드로 이동하고 온보딩 완료 여부는 건드리지 않음
+ * - 선택할 저장소가 없으면 드롭다운에서 GitHub App 권한 추가 링크 안내
+ */
+export default async function AddRepositoryPage({
   searchParams,
-}: RepositoriesPageProps) {
-  await initLingui();
+}: AddRepositoryPageProps) {
+  const i18n = await initLingui();
   const { user } = await requireSession();
   const { status } = await searchParams;
+  const { installations, needsReauth } = await loadUserInstallations(user.id);
 
-  const [{ installations, needsReauth }, trackedRepositories] =
-    await Promise.all([
-      loadUserInstallations(user.id),
-      db
-        .select({
-          id: githubRepository.id,
-          githubRepoId: githubRepository.githubRepoId,
-        })
-        .from(userRepository)
-        .innerJoin(
-          githubRepository,
-          eq(userRepository.repositoryId, githubRepository.id),
-        )
-        .where(eq(userRepository.userId, user.id)),
-    ]);
+  if (needsReauth || status === 'github_reauth') {
+    return localizedRedirect('/sign-in?error=github_reauth');
+  }
 
-  const trackedByGithubId = new Map(
-    trackedRepositories.map(({ id, githubRepoId }) => [githubRepoId, id]),
-  );
+  const statusMessage = getStatusMessage(status);
 
   return (
-    <PageLayout className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-10">
-      <header className="flex items-center justify-between">
-        <div>
-          <LocalizedLink href="/dashboard" className="text-sm text-gray-600">
-            ← <Trans>대시보드</Trans>
-          </LocalizedLink>
-          <h1 className="text-xl font-bold">
-            <Trans>저장소 추가</Trans>
-          </h1>
-        </div>
-        {/* GitHub App 설치 페이지에서 계정/조직과 접근 허용할 저장소를 선택 */}
-        <a
-          href="/api/github/install"
-          className="rounded-md bg-black px-3 py-1.5 text-sm text-white"
+    <PageLayout className="flex flex-col px-5 pt-6 pc:pt-32">
+      <div className="mx-auto flex w-full max-w-120 flex-1 flex-col">
+        <LocalizedLink
+          href="/dashboard"
+          aria-label={i18n._(msg`대시보드로 이동`)}
+          className="flex size-11 items-center"
         >
-          <Trans>GitHub 저장소 권한 부여</Trans>
-        </a>
-      </header>
-
-      <StatusMessage status={status} />
-
-      {needsReauth || status === 'github_reauth' ? (
-        <section className="flex flex-col items-center gap-3 rounded-md border p-6">
-          <p className="text-sm text-gray-600">
+          <Image
+            src="/images/onboarding/arrow-left.svg"
+            alt=""
+            width={22}
+            height={22}
+          />
+        </LocalizedLink>
+        <RepositoryConnectForm
+          repositories={toRepositoryOptions(installations)}
+          title={
             <Trans>
-              GitHub 인증이 만료되었습니다. 다시 로그인하면 저장소 목록을 불러올
-              수 있습니다.
+              저장소와 브랜치를
+              <br />
+              선택하세요.
             </Trans>
-          </p>
-          <GithubSignInButton callbackURL="/dashboard/repositories" />
-        </section>
-      ) : (
-        <>
-          {installations.length === 0 && (
-            <p className="rounded-md border border-dashed p-6 text-center text-sm text-gray-600">
-              <Trans>
-                아직 GitHub App 이 설치된 계정이 없습니다. 상단의 &quot;GitHub
-                저장소 권한 부여&quot; 버튼으로 커밋을 가져올 저장소를
-                선택해주세요.
-              </Trans>
-            </p>
-          )}
-
-          {installations.map(({ installation, repositories }) => (
-            <section
-              key={installation.id}
-              className="flex flex-col gap-3 rounded-md border p-4"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">
-                    {installation.account?.login}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {installation.account?.type === 'Organization' ? (
-                      <Trans>조직</Trans>
-                    ) : (
-                      <Trans>개인</Trans>
-                    )}{' '}
-                    ·{' '}
-                    {installation.repository_selection === 'all' ? (
-                      <Trans>모든 저장소</Trans>
-                    ) : (
-                      <Trans>선택한 저장소</Trans>
-                    )}
-                  </span>
-                  {installation.suspended_at && (
-                    <span className="text-xs text-red-600">
-                      <Trans>일시 중지됨</Trans>
-                    </span>
-                  )}
-                </div>
-                <a
-                  href={getInstallationSettingsUrl(installation)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm text-gray-600 underline"
-                >
-                  <Trans>권한 설정 변경</Trans>
-                </a>
-              </div>
-
-              {repositories.length === 0 ? (
-                <p className="text-sm text-gray-600">
-                  <Trans>접근 가능한 저장소가 없습니다.</Trans>
-                </p>
-              ) : (
-                <ul className="flex flex-col divide-y">
-                  {repositories.map((repository) => {
-                    const trackedId = trackedByGithubId.get(repository.id);
-
-                    return (
-                      <li
-                        key={repository.id}
-                        className="flex items-center justify-between gap-4 py-2"
-                      >
-                        <div className="min-w-0">
-                          <p className="truncate font-medium">
-                            {repository.full_name}
-                            {repository.private && (
-                              <span className="ml-2 rounded border px-1.5 text-xs text-gray-600">
-                                Private
-                              </span>
-                            )}
-                          </p>
-                          {repository.description && (
-                            <p className="truncate text-sm text-gray-600">
-                              {repository.description}
-                            </p>
-                          )}
-                        </div>
-                        {trackedId ? (
-                          <LocalizedLink
-                            href={`/dashboard/repositories/${trackedId}`}
-                            className="shrink-0 text-sm text-gray-600 underline"
-                          >
-                            <Trans>대시보드 보기</Trans>
-                          </LocalizedLink>
-                        ) : (
-                          <form action={connectRepository} className="shrink-0">
-                            <input
-                              type="hidden"
-                              name="installationId"
-                              value={installation.id}
-                            />
-                            <input
-                              type="hidden"
-                              name="githubRepoId"
-                              value={repository.id}
-                            />
-                            <SubmitButton
-                              pendingText={<Trans>커밋 가져오는 중...</Trans>}
-                            >
-                              <Trans>추가</Trans>
-                            </SubmitButton>
-                          </form>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
-          ))}
-        </>
-      )}
+          }
+          submitLabel={<Trans>연동</Trans>}
+          notice={
+            statusMessage && {
+              text: i18n._(statusMessage.text),
+              isError: statusMessage.isError,
+            }
+          }
+          listBranches={listDashboardRepositoryBranches}
+          connect={connectDashboardRepository}
+        />
+      </div>
     </PageLayout>
   );
 }

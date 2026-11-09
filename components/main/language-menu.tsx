@@ -14,6 +14,11 @@ import { useLocale } from '@/hooks/use-locale';
 import { useLocalizedPathname } from '@/hooks/use-localized-pathname';
 import { LOCALE_LABELS, LOCALES } from '@/lib/i18n/config';
 
+interface LanguageMenuProps {
+  // header: 메인/대시보드 헤더 (모바일은 작은 버튼), studio: 초안 작성 스튜디오 사이드바 (64 × 36 버튼)
+  variant?: 'header' | 'studio';
+}
+
 const CURRENT_ITEM_CLASS = `${DROPDOWN_ITEM_BASE_CLASS} whitespace-nowrap font-medium text-ink`;
 const MENU_ITEM_CLASS = `${DROPDOWN_ITEM_CLASS} whitespace-nowrap`;
 
@@ -22,7 +27,7 @@ const MENU_ITEM_CLASS = `${DROPDOWN_ITEM_CLASS} whitespace-nowrap`;
  * - 현재 경로를 유지한 채 로케일 세그먼트만 바꿔 이동 (서버 렌더링 결과가 로케일별로 달라지므로 URL 이동)
  * - 언어 이름은 번역하지 않고 각 언어의 자기 이름으로 표시
  */
-const LanguageMenu = () => {
+const LanguageMenu = ({ variant = 'header' }: LanguageMenuProps) => {
   const { t } = useLingui();
   const menuId = useId();
   const currentLocale = useLocale();
@@ -39,38 +44,54 @@ const LanguageMenu = () => {
         aria-expanded={isOpen}
         aria-controls={menuId}
         onClick={toggle}
-        className="flex h-10 w-15.5 items-center justify-center pc:w-auto pc:border pc:border-line pc:bg-white pc:px-2.75"
+        className={
+          variant === 'studio'
+            ? 'flex h-9 w-16 items-center justify-center gap-2 border border-line bg-white'
+            : 'flex h-10 w-15.5 items-center justify-center pc:w-auto pc:border pc:border-line pc:bg-white pc:px-2.75'
+        }
       >
-        <span className="flex h-7 w-13.5 items-center justify-center gap-1.25 rounded border border-line bg-white px-1.5 pc:contents">
-          <Image
-            src="/images/main/globe-mobile.svg"
-            alt=""
-            width={17}
-            height={17}
-            className="pc:hidden"
-          />
-          <Image
-            src="/images/main/chevron-down-mobile.svg"
-            alt=""
-            width={12}
-            height={12}
-            className="pc:hidden"
-          />
-          <Image
-            src="/images/main/globe.svg"
-            alt=""
-            width={19}
-            height={19}
-            className="hidden pc:block"
-          />
-          <Image
-            src="/images/main/chevron-down.svg"
-            alt=""
-            width={14}
-            height={14}
-            className="hidden pc:block"
-          />
-        </span>
+        {variant === 'studio' ? (
+          <>
+            <Image src="/images/main/globe.svg" alt="" width={19} height={19} />
+            <Image
+              src="/images/main/chevron-down.svg"
+              alt=""
+              width={14}
+              height={14}
+            />
+          </>
+        ) : (
+          <span className="flex h-7 w-13.5 items-center justify-center gap-1.25 rounded border border-line bg-white px-1.5 pc:contents">
+            <Image
+              src="/images/main/globe-mobile.svg"
+              alt=""
+              width={17}
+              height={17}
+              className="pc:hidden"
+            />
+            <Image
+              src="/images/main/chevron-down-mobile.svg"
+              alt=""
+              width={12}
+              height={12}
+              className="pc:hidden"
+            />
+            <Image
+              src="/images/main/globe.svg"
+              alt=""
+              width={19}
+              height={19}
+              className="hidden pc:block"
+            />
+            <Image
+              src="/images/main/chevron-down.svg"
+              alt=""
+              width={14}
+              height={14}
+              className="hidden pc:block"
+            />
+          </span>
+        )}
       </button>
       {isOpen && (
         <div

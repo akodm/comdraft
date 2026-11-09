@@ -41,6 +41,8 @@ export interface GithubUserRepository {
   default_branch: string;
   html_url: string;
   owner: { login: string };
+  // 라이선스를 감지하지 못했으면 null, 목록에 없는 라이선스는 spdx_id 가 'NOASSERTION'
+  license: { key: string; name: string; spdx_id: string | null } | null;
 }
 
 export class GithubUserTokenError extends Error {}
