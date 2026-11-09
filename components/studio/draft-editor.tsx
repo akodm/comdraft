@@ -42,13 +42,17 @@ const PROSE_CLASS = [
   'prose-h1:text-[23px] prose-h1:leading-[1.5] prose-h1:tracking-[-0.8px] pc:prose-h1:text-[32px] pc:prose-h1:tracking-[-1px]',
   'prose-h2:text-[17px] prose-h2:leading-[1.5] prose-h2:tracking-[-0.4px] pc:prose-h2:text-[19px]',
   'prose-h3:text-[15px] prose-h3:leading-[1.5] pc:prose-h3:text-[17px]',
+  // H4~H6: 단계마다 1px 씩 작게 (H5 는 본문과 같은 크기지만 굵기와 색으로, H6 은 본문보다 작게 구분)
+  'prose-h4:text-[14px] prose-h4:leading-[1.5] pc:prose-h4:text-[16px]',
+  'prose-h5:text-[13px] prose-h5:leading-[1.6] pc:prose-h5:text-[15px]',
+  'prose-h6:text-[12px] prose-h6:leading-[1.6] pc:prose-h6:text-[14px]',
   'prose-p:text-[13px] prose-p:leading-[1.95] pc:prose-p:text-[15px]',
   'prose-li:text-[13px] prose-li:leading-[1.95] pc:prose-li:text-[15px] prose-li:my-1',
   'prose-blockquote:text-[13px] prose-blockquote:leading-[1.95] pc:prose-blockquote:text-[15px]',
   // 인라인 코드 (prose 기본 백틱 표시 제거)
   'prose-code:rounded prose-code:bg-surface prose-code:px-1 prose-code:py-0.5 prose-code:font-normal prose-code:text-ink prose-code:before:content-none prose-code:after:content-none',
-  // 블록 간격: 기본 26px(PC 24px), 문서 제목 다음 16px(18px), 소제목 다음 10px(8px)
-  '[&>*]:mb-0! [&>*]:mt-6.5! pc:[&>*]:mt-6! [&>h1+*]:mt-4! pc:[&>h1+*]:mt-4.5! [&>h2+*]:mt-2.5! pc:[&>h2+*]:mt-2! [&>h3+*]:mt-2! [&>:first-child]:mt-0!',
+  // 블록 간격: 기본 26px(PC 24px), 문서 제목 다음 16px(18px), 소제목 다음 10px(8px), H3~H6 다음 8px
+  '[&>*]:mb-0! [&>*]:mt-6.5! pc:[&>*]:mt-6! [&>h1+*]:mt-4! pc:[&>h1+*]:mt-4.5! [&>h2+*]:mt-2.5! pc:[&>h2+*]:mt-2! [&>:is(h3,h4,h5,h6)+*]:mt-2! [&>:first-child]:mt-0!',
   // 빈 줄 안내 문구 (Placeholder 확장)
   '[&_.is-empty]:before:pointer-events-none [&_.is-empty]:before:float-left [&_.is-empty]:before:h-0 [&_.is-empty]:before:text-ink-subtle [&_.is-empty]:before:content-[attr(data-placeholder)]',
 ].join(' ');

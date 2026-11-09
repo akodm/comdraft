@@ -13,17 +13,29 @@ import {
 } from '@/components/shared/dropdown-styles';
 import { ICON_BUTTON_CLASS } from '@/components/studio/studio-styles';
 import { useDropdown } from '@/hooks/use-dropdown';
+import type { DraftHeadingLevel } from '@/lib/studio/editor-schema';
 
-type BlockStyle = 'paragraph' | 'h1' | 'h2' | 'h3';
+// 제목 단계는 편집기 스키마(DRAFT_HEADING_LEVELS)와 맞춤
+const HEADING_LEVELS = {
+  h1: 1,
+  h2: 2,
+  h3: 3,
+  h4: 4,
+  h5: 5,
+  h6: 6,
+} as const satisfies Record<string, DraftHeadingLevel>;
+
+type BlockStyle = 'paragraph' | keyof typeof HEADING_LEVELS;
 
 const BLOCK_STYLES: Array<{ value: BlockStyle; label: MessageDescriptor }> = [
   { value: 'paragraph', label: msg`본문` },
   { value: 'h1', label: msg`제목 1` },
   { value: 'h2', label: msg`제목 2` },
   { value: 'h3', label: msg`제목 3` },
+  { value: 'h4', label: msg`제목 4` },
+  { value: 'h5', label: msg`제목 5` },
+  { value: 'h6', label: msg`제목 6` },
 ];
-
-const HEADING_LEVELS = { h1: 1, h2: 2, h3: 3 } as const;
 
 type ToolKey =
   | 'bold'
@@ -109,7 +121,7 @@ interface ToolbarProps {
   isDisabled: boolean;
 }
 
-// 문단 스타일 선택 (본문 / 제목 1~3)
+// 문단 스타일 선택 (본문 / 제목 1~6)
 const BlockStyleMenu = ({
   editor,
   current,

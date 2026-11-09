@@ -58,7 +58,7 @@ msgstr "Go to dashboard"
 msgid "저장소를 추가하고 초안을 만들어보세요"
 msgstr "Add a repository and start drafting"
 
-#: components/studio/draft-editor.tsx:275
+#: components/studio/draft-editor.tsx:281
 msgid "초안 본문"
 msgstr "Draft body"
 
@@ -99,7 +99,7 @@ msgstr "The GitHub sign-in request has expired or is invalid. Please try again."
 msgid "게시 · 일부 공개"
 msgstr "Published · Unlisted"
 
-#: components/studio/draft-editor.tsx:341
+#: components/studio/draft-editor.tsx:352
 msgid "마크다운 파일로 내보내기"
 msgstr "Export as Markdown file"
 
@@ -134,6 +134,10 @@ msgstr "Draft awaiting review"
 #: components/studio/generation-progress.tsx:101
 msgid "AI 작성 대기 중"
 msgstr "Waiting for AI writer"
+
+#: components/studio/editor-toolbar.tsx:35
+msgid "제목 4"
+msgstr "Heading 4"
 
 #: components/studio/prompt-options.tsx:31
 msgid "유형"
@@ -211,7 +215,7 @@ msgstr "Your first repository<0/>is connected."
 msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 msgstr "Start simply, generate drafts, and keep writing consistently."
 
-#: components/studio/editor-toolbar.tsx:49
+#: components/studio/editor-toolbar.tsx:61
 msgid "굵게"
 msgstr "Bold"
 
@@ -219,7 +223,7 @@ msgstr "Bold"
 msgid "AI 작성 시간이 초과되었습니다. 다시 시도해주세요."
 msgstr "AI writing timed out. Please try again."
 
-#: components/studio/editor-toolbar.tsx:63
+#: components/studio/editor-toolbar.tsx:75
 msgid "인용"
 msgstr "Quote"
 
@@ -252,7 +256,7 @@ msgstr "Untitled draft"
 msgid "메뉴"
 msgstr "Menu"
 
-#: components/studio/editor-toolbar.tsx:275
+#: components/studio/editor-toolbar.tsx:287
 msgid "링크 주소"
 msgstr "Link URL"
 
@@ -278,7 +282,7 @@ msgstr "Delete account"
 msgid "프로필 메뉴"
 msgstr "Profile menu"
 
-#: components/studio/draft-editor.tsx:332
+#: components/studio/draft-editor.tsx:343
 msgid "HTML 파일로 내보내기"
 msgstr "Export as HTML file"
 
@@ -337,6 +341,10 @@ msgstr "No branches to choose from. Make sure the repository has at least one co
 msgid "IntersectionObserver로 이미지 지연 로딩 구현하기"
 msgstr "Implementing lazy image loading with IntersectionObserver"
 
+#: components/studio/editor-toolbar.tsx:36
+msgid "제목 5"
+msgstr "Heading 5"
+
 #: components/onboarding/complete-step.tsx:36
 msgid "지금 바로 AI 초안을 작성해보세요."
 msgstr "Write your first AI draft now."
@@ -390,7 +398,7 @@ msgstr "Check that images appear correctly while scrolling and that observers ar
 msgid "GitHub 에서 저장소 열기"
 msgstr "Open repository on GitHub"
 
-#: components/studio/editor-toolbar.tsx:22
+#: components/studio/editor-toolbar.tsx:33
 msgid "제목 2"
 msgstr "Heading 2"
 
@@ -474,7 +482,7 @@ msgstr "Couldn't send your request. Please try again."
 msgid "작성 요청"
 msgstr "Request"
 
-#: components/studio/editor-toolbar.tsx:23
+#: components/studio/editor-toolbar.tsx:34
 msgid "제목 3"
 msgstr "Heading 3"
 
@@ -494,11 +502,11 @@ msgstr "Write an AI draft"
 msgid "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "Couldn't find the draft or repository. Refresh the page and try again."
 
-#: components/studio/editor-toolbar.tsx:64
+#: components/studio/editor-toolbar.tsx:76
 msgid "실행 취소"
 msgstr "Undo"
 
-#: components/studio/editor-toolbar.tsx:258
+#: components/studio/editor-toolbar.tsx:270
 msgid "링크"
 msgstr "Link"
 
@@ -580,7 +588,7 @@ msgstr "Turn your work into tech blog drafts and publish them anywhere."
 msgid "AI 가 초안을 작성하는 중..."
 msgstr "AI is writing the draft..."
 
-#: components/studio/editor-toolbar.tsx:20
+#: components/studio/editor-toolbar.tsx:31
 msgid "본문"
 msgstr "Body"
 
@@ -588,11 +596,11 @@ msgstr "Body"
 msgid "꼭 확인하세요"
 msgstr "Please read first"
 
-#: components/studio/editor-toolbar.tsx:293
+#: components/studio/editor-toolbar.tsx:305
 msgid "링크 제거"
 msgstr "Remove link"
 
-#: components/studio/editor-toolbar.tsx:50
+#: components/studio/editor-toolbar.tsx:62
 msgid "기울임"
 msgstr "Italic"
 
@@ -656,7 +664,7 @@ msgstr "Turn this history into one post"
 msgid "제출"
 msgstr "Submit"
 
-#: components/studio/editor-toolbar.tsx:62
+#: components/studio/editor-toolbar.tsx:74
 msgid "코드 블록"
 msgstr "Code block"
 
@@ -680,7 +688,7 @@ msgstr "Extract the observing logic into a reusable hook"
 msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 msgstr "Turn your GitHub commits into tech blog drafts, <0/>then polish and publish them anywhere."
 
-#: components/studio/draft-editor.tsx:246
+#: components/studio/draft-editor.tsx:252
 msgid "내용을 입력하세요"
 msgstr "Start writing"
 
@@ -728,11 +736,11 @@ msgstr "Account"
 msgid "강의"
 msgstr "Tutorial"
 
-#: components/studio/draft-editor.tsx:245
+#: components/studio/draft-editor.tsx:251
 msgid "제목"
 msgstr "Title"
 
-#: components/studio/editor-toolbar.tsx:21
+#: components/studio/editor-toolbar.tsx:32
 msgid "제목 1"
 msgstr "Heading 1"
 
@@ -756,7 +764,11 @@ msgstr "Load your repository's commit history and pick commits."
 msgid "© 2026 comdraft. All rights reserved."
 msgstr "© 2026 comdraft. All rights reserved."
 
-#: components/studio/editor-toolbar.tsx:51
+#: components/studio/editor-toolbar.tsx:37
+msgid "제목 6"
+msgstr "Heading 6"
+
+#: components/studio/editor-toolbar.tsx:63
 msgid "취소선"
 msgstr "Strikethrough"
 
@@ -781,7 +793,7 @@ msgstr "Back to dashboard"
 msgid "이동 중..."
 msgstr "Redirecting..."
 
-#: components/studio/draft-editor.tsx:319
+#: components/studio/draft-editor.tsx:330
 msgid "· 저장 중..."
 msgstr "· Saving..."
 
@@ -807,7 +819,7 @@ msgstr "feat: apply lazy image loading"
 msgid "GitHub 로 이동 중..."
 msgstr "Redirecting to GitHub..."
 
-#: components/studio/draft-editor.tsx:247
+#: components/studio/draft-editor.tsx:253
 msgid "복사했습니다"
 msgstr "Copied"
 
@@ -815,7 +827,7 @@ msgstr "Copied"
 msgid "{commitCount}개 선택"
 msgstr "{commitCount} selected"
 
-#: components/studio/draft-editor.tsx:322
+#: components/studio/draft-editor.tsx:333
 msgid "· 저장하지 못했습니다"
 msgstr "· Couldn't save"
 
@@ -835,7 +847,7 @@ msgstr "Review, publish, and export"
 msgid "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 msgstr "Select at least one commit to use from the commit history."
 
-#: components/studio/draft-editor.tsx:307
+#: components/studio/draft-editor.tsx:318
 msgid "초안 편집"
 msgstr "Draft editor"
 
@@ -859,7 +871,7 @@ msgstr "We couldn't process your request. Please try again in a moment."
 msgid "예시"
 msgstr "Example"
 
-#: components/studio/editor-toolbar.tsx:65
+#: components/studio/editor-toolbar.tsx:77
 msgid "다시 실행"
 msgstr "Redo"
 
@@ -879,7 +891,7 @@ msgstr "Go to home"
 msgid "길이"
 msgstr "Length"
 
-#: components/studio/draft-editor.tsx:247
+#: components/studio/draft-editor.tsx:253
 msgid "코드 복사"
 msgstr "Copy code"
 
@@ -900,11 +912,11 @@ msgstr "Publish it on the site, or export it to use anywhere else."
 msgid "왜 바꿨나요?"
 msgstr "Why the change?"
 
-#: components/studio/editor-toolbar.tsx:373
+#: components/studio/editor-toolbar.tsx:385
 msgid "편집 서식"
 msgstr "Formatting"
 
-#: components/studio/editor-toolbar.tsx:300
+#: components/studio/editor-toolbar.tsx:312
 msgid "적용"
 msgstr "Apply"
 
@@ -918,7 +930,7 @@ msgstr "You can add up to {MAX_REFERENCE_LINKS} reference links."
 
 #: components/auth/commit-to-draft-motion.tsx:141
 #: components/main/sample-draft-editor.tsx:81
-#: components/studio/draft-editor.tsx:352
+#: components/studio/draft-editor.tsx:363
 msgid "게시하기"
 msgstr "Publish"
 
@@ -969,7 +981,7 @@ msgstr "Commit history"
 msgid "초안을 만들기 전 반드시 확인해주세요."
 msgstr "Please check these before creating a draft."
 
-#: components/studio/editor-toolbar.tsx:52
+#: components/studio/editor-toolbar.tsx:64
 msgid "글머리 기호 목록"
 msgstr "Bulleted list"
 
@@ -1006,7 +1018,7 @@ msgstr "Next"
 msgid "경험"
 msgstr "Experience"
 
-#: components/studio/draft-editor.tsx:369
+#: components/studio/draft-editor.tsx:380
 msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 msgstr "Select commits from the commit history and send a request<0/>to create a draft here."
 
@@ -1049,7 +1061,7 @@ msgstr "From commit context to a story"
 msgid "GitHub 로 시작하기"
 msgstr "Continue with GitHub"
 
-#: components/studio/editor-toolbar.tsx:151
+#: components/studio/editor-toolbar.tsx:163
 msgid "문단 스타일"
 msgstr "Paragraph style"
 
@@ -1073,7 +1085,7 @@ msgstr "Close commit history"
 msgid "{host} 링크 삭제"
 msgstr "Remove {host} link"
 
-#: components/studio/editor-toolbar.tsx:56
+#: components/studio/editor-toolbar.tsx:68
 msgid "번호 목록"
 msgstr "Numbered list"
 

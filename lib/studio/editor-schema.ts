@@ -7,8 +7,10 @@ import { StarterKit } from '@tiptap/starter-kit';
  * - 화면 전용 동작(코드 블록 노드 뷰, 빈 줄 안내 문구)은 components/studio/editor-extensions.ts 에서 덧붙임
  */
 
-// 편집기에서 쓸 수 있는 제목 단계
-export const DRAFT_HEADING_LEVELS = [1, 2, 3] as const;
+// 편집기에서 쓸 수 있는 제목 단계 (목차처럼 깊은 제목도 쓰도록 H1~H6 모두)
+export const DRAFT_HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
+
+export type DraftHeadingLevel = (typeof DRAFT_HEADING_LEVELS)[number];
 
 export const createDraftSchemaExtensions = (
   codeBlock: AnyExtension = CodeBlock,

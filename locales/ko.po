@@ -58,7 +58,7 @@ msgstr "대시보드로 이동"
 msgid "저장소를 추가하고 초안을 만들어보세요"
 msgstr "저장소를 추가하고 초안을 만들어보세요"
 
-#: components/studio/draft-editor.tsx:275
+#: components/studio/draft-editor.tsx:281
 msgid "초안 본문"
 msgstr "초안 본문"
 
@@ -99,7 +99,7 @@ msgstr "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. �
 msgid "게시 · 일부 공개"
 msgstr "게시 · 일부 공개"
 
-#: components/studio/draft-editor.tsx:341
+#: components/studio/draft-editor.tsx:352
 msgid "마크다운 파일로 내보내기"
 msgstr "마크다운 파일로 내보내기"
 
@@ -134,6 +134,10 @@ msgstr "검토 전 초안"
 #: components/studio/generation-progress.tsx:101
 msgid "AI 작성 대기 중"
 msgstr "AI 작성 대기 중"
+
+#: components/studio/editor-toolbar.tsx:35
+msgid "제목 4"
+msgstr "제목 4"
 
 #: components/studio/prompt-options.tsx:31
 msgid "유형"
@@ -211,7 +215,7 @@ msgstr "첫 저장소 연동이<0/>완료되었습니다."
 msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 msgstr "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 
-#: components/studio/editor-toolbar.tsx:49
+#: components/studio/editor-toolbar.tsx:61
 msgid "굵게"
 msgstr "굵게"
 
@@ -219,7 +223,7 @@ msgstr "굵게"
 msgid "AI 작성 시간이 초과되었습니다. 다시 시도해주세요."
 msgstr "AI 작성 시간이 초과되었습니다. 다시 시도해주세요."
 
-#: components/studio/editor-toolbar.tsx:63
+#: components/studio/editor-toolbar.tsx:75
 msgid "인용"
 msgstr "인용"
 
@@ -252,7 +256,7 @@ msgstr "제목 없는 초안"
 msgid "메뉴"
 msgstr "메뉴"
 
-#: components/studio/editor-toolbar.tsx:275
+#: components/studio/editor-toolbar.tsx:287
 msgid "링크 주소"
 msgstr "링크 주소"
 
@@ -278,7 +282,7 @@ msgstr "회원 탈퇴"
 msgid "프로필 메뉴"
 msgstr "프로필 메뉴"
 
-#: components/studio/draft-editor.tsx:332
+#: components/studio/draft-editor.tsx:343
 msgid "HTML 파일로 내보내기"
 msgstr "HTML 파일로 내보내기"
 
@@ -337,6 +341,10 @@ msgstr "선택할 수 있는 브랜치가 없습니다. 커밋이 있는 저장�
 msgid "IntersectionObserver로 이미지 지연 로딩 구현하기"
 msgstr "IntersectionObserver로 이미지 지연 로딩 구현하기"
 
+#: components/studio/editor-toolbar.tsx:36
+msgid "제목 5"
+msgstr "제목 5"
+
 #: components/onboarding/complete-step.tsx:36
 msgid "지금 바로 AI 초안을 작성해보세요."
 msgstr "지금 바로 AI 초안을 작성해보세요."
@@ -390,7 +398,7 @@ msgstr "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을
 msgid "GitHub 에서 저장소 열기"
 msgstr "GitHub 에서 저장소 열기"
 
-#: components/studio/editor-toolbar.tsx:22
+#: components/studio/editor-toolbar.tsx:33
 msgid "제목 2"
 msgstr "제목 2"
 
@@ -474,7 +482,7 @@ msgstr "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgid "작성 요청"
 msgstr "작성 요청"
 
-#: components/studio/editor-toolbar.tsx:23
+#: components/studio/editor-toolbar.tsx:34
 msgid "제목 3"
 msgstr "제목 3"
 
@@ -494,11 +502,11 @@ msgstr "AI 초안 작성"
 msgid "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 
-#: components/studio/editor-toolbar.tsx:64
+#: components/studio/editor-toolbar.tsx:76
 msgid "실행 취소"
 msgstr "실행 취소"
 
-#: components/studio/editor-toolbar.tsx:258
+#: components/studio/editor-toolbar.tsx:270
 msgid "링크"
 msgstr "링크"
 
@@ -580,7 +588,7 @@ msgstr "작업 과정을 기술 블로그의 초안으로 활용하고, 어디�
 msgid "AI 가 초안을 작성하는 중..."
 msgstr "AI 가 초안을 작성하는 중..."
 
-#: components/studio/editor-toolbar.tsx:20
+#: components/studio/editor-toolbar.tsx:31
 msgid "본문"
 msgstr "본문"
 
@@ -588,11 +596,11 @@ msgstr "본문"
 msgid "꼭 확인하세요"
 msgstr "꼭 확인하세요"
 
-#: components/studio/editor-toolbar.tsx:293
+#: components/studio/editor-toolbar.tsx:305
 msgid "링크 제거"
 msgstr "링크 제거"
 
-#: components/studio/editor-toolbar.tsx:50
+#: components/studio/editor-toolbar.tsx:62
 msgid "기울임"
 msgstr "기울임"
 
@@ -656,7 +664,7 @@ msgstr "이 기록을 하나의 글로 정리"
 msgid "제출"
 msgstr "제출"
 
-#: components/studio/editor-toolbar.tsx:62
+#: components/studio/editor-toolbar.tsx:74
 msgid "코드 블록"
 msgstr "코드 블록"
 
@@ -680,7 +688,7 @@ msgstr "관찰 로직을 재사용 가능한 훅으로 분리"
 msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 msgstr "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 
-#: components/studio/draft-editor.tsx:246
+#: components/studio/draft-editor.tsx:252
 msgid "내용을 입력하세요"
 msgstr "내용을 입력하세요"
 
@@ -728,11 +736,11 @@ msgstr "계정"
 msgid "강의"
 msgstr "강의"
 
-#: components/studio/draft-editor.tsx:245
+#: components/studio/draft-editor.tsx:251
 msgid "제목"
 msgstr "제목"
 
-#: components/studio/editor-toolbar.tsx:21
+#: components/studio/editor-toolbar.tsx:32
 msgid "제목 1"
 msgstr "제목 1"
 
@@ -756,7 +764,11 @@ msgstr "저장소의 커밋 내역을 불러오고 선택합니다."
 msgid "© 2026 comdraft. All rights reserved."
 msgstr "© 2026 comdraft. All rights reserved."
 
-#: components/studio/editor-toolbar.tsx:51
+#: components/studio/editor-toolbar.tsx:37
+msgid "제목 6"
+msgstr "제목 6"
+
+#: components/studio/editor-toolbar.tsx:63
 msgid "취소선"
 msgstr "취소선"
 
@@ -781,7 +793,7 @@ msgstr "대시보드로 돌아가기"
 msgid "이동 중..."
 msgstr "이동 중..."
 
-#: components/studio/draft-editor.tsx:319
+#: components/studio/draft-editor.tsx:330
 msgid "· 저장 중..."
 msgstr "· 저장 중..."
 
@@ -807,7 +819,7 @@ msgstr "feat: 이미지 지연 로딩 적용"
 msgid "GitHub 로 이동 중..."
 msgstr "GitHub 로 이동 중..."
 
-#: components/studio/draft-editor.tsx:247
+#: components/studio/draft-editor.tsx:253
 msgid "복사했습니다"
 msgstr "복사했습니다"
 
@@ -815,7 +827,7 @@ msgstr "복사했습니다"
 msgid "{commitCount}개 선택"
 msgstr "{commitCount}개 선택"
 
-#: components/studio/draft-editor.tsx:322
+#: components/studio/draft-editor.tsx:333
 msgid "· 저장하지 못했습니다"
 msgstr "· 저장하지 못했습니다"
 
@@ -835,7 +847,7 @@ msgstr "검토 후 게시 및 내보내기"
 msgid "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 msgstr "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 
-#: components/studio/draft-editor.tsx:307
+#: components/studio/draft-editor.tsx:318
 msgid "초안 편집"
 msgstr "초안 편집"
 
@@ -859,7 +871,7 @@ msgstr "요청을 처리하지 못했습니다. 잠시 후 다시 시도해주�
 msgid "예시"
 msgstr "예시"
 
-#: components/studio/editor-toolbar.tsx:65
+#: components/studio/editor-toolbar.tsx:77
 msgid "다시 실행"
 msgstr "다시 실행"
 
@@ -879,7 +891,7 @@ msgstr "홈으로 이동"
 msgid "길이"
 msgstr "길이"
 
-#: components/studio/draft-editor.tsx:247
+#: components/studio/draft-editor.tsx:253
 msgid "코드 복사"
 msgstr "코드 복사"
 
@@ -900,11 +912,11 @@ msgstr "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세
 msgid "왜 바꿨나요?"
 msgstr "왜 바꿨나요?"
 
-#: components/studio/editor-toolbar.tsx:373
+#: components/studio/editor-toolbar.tsx:385
 msgid "편집 서식"
 msgstr "편집 서식"
 
-#: components/studio/editor-toolbar.tsx:300
+#: components/studio/editor-toolbar.tsx:312
 msgid "적용"
 msgstr "적용"
 
@@ -918,7 +930,7 @@ msgstr "참고 링크는 최대 {MAX_REFERENCE_LINKS}개까지 추가할 수 있
 
 #: components/auth/commit-to-draft-motion.tsx:141
 #: components/main/sample-draft-editor.tsx:81
-#: components/studio/draft-editor.tsx:352
+#: components/studio/draft-editor.tsx:363
 msgid "게시하기"
 msgstr "게시하기"
 
@@ -969,7 +981,7 @@ msgstr "커밋 내역"
 msgid "초안을 만들기 전 반드시 확인해주세요."
 msgstr "초안을 만들기 전 반드시 확인해주세요."
 
-#: components/studio/editor-toolbar.tsx:52
+#: components/studio/editor-toolbar.tsx:64
 msgid "글머리 기호 목록"
 msgstr "글머리 기호 목록"
 
@@ -1006,7 +1018,7 @@ msgstr "다음"
 msgid "경험"
 msgstr "경험"
 
-#: components/studio/draft-editor.tsx:369
+#: components/studio/draft-editor.tsx:380
 msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 msgstr "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 
@@ -1049,7 +1061,7 @@ msgstr "커밋의 맥락을 글의 흐름으로"
 msgid "GitHub 로 시작하기"
 msgstr "GitHub 로 시작하기"
 
-#: components/studio/editor-toolbar.tsx:151
+#: components/studio/editor-toolbar.tsx:163
 msgid "문단 스타일"
 msgstr "문단 스타일"
 
@@ -1073,7 +1085,7 @@ msgstr "커밋 내역 닫기"
 msgid "{host} 링크 삭제"
 msgstr "{host} 링크 삭제"
 
-#: components/studio/editor-toolbar.tsx:56
+#: components/studio/editor-toolbar.tsx:68
 msgid "번호 목록"
 msgstr "번호 목록"
 

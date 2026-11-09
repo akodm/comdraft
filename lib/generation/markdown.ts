@@ -38,7 +38,7 @@ const normalizeMarks = (marks: JSONContent['marks']) => {
 
 /**
  * 생성된 문서를 편집기 스키마에 맞게 정리 (순수 함수)
- * - 편집기에서 쓰지 않는 제목 단계(H4~H6)는 가장 작은 제목 단계로
+ * - 제목 단계는 편집기에서 쓰는 범위(DRAFT_HEADING_LEVELS) 안으로 맞춤 (벗어나면 가장 가까운 단계로)
  * - 안전하지 않은 링크 마크 제거
  */
 export const normalizeGeneratedDocument = (node: JSONContent): JSONContent => {
