@@ -23,6 +23,8 @@ import {
   MAX_GENERATION_COMMITS,
   MAX_GENERATION_PROMPT_LENGTH,
 } from '@/lib/generation/limits';
+import type { Locale } from '@/lib/i18n/config';
+import { getRequestLocale } from '@/lib/i18n/request';
 import {
   getGithubUserToken,
   GithubUserTokenError,
@@ -109,6 +111,7 @@ const createJob = async (
   userId: string,
   repositoryId: string,
   request: ParsedRequest,
+  locale: Locale,
 ) => {
   const draftId = request.draftId ?? crypto.randomUUID();
   const jobId = crypto.randomUUID();
@@ -144,6 +147,7 @@ const createJob = async (
         length: request.options.length,
         requiredBlocks: request.options.requiredBlocks,
         commitShas: request.commitShas,
+        locale,
       });
     });
   } catch (error) {
@@ -207,7 +211,13 @@ export async function requestDraftGeneration(
     await syncDraftJobs(request.draftId);
   }
 
-  const created = await createJob(user.id, repository.id, request);
+  // 요청한 화면의 언어로 프롬프트를 보내고 글을 작성
+  const created = await createJob(
+    user.id,
+    repository.id,
+    request,
+    await getRequestLocale(),
+  );
 
   if (!created) {
     return { status: 'busy' };

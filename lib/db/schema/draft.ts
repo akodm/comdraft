@@ -12,6 +12,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { comdraftSchema } from '@/lib/db/pg-schema';
+import type { Locale } from '@/lib/i18n/config';
 import { user } from '@/lib/db/schema/auth';
 import { githubRepository, userRepository } from '@/lib/db/schema/github';
 
@@ -101,6 +102,8 @@ export const draftPrompt = comdraftSchema.table(
     requiredBlocks: text('required_blocks').array().default([]).notNull(),
     // 요청에 사용한 커밋 SHA (최신순)
     commitShas: text('commit_shas').array().default([]).notNull(),
+    // 요청한 화면의 로케일 (작성 프롬프트 언어와 결과 글 언어, lib/i18n/config.ts 의 LOCALES)
+    locale: text('locale').$type<Locale>().default('ko').notNull(),
     status: text('status')
       .$type<DraftPromptStatus>()
       .default('queued')
@@ -138,6 +141,7 @@ export const draftPrompt = comdraftSchema.table(
       'draft_prompt_step_check',
       sql`${table.step} between 0 and ${sql.raw(String(DRAFT_PROMPT_LAST_STEP))}`,
     ),
+    check('draft_prompt_locale_check', sql`${table.locale} in ('ko', 'en')`),
   ],
 );
 

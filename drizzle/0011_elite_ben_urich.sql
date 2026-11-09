@@ -1,0 +1,2 @@
+ALTER TABLE "comdraft"."draft_prompt" ADD COLUMN "locale" text DEFAULT 'ko' NOT NULL;--> statement-breakpoint
+ALTER TABLE "comdraft"."draft_prompt" ADD CONSTRAINT "draft_prompt_locale_check" CHECK ("comdraft"."draft_prompt"."locale" in ('ko', 'en'));
