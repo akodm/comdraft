@@ -268,3 +268,25 @@ export const listUserBranchCommits = async (
     hasNextPage: hasNextPage(response.headers.get('link')),
   };
 };
+
+export interface GithubUserCommitDetail {
+  sha: string;
+  html_url: string;
+  commit: { message: string };
+  // 변경 파일 (최대 300개까지 응답에 포함, 내용(patch)은 사용하지 않음)
+  files?: Array<{ filename: string }>;
+}
+
+/**
+ * 커밋 하나의 상세 (메시지, 변경 파일 목록)
+ * - 사용자 토큰으로 호출하므로 GitHub 에서 저장소 권한이 없으면 404
+ */
+export const getUserCommit = async (
+  token: string,
+  { owner, repo, sha }: { owner: string; repo: string; sha: string },
+) => {
+  return githubUserFetch<GithubUserCommitDetail>(
+    token,
+    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${encodeURIComponent(sha)}`,
+  );
+};

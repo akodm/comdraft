@@ -31,9 +31,14 @@ msgstr "cleanup에서 disconnect() 호출"
 msgid "커밋 내 코드를 사이트 어디에도 저장하지 않습니다."
 msgstr "커밋 내 코드를 사이트 어디에도 저장하지 않습니다."
 
-#: components/studio/draft-sidebar.tsx:145
+#: components/studio/draft-sidebar.tsx:150
 msgid "초안을 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "초안을 삭제하지 못했습니다. 다시 시도해주세요."
+
+#: components/studio/generation-progress.tsx:31
+#: components/studio/prompt-composer.tsx:57
+msgid "AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요."
+msgstr "AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요."
 
 #: components/main/steps-section.tsx:7
 msgid "Github 연결"
@@ -53,13 +58,18 @@ msgstr "대시보드로 이동"
 msgid "저장소를 추가하고 초안을 만들어보세요"
 msgstr "저장소를 추가하고 초안을 만들어보세요"
 
-#: components/studio/draft-editor.tsx:230
+#: components/studio/draft-editor.tsx:275
 msgid "초안 본문"
 msgstr "초안 본문"
 
 #: components/main/draft-example-section.tsx:12
 msgid "기술 개발 블로그 습관"
 msgstr "기술 개발 블로그 습관"
+
+#: components/studio/generation-progress.tsx:27
+#: components/studio/prompt-composer.tsx:56
+msgid "GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요."
+msgstr "GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요."
 
 #: components/main/language-menu.tsx:43
 msgid "언어 변경"
@@ -89,7 +99,7 @@ msgstr "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. �
 msgid "게시 · 일부 공개"
 msgstr "게시 · 일부 공개"
 
-#: components/studio/draft-editor.tsx:293
+#: components/studio/draft-editor.tsx:341
 msgid "마크다운 파일로 내보내기"
 msgstr "마크다운 파일로 내보내기"
 
@@ -97,7 +107,7 @@ msgstr "마크다운 파일로 내보내기"
 msgid "짧게"
 msgstr "짧게"
 
-#: components/studio/reference-links.tsx:38
+#: components/studio/reference-links.tsx:43
 msgid "새 탭에서 {host} 열기"
 msgstr "새 탭에서 {host} 열기"
 
@@ -121,6 +131,10 @@ msgstr "연동"
 msgid "검토 전 초안"
 msgstr "검토 전 초안"
 
+#: components/studio/generation-progress.tsx:101
+msgid "AI 작성 대기 중"
+msgstr "AI 작성 대기 중"
+
 #: components/studio/prompt-options.tsx:31
 msgid "유형"
 msgstr "유형"
@@ -133,7 +147,7 @@ msgstr "작성 예시"
 msgid "초안 목록"
 msgstr "초안 목록"
 
-#: components/studio/prompt-composer.tsx:290
+#: components/studio/prompt-composer.tsx:327
 msgid "초안 목록 열기"
 msgstr "초안 목록 열기"
 
@@ -143,6 +157,10 @@ msgstr "초안 목록 열기"
 #: components/studio/draft-sidebar.tsx:126
 msgid "새 초안"
 msgstr "새 초안"
+
+#: components/studio/draft-sidebar.tsx:146
+msgid "AI 가 작성 중인 초안은 작성이 끝난 뒤 삭제할 수 있습니다."
+msgstr "AI 가 작성 중인 초안은 작성이 끝난 뒤 삭제할 수 있습니다."
 
 #: components/studio/draft-status.ts:8
 msgid "게시 · 비공개"
@@ -177,6 +195,10 @@ msgstr "세션"
 msgid "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
 msgstr "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
 
+#: components/studio/generation-progress.tsx:18
+msgid "분석"
+msgstr "분석"
+
 #: components/studio/prompt-options.tsx:164
 msgid "{label} 제거"
 msgstr "{label} 제거"
@@ -192,6 +214,10 @@ msgstr "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어
 #: components/studio/editor-toolbar.tsx:49
 msgid "굵게"
 msgstr "굵게"
+
+#: components/studio/generation-progress.tsx:26
+msgid "AI 작성 시간이 초과되었습니다. 다시 시도해주세요."
+msgstr "AI 작성 시간이 초과되었습니다. 다시 시도해주세요."
 
 #: components/studio/editor-toolbar.tsx:63
 msgid "인용"
@@ -230,6 +256,10 @@ msgstr "메뉴"
 msgid "링크 주소"
 msgstr "링크 주소"
 
+#: components/studio/prompt-composer.tsx:52
+msgid "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
+msgstr "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
+
 #: components/main/main-header.tsx:32
 #: components/main/mobile-menu.tsx:162
 msgid "게시글"
@@ -248,7 +278,7 @@ msgstr "회원 탈퇴"
 msgid "프로필 메뉴"
 msgstr "프로필 메뉴"
 
-#: components/studio/draft-editor.tsx:284
+#: components/studio/draft-editor.tsx:332
 msgid "HTML 파일로 내보내기"
 msgstr "HTML 파일로 내보내기"
 
@@ -260,7 +290,7 @@ msgstr "저장소를 선택하세요"
 msgid "삭제"
 msgstr "삭제"
 
-#: components/studio/reference-link-dialog.tsx:26
+#: components/studio/reference-link-dialog.tsx:27
 msgid "링크를 추가하지 못했습니다. 다시 시도해주세요."
 msgstr "링크를 추가하지 못했습니다. 다시 시도해주세요."
 
@@ -291,7 +321,8 @@ msgstr "다시 시도"
 msgid "로그아웃"
 msgstr "로그아웃"
 
-#: components/studio/reference-link-dialog.tsx:133
+#: components/studio/generation-progress.tsx:79
+#: components/studio/reference-link-dialog.tsx:134
 msgid "닫기"
 msgstr "닫기"
 
@@ -322,7 +353,7 @@ msgstr "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이�
 msgid "추적 브랜치 {branch}"
 msgstr "추적 브랜치 {branch}"
 
-#: components/studio/prompt-composer.tsx:68
+#: components/studio/prompt-composer.tsx:89
 msgid "{count, plural, other {커밋 #개}}"
 msgstr "{count, plural, other {커밋 #개}}"
 
@@ -330,9 +361,13 @@ msgstr "{count, plural, other {커밋 #개}}"
 msgid "회원가입 / 로그인"
 msgstr "회원가입 / 로그인"
 
-#: components/studio/reference-link-dialog.tsx:25
+#: components/studio/reference-link-dialog.tsx:26
 msgid "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
+
+#: components/studio/prompt-composer.tsx:53
+msgid "작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해주세요."
+msgstr "작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해주세요."
 
 #: components/dashboard/repository-card.tsx:57
 msgid "개인 저장소"
@@ -359,13 +394,17 @@ msgstr "GitHub 에서 저장소 열기"
 msgid "제목 2"
 msgstr "제목 2"
 
-#: components/studio/prompt-composer.tsx:141
+#: components/studio/prompt-composer.tsx:162
 msgid "모두 해제"
 msgstr "모두 해제"
 
 #: lib/studio/options.ts:54
 msgid "실험"
 msgstr "실험"
+
+#: components/studio/reference-link-dialog.tsx:25
+msgid "AI 작성이 끝난 뒤에 링크를 추가할 수 있습니다."
+msgstr "AI 작성이 끝난 뒤에 링크를 추가할 수 있습니다."
 
 #: components/main/profile-menu.tsx:62
 msgid "로그인"
@@ -379,6 +418,10 @@ msgstr "{selectedCount}개 선택"
 msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgstr "서비스 이해를 위한 샘플 저장소와 초안입니다."
 
+#: components/studio/generation-progress.tsx:30
+msgid "AI 작성 결과를 초안에 반영하지 못했습니다."
+msgstr "AI 작성 결과를 초안에 반영하지 못했습니다."
+
 #: components/studio/draft-list-item.tsx:45
 msgid "{label} 메뉴"
 msgstr "{label} 메뉴"
@@ -388,15 +431,11 @@ msgstr "{label} 메뉴"
 msgid "주요 메뉴"
 msgstr "주요 메뉴"
 
-#: components/studio/prompt-composer.tsx:34
-msgid "AI 초안 생성이 아직 연결되지 않아 작성 요청만 기록했습니다."
-msgstr "AI 초안 생성이 아직 연결되지 않아 작성 요청만 기록했습니다."
-
-#: components/studio/prompt-composer.tsx:187
+#: components/studio/prompt-composer.tsx:208
 msgid "+{pcRest}개"
 msgstr "+{pcRest}개"
 
-#: components/studio/reference-links.tsx:109
+#: components/studio/reference-links.tsx:123
 msgid "링크를 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "링크를 삭제하지 못했습니다. 다시 시도해주세요."
 
@@ -422,12 +461,16 @@ msgstr "친근하게"
 msgid "더 보기"
 msgstr "더 보기"
 
-#: components/studio/prompt-composer.tsx:38
+#: components/studio/prompt-composer.tsx:55
+msgid "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+msgstr "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
+
+#: components/studio/prompt-composer.tsx:59
 msgid "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgstr "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 
-#: components/studio/prompt-composer.tsx:320
-#: components/studio/prompt-composer.tsx:332
+#: components/studio/prompt-composer.tsx:357
+#: components/studio/prompt-composer.tsx:369
 msgid "작성 요청"
 msgstr "작성 요청"
 
@@ -447,7 +490,7 @@ msgstr "GitHub 로그인에 실패했습니다."
 msgid "AI 초안 작성"
 msgstr "AI 초안 작성"
 
-#: components/studio/prompt-composer.tsx:37
+#: components/studio/prompt-composer.tsx:58
 msgid "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 
@@ -489,6 +532,10 @@ msgstr "Github 계정으로 로그인합니다"
 msgid "대시보드"
 msgstr "대시보드"
 
+#: components/studio/generation-progress.tsx:29
+msgid "AI 작성 중 오류가 발생했습니다. 다시 시도해주세요."
+msgstr "AI 작성 중 오류가 발생했습니다. 다시 시도해주세요."
+
 #: components/studio/commit-sidebar.tsx:66
 msgid "GitHub 에서 커밋 {sha} 열기"
 msgstr "GitHub 에서 커밋 {sha} 열기"
@@ -505,11 +552,15 @@ msgstr "계속하시면 <0>이용약관</0> 및 <1>개인정보처리방침</1>�
 msgid "Github App 에서<0/>저장소 권한을 승인해주세요."
 msgstr "Github App 에서<0/>저장소 권한을 승인해주세요."
 
+#: components/studio/generation-progress.tsx:125
+msgid "(완료)"
+msgstr "(완료)"
+
 #: components/main/steps-section.tsx:16
 msgid "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
 msgstr "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
 
-#: components/studio/prompt-composer.tsx:107
+#: components/studio/prompt-composer.tsx:128
 msgid "{sha} 선택 해제"
 msgstr "{sha} 선택 해제"
 
@@ -524,6 +575,10 @@ msgstr "제 3자인 LLM API 에 코드가 보내집니다. 조직 및 비공개 
 #: components/auth/auth-intro.tsx:16
 msgid "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
 msgstr "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
+
+#: components/studio/prompt-composer.tsx:398
+msgid "AI 가 초안을 작성하는 중..."
+msgstr "AI 가 초안을 작성하는 중..."
 
 #: components/studio/editor-toolbar.tsx:20
 msgid "본문"
@@ -545,23 +600,31 @@ msgstr "기울임"
 msgid "계정 설정"
 msgstr "계정 설정"
 
-#: components/studio/prompt-composer.tsx:359
+#: components/studio/prompt-composer.tsx:400
 msgid "작성 요청을 보내는 중..."
 msgstr "작성 요청을 보내는 중..."
+
+#: components/studio/generation-progress.tsx:28
+msgid "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
+msgstr "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
 
 #: components/studio/prompt-options.tsx:184
 msgid "필수 항목 더 보기"
 msgstr "필수 항목 더 보기"
 
-#: components/studio/prompt-composer.tsx:35
+#: components/studio/prompt-composer.tsx:50
 msgid "작성 요청을 입력해주세요."
 msgstr "작성 요청을 입력해주세요."
+
+#: components/studio/generation-progress.tsx:19
+msgid "작성"
+msgstr "작성"
 
 #: lib/studio/options.ts:60
 msgid "길게"
 msgstr "길게"
 
-#: components/studio/reference-links.tsx:101
+#: components/studio/reference-links.tsx:115
 msgid "참고 링크"
 msgstr "참고 링크"
 
@@ -569,15 +632,27 @@ msgstr "참고 링크"
 msgid "조직 저장소"
 msgstr "조직 저장소"
 
+#: components/studio/prompt-composer.tsx:54
+msgid "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
+msgstr "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
+
+#: components/studio/generation-progress.tsx:17
+msgid "구분"
+msgstr "구분"
+
 #: components/dashboard/repository-card.tsx:49
 msgid "공개 저장소"
 msgstr "공개 저장소"
+
+#: components/studio/generation-progress.tsx:103
+msgid "AI 초안 작성 중"
+msgstr "AI 초안 작성 중"
 
 #: components/main/sample-commit-panel.tsx:83
 msgid "이 기록을 하나의 글로 정리"
 msgstr "이 기록을 하나의 글로 정리"
 
-#: components/studio/prompt-composer.tsx:368
+#: components/studio/prompt-composer.tsx:412
 msgid "제출"
 msgstr "제출"
 
@@ -589,7 +664,7 @@ msgstr "코드 블록"
 msgid "연동 저장소"
 msgstr "연동 저장소"
 
-#: components/studio/reference-link-dialog.tsx:188
+#: components/studio/reference-link-dialog.tsx:189
 msgid "취소"
 msgstr "취소"
 
@@ -605,7 +680,7 @@ msgstr "관찰 로직을 재사용 가능한 훅으로 분리"
 msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 msgstr "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 
-#: components/studio/draft-editor.tsx:201
+#: components/studio/draft-editor.tsx:246
 msgid "내용을 입력하세요"
 msgstr "내용을 입력하세요"
 
@@ -614,10 +689,6 @@ msgstr "내용을 입력하세요"
 #: components/onboarding/draft-example.tsx:51
 msgid "개인 공개 저장소 · main"
 msgstr "개인 공개 저장소 · main"
-
-#: components/studio/prompt-composer.tsx:36
-msgid "새 초안은 커밋 내역에서 커밋을 하나 이상 선택해야 만들 수 있습니다."
-msgstr "새 초안은 커밋 내역에서 커밋을 하나 이상 선택해야 만들 수 있습니다."
 
 #: components/onboarding/install-step.tsx:100
 msgid "Github App 인증"
@@ -641,6 +712,10 @@ msgstr "브랜치"
 msgid "제거 중..."
 msgstr "제거 중..."
 
+#: components/studio/generation-progress.tsx:32
+msgid "알 수 없는 오류로 작성하지 못했습니다. 다시 시도해주세요."
+msgstr "알 수 없는 오류로 작성하지 못했습니다. 다시 시도해주세요."
+
 #: components/studio/prompt-options.tsx:324
 msgid "기본 옵션 접기"
 msgstr "기본 옵션 접기"
@@ -653,7 +728,7 @@ msgstr "계정"
 msgid "강의"
 msgstr "강의"
 
-#: components/studio/draft-editor.tsx:200
+#: components/studio/draft-editor.tsx:245
 msgid "제목"
 msgstr "제목"
 
@@ -690,7 +765,7 @@ msgid "다시 로그인"
 msgstr "다시 로그인"
 
 #: components/main/sample-commit-panel.tsx:14
-#: components/studio/prompt-composer.tsx:85
+#: components/studio/prompt-composer.tsx:106
 msgid "선택한 커밋"
 msgstr "선택한 커밋"
 
@@ -706,7 +781,7 @@ msgstr "대시보드로 돌아가기"
 msgid "이동 중..."
 msgstr "이동 중..."
 
-#: components/studio/draft-editor.tsx:271
+#: components/studio/draft-editor.tsx:319
 msgid "· 저장 중..."
 msgstr "· 저장 중..."
 
@@ -732,7 +807,7 @@ msgstr "feat: 이미지 지연 로딩 적용"
 msgid "GitHub 로 이동 중..."
 msgstr "GitHub 로 이동 중..."
 
-#: components/studio/draft-editor.tsx:202
+#: components/studio/draft-editor.tsx:247
 msgid "복사했습니다"
 msgstr "복사했습니다"
 
@@ -740,11 +815,11 @@ msgstr "복사했습니다"
 msgid "{commitCount}개 선택"
 msgstr "{commitCount}개 선택"
 
-#: components/studio/draft-editor.tsx:274
+#: components/studio/draft-editor.tsx:322
 msgid "· 저장하지 못했습니다"
 msgstr "· 저장하지 못했습니다"
 
-#: components/studio/reference-link-dialog.tsx:196
+#: components/studio/reference-link-dialog.tsx:197
 msgid "추가"
 msgstr "추가"
 
@@ -756,7 +831,11 @@ msgstr "기본 옵션 펼치기"
 msgid "검토 후 게시 및 내보내기"
 msgstr "검토 후 게시 및 내보내기"
 
-#: components/studio/draft-editor.tsx:259
+#: components/studio/prompt-composer.tsx:51
+msgid "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
+msgstr "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
+
+#: components/studio/draft-editor.tsx:307
 msgid "초안 편집"
 msgstr "초안 편집"
 
@@ -800,12 +879,12 @@ msgstr "홈으로 이동"
 msgid "길이"
 msgstr "길이"
 
-#: components/studio/draft-editor.tsx:202
+#: components/studio/draft-editor.tsx:247
 msgid "코드 복사"
 msgstr "코드 복사"
 
-#: components/studio/reference-link-dialog.tsx:129
-#: components/studio/reference-links.tsx:96
+#: components/studio/reference-link-dialog.tsx:130
+#: components/studio/reference-links.tsx:110
 msgid "참고 링크 추가"
 msgstr "참고 링크 추가"
 
@@ -839,7 +918,7 @@ msgstr "참고 링크는 최대 {MAX_REFERENCE_LINKS}개까지 추가할 수 있
 
 #: components/auth/commit-to-draft-motion.tsx:141
 #: components/main/sample-draft-editor.tsx:81
-#: components/studio/draft-editor.tsx:304
+#: components/studio/draft-editor.tsx:352
 msgid "게시하기"
 msgstr "게시하기"
 
@@ -852,7 +931,7 @@ msgstr "저장소를 더 불러오는 중..."
 msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 msgstr "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 
-#: components/studio/draft-sidebar.tsx:165
+#: components/studio/draft-sidebar.tsx:171
 msgid "아직 초안이 없습니다. 커밋을 선택하고 작성 요청을 보내 첫 초안을 만들어 보세요."
 msgstr "아직 초안이 없습니다. 커밋을 선택하고 작성 요청을 보내 첫 초안을 만들어 보세요."
 
@@ -911,7 +990,7 @@ msgstr "사이드바 닫기"
 msgid "추가+"
 msgstr "추가+"
 
-#: components/studio/prompt-composer.tsx:333
+#: components/studio/prompt-composer.tsx:370
 msgid "선택한 커밋으로 어떤 글을 쓸지 요청해주세요."
 msgstr "선택한 커밋으로 어떤 글을 쓸지 요청해주세요."
 
@@ -927,11 +1006,11 @@ msgstr "다음"
 msgid "경험"
 msgstr "경험"
 
-#: components/studio/draft-editor.tsx:321
+#: components/studio/draft-editor.tsx:369
 msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 msgstr "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 
-#: components/studio/prompt-composer.tsx:124
+#: components/studio/prompt-composer.tsx:145
 msgid "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
 msgstr "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
 
@@ -948,8 +1027,8 @@ msgstr "기본 옵션"
 msgid "초안 편집기"
 msgstr "초안 편집기"
 
-#: components/studio/prompt-composer.tsx:133
-#: components/studio/prompt-composer.tsx:298
+#: components/studio/prompt-composer.tsx:154
+#: components/studio/prompt-composer.tsx:335
 msgid "커밋 내역 열기"
 msgstr "커밋 내역 열기"
 
@@ -978,7 +1057,7 @@ msgstr "문단 스타일"
 msgid "게시 · 공개"
 msgstr "게시 · 공개"
 
-#: components/studio/prompt-composer.tsx:70
+#: components/studio/prompt-composer.tsx:91
 msgid "커밋 선택"
 msgstr "커밋 선택"
 
@@ -990,7 +1069,7 @@ msgstr "저장소를 먼저 선택하세요"
 msgid "커밋 내역 닫기"
 msgstr "커밋 내역 닫기"
 
-#: components/studio/reference-links.tsx:50
+#: components/studio/reference-links.tsx:55
 msgid "{host} 링크 삭제"
 msgstr "{host} 링크 삭제"
 

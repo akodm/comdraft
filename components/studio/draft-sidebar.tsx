@@ -36,7 +36,7 @@ const DraftSidebar = ({ drafts, userName, isOpen }: DraftSidebarProps) => {
     useStudio();
   const { draftId: activeDraftId } = useParams<{ draftId?: string }>();
   const visibleDrafts = drafts.filter(({ id }) => !removedDraftIds.has(id));
-  const { removeDraft, hasError: hasDeleteError } = useDraftDeletion(
+  const { removeDraft, error: deleteError } = useDraftDeletion(
     visibleDrafts,
     activeDraftId,
   );
@@ -137,12 +137,18 @@ const DraftSidebar = ({ drafts, userName, isOpen }: DraftSidebarProps) => {
           <Trans>세션</Trans>
           <span className="font-mono">{visibleDrafts.length}</span>
         </p>
-        {hasDeleteError && (
+        {deleteError && (
           <p
             role="alert"
             className="px-3 text-[12px] leading-[1.6] break-keep text-danger"
           >
-            <Trans>초안을 삭제하지 못했습니다. 다시 시도해주세요.</Trans>
+            {deleteError === 'locked' ? (
+              <Trans>
+                AI 가 작성 중인 초안은 작성이 끝난 뒤 삭제할 수 있습니다.
+              </Trans>
+            ) : (
+              <Trans>초안을 삭제하지 못했습니다. 다시 시도해주세요.</Trans>
+            )}
           </p>
         )}
         {visibleDrafts.length > 0 ? (

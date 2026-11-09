@@ -7,6 +7,8 @@ import PromptOptions from '@/components/studio/prompt-options';
 import ReferenceLinks from '@/components/studio/reference-links';
 import { useStudio } from '@/components/studio/studio-context';
 import { PC_MEDIA_QUERY } from '@/components/studio/studio-styles';
+import { useGenerationJob } from '@/hooks/use-generation-job';
+import { useLocalizedRouter } from '@/hooks/use-localized-router';
 import { useReferenceLinks } from '@/hooks/use-reference-links';
 import {
   DEFAULT_PROMPT_OPTIONS,
@@ -29,6 +31,13 @@ interface StudioWorkspaceProps {
  */
 const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
   const { repository } = useStudio();
+  const router = useLocalizedRouter();
+  // AI 작성 작업: 진행 중(또는 결과 반영 전)에는 편집기/참고 링크/제출 잠금,
+  // 결과가 반영되면 화면을 다시 불러와 새 본문을 편집기에 표시
+  const generation = useGenerationJob({
+    initialJob: draft?.resumableJob ?? null,
+    onApplied: router.refresh,
+  });
   // 초안의 마지막 작성 요청 옵션으로 시작
   const [options, setOptions] = useState<PromptOptionsValue>(
     draft?.promptOptions ?? DEFAULT_PROMPT_OPTIONS,
@@ -126,6 +135,7 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
           draft={draft}
           bottomInset={optionsHeight}
           scrollAreaRef={editorScrollRef}
+          isLocked={generation.isLocked}
         />
         <div ref={bottomAreaRef} className="relative shrink-0">
           {/* 편집기와 작성 요청 사이 간격(12px)을 그대로 두고 작성 요청 위에 겹쳐 띄움 */}
@@ -139,6 +149,7 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
               links={referenceLinks.links}
               onAdd={referenceLinks.add}
               onRemove={referenceLinks.remove}
+              isLocked={generation.isLocked}
             />
           </PromptOptions>
           <PromptComposer
@@ -147,6 +158,10 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
             pendingReferenceUrls={
               draft ? [] : referenceLinks.links.map(({ url }) => url)
             }
+            job={generation.job}
+            isLocked={generation.isLocked}
+            onJobStarted={generation.start}
+            onJobDismiss={generation.dismiss}
           />
         </div>
       </div>

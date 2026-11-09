@@ -1,11 +1,15 @@
 'use server';
 
-import { and, eq } from 'drizzle-orm';
-import { refresh } from 'next/cache';
+import { and, eq, not } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
-import { draft, draftPrompt, draftReferenceLink } from '@/lib/db/schema';
+import { draft } from '@/lib/db/schema';
+import {
+  isDraftLocked,
+  lockingJobExists,
+  syncDraftJobs,
+} from '@/lib/generation/jobs';
 import { COMMITS_PER_PAGE, listRepositoryCommits } from '@/lib/github/commits';
 import { GithubApiError, GithubUserTokenError } from '@/lib/github/user-api';
 import {
@@ -14,10 +18,7 @@ import {
   isDraftDocument,
   MAX_DRAFT_CONTENT_LENGTH,
 } from '@/lib/studio/draft-content';
-import { buildDraftStub } from '@/lib/studio/draft-stub';
-import { parsePromptOptions } from '@/lib/studio/options';
-import { getStudioRepository } from '@/lib/studio/queries';
-import { parseReferenceUrls } from '@/lib/studio/reference-link';
+import { isOwnedDraft } from '@/lib/studio/queries';
 
 // 커밋 내역 사이드바에 필요한 값만 전달 (커밋 내용은 저장하지 않음)
 export interface StudioCommit {
@@ -95,168 +96,11 @@ export async function loadStudioCommits(
   }
 }
 
-export interface SubmitDraftPromptInput {
-  repositoryId: string;
-  // null 이면 새 초안
-  draftId: string | null;
-  prompt: string;
-  options: unknown;
-  // 선택한 커밋 (최신순)
-  commits: Array<{ sha: string; subject: string }>;
-  // 새 초안에 함께 저장할 참고 링크 (기존 초안은 링크를 바로 저장하므로 보내지 않음)
-  referenceLinks?: string[];
-}
-
-export type SubmitDraftPromptResult =
-  // 새 초안을 만듦 → 클라이언트가 초안 화면으로 이동
-  | { status: 'created'; draftId: string }
-  // 기존 초안에 요청만 기록 (AI 생성 미연동)
-  | { status: 'saved' }
-  | { status: 'invalid' }
-  | { status: 'not_found' };
-
-const MAX_PROMPT_LENGTH = 4000;
-const MAX_COMMITS = 100;
-const MAX_SUBJECT_LENGTH = 300;
-const SHA_PATTERN = /^[0-9a-f]{40}$/;
-
-const parseCommits = (value: unknown) => {
-  if (!Array.isArray(value) || value.length > MAX_COMMITS) {
-    return null;
-  }
-
-  const commits = value.map((item: unknown) => {
-    const { sha, subject } = (item ?? {}) as Record<string, unknown>;
-
-    return typeof sha === 'string' &&
-      SHA_PATTERN.test(sha) &&
-      typeof subject === 'string'
-      ? { sha, subject: subject.slice(0, MAX_SUBJECT_LENGTH) }
-      : null;
-  });
-
-  return commits.every((commit) => commit !== null) ? commits : null;
-};
-
-/**
- * 작성 요청 제출
- * - [임시] AI 생성을 연동하기 전이라 LLM 을 호출하지 않음
- *   - 새 초안: 선택한 커밋으로 초안 뼈대를 만들어 저장 (lib/studio/draft-stub.ts)
- *   - 기존 초안: 본문은 그대로 두고 요청 기록만 저장
- * - 요청 문구, 기본 옵션, 커밋 SHA 는 draft_prompt 에 기록 (커밋 메시지는 저장하지 않음)
- * - 새 초안을 만들기 전에 추가한 참고 링크는 초안과 함께 저장
- */
-export async function submitDraftPrompt(
-  input: SubmitDraftPromptInput,
-): Promise<SubmitDraftPromptResult> {
-  const { user } = await requireSession();
-  const prompt = typeof input.prompt === 'string' ? input.prompt.trim() : '';
-  const options = parsePromptOptions(input.options);
-  const commits = parseCommits(input.commits);
-  const draftId = typeof input.draftId === 'string' ? input.draftId : null;
-  const referenceUrls = parseReferenceUrls(input.referenceLinks);
-
-  if (
-    !prompt ||
-    prompt.length > MAX_PROMPT_LENGTH ||
-    !options ||
-    !commits ||
-    !referenceUrls ||
-    // 새 초안은 커밋을 하나 이상 선택해야 만들 수 있음
-    (!draftId && commits.length === 0)
-  ) {
-    return { status: 'invalid' };
-  }
-
-  const repository = await getStudioRepository(user.id, input.repositoryId);
-
-  if (!repository) {
-    return { status: 'not_found' };
-  }
-
-  const promptValues = {
-    prompt,
-    tone: options.tone,
-    postType: options.postType,
-    length: options.length,
-    requiredBlocks: options.requiredBlocks,
-    commitShas: commits.map(({ sha }) => sha),
-  };
-
-  if (draftId) {
-    const saved = await db.transaction(async (tx) => {
-      // 최근 수정순 목록의 맨 위로 올림
-      const [touched] = await tx
-        .update(draft)
-        .set({ updatedAt: new Date() })
-        .where(
-          and(
-            eq(draft.id, draftId),
-            eq(draft.userId, user.id),
-            eq(draft.repositoryId, repository.id),
-          ),
-        )
-        .returning({ id: draft.id });
-
-      if (!touched) {
-        return false;
-      }
-
-      await tx.insert(draftPrompt).values({
-        id: crypto.randomUUID(),
-        draftId: touched.id,
-        ...promptValues,
-      });
-
-      return true;
-    });
-
-    if (!saved) {
-      return { status: 'not_found' };
-    }
-
-    refresh();
-
-    return { status: 'saved' };
-  }
-
-  const content = buildDraftStub({ prompt, commits });
-  const newDraftId = crypto.randomUUID();
-
-  await db.transaction(async (tx) => {
-    await tx.insert(draft).values({
-      id: newDraftId,
-      userId: user.id,
-      repositoryId: repository.id,
-      title: extractDraftTitle(content),
-      content,
-    });
-    await tx.insert(draftPrompt).values({
-      id: crypto.randomUUID(),
-      draftId: newDraftId,
-      ...promptValues,
-    });
-
-    if (referenceUrls.length > 0) {
-      await tx.insert(draftReferenceLink).values(
-        referenceUrls.map((url) => ({
-          id: crypto.randomUUID(),
-          draftId: newDraftId,
-          url,
-        })),
-      );
-    }
-  });
-
-  // 레이아웃의 초안 목록에 새 초안이 보이도록 현재 화면을 다시 렌더링
-  refresh();
-
-  return { status: 'created', draftId: newDraftId };
-}
-
 export type SaveDraftContentResult =
   | { status: 'saved'; title: string }
   | { status: 'invalid' }
+  // AI 작성 중이라 편집 잠금
+  | { status: 'locked' }
   | { status: 'not_found' };
 
 // 클라이언트가 보낸 본문 JSON 문자열을 Tiptap 문서로 (형식이 맞지 않으면 null)
@@ -282,6 +126,7 @@ const parseDraftDocument = (contentJson: unknown) => {
  * - 본문은 JSON 문자열로 받음: ProseMirror 의 attrs 는 프로토타입 없는 객체라
  *   Server Action 인자로 그대로 넘기면 직렬화 과정에서 빠짐 (제목 단계, 링크 주소, 코드 언어 등)
  * - 목록 순서가 매번 바뀌지 않도록 화면은 다시 렌더링하지 않고, 바뀐 제목만 돌려줌
+ * - AI 작성 작업이 진행 중(또는 결과 반영 전)이면 저장하지 않음 (같은 UPDATE 조건으로 확인)
  */
 export async function saveDraftContent(
   repositoryId: string,
@@ -295,34 +140,49 @@ export async function saveDraftContent(
     return { status: 'invalid' };
   }
 
+  if (!(await isOwnedDraft(user.id, repositoryId, draftId))) {
+    return { status: 'not_found' };
+  }
+
+  // 시간 초과된 작업 정리, 완료한 결과 반영 (반영되면 잠금이 풀림)
+  await syncDraftJobs(draftId);
+
   const title = extractDraftTitle(content);
   const [updated] = await db
     .update(draft)
     .set({ content, title })
-    .where(
-      and(
-        eq(draft.id, draftId),
-        eq(draft.userId, user.id),
-        eq(draft.repositoryId, repositoryId),
-      ),
-    )
+    .where(and(eq(draft.id, draftId), not(lockingJobExists(draft.id))))
     .returning({ id: draft.id });
 
-  return updated ? { status: 'saved', title } : { status: 'not_found' };
+  return updated ? { status: 'saved', title } : { status: 'locked' };
 }
 
-export type DeleteDraftResult = { status: 'deleted' } | { status: 'not_found' };
+export type DeleteDraftResult =
+  | { status: 'deleted' }
+  // AI 작성 중이라 삭제할 수 없음
+  | { status: 'locked' }
+  | { status: 'not_found' };
 
 /**
  * 초안 삭제 (본인이 해당 저장소에 만든 초안만, 작성 요청 기록과 참고 링크도 함께 삭제)
  * - 화면은 다시 렌더링하지 않음: 열려 있는 초안이면 다시 그리는 순간 404 가 되므로,
  *   목록에서 숨기고 다른 초안으로 옮기는 일은 클라이언트가 처리
+ * - AI 작성 작업이 진행 중이면 삭제하지 않음
  */
 export async function deleteDraft(
   repositoryId: string,
   draftId: string,
 ): Promise<DeleteDraftResult> {
   const { user } = await requireSession();
+
+  if (!(await isOwnedDraft(user.id, repositoryId, draftId))) {
+    return { status: 'not_found' };
+  }
+
+  if (await isDraftLocked(draftId)) {
+    return { status: 'locked' };
+  }
+
   const deleted = await db
     .delete(draft)
     .where(

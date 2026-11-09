@@ -19,6 +19,12 @@ import {
   type PromptOptions,
 } from '@/lib/studio/options';
 import type { ReferenceLink } from '@/lib/studio/reference-link';
+import { isJobResumable } from '@/lib/generation/job-state';
+import {
+  getLatestDraftJob,
+  syncDraftJobs,
+  type GenerationJobView,
+} from '@/lib/generation/jobs';
 
 // 스튜디오 사이드바 상단에 표시하는 저장소 정보
 export interface StudioRepository {
@@ -44,6 +50,10 @@ export interface StudioDraft extends StudioDraftSummary {
   promptOptions: PromptOptions;
   // 추가한 순서대로
   referenceLinks: ReferenceLink[];
+  // 이어서 보여 줄 AI 작성 작업 (진행 중이거나 최근에 실패한 작업)
+  resumableJob: GenerationJobView | null;
+  // 마지막으로 본문에 반영한 작업 id (바뀌면 편집기가 새 본문을 다시 불러옴)
+  contentRevision: string | null;
 }
 
 /**
@@ -135,6 +145,13 @@ export const getStudioDraft = async (
   repositoryId: string,
   draftId: string,
 ): Promise<StudioDraft | null> => {
+  if (!(await isOwnedDraft(userId, repositoryId, draftId))) {
+    return null;
+  }
+
+  // 화면을 열 때 시간 초과된 작업 정리 + 완료한 결과 반영 (본문을 읽기 전에)
+  await syncDraftJobs(draftId);
+
   const [row] = await db
     .select({
       id: draft.id,
@@ -157,7 +174,7 @@ export const getStudioDraft = async (
     return null;
   }
 
-  const [[lastPrompt], referenceLinks] = await Promise.all([
+  const [[lastPrompt], referenceLinks, latestJob] = await Promise.all([
     db
       .select({
         tone: draftPrompt.tone,
@@ -170,6 +187,7 @@ export const getStudioDraft = async (
       .orderBy(desc(draftPrompt.createdAt))
       .limit(1),
     listDraftReferenceLinks(row.id),
+    getLatestDraftJob(row.id),
   ]);
 
   return {
@@ -177,5 +195,11 @@ export const getStudioDraft = async (
     content: isDraftDocument(row.content) ? row.content : null,
     promptOptions: parsePromptOptions(lastPrompt) ?? DEFAULT_PROMPT_OPTIONS,
     referenceLinks,
+    resumableJob:
+      latestJob && isJobResumable(latestJob, new Date()) ? latestJob : null,
+    contentRevision:
+      latestJob?.status === 'completed' && latestJob.applied
+        ? latestJob.id
+        : null,
   };
 };

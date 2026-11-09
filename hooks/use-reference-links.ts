@@ -14,6 +14,7 @@ export type AddReferenceLinkStatus =
   | 'invalid'
   | 'duplicate'
   | 'limit'
+  | 'locked'
   | 'not_found'
   | 'error';
 
@@ -78,7 +79,18 @@ export const useReferenceLinks = (
       }
 
       try {
-        await deleteDraftReferenceLink(repositoryId, draftId, linkId);
+        const result = await deleteDraftReferenceLink(
+          repositoryId,
+          draftId,
+          linkId,
+        );
+
+        // AI 작성 중이라 지우지 못했으면 되돌림 (이미 없는 링크는 지운 것으로 봄)
+        if (result.status === 'locked') {
+          setLinks(previousLinks);
+          return false;
+        }
+
         return true;
       } catch {
         setLinks(previousLinks);

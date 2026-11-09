@@ -64,6 +64,20 @@
       "when": 1794190133005,
       "tag": "0008_silly_lorna_dane",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794203951895,
+      "tag": "0009_smooth_victor_mancha",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794205851196,
+      "tag": "0010_flat_anthem",
+      "breakpoints": true
     }
   ]
 }

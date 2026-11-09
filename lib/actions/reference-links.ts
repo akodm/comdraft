@@ -4,6 +4,7 @@ import { and, count, eq, inArray } from 'drizzle-orm';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { draft, draftReferenceLink } from '@/lib/db/schema';
+import { isDraftLocked } from '@/lib/generation/jobs';
 import { isOwnedDraft } from '@/lib/studio/queries';
 import {
   MAX_REFERENCE_LINKS,
@@ -17,6 +18,8 @@ export type AddReferenceLinkResult =
   | { status: 'invalid' }
   | { status: 'duplicate' }
   | { status: 'limit' }
+  // AI 작성 중이라 편집 잠금
+  | { status: 'locked' }
   | { status: 'not_found' };
 
 /**
@@ -38,6 +41,10 @@ export async function addDraftReferenceLink(
 
   if (!(await isOwnedDraft(user.id, repositoryId, draftId))) {
     return { status: 'not_found' };
+  }
+
+  if (await isDraftLocked(draftId)) {
+    return { status: 'locked' };
   }
 
   const [{ linkCount }] = await db
@@ -62,6 +69,7 @@ export async function addDraftReferenceLink(
 
 export type DeleteReferenceLinkResult =
   | { status: 'deleted' }
+  | { status: 'locked' }
   | { status: 'not_found' };
 
 // 초안의 참고 링크 삭제 (본인 초안의 링크만)
@@ -71,6 +79,14 @@ export async function deleteDraftReferenceLink(
   linkId: string,
 ): Promise<DeleteReferenceLinkResult> {
   const { user } = await requireSession();
+
+  if (
+    (await isOwnedDraft(user.id, repositoryId, draftId)) &&
+    (await isDraftLocked(draftId))
+  ) {
+    return { status: 'locked' };
+  }
+
   const ownedDraft = db
     .select({ id: draft.id })
     .from(draft)

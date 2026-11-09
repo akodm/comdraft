@@ -13,6 +13,7 @@ import type { MessageDescriptor } from '@lingui/core';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import { DROPDOWN_PANEL_CLASS } from '@/components/shared/dropdown-styles';
 import Spinner from '@/components/shared/spinner';
+import GenerationProgress from '@/components/studio/generation-progress';
 import { useStudio } from '@/components/studio/studio-context';
 import {
   BRAND_BUTTON_CLASS,
@@ -20,7 +21,12 @@ import {
 } from '@/components/studio/studio-styles';
 import { useDropdown } from '@/hooks/use-dropdown';
 import { useLocalizedRouter } from '@/hooks/use-localized-router';
-import { submitDraftPrompt } from '@/lib/actions/studio';
+import { requestDraftGeneration } from '@/lib/actions/generation';
+import type { GenerationJobView } from '@/lib/generation/jobs';
+import {
+  MAX_GENERATION_COMMITS,
+  MAX_GENERATION_PROMPT_LENGTH,
+} from '@/lib/generation/limits';
 import { shortSha, stripCommitType } from '@/lib/studio/draft-content';
 import type { PromptOptions } from '@/lib/studio/options';
 
@@ -28,12 +34,27 @@ import type { PromptOptions } from '@/lib/studio/options';
 const PC_SUMMARY_COUNT = 3;
 const MOBILE_SUMMARY_COUNT = 1;
 
-type Notice = 'saved' | 'no_prompt' | 'no_commits' | 'not_found' | 'error';
+type Notice =
+  | 'no_prompt'
+  | 'no_commits'
+  | 'too_many_commits'
+  | 'invalid'
+  | 'busy'
+  | 'rate_limited'
+  | 'github_reauth'
+  | 'runner_unavailable'
+  | 'not_found'
+  | 'error';
 
 const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
-  saved: msg`AI 초안 생성이 아직 연결되지 않아 작성 요청만 기록했습니다.`,
   no_prompt: msg`작성 요청을 입력해주세요.`,
-  no_commits: msg`새 초안은 커밋 내역에서 커밋을 하나 이상 선택해야 만들 수 있습니다.`,
+  no_commits: msg`커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요.`,
+  too_many_commits: msg`커밋은 한 번에 ${MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다.`,
+  invalid: msg`작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해주세요.`,
+  busy: msg`이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요.`,
+  rate_limited: msg`작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.`,
+  github_reauth: msg`GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요.`,
+  runner_unavailable: msg`AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.`,
   not_found: msg`초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.`,
   error: msg`작성 요청을 보내지 못했습니다. 다시 시도해주세요.`,
 };
@@ -197,18 +218,28 @@ interface PromptComposerProps {
   options: PromptOptions;
   // 새 초안과 함께 저장할 참고 링크 (저장된 초안은 링크를 바로 저장하므로 빈 배열)
   pendingReferenceUrls: string[];
+  // 이 초안의 AI 작성 작업 (진행 중이면 제출 잠금)
+  job: GenerationJobView | null;
+  isLocked: boolean;
+  onJobStarted: (job: GenerationJobView) => void;
+  onJobDismiss: () => void;
 }
 
 /**
  * 작성 요청 입력 영역
  * - 선택한 커밋, 요청 문구, 기본 옵션을 함께 제출 (⌘/Ctrl + Enter 로도 제출)
  * - 모바일: 왼쪽에 초안 목록 / 커밋 내역 사이드바 여는 버튼
- * - [임시] AI 생성 미연동: 새 초안은 커밋으로 뼈대만 만들고, 기존 초안은 요청만 기록 (lib/actions/studio.ts)
+ * - 제출하면 AI 작성 작업을 시작 (새 초안이면 초안을 만들고 그 화면으로 이동해 진행 상태를 이어서 받음)
+ * - 작업이 진행 중이면 제출할 수 없고, 진행 단계/실패 사유를 표시
  */
 const PromptComposer = ({
   draftId,
   options,
   pendingReferenceUrls,
+  job,
+  isLocked,
+  onJobStarted,
+  onJobDismiss,
 }: PromptComposerProps) => {
   const { t, i18n } = useLingui();
   const router = useLocalizedRouter();
@@ -219,7 +250,7 @@ const PromptComposer = ({
   const promptId = useId();
 
   const submit = () => {
-    if (isPending) {
+    if (isPending || isLocked) {
       return;
     }
 
@@ -228,37 +259,43 @@ const PromptComposer = ({
       return;
     }
 
-    if (!draftId && selectedCommits.length === 0) {
+    if (selectedCommits.length === 0) {
       setNotice('no_commits');
       return;
     }
 
+    if (selectedCommits.length > MAX_GENERATION_COMMITS) {
+      setNotice('too_many_commits');
+      return;
+    }
+
     setNotice(null);
+    onJobDismiss();
     startTransition(async () => {
       try {
-        const result = await submitDraftPrompt({
+        const result = await requestDraftGeneration({
           repositoryId: repository.id,
           draftId,
           prompt,
           options,
-          commits: selectedCommits.map(({ sha, subject }) => ({
-            sha,
-            subject,
-          })),
+          commitShas: selectedCommits.map(({ sha }) => sha),
           referenceLinks: pendingReferenceUrls,
         });
 
-        if (result.status === 'created') {
-          setPrompt('');
+        if (result.status !== 'started') {
+          setNotice(result.status);
+          return;
+        }
+
+        setPrompt('');
+
+        if (result.isNewDraft) {
+          // 새 초안 화면이 열리면 진행 중인 작업을 이어서 받음
           router.push(`${basePath}/${result.draftId}`);
           return;
         }
 
-        if (result.status === 'saved') {
-          setPrompt('');
-        }
-
-        setNotice(result.status === 'invalid' ? 'no_prompt' : result.status);
+        onJobStarted(result.job);
       } catch {
         setNotice('error');
       }
@@ -328,7 +365,7 @@ const PromptComposer = ({
           onChange={(event) => setPrompt(event.target.value)}
           onKeyDown={handleKeyDown}
           rows={2}
-          maxLength={4000}
+          maxLength={MAX_GENERATION_PROMPT_LENGTH}
           aria-label={t`작성 요청`}
           placeholder={t`선택한 커밋으로 어떤 글을 쓸지 요청해주세요.`}
           className="max-h-48 min-h-[3.6em] w-full resize-none text-[12px] leading-[1.8] text-ink outline-none field-sizing-content placeholder:text-ink-subtle pc:text-[14px]"
@@ -336,13 +373,12 @@ const PromptComposer = ({
         {notice && (
           <p
             role="status"
-            className={`text-[11px] leading-[1.6] break-keep pc:text-[12px] ${
-              notice === 'saved' ? 'text-ink-faint' : 'text-danger'
-            }`}
+            className="text-[11px] leading-[1.6] break-keep text-danger pc:text-[12px]"
           >
             {i18n._(NOTICE_MESSAGES[notice])}
           </p>
         )}
+        {job && <GenerationProgress job={job} onDismiss={onJobDismiss} />}
         <div className="flex items-center justify-between gap-3">
           <p
             aria-hidden="true"
@@ -352,11 +388,19 @@ const PromptComposer = ({
           </p>
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || isLocked}
             className={`h-8 min-w-18 pc:h-8.5 ${BRAND_BUTTON_CLASS}`}
           >
-            {isPending ? (
-              <Spinner label={<Trans>작성 요청을 보내는 중...</Trans>} />
+            {isPending || isLocked ? (
+              <Spinner
+                label={
+                  isLocked ? (
+                    <Trans>AI 가 초안을 작성하는 중...</Trans>
+                  ) : (
+                    <Trans>작성 요청을 보내는 중...</Trans>
+                  )
+                }
+              />
             ) : (
               <>
                 <Image

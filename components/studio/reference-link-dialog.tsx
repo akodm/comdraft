@@ -22,6 +22,7 @@ const ERROR_MESSAGES: Record<AddError, MessageDescriptor> = {
   invalid: msg`올바른 URL을 입력해주세요.`,
   duplicate: msg`이미 추가한 링크입니다.`,
   limit: msg`참고 링크는 최대 ${MAX_REFERENCE_LINKS}개까지 추가할 수 있습니다.`,
+  locked: msg`AI 작성이 끝난 뒤에 링크를 추가할 수 있습니다.`,
   not_found: msg`초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.`,
   error: msg`링크를 추가하지 못했습니다. 다시 시도해주세요.`,
 };

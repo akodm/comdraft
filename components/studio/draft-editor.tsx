@@ -112,8 +112,12 @@ const useDraftAutosave = (repositoryId: string, draftId: string | null) => {
       );
 
       if (result.status !== 'saved') {
-        // 저장 중에 초안을 삭제했으면 오류로 표시하지 않음
-        setSaveState(isDraftRemoved(draftId) ? 'idle' : 'error');
+        // 저장 중에 초안을 삭제했거나, AI 작성이 시작되어 잠긴 경우(본문이 결과로 바뀜)는 오류로 표시하지 않음
+        setSaveState(
+          isDraftRemoved(draftId) || result.status === 'locked'
+            ? 'idle'
+            : 'error',
+        );
         return;
       }
 
@@ -165,6 +169,46 @@ const useDraftAutosave = (repositoryId: string, draftId: string | null) => {
   return { saveState, schedule };
 };
 
+// AI 작성 중에는 읽기 전용 (잠금이 풀리면 다시 편집 가능)
+const useEditorLock = (editor: Editor | null, isEditable: boolean) => {
+  useEffect(() => {
+    if (editor && !editor.isDestroyed && editor.isEditable !== isEditable) {
+      // 편집 가능 여부만 바꾸고 update 이벤트는 보내지 않음
+      // (보내면 자동 저장이 잠금 해제 직전의 옛 본문으로 방금 반영한 AI 결과를 덮어씀)
+      editor.setEditable(isEditable, false);
+    }
+  }, [editor, isEditable]);
+};
+
+/**
+ * AI 작성 결과가 본문에 반영되면(contentRevision 변경) 새 본문으로 교체
+ * - 편집기는 초안이 바뀔 때만 다시 만들어지므로, 같은 초안의 새 본문은 여기서 넣음
+ * - 사이드바 목록 제목도 새 제목으로 맞춤 (자동 저장으로 바꾼 제목보다 우선)
+ */
+const useAppliedContent = (
+  editor: Editor | null,
+  draft: StudioDraft | null,
+) => {
+  const { setDraftTitle } = useStudio();
+  const revision = draft?.contentRevision ?? null;
+  const appliedRevisionRef = useRef(revision);
+
+  useEffect(() => {
+    if (
+      !editor ||
+      editor.isDestroyed ||
+      !draft ||
+      revision === appliedRevisionRef.current
+    ) {
+      return;
+    }
+
+    appliedRevisionRef.current = revision;
+    editor.commands.setContent(draft.content, { emitUpdate: false });
+    setDraftTitle(draft.id, draft.title);
+  }, [editor, draft, revision, setDraftTitle]);
+};
+
 interface DraftEditorProps {
   repositoryId: string;
   // null 이면 새 초안 (작성 요청을 보내기 전이라 편집 불가)
@@ -173,6 +217,8 @@ interface DraftEditorProps {
   bottomInset: number;
   // 본문 스크롤 영역 (PC 에서 패널 높이가 바뀔 때 작업 영역이 스크롤 위치를 맞추는 데 사용)
   scrollAreaRef?: Ref<HTMLDivElement>;
+  // AI 작성 중이라 읽기 전용
+  isLocked: boolean;
 }
 
 // 커서가 화면 끝에 닿기 전에 스크롤할 간격 (px)
@@ -188,6 +234,7 @@ const DraftEditor = ({
   draft,
   bottomInset,
   scrollAreaRef,
+  isLocked,
 }: DraftEditorProps) => {
   const { t, i18n } = useLingui();
   const { saveState, schedule } = useDraftAutosave(
@@ -221,7 +268,7 @@ const DraftEditor = ({
     {
       extensions,
       content: draft?.content ?? null,
-      editable: Boolean(draft),
+      editable: Boolean(draft) && !isLocked,
       // 서버 렌더링 결과와 맞추기 위해 클라이언트에서 마운트한 뒤 생성
       immediatelyRender: false,
       editorProps: {
@@ -233,10 +280,18 @@ const DraftEditor = ({
         scrollMargin: scrollMarginRef.current,
         scrollThreshold: scrollMarginRef.current,
       },
-      onUpdate: ({ editor: current }) => schedule(current),
+      // 사용자가 편집할 수 있을 때의 변경만 자동 저장 (잠금 중 본문 교체 등은 제외)
+      onUpdate: ({ editor: current }) => {
+        if (current.isEditable) {
+          schedule(current);
+        }
+      },
     },
     [draft?.id],
   );
+
+  useEditorLock(editor, Boolean(draft) && !isLocked);
+  useAppliedContent(editor, draft);
 
   const title = draft?.title ?? '';
   const exportHtml = () => {
@@ -305,7 +360,7 @@ const DraftEditor = ({
           </button>
         </div>
       </div>
-      <EditorToolbar editor={editor} isDisabled={!draft} />
+      <EditorToolbar editor={editor} isDisabled={!draft || isLocked} />
       {/* 모바일은 내용 높이가 최소 높이, 남는 높이가 있으면 채움 / PC 는 이 영역만 스크롤 */}
       <div
         ref={scrollAreaRef}

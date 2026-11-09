@@ -18,10 +18,15 @@ import {
 interface ReferenceLinkRowProps {
   link: ReferenceLink;
   onRemove: (linkId: string) => void;
+  isLocked: boolean;
 }
 
 // 참고 링크 한 줄 (커밋 내역 행과 같은 모양): 호스트 + 경로, 새 탭으로 열기, 삭제
-const ReferenceLinkRow = ({ link, onRemove }: ReferenceLinkRowProps) => {
+const ReferenceLinkRow = ({
+  link,
+  onRemove,
+  isLocked,
+}: ReferenceLinkRowProps) => {
   const { t } = useLingui();
   const { host, path } = splitReferenceUrl(link.url);
 
@@ -48,6 +53,7 @@ const ReferenceLinkRow = ({ link, onRemove }: ReferenceLinkRowProps) => {
       <button
         type="button"
         aria-label={t`${host} 링크 삭제`}
+        disabled={isLocked}
         onClick={() => onRemove(link.id)}
         className={`size-7 ${ICON_BUTTON_CLASS} hover:bg-line/60`}
       >
@@ -61,13 +67,20 @@ interface ReferenceLinksProps {
   links: ReferenceLink[];
   onAdd: (url: string) => Promise<AddReferenceLinkStatus>;
   onRemove: (linkId: string) => Promise<boolean>;
+  // AI 작성 중에는 추가/삭제 잠금
+  isLocked: boolean;
 }
 
 /**
  * 기본 옵션 패널의 참고 링크: 추가 버튼(모달) + 추가한 링크 목록
  * - 초안마다 따로 저장되고, 작성 요청 때 함께 쓰이는 맥락이라 선택 없이 모두 사용
  */
-const ReferenceLinks = ({ links, onAdd, onRemove }: ReferenceLinksProps) => {
+const ReferenceLinks = ({
+  links,
+  onAdd,
+  onRemove,
+  isLocked,
+}: ReferenceLinksProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hasRemoveError, setHasRemoveError] = useState(false);
 
@@ -81,6 +94,7 @@ const ReferenceLinks = ({ links, onAdd, onRemove }: ReferenceLinksProps) => {
       <button
         type="button"
         aria-haspopup="dialog"
+        disabled={isLocked}
         onClick={() => setIsDialogOpen(true)}
         className={`h-8 text-[11px] leading-[normal] font-medium pc:h-8.5 pc:self-end pc:text-[13px] ${OUTLINE_BUTTON_CLASS}`}
       >
@@ -114,6 +128,7 @@ const ReferenceLinks = ({ links, onAdd, onRemove }: ReferenceLinksProps) => {
               <ReferenceLinkRow
                 key={link.id}
                 link={link}
+                isLocked={isLocked}
                 onRemove={(linkId) => void handleRemove(linkId)}
               />
             ))}

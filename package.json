@@ -24,6 +24,7 @@
     "@lingui/core": "6.12.0",
     "@lingui/react": "6.12.0",
     "@octokit/app": "16.1.4",
+    "@supabase/supabase-js": "^2.119.0",
     "@tiptap/core": "3.33.0",
     "@tiptap/extension-code-block": "3.33.0",
     "@tiptap/extensions": "3.33.0",
