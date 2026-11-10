@@ -38,6 +38,9 @@ import { getCommitSubject } from '@/lib/studio/draft-content';
 // 단계 사이 대기 시간
 const FAKE_STEP_DELAY_MS = 1700;
 
+// 가짜 작업이 완료될 때 기록하는 사용량 (할당량 화면 확인용)
+export const FAKE_USED_TOKENS = 30_000;
+
 export const FAKE_FAIL_KEYWORD = '[fail]';
 export const FAKE_STALL_KEYWORD = '[stall]';
 
@@ -191,7 +194,7 @@ export const runFakeJob = async (
     await wait(stepDelayMs);
     const result = buildFakeResultMarkdown({ prompt: context.prompt, commits });
 
-    if (await completeJob(jobId, result)) {
+    if (await completeJob(jobId, result, FAKE_USED_TOKENS)) {
       currentStep = 3;
       await signal('completed');
     }

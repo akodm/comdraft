@@ -8,6 +8,12 @@ import { getBrowserSupabase } from '@/lib/supabase/browser';
 // Realtime 신호가 끊겨도 진행 상황을 놓치지 않도록 주기적으로 다시 조회
 const POLL_INTERVAL_MS = 5000;
 
+// 상태 조회가 알려주는 이번 주 남은 사용량 (완료/실패한 작업에만 있음)
+export interface GenerationQuota {
+  remaining: number;
+  resetsAt: string;
+}
+
 interface UseGenerationJobOptions {
   // 화면을 열 때 이어서 볼 작업 (진행 중이거나 최근에 실패한 작업)
   initialJob: GenerationJobView | null;
@@ -25,7 +31,15 @@ export const useGenerationJob = ({
   initialJob,
   onApplied,
 }: UseGenerationJobOptions) => {
-  const [job, setJob] = useState(initialJob);
+  // 화면을 열 때 받은 작업은 사용량 정보가 없음 (상태를 다시 조회하면 채워짐)
+  const [{ job, quota }, setState] = useState<{
+    job: GenerationJobView | null;
+    quota: GenerationQuota | null;
+  }>({ job: initialJob, quota: null });
+  // 사용량 소진 안내를 닫은 작업 (화면을 다시 불러와도 상태가 유지되므로 닫은 뒤에는 다시 뜨지 않음)
+  const [dismissedNoticeJobId, setDismissedNoticeJobId] = useState<
+    string | null
+  >(null);
   // 이미 반영을 알린 작업 (같은 완료를 여러 번 받아도 한 번만 처리)
   const notifiedJobIdRef = useRef<string | null>(null);
   const jobId = job?.id ?? null;
@@ -40,12 +54,14 @@ export const useGenerationJob = ({
     try {
       const result = await getGenerationStatus(jobId);
 
-      setJob((current) => {
-        if (current?.id !== jobId) {
+      setState((current) => {
+        if (current.job?.id !== jobId) {
           return current;
         }
 
-        return result.status === 'ok' ? result.job : null;
+        return result.status === 'ok'
+          ? { job: result.job, quota: result.quota }
+          : { job: null, quota: null };
       });
     } catch {
       // 네트워크 오류는 다음 신호나 주기 조회에서 다시 시도
@@ -96,9 +112,31 @@ export const useGenerationJob = ({
 
   // 새로 시작한 작업 추적 / 실패 안내 닫기
   const start = useCallback((startedJob: GenerationJobView) => {
-    setJob(startedJob);
+    setState({ job: startedJob, quota: null });
   }, []);
-  const dismiss = useCallback(() => setJob(null), []);
+  const dismiss = useCallback(() => setState({ job: null, quota: null }), []);
 
-  return { job, isLocked, start, dismiss };
+  // 작성은 끝났지만 이번 주 사용량을 모두 쓴 경우 알림 (다음 요청은 거부됨)
+  const exhaustedQuota =
+    job?.status === 'completed' &&
+    quota &&
+    quota.remaining <= 0 &&
+    dismissedNoticeJobId !== job.id
+      ? quota
+      : null;
+  const dismissExhaustedNotice = useCallback(() => {
+    if (jobId) {
+      setDismissedNoticeJobId(jobId);
+    }
+  }, [jobId]);
+
+  return {
+    job,
+    quota,
+    isLocked,
+    exhaustedQuota,
+    start,
+    dismiss,
+    dismissExhaustedNotice,
+  };
 };

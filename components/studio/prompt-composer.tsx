@@ -19,7 +19,9 @@ import {
   BRAND_BUTTON_CLASS,
   ICON_BUTTON_CLASS,
 } from '@/components/studio/studio-styles';
+import type { GenerationQuota } from '@/hooks/use-generation-job';
 import { useDropdown } from '@/hooks/use-dropdown';
+import { useLocale } from '@/hooks/use-locale';
 import { useLocalizedRouter } from '@/hooks/use-localized-router';
 import { requestDraftGeneration } from '@/lib/actions/generation';
 import type { GenerationJobView } from '@/lib/generation/jobs';
@@ -27,12 +29,18 @@ import {
   MAX_GENERATION_COMMITS,
   MAX_GENERATION_PROMPT_LENGTH,
 } from '@/lib/generation/limits';
+import { formatQuotaReset } from '@/lib/generation/quota-format';
 import { shortSha, stripCommitType } from '@/lib/studio/draft-content';
 import type { PromptOptions } from '@/lib/studio/options';
 
 // 작성 요청 영역에 바로 보이는 선택한 커밋 수 (나머지는 +N 으로 표시)
 const PC_SUMMARY_COUNT = 3;
 const MOBILE_SUMMARY_COUNT = 1;
+
+// 이번 주 사용량을 모두 쓴 경우 (초기화 시각이 들어가므로 별도로 보관)
+interface QuotaExhaustedNotice {
+  resetsAt: string;
+}
 
 type Notice =
   | 'no_prompt'
@@ -44,6 +52,7 @@ type Notice =
   | 'github_reauth'
   | 'runner_unavailable'
   | 'not_found'
+  | 'quota_unavailable'
   | 'error';
 
 const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
@@ -56,6 +65,7 @@ const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
   github_reauth: msg`GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요.`,
   runner_unavailable: msg`AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.`,
   not_found: msg`초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.`,
+  quota_unavailable: msg`사용량 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.`,
   error: msg`작성 요청을 보내지 못했습니다. 다시 시도해주세요.`,
 };
 
@@ -220,6 +230,8 @@ interface PromptComposerProps {
   pendingReferenceUrls: string[];
   // 이 초안의 AI 작성 작업 (진행 중이면 제출 잠금)
   job: GenerationJobView | null;
+  // 상태 조회로 받은 사용량 (진행 표시의 사용량 초과 안내에 사용)
+  quota: GenerationQuota | null;
   isLocked: boolean;
   onJobStarted: (job: GenerationJobView) => void;
   onJobDismiss: () => void;
@@ -237,15 +249,21 @@ const PromptComposer = ({
   options,
   pendingReferenceUrls,
   job,
+  quota,
   isLocked,
   onJobStarted,
   onJobDismiss,
 }: PromptComposerProps) => {
   const { t, i18n } = useLingui();
+  const locale = useLocale();
   const router = useLocalizedRouter();
   const { repository, basePath, selectedCommits, setOpenPanel } = useStudio();
   const [prompt, setPrompt] = useState('');
   const [notice, setNotice] = useState<Notice | null>(null);
+  const [exhausted, setExhausted] = useState<QuotaExhaustedNotice | null>(null);
+  const resetsAt = exhausted
+    ? formatQuotaReset(new Date(exhausted.resetsAt), locale)
+    : '';
   const [isPending, startTransition] = useTransition();
   const promptId = useId();
 
@@ -270,6 +288,7 @@ const PromptComposer = ({
     }
 
     setNotice(null);
+    setExhausted(null);
     onJobDismiss();
     startTransition(async () => {
       try {
@@ -283,13 +302,12 @@ const PromptComposer = ({
         });
 
         if (result.status !== 'started') {
-          // TODO(Task 4): 할당량 거부는 전용 문구로 안내
-          setNotice(
-            result.status === 'quota_exhausted' ||
-              result.status === 'quota_unavailable'
-              ? 'error'
-              : result.status,
-          );
+          if (result.status === 'quota_exhausted') {
+            setExhausted({ resetsAt: result.resetsAt });
+            return;
+          }
+
+          setNotice(result.status);
           return;
         }
 
@@ -384,7 +402,24 @@ const PromptComposer = ({
             {i18n._(NOTICE_MESSAGES[notice])}
           </p>
         )}
-        {job && <GenerationProgress job={job} onDismiss={onJobDismiss} />}
+        {exhausted && (
+          <p
+            role="status"
+            className="text-[11px] leading-[1.6] break-keep text-danger pc:text-[12px]"
+          >
+            <Trans>
+              이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에
+              초기화됩니다.
+            </Trans>
+          </p>
+        )}
+        {job && (
+          <GenerationProgress
+            job={job}
+            quota={quota}
+            onDismiss={onJobDismiss}
+          />
+        )}
         <div className="flex items-center justify-between gap-3">
           <p
             aria-hidden="true"

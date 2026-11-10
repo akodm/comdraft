@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import DraftEditor from '@/components/studio/draft-editor';
+import QuotaExhaustedBanner from '@/components/studio/quota-exhausted-banner';
 import PromptComposer from '@/components/studio/prompt-composer';
 import PromptOptions from '@/components/studio/prompt-options';
 import ReferenceLinks from '@/components/studio/reference-links';
@@ -130,6 +131,12 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
   return (
     <div className="flex flex-1 flex-col items-center px-4 pt-4 pb-4 pc:h-dvh pc:flex-none pc:px-10 pc:pt-7">
       <div className="flex w-full max-w-7xl flex-1 flex-col gap-3 pc:min-h-0">
+        {generation.exhaustedQuota && (
+          <QuotaExhaustedBanner
+            resetsAtIso={generation.exhaustedQuota.resetsAt}
+            onDismiss={generation.dismissExhaustedNotice}
+          />
+        )}
         <DraftEditor
           repositoryId={repository.id}
           draft={draft}
@@ -159,6 +166,7 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
               draft ? [] : referenceLinks.links.map(({ url }) => url)
             }
             job={generation.job}
+            quota={generation.quota}
             isLocked={generation.isLocked}
             onJobStarted={generation.start}
             onJobDismiss={generation.dismiss}

@@ -298,10 +298,20 @@ export const markJobStep = async (jobId: string, step: GenerationStep) => {
 };
 
 // 작성 결과 저장 후 완료 (running 인 작업만)
-export const completeJob = async (jobId: string, result: string) => {
+export const completeJob = async (
+  jobId: string,
+  result: string,
+  usedTokens?: number,
+) => {
   const [row] = await db
     .update(draftPrompt)
-    .set({ status: 'completed', step: 3, result, finishedAt: new Date() })
+    .set({
+      status: 'completed',
+      step: 3,
+      result,
+      usedTokens,
+      finishedAt: new Date(),
+    })
     .where(and(eq(draftPrompt.id, jobId), eq(draftPrompt.status, 'running')))
     .returning({ id: draftPrompt.id });
 

@@ -3,12 +3,15 @@
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { useLocale } from '@/hooks/use-locale';
+import type { GenerationQuota } from '@/hooks/use-generation-job';
 import {
   GENERATION_STEPS,
   type GenerationErrorCode,
 } from '@/lib/generation/contract';
 import { isJobLocking } from '@/lib/generation/job-state';
 import type { GenerationJobView } from '@/lib/generation/jobs';
+import { formatQuotaReset } from '@/lib/generation/quota-format';
 
 const STEP_LABELS: Record<
   (typeof GENERATION_STEPS)[number],
@@ -19,8 +22,9 @@ const STEP_LABELS: Record<
   3: msg`작성`,
 };
 
+// quota_exceeded 는 초기화 시각이 들어가므로 아래 컴포넌트에서 따로 안내
 export const GENERATION_ERROR_MESSAGES: Record<
-  GenerationErrorCode,
+  Exclude<GenerationErrorCode, 'quota_exceeded'>,
   MessageDescriptor
 > = {
   timeout: msg`AI 작성 시간이 초과되었습니다. 다시 시도해주세요.`,
@@ -29,8 +33,6 @@ export const GENERATION_ERROR_MESSAGES: Record<
   llm_failed: msg`AI 작성 중 오류가 발생했습니다. 다시 시도해주세요.`,
   invalid_result: msg`AI 작성 결과를 초안에 반영하지 못했습니다.`,
   runner_unavailable: msg`AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.`,
-  // TODO(Task 4): 전용 문구로 교체
-  quota_exceeded: msg`알 수 없는 오류로 작성하지 못했습니다. 다시 시도해주세요.`,
   internal: msg`알 수 없는 오류로 작성하지 못했습니다. 다시 시도해주세요.`,
 };
 
@@ -54,6 +56,8 @@ const STEP_CLASSES: Record<StepState, string> = {
 
 interface GenerationProgressProps {
   job: GenerationJobView;
+  // 상태 조회로 받은 사용량 (화면을 열 때 받은 작업에는 없음)
+  quota: GenerationQuota | null;
   onDismiss: () => void;
 }
 
@@ -61,8 +65,17 @@ interface GenerationProgressProps {
  * [임시 디자인] AI 작성 진행 상태 (구분 → 분석 → 작성) / 실패 안내
  * - 디자인을 받기 전까지 스튜디오의 작은 글씨 스타일에 맞춘 최소 표시
  */
-const GenerationProgress = ({ job, onDismiss }: GenerationProgressProps) => {
-  const { i18n } = useLingui();
+const GenerationProgress = ({
+  job,
+  quota,
+  onDismiss,
+}: GenerationProgressProps) => {
+  const { i18n, t } = useLingui();
+  const locale = useLocale();
+  // 사용량 정보가 없으면(화면을 열 때 받은 작업) 시각 없이 안내
+  const resetsAt = quota
+    ? formatQuotaReset(new Date(quota.resetsAt), locale)
+    : t`다음 초기화`;
 
   if (job.status === 'failed') {
     return (
@@ -71,7 +84,15 @@ const GenerationProgress = ({ job, onDismiss }: GenerationProgressProps) => {
         className="flex items-start justify-between gap-3 rounded bg-danger/5 px-3 py-2 text-[11px] leading-[1.6] text-danger pc:text-[12px]"
       >
         <p className="break-keep">
-          {i18n._(GENERATION_ERROR_MESSAGES[job.errorCode ?? 'internal'])}
+          {job.errorCode === 'quota_exceeded' ? (
+            <Trans>
+              이번 요청은 남은 사용량보다 커서 진행하지 않았습니다. 사용량은
+              차감되지 않았습니다. 커밋 수나 길이를 줄이거나 {resetsAt} 이후에
+              다시 시도해 주세요.
+            </Trans>
+          ) : (
+            i18n._(GENERATION_ERROR_MESSAGES[job.errorCode ?? 'internal'])
+          )}
         </p>
         <button
           type="button"
