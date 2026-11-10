@@ -32,6 +32,15 @@ describe('createPostSlug', () => {
   it('쓸 글자가 없으면 빈 값', () => {
     expect(createPostSlug('🚀 !!! ???')).toBe('');
   });
+
+  it('60 경계가 서로게이트 쌍 사이에 걸려도 코드 포인트 단위로 자른다', () => {
+    // U+20000 (CJK 확장 B) 은 UTF-16 두 단위라 60 단위에서 자르면 쌍이 깨진다.
+    const slug = createPostSlug(`${'a'.repeat(59)}\u{20000}b`);
+
+    expect(Array.from(slug)).toHaveLength(60);
+    expect(slug).toBe(`${'a'.repeat(59)}\u{20000}`);
+    expect(() => encodeURIComponent(slug)).not.toThrow();
+  });
 });
 
 describe('getPostPath', () => {
@@ -60,5 +69,21 @@ describe('parsePostPath', () => {
   it('ID 형식이 아니면 null', () => {
     expect(parsePostPath('sharp-short')).toBeNull();
     expect(parsePostPath('')).toBeNull();
+  });
+});
+
+describe('getPostPath 와 parsePostPath 왕복', () => {
+  it('slug 가 있을 때 파싱하면 원래 값이 나온다', () => {
+    const post = { id: 'a1B2c3D4e5', slug: 'sharp-로-이미지' };
+    const segment = getPostPath(post).replace('/posts/', '');
+
+    expect(parsePostPath(segment)).toEqual(post);
+  });
+
+  it('slug 가 비어 있을 때 파싱하면 원래 값이 나온다', () => {
+    const post = { id: 'a1B2c3D4e5', slug: '' };
+    const segment = getPostPath(post).replace('/posts/', '');
+
+    expect(parsePostPath(segment)).toEqual(post);
   });
 });

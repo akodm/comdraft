@@ -6,16 +6,21 @@ export const POST_SLUG_MAX_LENGTH = 60;
 
 const SEPARATOR = '-';
 
-/** 제목을 URL 에 쓸 slug 로 바꾼다. 쓸 글자가 없으면 빈 문자열이다. */
+/**
+ * 제목을 URL 에 쓸 slug 로 바꾼다. 쓸 글자가 없으면 빈 문자열이다.
+ * 자르기는 코드 포인트 단위라 서로게이트 쌍이 반으로 잘리지 않는다.
+ */
 export function createPostSlug(title: string): string {
   const slug = title
     .normalize('NFC')
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, SEPARATOR)
-    .replace(/^-+|-+$/g, '')
-    .slice(0, POST_SLUG_MAX_LENGTH);
+    .replace(/^-+|-+$/g, '');
 
-  return slug.replace(/-+$/g, '');
+  return Array.from(slug)
+    .slice(0, POST_SLUG_MAX_LENGTH)
+    .join('')
+    .replace(/-+$/g, '');
 }
 
 /** 게시글의 로케일 없는 주소를 만든다. slug 가 비면 ID 만 쓴다. */
