@@ -120,6 +120,13 @@
       "when": 1794316444546,
       "tag": "0016_great_captain_midlands",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794322273348,
+      "tag": "0017_slow_betty_ross",
+      "breakpoints": true
     }
   ]
 }
