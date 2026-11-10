@@ -9,6 +9,10 @@ import {
   createCodeBlockNodeView,
   type CodeBlockLabels,
 } from '@/components/studio/code-block-node-view';
+import {
+  createImageInputExtension,
+  type ImageInputHandlers,
+} from '@/components/studio/editor-images';
 import { DraftBlank } from '@/lib/studio/draft-blank-node';
 import { createDraftSchemaExtensions } from '@/lib/studio/editor-schema';
 
@@ -27,8 +31,12 @@ interface EditorLabels {
  * - DraftBlank: 종류 라벨 + 완료 버튼을 표시하는 노드 뷰로 교체
  * - Placeholder: 빈 줄 안내 문구
  * - Markdown: MD 내보내기 (editor.getMarkdown)
+ * - 이미지 넣기(images 가 있을 때): 파일 붙여넣기·끌어다 놓기, 허용되지 않는 이미지 주소 거르기
  */
-export const createEditorExtensions = (labels: EditorLabels) => [
+export const createEditorExtensions = (
+  labels: EditorLabels,
+  images?: ImageInputHandlers,
+) => [
   ...createDraftSchemaExtensions(
     CodeBlock.extend({
       addNodeView() {
@@ -55,4 +63,5 @@ export const createEditorExtensions = (labels: EditorLabels) => [
         : labels.paragraphPlaceholder,
   }),
   Markdown,
+  ...(images ? [createImageInputExtension(images)] : []),
 ];

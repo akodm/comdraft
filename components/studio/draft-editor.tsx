@@ -8,6 +8,8 @@ import {
   useState,
   type Ref,
 } from 'react';
+import { msg } from '@lingui/core/macro';
+import type { MessageDescriptor } from '@lingui/core';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { JSONContent } from '@tiptap/core';
 import type { Transaction } from '@tiptap/pm/state';
@@ -15,11 +17,13 @@ import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import { getDraftStatusLabel } from '@/components/studio/draft-status';
 import { createEditorExtensions } from '@/components/studio/editor-extensions';
 import EditorToolbar from '@/components/studio/editor-toolbar';
+import { collectBlobSrcs } from '@/components/studio/image-upload';
 import { useStudio } from '@/components/studio/studio-context';
 import PublishActions from '@/components/studio/publish-actions';
 import { PROSE_CLASS } from '@/components/shared/prose';
 import { resolvePublishState } from '@/components/studio/publish-state';
 import { OUTLINE_BUTTON_CLASS } from '@/components/studio/studio-styles';
+import { usePendingImages, type ImageNotice } from '@/hooks/use-pending-images';
 import { saveDraftContent } from '@/lib/actions/studio';
 import { countEmptyBlanks } from '@/lib/studio/draft-blank';
 import type { StudioDraft } from '@/lib/studio/queries';
@@ -28,6 +32,27 @@ import type { StudioDraft } from '@/lib/studio/queries';
 const AUTOSAVE_DELAY = 1000;
 
 type SaveState = 'idle' | 'pending' | 'saving' | 'error';
+
+// 저장 직전에 본문을 손봄 (blob 이미지를 올려 공개 주소로 바꾸고, 못 올린 것은 뺌)
+type PrepareContent = (
+  draftId: string,
+  content: JSONContent,
+  editor: Editor | null,
+) => Promise<JSONContent>;
+
+const IMAGE_NOTICE_MESSAGES: Record<ImageNotice, MessageDescriptor> = {
+  heic: msg`HEIC 형식은 지원하지 않습니다`,
+  type: msg`JPEG, PNG, WebP, GIF, AVIF 이미지만 넣을 수 있습니다`,
+  size: msg`이미지는 한 장에 5MB 까지 넣을 수 있습니다`,
+  limit: msg`초안 하나에 이미지는 10장까지 넣을 수 있습니다`,
+  too_large: msg`이미지 해상도가 너무 큽니다`,
+  failed: msg`이미지를 올리지 못했습니다. 다시 시도합니다`,
+  unuploaded: msg`올리지 못한 이미지가 있습니다`,
+};
+
+// 편집기 안 이미지 (본문 폭까지, 선택하면 테두리)
+const EDITOR_IMAGE_CLASS =
+  '[&_img]:h-auto [&_img]:max-w-full [&_img.ProseMirror-selectednode]:outline-2 [&_img.ProseMirror-selectednode]:outline-offset-2 [&_img.ProseMirror-selectednode]:outline-brand';
 
 // 파일 이름에 쓸 수 없는 문자 제거 (제목이 없으면 draft)
 const toFileName = (title: string, extension: string) => {
@@ -53,11 +78,18 @@ const downloadFile = (fileName: string, text: string, type: string) => {
  * 편집기 내용을 서버에 자동 저장
  * - 입력이 멈추고 AUTOSAVE_DELAY 가 지나면 저장, 저장 중 다시 입력하면 끝난 뒤 이어서 저장
  * - 화면을 떠날 때 저장하지 않은 내용이 있으면 바로 저장 요청
+ * - 저장 직전에 prepareContent 로 본문의 이미지를 올림 (올리는 동안 입력한 내용은 끝난 뒤 이어서 저장)
  */
-const useDraftAutosave = (repositoryId: string, draftId: string | null) => {
+const useDraftAutosave = (
+  repositoryId: string,
+  draftId: string | null,
+  prepareContent: PrepareContent,
+) => {
   const { setDraftTitle, setDraftStatus, isDraftRemoved } = useStudio();
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const pendingRef = useRef<JSONContent | null>(null);
+  // 저장할 본문을 만든 편집기 (올린 이미지 주소를 편집기에도 반영)
+  const editorRef = useRef<Editor | null>(null);
   const timerRef = useRef<number | undefined>(undefined);
   // 진행 중인 저장 (게시 전에 끝날 때까지 기다리거나, 중복 저장을 막는 데 사용)
   const inFlightRef = useRef<Promise<void> | null>(null);
@@ -77,10 +109,15 @@ const useDraftAutosave = (repositoryId: string, draftId: string | null) => {
       setSaveState('saving');
 
       try {
+        const savable = await prepareContent(
+          draftId,
+          content,
+          editorRef.current,
+        );
         const result = await saveDraftContent(
           repositoryId,
           draftId,
-          JSON.stringify(content),
+          JSON.stringify(savable),
         );
 
         if (result.status !== 'saved') {
@@ -104,7 +141,14 @@ const useDraftAutosave = (repositoryId: string, draftId: string | null) => {
     }
 
     setSaveState('idle');
-  }, [repositoryId, draftId, setDraftTitle, setDraftStatus, isDraftRemoved]);
+  }, [
+    repositoryId,
+    draftId,
+    prepareContent,
+    setDraftTitle,
+    setDraftStatus,
+    isDraftRemoved,
+  ]);
 
   const flush = useCallback(() => {
     window.clearTimeout(timerRef.current);
@@ -140,6 +184,7 @@ const useDraftAutosave = (repositoryId: string, draftId: string | null) => {
 
   const schedule = useCallback(
     (editor: Editor) => {
+      editorRef.current = editor;
       pendingRef.current = editor.getJSON();
       setSaveState('pending');
       window.clearTimeout(timerRef.current);
@@ -272,40 +317,46 @@ const DraftEditor = ({
 }: DraftEditorProps) => {
   const { t, i18n } = useLingui();
   const { draftPublishStates, draftStatuses } = useStudio();
+  const images = usePendingImages(repositoryId);
+  const { insertFiles, isAllowedSrc, uploadEditorImages, showNotice } = images;
   const { saveState, schedule, settle } = useDraftAutosave(
     repositoryId,
     draft?.id ?? null,
+    images.prepareContent,
   );
   const extensions = useMemo(
     () =>
-      createEditorExtensions({
-        headingPlaceholder: t`제목`,
-        paragraphPlaceholder: t`내용을 입력하세요`,
-        codeBlock: { copy: t`코드 복사`, copied: t`복사했습니다` },
-        blank: {
-          kinds: {
-            motivation: {
-              label: t`계기`,
-              fallback: t`이 부분에 작업 계기를 작성해 주세요`,
+      createEditorExtensions(
+        {
+          headingPlaceholder: t`제목`,
+          paragraphPlaceholder: t`내용을 입력하세요`,
+          codeBlock: { copy: t`코드 복사`, copied: t`복사했습니다` },
+          blank: {
+            kinds: {
+              motivation: {
+                label: t`계기`,
+                fallback: t`이 부분에 작업 계기를 작성해 주세요`,
+              },
+              result: {
+                label: t`결과·수치`,
+                fallback: t`이 부분에 결과나 수치를 작성해 주세요`,
+              },
+              lesson: {
+                label: t`배운 점`,
+                fallback: t`이 부분에 배운 점을 작성해 주세요`,
+              },
+              detail: {
+                label: t`설명 필요`,
+                fallback: t`이 부분은 자세한 설명이 필요합니다`,
+              },
             },
-            result: {
-              label: t`결과·수치`,
-              fallback: t`이 부분에 결과나 수치를 작성해 주세요`,
-            },
-            lesson: {
-              label: t`배운 점`,
-              fallback: t`이 부분에 배운 점을 작성해 주세요`,
-            },
-            detail: {
-              label: t`설명 필요`,
-              fallback: t`이 부분은 자세한 설명이 필요합니다`,
-            },
+            done: t`완료`,
           },
-          done: t`완료`,
+          blankPlaceholder: t`여기에 직접 작성해 주세요`,
         },
-        blankPlaceholder: t`여기에 직접 작성해 주세요`,
-      }),
-    [t],
+        { onFiles: insertFiles, isAllowedSrc },
+      ),
+    [t, insertFiles, isAllowedSrc],
   );
 
   // ProseMirror 가 커서를 화면 안으로 스크롤할 때마다 읽는 여백 객체
@@ -330,7 +381,7 @@ const DraftEditor = ({
       immediatelyRender: false,
       editorProps: {
         attributes: {
-          class: PROSE_CLASS,
+          class: `${PROSE_CLASS} ${EDITOR_IMAGE_CLASS}`,
           'aria-label': t`초안 본문`,
         },
         // 입력 중인 줄이 아래쪽 기본 옵션 패널에 가려지지 않도록 위로 스크롤
@@ -370,13 +421,32 @@ const DraftEditor = ({
       )
     );
   };
-  const exportHtml = () => {
-    if (editor && confirmExport()) {
+  /**
+   * 내보내기 전에 blob 이미지를 올려 공개 주소로 바꿈 (내보낸 파일에 blob: 주소가 남지 않도록)
+   * - 올릴 이미지가 없으면 기다리지 않음 / 못 올린 이미지가 남으면 내보내지 않고 안내
+   */
+  const prepareExport = async (current: Editor) => {
+    if (!draft || collectBlobSrcs(current.getJSON()).length === 0) {
+      return true;
+    }
+
+    const isReady = await uploadEditorImages(current, draft.id, {
+      emitUpdate: true,
+    });
+
+    if (!isReady) {
+      showNotice('unuploaded');
+    }
+
+    return isReady;
+  };
+  const exportHtml = async () => {
+    if (editor && confirmExport() && (await prepareExport(editor))) {
       downloadFile(toFileName(title, 'html'), editor.getHTML(), 'text/html');
     }
   };
-  const exportMarkdown = () => {
-    if (editor && confirmExport()) {
+  const exportMarkdown = async () => {
+    if (editor && confirmExport() && (await prepareExport(editor))) {
       downloadFile(
         toFileName(title, 'md'),
         editor.getMarkdown(),
@@ -384,6 +454,11 @@ const DraftEditor = ({
       );
     }
   };
+  // 게시 전 이미지 올리기 (게시가 현재 본문을 저장하므로 자동 저장은 다시 부르지 않음)
+  const uploadImagesForPublish = async () =>
+    !editor ||
+    !draft ||
+    uploadEditorImages(editor, draft.id, { emitUpdate: false });
 
   return (
     <section
@@ -416,7 +491,7 @@ const DraftEditor = ({
           <button
             type="button"
             disabled={!draft}
-            onClick={exportHtml}
+            onClick={() => void exportHtml()}
             aria-label={t`HTML 파일로 내보내기`}
             className={`h-8 font-mono text-[12px] leading-[normal] font-medium pc:h-8.5 ${OUTLINE_BUTTON_CLASS}`}
           >
@@ -425,7 +500,7 @@ const DraftEditor = ({
           <button
             type="button"
             disabled={!draft}
-            onClick={exportMarkdown}
+            onClick={() => void exportMarkdown()}
             aria-label={t`마크다운 파일로 내보내기`}
             className={`h-8 font-mono text-[12px] leading-[normal] font-medium pc:h-8.5 ${OUTLINE_BUTTON_CLASS}`}
           >
@@ -437,11 +512,24 @@ const DraftEditor = ({
             editor={editor}
             isLocked={isLocked}
             settle={settle}
+            uploadImages={uploadImagesForPublish}
             onResave={schedule}
           />
         </div>
       </div>
-      <EditorToolbar editor={editor} isDisabled={!draft || isLocked} />
+      <EditorToolbar
+        editor={editor}
+        isDisabled={!draft || isLocked}
+        onInsertImages={(files) => editor && insertFiles(editor, files)}
+      />
+      {/* 이미지 넣기·올리기 안내 (임시 디자인: 툴바 아래 한 줄, 잠시 뒤 사라짐) */}
+      <div aria-live="polite" className="shrink-0">
+        {images.notice && (
+          <p className="border-b border-line bg-surface px-3 py-2 text-[12px] leading-[normal] text-danger pc:px-6">
+            {i18n._(IMAGE_NOTICE_MESSAGES[images.notice])}
+          </p>
+        )}
+      </div>
       {/* 모바일은 내용 높이가 최소 높이, 남는 높이가 있으면 채움 / PC 는 이 영역만 스크롤 */}
       <div
         ref={scrollAreaRef}

@@ -17,6 +17,8 @@ export type PublishFailure =
   | 'locked'
   | 'invalid'
   | 'not_found'
+  // 마무리 저장 뒤에도 올리지 못한 이미지(blob)가 남음
+  | 'images'
   | 'error';
 
 const FAILURE_MESSAGES: Record<PublishFailure, MessageDescriptor> = {
@@ -24,6 +26,7 @@ const FAILURE_MESSAGES: Record<PublishFailure, MessageDescriptor> = {
   locked: msg`AI 작성 중에는 게시할 수 없습니다`,
   invalid: msg`게시할 수 없는 본문입니다. 내용을 확인해주세요.`,
   not_found: msg`초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.`,
+  images: msg`올리지 못한 이미지가 있습니다`,
   error: msg`게시하지 못했습니다. 다시 시도해주세요.`,
 };
 

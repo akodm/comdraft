@@ -51,6 +51,8 @@ interface PublishActionsProps {
   isLocked: boolean;
   // 게시 전에 진행 중인 자동 저장을 마무리 (게시가 현재 본문을 저장하므로 대기 중인 저장은 버림)
   settle: () => Promise<void>;
+  // 게시 전에 편집기의 blob 이미지를 모두 올림 (못 올린 이미지가 남으면 false)
+  uploadImages: () => Promise<boolean>;
   // 게시하지 못했을 때 버려진 대기 저장을 다시 예약
   onResave: (editor: Editor) => void;
 }
@@ -68,6 +70,7 @@ const PublishActions = ({
   editor,
   isLocked,
   settle,
+  uploadImages,
   onResave,
 }: PublishActionsProps) => {
   const { t } = useLingui();
@@ -120,6 +123,13 @@ const PublishActions = ({
     try {
       // 진행 중인 자동 저장이 끝난 뒤에 게시 (옛 본문 저장이 게시를 덮어쓰지 않도록)
       await settle();
+
+      // 이미지를 마저 올리고, 못 올린 이미지가 남으면 게시하지 않음 (게시하면 그 이미지가 빠짐)
+      if (!(await uploadImages())) {
+        onResave(editor);
+        setFailure('images');
+        return;
+      }
 
       const result = await publishDraft(
         repositoryId,

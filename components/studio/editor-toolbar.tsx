@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type FormEvent } from 'react';
 import Image from 'next/image';
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
@@ -13,7 +13,15 @@ import {
 } from '@/components/shared/dropdown-styles';
 import { ICON_BUTTON_CLASS } from '@/components/studio/studio-styles';
 import { useDropdown } from '@/hooks/use-dropdown';
+import { IMAGE_ACCEPTED_MIME_TYPES } from '@/lib/images/rules';
 import type { DraftHeadingLevel } from '@/lib/studio/editor-schema';
+
+// 파일 선택 창에서 고를 수 있는 형식 (HEIC 도 고를 수 있게 해 지원하지 않는다고 안내)
+const IMAGE_INPUT_ACCEPT = [
+  ...IMAGE_ACCEPTED_MIME_TYPES,
+  '.heic',
+  '.heif',
+].join(',');
 
 // 제목 단계는 편집기 스키마(DRAFT_HEADING_LEVELS)와 맞춤
 const HEADING_LEVELS = {
@@ -119,6 +127,8 @@ interface ToolbarProps {
   editor: Editor | null;
   // 초안이 없으면(새 초안 화면) 모든 도구 비활성
   isDisabled: boolean;
+  // 이미지 넣기 버튼으로 고른 파일
+  onInsertImages: (files: File[]) => void;
 }
 
 // 문단 스타일 선택 (본문 / 제목 1~6)
@@ -318,10 +328,63 @@ const LinkMenu = ({
   );
 };
 
+// 이미지 넣기: 숨긴 파일 선택 창을 엶 (여러 장 선택 가능)
+const ImageInsertButton = ({
+  isDisabled,
+  onFiles,
+}: {
+  isDisabled: boolean;
+  onFiles: (files: File[]) => void;
+}) => {
+  const { t } = useLingui();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-label={t`이미지 넣기`}
+        disabled={isDisabled}
+        onClick={() => inputRef.current?.click()}
+        className={TOOL_BUTTON_CLASS}
+      >
+        <Image
+          src="/images/studio/image-plus.svg"
+          alt=""
+          width={17}
+          height={17}
+        />
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={IMAGE_INPUT_ACCEPT}
+        multiple
+        hidden
+        tabIndex={-1}
+        onChange={(event) => {
+          const files = Array.from(event.target.files ?? []);
+
+          // 같은 파일을 다시 골라도 change 가 오도록 비움
+          event.target.value = '';
+
+          if (files.length > 0) {
+            onFiles(files);
+          }
+        }}
+      />
+    </>
+  );
+};
+
 /**
- * 편집 서식 툴바 (PC: 전체 도구, 모바일: 디자인대로 굵게/기울임/목록/링크/코드/실행 취소만)
+ * 편집 서식 툴바 (PC: 전체 도구, 모바일: 디자인대로 굵게/기울임/목록/링크/이미지/코드/실행 취소만)
  */
-const EditorToolbar = ({ editor, isDisabled }: ToolbarProps) => {
+const EditorToolbar = ({
+  editor,
+  isDisabled,
+  onInsertImages,
+}: ToolbarProps) => {
   const { t, i18n } = useLingui();
   const state = useEditorState({
     editor,
@@ -396,6 +459,10 @@ const EditorToolbar = ({ editor, isDisabled }: ToolbarProps) => {
         editor={editor}
         isActive={state?.isLink ?? false}
         isDisabled={isDisabled}
+      />
+      <ImageInsertButton
+        isDisabled={isDisabled || !editor}
+        onFiles={onInsertImages}
       />
       {BLOCK_TOOLS.map(renderTool)}
     </div>
