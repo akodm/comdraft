@@ -10,6 +10,7 @@ import { getSession } from '@/lib/auth/session';
 import { formatDate } from '@/lib/dashboard/format';
 import { localizedPermanentRedirect } from '@/lib/i18n/request';
 import { getLocale, initLingui } from '@/lib/i18n/server';
+import { isGithubAvatar } from '@/lib/posts/avatar';
 import { buildPostMetadata } from '@/lib/posts/metadata';
 import { getEncodedPostPath, parsePostPath } from '@/lib/posts/post-path';
 import { getPublishedPost } from '@/lib/posts/queries';
@@ -17,10 +18,6 @@ import { getPublishedPost } from '@/lib/posts/queries';
 interface PostPageProps {
   params: Promise<{ postPath: string }>;
 }
-
-// next/image 에 허용된 호스트(GitHub 아바타)만 그림 (그 밖의 호스트는 렌더링 오류가 나므로 생략)
-const isGithubAvatar = (image: string | null): image is string =>
-  image?.startsWith('https://avatars.githubusercontent.com/') ?? false;
 
 // 주소 세그먼트를 디코드해 slug 와 ID 로 나눔 (형식이 틀리면 null)
 const parseSegment = (segment: string) => {
