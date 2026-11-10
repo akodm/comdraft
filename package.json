@@ -2,9 +2,10 @@
   "name": "next-app-boilerplate",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.24.0",
   "engines": {
     "node": ">=22.11.0",
-    "pnpm": ">=10.28.0"
+    "pnpm": ">=11.24.0"
   },
   "scripts": {
     "dev": "next dev -p 3003",
