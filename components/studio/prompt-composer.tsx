@@ -19,11 +19,13 @@ import {
   BRAND_BUTTON_CLASS,
   ICON_BUTTON_CLASS,
 } from '@/components/studio/studio-styles';
-import type { GenerationQuota } from '@/hooks/use-generation-job';
 import { useDropdown } from '@/hooks/use-dropdown';
 import { useLocale } from '@/hooks/use-locale';
 import { useLocalizedRouter } from '@/hooks/use-localized-router';
-import { requestDraftGeneration } from '@/lib/actions/generation';
+import {
+  requestDraftGeneration,
+  type GenerationQuota,
+} from '@/lib/actions/generation';
 import type { GenerationJobView } from '@/lib/generation/jobs';
 import {
   MAX_GENERATION_COMMITS,

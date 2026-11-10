@@ -158,6 +158,7 @@ const createJob = async (
 
       await tx.insert(draftPrompt).values({
         id: jobId,
+        userId,
         draftId,
         prompt: request.prompt,
         tone: request.options.tone,
@@ -212,6 +213,9 @@ export async function requestDraftGeneration(
   if ((await countUserJobsSince(user.id, since)) >= GENERATION_HOURLY_LIMIT) {
     return { status: 'rate_limited' };
   }
+
+  // 멈춘 작업(Lambda 비정상 종료)의 예상량이 계속 사용량으로 잡히지 않도록 먼저 시간 초과 처리
+  await expireStaleJobs({ userId: user.id });
 
   const quota = await getUserQuota(user.id);
 
@@ -278,12 +282,18 @@ export async function requestDraftGeneration(
     : { status: 'not_found' };
 }
 
+// 상태 조회가 알려주는 이번 주 남은 사용량 (resetsAt 은 ISO)
+export interface GenerationQuota {
+  remaining: number;
+  resetsAt: string;
+}
+
 export type GenerationStatusResult =
   | {
       status: 'ok';
       job: GenerationJobView;
       // 종료된 작업일 때만 남은 사용량 (정책이 없거나 진행 중이면 null)
-      quota: { remaining: number; resetsAt: string } | null;
+      quota: GenerationQuota | null;
     }
   | { status: 'not_found' };
 

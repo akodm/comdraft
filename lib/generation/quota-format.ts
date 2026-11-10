@@ -32,13 +32,14 @@ export const formatQuotaReset = (resetsAt: Date, locale: Locale) => {
     hour: 'numeric',
     minute: '2-digit',
   };
-  // 시간대 약어는 Intl 결과를 그대로 쓰고 괄호로 감쌈 (Node 기준 GMT+9)
-  const zone = new Intl.DateTimeFormat('en', {
-    ...options,
-    timeZoneName: 'short',
-  })
-    .formatToParts(resetsAt)
-    .find((part) => part.type === 'timeZoneName')?.value;
+  // 시간대 약어는 Intl 결과를 그대로 쓰고 괄호로 감쌈 (Node 기준 GMT+9, 결과가 없으면 KST)
+  const zone =
+    new Intl.DateTimeFormat('en', {
+      ...options,
+      timeZoneName: 'short',
+    })
+      .formatToParts(resetsAt)
+      .find((part) => part.type === 'timeZoneName')?.value ?? 'KST';
 
   return `${new Intl.DateTimeFormat('en', options).format(resetsAt)} (${zone})`;
 };

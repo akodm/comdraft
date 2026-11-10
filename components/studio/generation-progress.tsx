@@ -4,7 +4,7 @@ import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 import { Trans, useLingui } from '@lingui/react/macro';
 import { useLocale } from '@/hooks/use-locale';
-import type { GenerationQuota } from '@/hooks/use-generation-job';
+import type { GenerationQuota } from '@/lib/actions/generation';
 import {
   GENERATION_STEPS,
   type GenerationErrorCode,

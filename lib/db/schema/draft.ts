@@ -24,6 +24,7 @@ import { githubRepository, userRepository } from '@/lib/db/schema/github';
  *   → (user_id, repository_id) 가 user_repository 를 참조하므로 연동한 저장소에만 만들 수 있고,
  *     저장소 연동을 해제하면 그 저장소의 초안도 함께 삭제됨
  * - draft_prompt: 초안에 보낸 작성 요청 기록 (요청 문구 + 기본 옵션 + 선택한 커밋) 이자 AI 작성 작업
+ *   → 초안이 삭제돼도 행은 남고 draft_id 만 null (사용자의 주간 사용량이 줄어들지 않도록 user_id 로 셈)
  *   → 커밋 내용(메시지/작성자 등)은 저장하지 않고 SHA 만 남김, 내용은 필요할 때 GitHub API 로 조회
  *   → Lambda 가 구분 → 분석 → 작성 단계를 마칠 때마다 step/status 를 갱신하고 channel 로 Realtime Broadcast
  *   → 초안마다 진행 중(queued/running)인 작업은 하나만 (진행 중에는 초안 편집 잠금)
@@ -87,9 +88,13 @@ export const draftPrompt = comdraftSchema.table(
   'draft_prompt',
   {
     id: text('id').primaryKey(),
-    draftId: text('draft_id')
-      .notNull()
-      .references(() => draft.id, { onDelete: 'cascade' }),
+    // 요청한 사용자 (주간/시간당 사용량은 이 컬럼으로 셈, 계정을 삭제하면 함께 삭제)
+    // → 마이그레이션 적용 후 배포 전까지 이전 코드가 user_id 없이 넣을 수 있어 아직 nullable (새 코드는 항상 기록)
+    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    // 초안을 삭제하거나 저장소 연동을 해제해도 작업 행은 남김 (사용량과 요청 기록 유지, 초안 화면에서는 보이지 않음)
+    draftId: text('draft_id').references(() => draft.id, {
+      onDelete: 'set null',
+    }),
     prompt: text('prompt').notNull(),
     // 기본 옵션 값 (lib/studio/options.ts 의 키)
     tone: text('tone').notNull(),
@@ -134,6 +139,8 @@ export const draftPrompt = comdraftSchema.table(
       table.draftId,
       table.createdAt.desc(),
     ),
+    // 사용자의 주간 사용량 / 시간당 요청 수 조회
+    index('draft_prompt_user_created_idx').on(table.userId, table.createdAt),
     // 초안마다 진행 중인 작업은 하나만 (동시 요청 방지, 편집 잠금 조회에도 사용)
     uniqueIndex('draft_prompt_draft_active_unique')
       .on(table.draftId)

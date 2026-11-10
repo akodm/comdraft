@@ -92,9 +92,27 @@ export const lockingJobExists = (draftIdColumn: PgColumn): SQL => sql`exists (
       or (${draftPrompt.status} = 'completed' and ${draftPrompt.appliedAt} is null))
 )`;
 
-// 시간 제한을 넘긴 진행 중 작업을 timeout 으로 실패 처리 (초안 또는 작업 하나 기준)
+type ExpireTarget =
+  | { draftId: string }
+  | { jobId: string }
+  | { userId: string };
+
+// 정리 대상 조건 (초안의 작업, 작업 하나, 사용자의 모든 작업)
+const expireTargetCondition = (target: ExpireTarget) => {
+  if ('draftId' in target) {
+    return eq(draftPrompt.draftId, target.draftId);
+  }
+
+  if ('jobId' in target) {
+    return eq(draftPrompt.id, target.jobId);
+  }
+
+  return eq(draftPrompt.userId, target.userId);
+};
+
+// 시간 제한을 넘긴 진행 중 작업을 timeout 으로 실패 처리 (초안, 작업 하나 또는 사용자 기준)
 export const expireStaleJobs = async (
-  target: { draftId: string } | { jobId: string },
+  target: ExpireTarget,
   now = new Date(),
 ) => {
   const { runningStartedBefore, queuedCreatedBefore } = getStaleCutoffs(now);
@@ -104,9 +122,7 @@ export const expireStaleJobs = async (
     .set({ status: 'failed', errorCode: 'timeout', finishedAt: now })
     .where(
       and(
-        'draftId' in target
-          ? eq(draftPrompt.draftId, target.draftId)
-          : eq(draftPrompt.id, target.jobId),
+        expireTargetCondition(target),
         or(
           and(
             eq(draftPrompt.status, 'running'),
@@ -143,7 +159,8 @@ export const applyCompletedJob = async (jobId: string) => {
       )
       .returning({ draftId: draftPrompt.draftId, result: draftPrompt.result });
 
-    if (!claimed) {
+    // 그 사이 초안이 삭제됐으면 반영할 곳이 없음 (작업 행은 사용량 기록으로만 남음)
+    if (!claimed?.draftId) {
       return false;
     }
 
@@ -248,13 +265,14 @@ export const getUserJob = async (
   return row ? toJobView(row) : null;
 };
 
-// 사용자가 since 이후 보낸 작성 요청 수 (요청 횟수 제한)
+// 사용자가 since 이후 보낸 작성 요청 수 (요청 횟수 제한, 초안을 삭제한 요청도 셈)
 export const countUserJobsSince = async (userId: string, since: Date) => {
   const [{ total }] = await db
     .select({ total: count() })
     .from(draftPrompt)
-    .innerJoin(draft, eq(draftPrompt.draftId, draft.id))
-    .where(and(eq(draft.userId, userId), gte(draftPrompt.createdAt, since)));
+    .where(
+      and(eq(draftPrompt.userId, userId), gte(draftPrompt.createdAt, since)),
+    );
 
   return total;
 };

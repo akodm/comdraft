@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getGenerationStatus } from '@/lib/actions/generation';
+import {
+  getGenerationStatus,
+  type GenerationQuota,
+} from '@/lib/actions/generation';
 import { GENERATION_BROADCAST_EVENT } from '@/lib/generation/contract';
 import { isJobLocking } from '@/lib/generation/job-state';
 import type { GenerationJobView } from '@/lib/generation/jobs';
@@ -7,12 +10,6 @@ import { getBrowserSupabase } from '@/lib/supabase/browser';
 
 // Realtime 신호가 끊겨도 진행 상황을 놓치지 않도록 주기적으로 다시 조회
 const POLL_INTERVAL_MS = 5000;
-
-// 상태 조회가 알려주는 이번 주 남은 사용량 (완료/실패한 작업에만 있음)
-export interface GenerationQuota {
-  remaining: number;
-  resetsAt: string;
-}
 
 interface UseGenerationJobOptions {
   // 화면을 열 때 이어서 볼 작업 (진행 중이거나 최근에 실패한 작업)
