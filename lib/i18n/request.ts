@@ -1,7 +1,7 @@
 import 'server-only';
 import { revalidatePath } from 'next/cache';
 import { cookies, headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { permanentRedirect, redirect } from 'next/navigation';
 import {
   DEFAULT_LOCALE,
   isLocale,
@@ -37,6 +37,16 @@ export const getRequestLocale = async (): Promise<Locale> => {
  */
 export const localizedRedirect = async (path: string): Promise<never> => {
   redirect(localizePath(await getRequestLocale(), path));
+};
+
+/**
+ * 현재 요청 로케일의 경로로 영구 리다이렉트 (308, 주소가 바뀐 페이지의 예전 주소 처리용)
+ * @example await localizedPermanentRedirect('/posts/new-slug-id') // → /ko/posts/new-slug-id
+ */
+export const localizedPermanentRedirect = async (
+  path: string,
+): Promise<never> => {
+  permanentRedirect(localizePath(await getRequestLocale(), path));
 };
 
 // 모든 로케일의 같은 경로 캐시 무효화 (다른 언어 탭/세션에서도 최신 데이터가 보이도록)

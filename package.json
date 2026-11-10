@@ -33,6 +33,7 @@
     "@tiptap/pm": "3.33.0",
     "@tiptap/react": "3.33.0",
     "@tiptap/starter-kit": "3.33.0",
+    "@tiptap/static-renderer": "3.33.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.0",
     "@vercel/speed-insights": "^2.0.0",

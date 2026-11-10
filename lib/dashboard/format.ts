@@ -30,6 +30,14 @@ export const formatDateTime = (
   return date ? getDateTimeFormatter(locale).format(date) : '-';
 };
 
+// 날짜만 (게시일 등 시각이 필요 없는 곳)
+export const formatDate = (date: Date, locale: Locale = DEFAULT_LOCALE) => {
+  return new Intl.DateTimeFormat(INTL_LOCALES[locale], {
+    timeZone: 'Asia/Seoul',
+    dateStyle: 'medium',
+  }).format(date);
+};
+
 // 로케일에 맞는 천 단위 구분 숫자
 export const formatNumber = (
   value: number,
