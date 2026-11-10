@@ -12,6 +12,7 @@ import { localizedPermanentRedirect } from '@/lib/i18n/request';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 import { isGithubAvatar } from '@/lib/posts/avatar';
 import { buildPostMetadata } from '@/lib/posts/metadata';
+import { removeLeadingTitle } from '@/lib/posts/post-content';
 import { getEncodedPostPath, parsePostPath } from '@/lib/posts/post-path';
 import { getPublishedPost } from '@/lib/posts/queries';
 
@@ -98,7 +99,8 @@ export default async function PostPage({ params }: PostPageProps) {
             )}
           </div>
         </header>
-        <PostContent content={post.content} />
+        {/* 머리에 제목을 보여 주므로 본문 맨 앞의 같은 제목은 빼고 그림 */}
+        <PostContent content={removeLeadingTitle(post.content, post.title)} />
       </article>
     </PageLayout>
   );

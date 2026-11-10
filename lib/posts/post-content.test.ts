@@ -4,6 +4,7 @@ import {
   checkPublishable,
   InvalidPostContentError,
   extractPostExcerpt,
+  removeLeadingTitle,
   sanitizePostContent,
 } from '@/lib/posts/post-content';
 
@@ -284,5 +285,30 @@ describe('extractPostExcerpt', () => {
 
   it('문단이 없으면 빈 값', () => {
     expect(extractPostExcerpt(doc(h(1, '제목')))).toBe('');
+  });
+});
+
+describe('removeLeadingTitle', () => {
+  it('본문 첫 제목이 게시글 제목과 같으면 뺀다', () => {
+    expect(removeLeadingTitle(doc(h(1, '제목'), p('본문')), '제목')).toEqual(
+      doc(p('본문')),
+    );
+  });
+
+  it('앞의 빈 문단은 건너뛰고 첫 제목을 뺀다', () => {
+    const empty: JSONContent = { type: 'paragraph' };
+    expect(
+      removeLeadingTitle(doc(empty, h(2, '  제목  '), p('본문')), '제목'),
+    ).toEqual(doc(empty, p('본문')));
+  });
+
+  it('첫 내용이 문단이면 그대로 둔다', () => {
+    const input = doc(p('제목'), h(1, '제목'));
+    expect(removeLeadingTitle(input, '제목')).toEqual(input);
+  });
+
+  it('첫 제목이 게시글 제목과 다르면 그대로 둔다', () => {
+    const input = doc(h(1, '다른 제목'), p('본문'));
+    expect(removeLeadingTitle(input, '제목')).toEqual(input);
   });
 });

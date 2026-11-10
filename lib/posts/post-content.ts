@@ -237,3 +237,27 @@ export const extractPostExcerpt = (doc: JSONContent): string => {
   // 서로게이트 쌍이 쪼개지지 않도록 코드 포인트 단위로 자름
   return Array.from(text).slice(0, POST_EXCERPT_MAX_LENGTH).join('').trim();
 };
+
+// 노드 하나에서 뽑은 제목 (게시글 제목을 뽑을 때와 같은 공백 정리·길이 제한)
+const getNodeTitle = (node: JSONContent) =>
+  extractDraftTitle({ type: 'doc', content: [node] });
+
+/**
+ * 상세 페이지 머리에 제목을 따로 보여 주므로, 본문 맨 앞의 같은 제목은 뺌
+ * - 글자가 있는 첫 블록이 제목(heading)이고 게시글 제목과 같을 때만 뺌 (그 밖에는 그대로)
+ * @example removeLeadingTitle(doc(h(1, '제목'), p('본문')), '제목') // doc(p('본문'))
+ */
+export const removeLeadingTitle = (
+  doc: JSONContent,
+  title: string,
+): JSONContent => {
+  const nodes = getChildren(doc);
+  const index = nodes.findIndex((node) => getNodeTitle(node) !== '');
+  const node = nodes[index];
+
+  if (!node || node.type !== 'heading' || getNodeTitle(node) !== title) {
+    return doc;
+  }
+
+  return { ...doc, content: nodes.toSpliced(index, 1) };
+};
