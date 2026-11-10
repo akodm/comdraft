@@ -9,6 +9,7 @@ import {
   isBlobSrc,
   pickImageFiles,
   toSavableContent,
+  uploadBlobs as runBlobUploads,
   uploadImageFile,
   type ImageRejection,
   type ImageUploadDeps,
@@ -146,70 +147,30 @@ export const usePendingImages = (repositoryId: string) => {
       editor: Editor | null,
       emitUpdate: boolean,
     ) => {
-      const apply = (src: string, change: UploadedImage | null) => {
-        if (editor) {
-          applyImageChanges(editor, new Map([[src, change]]), { emitUpdate });
-        }
-      };
+      // 순서와 결과별 처리는 uploadBlobs (components/studio/image-upload.ts) 가 정함
+      await runBlobUploads(srcs, {
+        uploaded: uploadedRef.current,
+        files: filesRef.current,
+        upload: (file) => {
+          uploadingCountRef.current += 1;
 
-      for (const src of srcs) {
-        const uploaded = uploadedRef.current.get(src);
-
-        if (uploaded) {
-          apply(src, uploaded);
-          continue;
-        }
-
-        const file = filesRef.current.get(src);
-
-        // 원본을 잃은 이미지 (다른 화면에서 복사한 blob 등): 올릴 수 없으므로 지움
-        if (!file) {
-          apply(src, null);
-          continue;
-        }
-
-        uploadingCountRef.current += 1;
-
-        const outcome = await uploadImageFile(
-          uploadDeps,
-          repositoryId,
-          draftId,
-          file,
-        ).finally(() => {
-          uploadingCountRef.current -= 1;
-        });
-
-        // AI 작성 잠금이나 초안 없음: 남은 이미지도 지금은 올리지 않음
-        if (outcome.status === 'stopped') {
-          return;
-        }
-
-        // 올리기 실패, 장 수 상한: blob 과 원본을 그대로 두고 다음 시도 때 다시 올림
-        if (outcome.status === 'failed' || outcome.status === 'limit') {
-          showNotice(outcome.status);
-          continue;
-        }
-
-        filesRef.current.delete(src);
-
-        if (outcome.status === 'ok') {
-          const result = {
-            src: outcome.src,
-            width: outcome.width,
-            height: outcome.height,
-          };
-
-          uploadedRef.current.set(src, result);
-          apply(src, result);
-        } else {
-          // 서버가 거부한 형식·해상도: 다시 올려도 같으므로 편집기에서 지움
-          showNotice(outcome.reason);
-          apply(src, null);
-        }
-
-        // 편집기가 공개 주소로 바뀐 뒤에 blob 주소를 놓음
-        URL.revokeObjectURL(src);
-      }
+          return uploadImageFile(
+            uploadDeps,
+            repositoryId,
+            draftId,
+            file,
+          ).finally(() => {
+            uploadingCountRef.current -= 1;
+          });
+        },
+        apply: (src: string, change: UploadedImage | null) => {
+          if (editor) {
+            applyImageChanges(editor, new Map([[src, change]]), { emitUpdate });
+          }
+        },
+        notify: showNotice,
+        revoke: (src) => URL.revokeObjectURL(src),
+      });
     },
     [repositoryId, showNotice],
   );

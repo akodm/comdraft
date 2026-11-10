@@ -202,3 +202,75 @@ export const uploadImageFile = async (
     return { status: 'failed' };
   }
 };
+
+// 이미지 차례 올리기에 필요한 대기 목록과 편집기·안내 연동 (훅이 넘기고 테스트는 가짜로 바꿈)
+export interface UploadBlobsContext {
+  // 이미 올린 blob → 공개 주소 (오래된 본문 스냅숏에도 같은 결과를 씀)
+  uploaded: Map<string, UploadedImage>;
+  // 아직 올리지 않은 blob → 원본 파일
+  files: Map<string, File>;
+  upload: (file: File) => Promise<ImageUploadOutcome>;
+  // 편집기의 그 blob 이미지를 공개 주소로 바꾸거나(change) 지움(null)
+  apply: (src: string, change: UploadedImage | null) => void;
+  notify: (reason: 'failed' | 'limit' | 'heic' | 'type' | 'too_large') => void;
+  revoke: (src: string) => void;
+}
+
+/**
+ * blob 이미지를 차례로 올리고 결과를 편집기에 반영
+ * - 이미 올린 것은 다시 올리지 않고 반영만, 원본을 잃은 것은 지움
+ * - 실패·장 수 상한은 blob 과 원본을 그대로 두고 안내 (다음 시도 때 다시 올림)
+ * - 서버가 거부한 형식·해상도는 안내 후 지움, AI 작성 잠금·초안 없음이면 남은 것도 이번에는 멈춤
+ * - blob 주소는 편집기가 공개 주소로 바뀌거나 이미지가 지워진 뒤에만 놓음
+ */
+export const uploadBlobs = async (
+  srcs: string[],
+  context: UploadBlobsContext,
+): Promise<void> => {
+  const { uploaded, files, upload, apply, notify, revoke } = context;
+
+  for (const src of srcs) {
+    const done = uploaded.get(src);
+
+    if (done) {
+      apply(src, done);
+      continue;
+    }
+
+    const file = files.get(src);
+
+    if (!file) {
+      apply(src, null);
+      continue;
+    }
+
+    const outcome = await upload(file);
+
+    if (outcome.status === 'stopped') {
+      return;
+    }
+
+    if (outcome.status === 'failed' || outcome.status === 'limit') {
+      notify(outcome.status);
+      continue;
+    }
+
+    files.delete(src);
+
+    if (outcome.status === 'ok') {
+      const result = {
+        src: outcome.src,
+        width: outcome.width,
+        height: outcome.height,
+      };
+
+      uploaded.set(src, result);
+      apply(src, result);
+    } else {
+      notify(outcome.reason);
+      apply(src, null);
+    }
+
+    revoke(src);
+  }
+};

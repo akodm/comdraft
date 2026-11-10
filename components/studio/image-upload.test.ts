@@ -7,8 +7,11 @@ import {
   pickImageFiles,
   planImageRetry,
   toSavableContent,
+  uploadBlobs,
   uploadImageFile,
   type ImageUploadDeps,
+  type ImageUploadOutcome,
+  type UploadedImage,
 } from '@/components/studio/image-upload';
 
 const BLOB_A = 'blob:http://localhost:3003/a';
@@ -299,5 +302,124 @@ describe('planImageRetry', () => {
     const plan = planImageRetry([BLOB_B], before);
     expect(plan.attempts.has(BLOB_A)).toBe(false);
     expect(before.get(BLOB_A)).toBe(2);
+  });
+});
+
+describe('uploadBlobs', () => {
+  const PUBLIC_B =
+    'https://x.supabase.co/storage/v1/object/public/comdraft-images/u/1c7b4d8f-0000-4000-8000-000000000000.webp';
+  const fileA = new File(['a'], 'a.png', { type: 'image/png' });
+  const fileB = new File(['b'], 'b.png', { type: 'image/png' });
+
+  const setup = (outcomes: ImageUploadOutcome[]) => {
+    const queue = [...outcomes];
+    const context = {
+      uploaded: new Map<string, UploadedImage>(),
+      files: new Map<string, File>([
+        [BLOB_A, fileA],
+        [BLOB_B, fileB],
+      ]),
+      upload: vi.fn(async () => queue.shift() ?? { status: 'failed' as const }),
+      apply: vi.fn(),
+      notify: vi.fn(),
+      revoke: vi.fn(),
+    };
+    return context;
+  };
+
+  it('올린 이미지는 공개 주소로 바꾸고 원본과 blob 을 놓는다', async () => {
+    const context = setup([
+      { status: 'ok', src: PUBLIC_SRC, width: 1280, height: 640 },
+      { status: 'ok', src: PUBLIC_B, width: 64, height: 64 },
+    ]);
+
+    await uploadBlobs([BLOB_A, BLOB_B], context);
+
+    expect(context.upload).toHaveBeenNthCalledWith(1, fileA);
+    expect(context.upload).toHaveBeenNthCalledWith(2, fileB);
+    expect(context.apply).toHaveBeenCalledWith(BLOB_A, {
+      src: PUBLIC_SRC,
+      width: 1280,
+      height: 640,
+    });
+    expect(context.uploaded.get(BLOB_B)?.src).toBe(PUBLIC_B);
+    expect(context.files.size).toBe(0);
+    expect(context.revoke.mock.calls).toEqual([[BLOB_A], [BLOB_B]]);
+  });
+
+  it('반영 다음에 blob 을 놓는다 (편집기가 깨진 주소를 보이지 않도록)', async () => {
+    const order: string[] = [];
+    const context = setup([
+      { status: 'ok', src: PUBLIC_SRC, width: 1, height: 1 },
+    ]);
+    context.apply.mockImplementation(() => order.push('apply'));
+    context.revoke.mockImplementation(() => order.push('revoke'));
+
+    await uploadBlobs([BLOB_A], context);
+
+    expect(order).toEqual(['apply', 'revoke']);
+  });
+
+  it('이미 올린 blob 은 다시 올리지 않고 반영만 한다 (오래된 본문 스냅숏)', async () => {
+    const context = setup([]);
+    const done = { src: PUBLIC_SRC, width: 10, height: 10 };
+    context.uploaded.set(BLOB_A, done);
+
+    await uploadBlobs([BLOB_A], context);
+
+    expect(context.upload).not.toHaveBeenCalled();
+    expect(context.apply).toHaveBeenCalledWith(BLOB_A, done);
+    expect(context.revoke).not.toHaveBeenCalled();
+  });
+
+  it('원본을 잃은 blob 은 편집기에서 지운다', async () => {
+    const context = setup([]);
+    const lost = 'blob:http://localhost:3003/lost';
+
+    await uploadBlobs([lost], context);
+
+    expect(context.upload).not.toHaveBeenCalled();
+    expect(context.apply).toHaveBeenCalledWith(lost, null);
+  });
+
+  it.each(['failed', 'limit'] as const)(
+    '%s 이면 blob 과 원본을 남기고 안내한 뒤 다음 이미지를 계속 올린다',
+    async (status) => {
+      const context = setup([
+        { status },
+        { status: 'ok', src: PUBLIC_B, width: 1, height: 1 },
+      ]);
+
+      await uploadBlobs([BLOB_A, BLOB_B], context);
+
+      expect(context.notify).toHaveBeenCalledWith(status);
+      expect(context.files.get(BLOB_A)).toBe(fileA);
+      expect(context.apply).not.toHaveBeenCalledWith(BLOB_A, expect.anything());
+      expect(context.apply).not.toHaveBeenCalledWith(BLOB_A, null);
+      expect(context.revoke).not.toHaveBeenCalledWith(BLOB_A);
+      expect(context.uploaded.has(BLOB_B)).toBe(true);
+    },
+  );
+
+  it('서버가 거부한 형식은 안내 후 지우고 원본과 blob 을 놓는다', async () => {
+    const context = setup([{ status: 'unsupported', reason: 'too_large' }]);
+
+    await uploadBlobs([BLOB_A], context);
+
+    expect(context.notify).toHaveBeenCalledWith('too_large');
+    expect(context.apply).toHaveBeenCalledWith(BLOB_A, null);
+    expect(context.files.has(BLOB_A)).toBe(false);
+    expect(context.revoke).toHaveBeenCalledWith(BLOB_A);
+  });
+
+  it('AI 작성 잠금·초안 없음이면 남은 이미지도 이번에는 올리지 않는다', async () => {
+    const context = setup([{ status: 'stopped' }]);
+
+    await uploadBlobs([BLOB_A, BLOB_B], context);
+
+    expect(context.upload).toHaveBeenCalledTimes(1);
+    expect(context.notify).not.toHaveBeenCalled();
+    expect(context.apply).not.toHaveBeenCalled();
+    expect(context.files.size).toBe(2);
   });
 });
