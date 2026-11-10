@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   createPostSlug,
+  getEncodedPostPath,
   getPostPath,
   parsePostPath,
 } from '@/lib/posts/post-path';
@@ -85,5 +86,22 @@ describe('getPostPath 와 parsePostPath 왕복', () => {
     const segment = getPostPath(post).replace('/posts/', '');
 
     expect(parsePostPath(segment)).toEqual(post);
+  });
+});
+
+describe('getEncodedPostPath', () => {
+  it('한글 slug 는 퍼센트 인코딩한다', () => {
+    expect(getEncodedPostPath({ id: 'a1B2c3D4e5', slug: '한글' })).toBe(
+      '/posts/%ED%95%9C%EA%B8%80-a1B2c3D4e5',
+    );
+  });
+
+  it('ASCII slug 와 빈 slug 는 그대로', () => {
+    expect(getEncodedPostPath({ id: 'a1B2c3D4e5', slug: 'abc-d' })).toBe(
+      '/posts/abc-d-a1B2c3D4e5',
+    );
+    expect(getEncodedPostPath({ id: 'a1B2c3D4e5', slug: '' })).toBe(
+      '/posts/a1B2c3D4e5',
+    );
   });
 });

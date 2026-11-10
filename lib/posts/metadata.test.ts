@@ -43,4 +43,12 @@ describe('buildPostMetadata', () => {
       'https://x/ko/posts/slug-a1B2c3D4e5',
     );
   });
+
+  it('한글 slug 는 대표 주소에서 인코딩한다', () => {
+    const meta = buildPostMetadata(post({ slug: '한글' }), 'https://x');
+
+    expect(meta.alternates?.canonical).toBe(
+      'https://x/ko/posts/%ED%95%9C%EA%B8%80-a1B2c3D4e5',
+    );
+  });
 });

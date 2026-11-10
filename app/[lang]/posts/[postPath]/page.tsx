@@ -11,12 +11,16 @@ import { formatDate } from '@/lib/dashboard/format';
 import { localizedPermanentRedirect } from '@/lib/i18n/request';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 import { buildPostMetadata } from '@/lib/posts/metadata';
-import { getPostPath, parsePostPath } from '@/lib/posts/post-path';
+import { getEncodedPostPath, parsePostPath } from '@/lib/posts/post-path';
 import { getPublishedPost } from '@/lib/posts/queries';
 
 interface PostPageProps {
   params: Promise<{ postPath: string }>;
 }
+
+// next/image 에 허용된 호스트(GitHub 아바타)만 그림 (그 밖의 호스트는 렌더링 오류가 나므로 생략)
+const isGithubAvatar = (image: string | null): image is string =>
+  image?.startsWith('https://avatars.githubusercontent.com/') ?? false;
 
 // 주소 세그먼트를 디코드해 slug 와 ID 로 나눔 (형식이 틀리면 null)
 const parseSegment = (segment: string) => {
@@ -53,7 +57,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
   // slug 는 제목이 바뀌면 달라지므로 예전 주소는 현재 주소로 영구 이동
   if (parsed.slug !== post.slug) {
-    await localizedPermanentRedirect(getPostPath(post));
+    await localizedPermanentRedirect(getEncodedPostPath(post));
   }
 
   const session = await getSession();
@@ -70,7 +74,7 @@ export default async function PostPage({ params }: PostPageProps) {
             {post.title}
           </h1>
           <div className="flex items-center gap-3 text-[13px] text-ink-muted pc:text-[14px]">
-            {post.author.image && (
+            {isGithubAvatar(post.author.image) && (
               <Image
                 src={post.author.image}
                 alt=""

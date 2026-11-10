@@ -30,6 +30,13 @@ export function getPostPath(post: { id: string; slug: string }): string {
     : `/posts/${post.id}`;
 }
 
+/** 헤더나 절대 주소에 쓸 수 있도록 slug 를 퍼센트 인코딩한 게시글 주소 (리다이렉트, 대표 주소용) */
+export function getEncodedPostPath(post: { id: string; slug: string }): string {
+  return post.slug
+    ? `/posts/${encodeURIComponent(`${post.slug}${SEPARATOR}${post.id}`)}`
+    : `/posts/${post.id}`;
+}
+
 /**
  * URL 디코드된 주소 세그먼트를 slug 와 ID 로 나눈다.
  * 마지막 `-` 뒤가 ID 형식이 아니면 null 을 돌려준다.

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { localizePath } from '@/lib/i18n/config';
-import { getPostPath } from '@/lib/posts/post-path';
+import { getEncodedPostPath } from '@/lib/posts/post-path';
 import type { PublishedPost } from '@/lib/posts/queries';
 
 /**
@@ -12,7 +12,7 @@ export const buildPostMetadata = (
   post: PublishedPost,
   origin: string,
 ): Metadata => {
-  const url = `${origin.replace(/\/+$/, '')}${localizePath(post.locale, getPostPath(post))}`;
+  const url = `${origin.replace(/\/+$/, '')}${localizePath(post.locale, getEncodedPostPath(post))}`;
 
   return {
     title: post.title,
