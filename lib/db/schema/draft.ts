@@ -34,10 +34,6 @@ import { githubRepository, userRepository } from '@/lib/db/schema/github';
 export const DRAFT_STATUSES = ['draft', 'temporary', 'published'] as const;
 export type DraftStatus = (typeof DRAFT_STATUSES)[number];
 
-// 게시한 초안의 공개 범위 ('공개' | '일부 공개' | '비공개'), 게시 전에는 null
-export const DRAFT_VISIBILITIES = ['public', 'unlisted', 'private'] as const;
-export type DraftVisibility = (typeof DRAFT_VISIBILITIES)[number];
-
 // AI 작성 작업 상태 (queued: Lambda 호출 전/대기, running: 단계 진행 중, completed/failed: 종료)
 export const DRAFT_PROMPT_STATUSES = [
   'queued',
@@ -63,7 +59,6 @@ export const draft = comdraftSchema.table(
     // Tiptap 문서(JSON). 아직 작성 요청을 보내지 않은 초안은 null
     content: jsonb('content'),
     status: text('status').$type<DraftStatus>().default('draft').notNull(),
-    visibility: text('visibility').$type<DraftVisibility>(),
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),

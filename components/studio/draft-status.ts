@@ -1,11 +1,10 @@
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
-import type { DraftStatus, DraftVisibility } from '@/lib/db/schema';
+import type { DraftStatus, PostVisibility } from '@/lib/db/schema';
 
-const VISIBILITY_LABELS: Record<DraftVisibility, MessageDescriptor> = {
+export const VISIBILITY_LABELS: Record<PostVisibility, MessageDescriptor> = {
   public: msg`게시 · 공개`,
   unlisted: msg`게시 · 일부 공개`,
-  private: msg`게시 · 비공개`,
 };
 
 /**
@@ -14,7 +13,7 @@ const VISIBILITY_LABELS: Record<DraftVisibility, MessageDescriptor> = {
  */
 export const getDraftStatusLabel = (
   status: DraftStatus,
-  visibility: DraftVisibility | null,
+  visibility: PostVisibility | null,
 ): MessageDescriptor => {
   if (status === 'published') {
     return VISIBILITY_LABELS[visibility ?? 'public'];

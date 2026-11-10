@@ -8,9 +8,10 @@ import {
   draftPrompt,
   draftReferenceLink,
   githubRepository,
+  post,
   userRepository,
   type DraftStatus,
-  type DraftVisibility,
+  type PostVisibility,
 } from '@/lib/db/schema';
 import { isDraftDocument } from '@/lib/studio/draft-content';
 import {
@@ -40,7 +41,8 @@ export interface StudioDraftSummary {
   id: string;
   title: string;
   status: DraftStatus;
-  visibility: DraftVisibility | null;
+  // 게시한 초안의 공개 범위 (post 조인 결과, 게시 전에는 null)
+  visibility: PostVisibility | null;
 }
 
 // 편집기에서 여는 초안
@@ -100,9 +102,10 @@ export const listStudioDrafts = async (
       id: draft.id,
       title: draft.title,
       status: draft.status,
-      visibility: draft.visibility,
+      visibility: post.visibility,
     })
     .from(draft)
+    .leftJoin(post, eq(post.draftId, draft.id))
     .where(and(eq(draft.userId, userId), eq(draft.repositoryId, repositoryId)))
     .orderBy(desc(draft.updatedAt), desc(draft.id));
 };
@@ -157,10 +160,11 @@ export const getStudioDraft = async (
       id: draft.id,
       title: draft.title,
       status: draft.status,
-      visibility: draft.visibility,
+      visibility: post.visibility,
       content: draft.content,
     })
     .from(draft)
+    .leftJoin(post, eq(post.draftId, draft.id))
     .where(
       and(
         eq(draft.id, draftId),
