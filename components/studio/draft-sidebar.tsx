@@ -8,6 +8,7 @@ import LanguageMenu from '@/components/main/language-menu';
 import LocalizedLink from '@/components/shared/localized-link';
 import DraftListItem from '@/components/studio/draft-list-item';
 import StudioProfileMenu from '@/components/studio/profile-menu';
+import type { DraftPublishState } from '@/components/studio/publish-state';
 import { useStudio } from '@/components/studio/studio-context';
 import {
   getSidebarClass,
@@ -15,6 +16,7 @@ import {
   THIN_SCROLL_CLASS,
 } from '@/components/studio/studio-styles';
 import { useDraftDeletion } from '@/hooks/use-draft-deletion';
+import type { DraftStatus } from '@/lib/db/schema';
 import type { StudioDraftSummary } from '@/lib/studio/queries';
 
 interface DraftSidebarProps {
@@ -29,11 +31,37 @@ interface DraftSidebarProps {
  * - 초안은 개수 제한 없이 모두 불러오고 목록 영역만 스크롤
  * - 초안마다 더보기 메뉴로 삭제 (삭제한 초안은 서버 목록을 다시 불러오지 않고 바로 숨김)
  */
+// 화면에서 바뀐 게시 상태를 목록 항목에 반영
+const getDisplayedDraft = (
+  draft: StudioDraftSummary,
+  publishOverride: DraftPublishState | undefined,
+  statusOverride: DraftStatus | undefined,
+): StudioDraftSummary => {
+  if (!publishOverride && !statusOverride) {
+    return draft;
+  }
+
+  return {
+    ...draft,
+    status: statusOverride ?? publishOverride?.status ?? draft.status,
+    visibility: publishOverride
+      ? (publishOverride.post?.visibility ?? null)
+      : draft.visibility,
+  };
+};
+
 const DraftSidebar = ({ drafts, userName, isOpen }: DraftSidebarProps) => {
   const { t } = useLingui();
   const listLabelId = useId();
-  const { repository, basePath, setOpenPanel, draftTitles, removedDraftIds } =
-    useStudio();
+  const {
+    repository,
+    basePath,
+    setOpenPanel,
+    draftTitles,
+    draftPublishStates,
+    draftStatuses,
+    removedDraftIds,
+  } = useStudio();
   const { draftId: activeDraftId } = useParams<{ draftId?: string }>();
   const visibleDrafts = drafts.filter(({ id }) => !removedDraftIds.has(id));
   const { removeDraft, error: deleteError } = useDraftDeletion(
@@ -158,7 +186,11 @@ const DraftSidebar = ({ drafts, userName, isOpen }: DraftSidebarProps) => {
             {visibleDrafts.map((draft) => (
               <DraftListItem
                 key={draft.id}
-                draft={draft}
+                draft={getDisplayedDraft(
+                  draft,
+                  draftPublishStates[draft.id],
+                  draftStatuses[draft.id],
+                )}
                 title={draftTitles[draft.id] ?? draft.title}
                 href={`${basePath}/${draft.id}`}
                 isActive={draft.id === activeDraftId}

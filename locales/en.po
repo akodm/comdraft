@@ -23,6 +23,10 @@ msgstr "Open menu"
 msgid "브랜치 목록을 불러오지 못했습니다."
 msgstr "Could not load the branch list."
 
+#: components/studio/publish-dialog.tsx:187
+msgid "공개 범위"
+msgstr "Visibility"
+
 #: components/main/sample-commits.ts:21
 msgid "cleanup에서 disconnect() 호출"
 msgstr "Call disconnect() in cleanup"
@@ -31,7 +35,7 @@ msgstr "Call disconnect() in cleanup"
 msgid "커밋 내 코드를 사이트 어디에도 저장하지 않습니다."
 msgstr "Code in your commits is never stored anywhere on the site."
 
-#: components/studio/draft-sidebar.tsx:150
+#: components/studio/draft-sidebar.tsx:178
 msgid "초안을 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't delete the draft. Please try again."
 
@@ -58,7 +62,7 @@ msgstr "Go to dashboard"
 msgid "저장소를 추가하고 초안을 만들어보세요"
 msgstr "Add a repository and start drafting"
 
-#: components/studio/draft-editor.tsx:338
+#: components/studio/draft-editor.tsx:363
 msgid "초안 본문"
 msgstr "Draft body"
 
@@ -66,7 +70,7 @@ msgstr "Draft body"
 msgid "기술 개발 블로그 습관"
 msgstr "A tech blogging habit"
 
-#: components/studio/draft-editor.tsx:304
+#: components/studio/draft-editor.tsx:329
 msgid "설명 필요"
 msgstr "Needs detail"
 
@@ -103,7 +107,11 @@ msgstr "The GitHub sign-in request has expired or is invalid. Please try again."
 msgid "게시 · 일부 공개"
 msgstr "Published · Unlisted"
 
-#: components/studio/draft-editor.tsx:423
+#: components/studio/publish-dialog.tsx:281
+msgid "게시를 취소하면 공개 주소가 더 이상 열리지 않습니다"
+msgstr "If you unpublish, the public address will no longer open."
+
+#: components/studio/draft-editor.tsx:458
 msgid "마크다운 파일로 내보내기"
 msgstr "Export as Markdown file"
 
@@ -147,7 +155,7 @@ msgstr "Heading 4"
 msgid "유형"
 msgstr "Type"
 
-#: components/studio/draft-editor.tsx:310
+#: components/studio/draft-editor.tsx:335
 msgid "여기에 직접 작성해 주세요"
 msgstr "Write it here yourself"
 
@@ -155,7 +163,7 @@ msgstr "Write it here yourself"
 msgid "작성 예시"
 msgstr "Example"
 
-#: components/studio/draft-sidebar.tsx:48
+#: components/studio/draft-sidebar.tsx:76
 msgid "초안 목록"
 msgstr "Draft list"
 
@@ -166,17 +174,13 @@ msgstr "Open draft list"
 #: components/auth/commit-to-draft-motion.tsx:108
 #: components/main/hero-preview.tsx:25
 #: components/onboarding/draft-example.tsx:99
-#: components/studio/draft-sidebar.tsx:126
+#: components/studio/draft-sidebar.tsx:154
 msgid "새 초안"
 msgstr "New draft"
 
-#: components/studio/draft-sidebar.tsx:146
+#: components/studio/draft-sidebar.tsx:174
 msgid "AI 가 작성 중인 초안은 작성이 끝난 뒤 삭제할 수 있습니다."
 msgstr "You can delete this draft after the AI finishes writing it."
-
-#: components/studio/draft-status.ts:8
-msgid "게시 · 비공개"
-msgstr "Published · Private"
 
 #: components/dashboard/empty-repositories.tsx:11
 msgid "연동된 저장소가 없습니다."
@@ -199,11 +203,11 @@ msgstr "Do not send commits that contain sensitive code."
 msgid "저장소와 브랜치를<0/>선택하세요."
 msgstr "Select a repository<0/>and a branch."
 
-#: components/studio/draft-sidebar.tsx:137
+#: components/studio/draft-sidebar.tsx:165
 msgid "세션"
 msgstr "Sessions"
 
-#: components/studio/draft-editor.tsx:296
+#: components/studio/draft-editor.tsx:321
 msgid "결과·수치"
 msgstr "Results & numbers"
 
@@ -215,7 +219,7 @@ msgstr "We didn't receive your email address from GitHub. Make sure you granted 
 msgid "분석"
 msgstr "Analyze"
 
-#: components/studio/draft-editor.tsx:400
+#: components/studio/draft-editor.tsx:431
 msgid "· 빈칸 {emptyBlankCount}개"
 msgstr "· {emptyBlankCount, plural, one {# blank} other {# blanks}}"
 
@@ -223,7 +227,7 @@ msgstr "· {emptyBlankCount, plural, one {# blank} other {# blanks}}"
 msgid "{label} 제거"
 msgstr "Remove {label}"
 
-#: components/studio/draft-editor.tsx:308
+#: components/studio/draft-editor.tsx:333
 msgid "완료"
 msgstr "Done"
 
@@ -235,7 +239,7 @@ msgstr "Your first repository<0/>is connected."
 msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 msgstr "Start simply, generate drafts, and keep writing consistently."
 
-#: components/studio/draft-editor.tsx:300
+#: components/studio/draft-editor.tsx:325
 msgid "배운 점"
 msgstr "Lessons learned"
 
@@ -263,7 +267,7 @@ msgstr "How was it implemented?"
 msgid "커밋 내역을 불러오지 못했습니다."
 msgstr "Couldn't load the commit history."
 
-#: components/studio/draft-status.ts:23
+#: components/studio/draft-status.ts:22
 msgid "초안"
 msgstr "Draft"
 
@@ -306,7 +310,7 @@ msgstr "Delete account"
 msgid "프로필 메뉴"
 msgstr "Profile menu"
 
-#: components/studio/draft-editor.tsx:414
+#: components/studio/draft-editor.tsx:449
 msgid "HTML 파일로 내보내기"
 msgstr "Export as HTML file"
 
@@ -325,6 +329,14 @@ msgstr "Couldn't add the link. Please try again."
 #: components/studio/commit-sidebar.tsx:88
 msgid "커밋 내역을 불러오는 중..."
 msgstr "Loading commit history..."
+
+#: components/studio/publish-dialog.tsx:221
+msgid "비공개 저장소의 코드가 본문에 그대로 공개됩니다"
+msgstr "Code from this private repository will be published as-is in the post."
+
+#: components/studio/publish-dialog.tsx:229
+msgid "빈칸 {blankCount}개를 채운 뒤 게시할 수 있습니다"
+msgstr "Fill in the {blankCount} blanks before publishing."
 
 #: components/main/steps-section.tsx:32
 msgid "바로 시작해보세요."
@@ -350,6 +362,8 @@ msgid "로그아웃"
 msgstr "Sign out"
 
 #: components/studio/generation-progress.tsx:79
+#: components/studio/publish-dialog.tsx:96
+#: components/studio/publish-dialog.tsx:297
 #: components/studio/reference-link-dialog.tsx:134
 msgid "닫기"
 msgstr "Close"
@@ -389,10 +403,15 @@ msgstr "Tracked branch {branch}"
 msgid "{count, plural, other {커밋 #개}}"
 msgstr "{count, plural, one {# commit} other {# commits}}"
 
+#: components/studio/publish-dialog.tsx:288
+msgid "게시를 취소하지 못했습니다. 다시 시도해주세요."
+msgstr "Couldn't unpublish. Please try again."
+
 #: app/[lang]/sign-in/page.tsx:70
 msgid "회원가입 / 로그인"
 msgstr "Sign up / Sign in"
 
+#: components/studio/publish-dialog.tsx:27
 #: components/studio/reference-link-dialog.tsx:26
 msgid "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "Couldn't find the draft. Refresh the page and try again."
@@ -405,7 +424,7 @@ msgstr "Couldn't send the request. Check what you entered."
 msgid "개인 저장소"
 msgstr "Personal repository"
 
-#: components/studio/draft-editor.tsx:301
+#: components/studio/draft-editor.tsx:326
 msgid "이 부분에 배운 점을 작성해 주세요"
 msgstr "Write what you learned here"
 
@@ -418,11 +437,15 @@ msgstr "Turn your work <0>into drafts.</0>"
 msgid "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게시하세요."
 msgstr "This draft was written by AI. Review the code and explanations before publishing."
 
+#: components/studio/publish-dialog.tsx:28
+msgid "게시하지 못했습니다. 다시 시도해주세요."
+msgstr "Couldn't publish. Please try again."
+
 #: components/main/sample-draft-editor.tsx:17
 msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 msgstr "Check that images appear correctly while scrolling and that observers are cleaned up once they leave the viewport. Actual performance gains need to be measured separately."
 
-#: components/studio/draft-sidebar.tsx:44
+#: components/studio/draft-sidebar.tsx:72
 msgid "GitHub 에서 저장소 열기"
 msgstr "Open repository on GitHub"
 
@@ -454,9 +477,13 @@ msgstr "{selectedCount} selected"
 msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgstr "A sample repository and draft to show how the service works."
 
-#: components/studio/draft-editor.tsx:367
+#: components/studio/draft-editor.tsx:398
 msgid "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 msgstr "{count, plural, one {There is # unfilled blank.} other {There are # unfilled blanks.}} Export anyway?"
+
+#: components/studio/publish-dialog.tsx:126
+msgid "일부 공개"
+msgstr "Unlisted"
 
 #: components/studio/generation-progress.tsx:30
 msgid "AI 작성 결과를 초안에 반영하지 못했습니다."
@@ -505,7 +532,7 @@ msgstr "More"
 msgid "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
 msgstr "Too many requests. Please try again later."
 
-#: components/studio/draft-editor.tsx:292
+#: components/studio/draft-editor.tsx:317
 msgid "계기"
 msgstr "Motivation"
 
@@ -517,6 +544,10 @@ msgstr "Couldn't send your request. Please try again."
 #: components/studio/prompt-composer.tsx:369
 msgid "작성 요청"
 msgstr "Request"
+
+#: components/studio/publish-dialog.tsx:127
+msgid "주소를 아는 사람만 글을 볼 수 있습니다"
+msgstr "Only people with the link can view the post."
 
 #: components/studio/editor-toolbar.tsx:34
 msgid "제목 3"
@@ -550,6 +581,10 @@ msgstr "Link"
 msgid "이용약관"
 msgstr "Terms of Service"
 
+#: components/studio/publish-dialog.tsx:121
+msgid "공개"
+msgstr "Public"
+
 #: components/auth/commit-to-draft-motion.tsx:125
 msgid "다듬고, 검토한 뒤 어디든."
 msgstr "Refine, review, publish anywhere."
@@ -570,7 +605,7 @@ msgstr "We couldn't find a verified email on GitHub. Make sure your primary GitH
 msgid "Github 계정으로 로그인합니다"
 msgstr "Sign in with your GitHub account."
 
-#: components/studio/draft-editor.tsx:293
+#: components/studio/draft-editor.tsx:318
 msgid "이 부분에 작업 계기를 작성해 주세요"
 msgstr "Write why you started this work here"
 
@@ -656,6 +691,10 @@ msgstr "Sending request..."
 msgid "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
 msgstr "Couldn't access the repository or commits, so nothing was written."
 
+#: components/studio/publish-dialog.tsx:122
+msgid "누구나 목록과 검색에서 글을 찾을 수 있습니다"
+msgstr "Anyone can find the post in lists and search."
+
 #: components/studio/prompt-options.tsx:184
 msgid "필수 항목 더 보기"
 msgstr "More required blocks"
@@ -712,6 +751,7 @@ msgstr "Code block"
 msgid "연동 저장소"
 msgstr "Connected repositories"
 
+#: components/studio/publish-dialog.tsx:246
 #: components/studio/reference-link-dialog.tsx:189
 msgid "취소"
 msgstr "Cancel"
@@ -728,7 +768,7 @@ msgstr "Extract the observing logic into a reusable hook"
 msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 msgstr "Turn your GitHub commits into tech blog drafts, <0/>then polish and publish them anywhere."
 
-#: components/studio/draft-editor.tsx:287
+#: components/studio/draft-editor.tsx:312
 msgid "내용을 입력하세요"
 msgstr "Start writing"
 
@@ -738,7 +778,7 @@ msgstr "Start writing"
 msgid "개인 공개 저장소 · main"
 msgstr "Personal public repository · main"
 
-#: components/studio/draft-editor.tsx:305
+#: components/studio/draft-editor.tsx:330
 msgid "이 부분은 자세한 설명이 필요합니다"
 msgstr "This part needs a detailed explanation"
 
@@ -756,7 +796,7 @@ msgstr "Contact"
 
 #: components/dashboard/repository-card.tsx:71
 #: components/onboarding/repository-connect-form.tsx:219
-#: components/studio/draft-sidebar.tsx:111
+#: components/studio/draft-sidebar.tsx:139
 msgid "브랜치"
 msgstr "Branch"
 
@@ -780,7 +820,7 @@ msgstr "Account"
 msgid "강의"
 msgstr "Tutorial"
 
-#: components/studio/draft-editor.tsx:286
+#: components/studio/draft-editor.tsx:311
 msgid "제목"
 msgstr "Title"
 
@@ -799,6 +839,10 @@ msgstr "What should you check?"
 #: components/dashboard/repository-card.tsx:113
 msgid "초안 보기"
 msgstr "View drafts"
+
+#: components/studio/publish-actions.tsx:209
+msgid "게시 메뉴"
+msgstr "Publish menu"
 
 #: components/main/steps-section.tsx:12
 msgid "저장소의 커밋 내역을 불러오고 선택합니다."
@@ -837,7 +881,7 @@ msgstr "Back to dashboard"
 msgid "이동 중..."
 msgstr "Redirecting..."
 
-#: components/studio/draft-editor.tsx:401
+#: components/studio/draft-editor.tsx:436
 msgid "· 저장 중..."
 msgstr "· Saving..."
 
@@ -863,7 +907,7 @@ msgstr "feat: apply lazy image loading"
 msgid "GitHub 로 이동 중..."
 msgstr "Redirecting to GitHub..."
 
-#: components/studio/draft-editor.tsx:288
+#: components/studio/draft-editor.tsx:313
 msgid "복사했습니다"
 msgstr "Copied"
 
@@ -871,7 +915,13 @@ msgstr "Copied"
 msgid "{commitCount}개 선택"
 msgstr "{commitCount} selected"
 
-#: components/studio/draft-editor.tsx:404
+#: components/studio/publish-actions.tsx:261
+#: components/studio/publish-dialog.tsx:279
+#: components/studio/publish-dialog.tsx:306
+msgid "게시 취소"
+msgstr "Unpublish"
+
+#: components/studio/draft-editor.tsx:439
 msgid "· 저장하지 못했습니다"
 msgstr "· Couldn't save"
 
@@ -883,7 +933,7 @@ msgstr "Add"
 msgid "기본 옵션 펼치기"
 msgstr "Expand default options"
 
-#: components/studio/draft-editor.tsx:297
+#: components/studio/draft-editor.tsx:322
 msgid "이 부분에 결과나 수치를 작성해 주세요"
 msgstr "Write the results or numbers here"
 
@@ -895,7 +945,11 @@ msgstr "Review, publish, and export"
 msgid "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 msgstr "Select at least one commit to use from the commit history."
 
-#: components/studio/draft-editor.tsx:388
+#: components/studio/publish-dialog.tsx:26
+msgid "게시할 수 없는 본문입니다. 내용을 확인해주세요."
+msgstr "This content can't be published. Please check it."
+
+#: components/studio/draft-editor.tsx:419
 msgid "초안 편집"
 msgstr "Draft editor"
 
@@ -939,7 +993,7 @@ msgstr "Go to home"
 msgid "길이"
 msgstr "Length"
 
-#: components/studio/draft-editor.tsx:288
+#: components/studio/draft-editor.tsx:313
 msgid "코드 복사"
 msgstr "Copy code"
 
@@ -978,7 +1032,9 @@ msgstr "You can add up to {MAX_REFERENCE_LINKS} reference links."
 
 #: components/auth/commit-to-draft-motion.tsx:141
 #: components/main/sample-draft-editor.tsx:81
-#: components/studio/draft-editor.tsx:434
+#: components/studio/publish-actions.tsx:200
+#: components/studio/publish-dialog.tsx:171
+#: components/studio/publish-dialog.tsx:254
 msgid "게시하기"
 msgstr "Publish"
 
@@ -991,7 +1047,13 @@ msgstr "Loading more repositories..."
 msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 msgstr "You don't have access to this repository, or it isn't part of the installation."
 
-#: components/studio/draft-sidebar.tsx:171
+#: components/studio/publish-actions.tsx:198
+#: components/studio/publish-dialog.tsx:171
+#: components/studio/publish-dialog.tsx:254
+msgid "다시 게시"
+msgstr "Republish"
+
+#: components/studio/draft-sidebar.tsx:203
 msgid "아직 초안이 없습니다. 커밋을 선택하고 작성 요청을 보내 첫 초안을 만들어 보세요."
 msgstr "No drafts yet. Select commits and send a request to create your first draft."
 
@@ -1029,11 +1091,23 @@ msgstr "Commit history"
 msgid "초안을 만들기 전 반드시 확인해주세요."
 msgstr "Please check these before creating a draft."
 
+#: components/studio/publish-dialog.tsx:25
+msgid "AI 작성 중에는 게시할 수 없습니다"
+msgstr "You can't publish while AI is writing."
+
 #: components/studio/editor-toolbar.tsx:64
 msgid "글머리 기호 목록"
 msgstr "Bulleted list"
 
-#: components/studio/draft-status.ts:23
+#: components/studio/publish-dialog.tsx:24
+msgid "본문에 제목을 넣어 주세요"
+msgstr "Please add a title to the body."
+
+#: components/studio/publish-actions.tsx:242
+msgid "글 보기"
+msgstr "View post"
+
+#: components/studio/draft-status.ts:22
 msgid "임시"
 msgstr "Temporary"
 
@@ -1041,7 +1115,7 @@ msgstr "Temporary"
 msgid "Github 계정으로 시작하세요."
 msgstr "Get started with your GitHub account."
 
-#: components/studio/draft-sidebar.tsx:95
+#: components/studio/draft-sidebar.tsx:123
 #: components/studio/studio-shell.tsx:58
 msgid "사이드바 닫기"
 msgstr "Close sidebar"
@@ -1066,7 +1140,7 @@ msgstr "Next"
 msgid "경험"
 msgstr "Experience"
 
-#: components/studio/draft-editor.tsx:451
+#: components/studio/draft-editor.tsx:486
 msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 msgstr "Select commits from the commit history and send a request<0/>to create a draft here."
 

@@ -34,6 +34,8 @@ export interface StudioRepository {
   name: string;
   htmlUrl: string;
   branch: string;
+  // 비공개 저장소 여부 (게시하면 코드가 공개된다는 경고에 사용)
+  isPrivate: boolean;
 }
 
 // 초안 목록 항목
@@ -48,6 +50,8 @@ export interface StudioDraftSummary {
 // 편집기에서 여는 초안
 export interface StudioDraft extends StudioDraftSummary {
   content: JSONContent | null;
+  // 게시글 (게시 전에는 null, 주소 생성과 공개 범위에 사용)
+  post: { id: string; slug: string; visibility: PostVisibility } | null;
   // 마지막 작성 요청의 기본 옵션 (요청 기록이 없으면 기본값)
   promptOptions: PromptOptions;
   // 추가한 순서대로
@@ -73,6 +77,7 @@ export const getStudioRepository = cache(
         ownerLogin: githubRepository.ownerLogin,
         name: githubRepository.name,
         htmlUrl: githubRepository.htmlUrl,
+        isPrivate: githubRepository.isPrivate,
         branch: userRepository.branch,
       })
       .from(userRepository)
@@ -161,6 +166,8 @@ export const getStudioDraft = async (
       title: draft.title,
       status: draft.status,
       visibility: post.visibility,
+      postId: post.id,
+      postSlug: post.slug,
       content: draft.content,
     })
     .from(draft)
@@ -194,8 +201,14 @@ export const getStudioDraft = async (
     getLatestDraftJob(row.id),
   ]);
 
+  const { postId, postSlug, ...draftRow } = row;
+
   return {
-    ...row,
+    ...draftRow,
+    post:
+      postId !== null && postSlug !== null && row.visibility !== null
+        ? { id: postId, slug: postSlug, visibility: row.visibility }
+        : null,
     content: isDraftDocument(row.content) ? row.content : null,
     promptOptions: parsePromptOptions(lastPrompt) ?? DEFAULT_PROMPT_OPTIONS,
     referenceLinks,

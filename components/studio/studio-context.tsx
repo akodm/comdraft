@@ -17,6 +17,8 @@ import {
   useRemovedDrafts,
   type RemovedDrafts,
 } from '@/hooks/use-removed-drafts';
+import type { DraftPublishState } from '@/components/studio/publish-state';
+import type { DraftStatus } from '@/lib/db/schema';
 import type { StudioCommit } from '@/lib/actions/studio';
 import type { StudioRepository } from '@/lib/studio/queries';
 
@@ -38,6 +40,12 @@ interface StudioContextValue extends RemovedDrafts {
   // 자동 저장으로 바뀐 초안 제목 (화면을 다시 렌더링하지 않고 목록에 반영)
   draftTitles: Readonly<Record<string, string>>;
   setDraftTitle: (draftId: string, title: string) => void;
+  // 게시·게시 취소로 바뀐 초안의 게시 상태 (서버에서 받은 값보다 우선)
+  draftPublishStates: Readonly<Record<string, DraftPublishState>>;
+  setDraftPublishState: (draftId: string, state: DraftPublishState) => void;
+  // 자동 저장으로 바뀐 초안 상태 (게시 상태 덮어쓰기보다 나중에 바뀐 값이 우선)
+  draftStatuses: Readonly<Record<string, DraftStatus>>;
+  setDraftStatus: (draftId: string, status: DraftStatus) => void;
 }
 
 const StudioContext = createContext<StudioContextValue | null>(null);
@@ -67,6 +75,12 @@ export const StudioProvider = ({
     path: string;
   } | null>(null);
   const [draftTitles, setDraftTitles] = useState<Record<string, string>>({});
+  const [draftPublishStates, setDraftPublishStates] = useState<
+    Record<string, DraftPublishState>
+  >({});
+  const [draftStatuses, setDraftStatuses] = useState<
+    Record<string, DraftStatus>
+  >({});
   const removedDrafts = useRemovedDrafts();
 
   const toggleCommit = useCallback((sha: string) => {
@@ -100,6 +114,33 @@ export const StudioProvider = ({
     );
   }, []);
 
+  const setDraftPublishState = useCallback(
+    (draftId: string, state: DraftPublishState) => {
+      setDraftPublishStates((previous) => ({ ...previous, [draftId]: state }));
+      // 게시 결과가 더 나중 값이므로 이전 자동 저장 상태는 버림
+      setDraftStatuses((previous) => {
+        if (!(draftId in previous)) {
+          return previous;
+        }
+
+        const rest = { ...previous };
+
+        delete rest[draftId];
+
+        return rest;
+      });
+    },
+    [],
+  );
+
+  const setDraftStatus = useCallback((draftId: string, status: DraftStatus) => {
+    setDraftStatuses((previous) =>
+      previous[draftId] === status
+        ? previous
+        : { ...previous, [draftId]: status },
+    );
+  }, []);
+
   const { commits } = commitHistory;
   const selectedCommits = useMemo(
     () => commits.filter(({ sha }) => selectedShas.has(sha)),
@@ -119,6 +160,10 @@ export const StudioProvider = ({
       setOpenPanel,
       draftTitles,
       setDraftTitle,
+      draftPublishStates,
+      setDraftPublishState,
+      draftStatuses,
+      setDraftStatus,
       ...removedDrafts,
     }),
     [
@@ -133,6 +178,10 @@ export const StudioProvider = ({
       setOpenPanel,
       draftTitles,
       setDraftTitle,
+      draftPublishStates,
+      setDraftPublishState,
+      draftStatuses,
+      setDraftStatus,
       removedDrafts,
     ],
   );

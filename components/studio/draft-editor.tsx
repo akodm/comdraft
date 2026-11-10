@@ -16,10 +16,9 @@ import { getDraftStatusLabel } from '@/components/studio/draft-status';
 import { createEditorExtensions } from '@/components/studio/editor-extensions';
 import EditorToolbar from '@/components/studio/editor-toolbar';
 import { useStudio } from '@/components/studio/studio-context';
-import {
-  BRAND_BUTTON_CLASS,
-  OUTLINE_BUTTON_CLASS,
-} from '@/components/studio/studio-styles';
+import PublishActions from '@/components/studio/publish-actions';
+import { resolvePublishState } from '@/components/studio/publish-state';
+import { OUTLINE_BUTTON_CLASS } from '@/components/studio/studio-styles';
 import { saveDraftContent } from '@/lib/actions/studio';
 import { countEmptyBlanks } from '@/lib/studio/draft-blank';
 import type { StudioDraft } from '@/lib/studio/queries';
@@ -87,65 +86,88 @@ const downloadFile = (fileName: string, text: string, type: string) => {
  * - 화면을 떠날 때 저장하지 않은 내용이 있으면 바로 저장 요청
  */
 const useDraftAutosave = (repositoryId: string, draftId: string | null) => {
-  const { setDraftTitle, isDraftRemoved } = useStudio();
+  const { setDraftTitle, setDraftStatus, isDraftRemoved } = useStudio();
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const pendingRef = useRef<JSONContent | null>(null);
   const timerRef = useRef<number | undefined>(undefined);
-  const isSavingRef = useRef(false);
+  // 진행 중인 저장 (게시 전에 끝날 때까지 기다리거나, 중복 저장을 막는 데 사용)
+  const inFlightRef = useRef<Promise<void> | null>(null);
 
-  const flush = useCallback(async () => {
+  // 대기 중인 내용이 없을 때까지 차례로 저장 (저장 중 새로 입력한 내용은 끝난 뒤 이어서 저장)
+  const saveUntilIdle = useCallback(async () => {
+    while (draftId && pendingRef.current) {
+      // 삭제한 초안은 남은 내용을 저장하지 않음
+      if (isDraftRemoved(draftId)) {
+        pendingRef.current = null;
+        return;
+      }
+
+      const content = pendingRef.current;
+
+      pendingRef.current = null;
+      setSaveState('saving');
+
+      try {
+        const result = await saveDraftContent(
+          repositoryId,
+          draftId,
+          JSON.stringify(content),
+        );
+
+        if (result.status !== 'saved') {
+          // 저장 중에 초안을 삭제했거나, AI 작성이 시작되어 잠긴 경우(본문이 결과로 바뀜)는 오류로 표시하지 않음
+          setSaveState(
+            isDraftRemoved(draftId) || result.status === 'locked'
+              ? 'idle'
+              : 'error',
+          );
+          return;
+        }
+
+        setDraftTitle(draftId, result.title);
+        setDraftStatus(draftId, result.draftStatus);
+      } catch {
+        // 실패한 내용은 다음 입력 때 다시 저장되도록 되돌려 둠
+        pendingRef.current ??= content;
+        setSaveState('error');
+        return;
+      }
+    }
+
+    setSaveState('idle');
+  }, [repositoryId, draftId, setDraftTitle, setDraftStatus, isDraftRemoved]);
+
+  const flush = useCallback(() => {
     window.clearTimeout(timerRef.current);
 
-    if (!draftId || !pendingRef.current || isSavingRef.current) {
-      return;
+    // 저장 중이면 그 저장이 끝난 뒤 대기 내용까지 이어서 저장함
+    if (inFlightRef.current || !pendingRef.current) {
+      return inFlightRef.current ?? Promise.resolve();
     }
 
-    // 삭제한 초안은 남은 내용을 저장하지 않음
-    if (isDraftRemoved(draftId)) {
-      pendingRef.current = null;
-      return;
-    }
+    const task = saveUntilIdle().finally(() => {
+      inFlightRef.current = null;
+    });
 
-    const content = pendingRef.current;
+    inFlightRef.current = task;
 
+    return task;
+  }, [saveUntilIdle]);
+
+  /**
+   * 게시 직전에 자동 저장과 겹치지 않도록 정리
+   * - 게시가 현재 본문을 그대로 저장하므로, 대기 중인 저장은 타이머와 함께 버림
+   * - 이미 서버에 가는 중인 저장은 끝날 때까지 기다림: 그래야 옛 본문 저장이 게시보다 늦게 도착해
+   *   게시한 본문과 상태를 덮어쓰지 못함
+   * - 기다리는 동안 실패한 저장이 옛 내용을 대기열에 되돌려 놓을 수 있어 끝난 뒤 한 번 더 비움
+   */
+  const settle = useCallback(async () => {
+    window.clearTimeout(timerRef.current);
     pendingRef.current = null;
-    isSavingRef.current = true;
-    setSaveState('saving');
-
-    try {
-      const result = await saveDraftContent(
-        repositoryId,
-        draftId,
-        JSON.stringify(content),
-      );
-
-      if (result.status !== 'saved') {
-        // 저장 중에 초안을 삭제했거나, AI 작성이 시작되어 잠긴 경우(본문이 결과로 바뀜)는 오류로 표시하지 않음
-        setSaveState(
-          isDraftRemoved(draftId) || result.status === 'locked'
-            ? 'idle'
-            : 'error',
-        );
-        return;
-      }
-
-      setDraftTitle(draftId, result.title);
-
-      if (pendingRef.current) {
-        isSavingRef.current = false;
-        await flush();
-        return;
-      }
-
-      setSaveState('idle');
-    } catch {
-      // 실패한 내용은 다음 입력 때 다시 저장되도록 되돌려 둠
-      pendingRef.current ??= content;
-      setSaveState('error');
-    } finally {
-      isSavingRef.current = false;
-    }
-  }, [repositoryId, draftId, setDraftTitle, isDraftRemoved]);
+    await inFlightRef.current;
+    pendingRef.current = null;
+    setSaveState('idle');
+  }, []);
 
   const schedule = useCallback(
     (editor: Editor) => {
@@ -160,7 +182,7 @@ const useDraftAutosave = (repositoryId: string, draftId: string | null) => {
   useEffect(() => {
     // 저장하지 않은 내용이 있으면 새로고침/탭 닫기 전에 확인
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (pendingRef.current || isSavingRef.current) {
+      if (pendingRef.current || inFlightRef.current) {
         event.preventDefault();
       }
     };
@@ -174,7 +196,7 @@ const useDraftAutosave = (repositoryId: string, draftId: string | null) => {
     };
   }, [flush]);
 
-  return { saveState, schedule };
+  return { saveState, schedule, settle };
 };
 
 // AI 작성 중에는 읽기 전용 (잠금이 풀리면 다시 편집 가능)
@@ -268,7 +290,7 @@ const CARET_SCROLL_MARGIN = 8;
 /**
  * 초안 편집 영역: 상태와 내보내기/게시 버튼, 서식 툴바, Tiptap 편집기
  * - HTML / MD 버튼은 현재 내용을 파일로 내려받기
- * - 게시하기는 블로그 연동 전이라 디자인만 구현
+ * - 게시하기 / 다시 게시 / 게시 취소는 PublishActions
  */
 const DraftEditor = ({
   repositoryId,
@@ -278,7 +300,8 @@ const DraftEditor = ({
   isLocked,
 }: DraftEditorProps) => {
   const { t, i18n } = useLingui();
-  const { saveState, schedule } = useDraftAutosave(
+  const { draftPublishStates, draftStatuses } = useStudio();
+  const { saveState, schedule, settle } = useDraftAutosave(
     repositoryId,
     draft?.id ?? null,
   );
@@ -358,6 +381,12 @@ const DraftEditor = ({
   useEditorLock(editor, Boolean(draft) && !isLocked);
   useAppliedContent(editor, draft);
 
+  // 게시·자동 저장으로 바뀐 상태가 서버에서 받은 값보다 우선
+  const publishState = resolvePublishState(
+    { status: draft?.status ?? 'draft', post: draft?.post ?? null },
+    draft ? draftPublishStates[draft.id] : undefined,
+    draft ? draftStatuses[draft.id] : undefined,
+  );
   const title = draft?.title ?? '';
   // 작성하지 않은 빈칸이 있으면 내보내기 전에 확인 (취소하면 내보내지 않음)
   const confirmExport = () => {
@@ -394,8 +423,8 @@ const DraftEditor = ({
         <p className="flex min-w-0 items-center gap-1.5 text-[12px] leading-[normal] text-ink-faint">
           {i18n._(
             getDraftStatusLabel(
-              draft?.status ?? 'draft',
-              draft?.visibility ?? null,
+              publishState.status,
+              publishState.post?.visibility ?? null,
             ),
           )}
           <span aria-live="polite" className="truncate">
@@ -431,14 +460,14 @@ const DraftEditor = ({
           >
             MD
           </button>
-          {/* 블로그 게시 기능은 추후 구현 (지금은 버튼 모양만) */}
-          <button
-            type="button"
-            disabled={!draft}
-            className={`h-8 pc:h-8.5 ${BRAND_BUTTON_CLASS}`}
-          >
-            <Trans>게시하기</Trans>
-          </button>
+          <PublishActions
+            repositoryId={repositoryId}
+            draft={draft}
+            editor={editor}
+            isLocked={isLocked}
+            settle={settle}
+            onResave={schedule}
+          />
         </div>
       </div>
       <EditorToolbar editor={editor} isDisabled={!draft || isLocked} />
