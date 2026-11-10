@@ -196,7 +196,8 @@ const useDraftAutosave = (
 
       retryTimerRef.current = window.setTimeout(() => {
         // 그 사이 입력해 대기 중인 저장이 있으면 그 저장이 이미지를 올림
-        if (editor.isDestroyed || pendingRef.current) {
+        // AI 작성으로 잠긴 동안에는 저장하지 않음 (반영 전 결과를 이전 본문으로 덮지 않도록)
+        if (editor.isDestroyed || !editor.isEditable || pendingRef.current) {
           return;
         }
 
