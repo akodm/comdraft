@@ -89,8 +89,9 @@ export const draftPrompt = comdraftSchema.table(
   {
     id: text('id').primaryKey(),
     // 요청한 사용자 (주간/시간당 사용량은 이 컬럼으로 셈, 계정을 삭제하면 함께 삭제)
-    // → 마이그레이션 적용 후 배포 전까지 이전 코드가 user_id 없이 넣을 수 있어 아직 nullable (새 코드는 항상 기록)
-    userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
     // 초안을 삭제하거나 저장소 연동을 해제해도 작업 행은 남김 (사용량과 요청 기록 유지, 초안 화면에서는 보이지 않음)
     draftId: text('draft_id').references(() => draft.id, {
       onDelete: 'set null',

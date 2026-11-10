@@ -61,6 +61,9 @@
 | `estimated_tokens integer` | Lambda 가 Claude 호출 전에 계산한 예상량. 계산 전 null |
 | `used_tokens integer not null default 0` | 실제 사용량 합계. Claude 호출이 끝날 때마다 더한다 |
 | `reference_urls jsonb not null default '[]'` | 요청할 때 초안에 있던 참고 링크 주소 목록 (감사용) |
+| `user_id text not null` (`user.id`, 계정 삭제 시 함께 삭제) | 요청한 사용자. 주간·시간당 사용량은 이 컬럼으로 센다 (구현 중 추가, 마이그레이션 0015·0016) |
+
+- 초안을 삭제하거나 저장소 연동을 해제해도 작업 행은 남고 `draft_id` 만 null 이 된다 (`on delete set null`). 초안 삭제로 이번 주 사용량을 돌려받을 수 없고, 요청 기록도 남는다.
 
 - 실패 사유 `GenerationErrorCode` 에 `quota_exceeded` 를 추가한다 (Next.js `lib/generation/contract.ts`, Lambda `src/contract.ts` 양쪽). `error_code` 는 text 라 DB 제약 변경은 없다.
 
