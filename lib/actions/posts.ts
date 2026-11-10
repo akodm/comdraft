@@ -12,14 +12,20 @@ import {
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { checkPublishable } from '@/lib/posts/post-content';
 import { createPostId } from '@/lib/posts/post-id';
-import { getPostPath } from '@/lib/posts/post-path';
 import { buildPostValues, parsePostVisibility } from '@/lib/posts/post-values';
 import { getPostFeedPage, type PostFeedPage } from '@/lib/posts/queries';
 import { parseDraftDocument } from '@/lib/studio/draft-content';
 import { isOwnedDraft } from '@/lib/studio/queries';
 
 export type PublishDraftResult =
-  | { status: 'published'; path: string; visibility: PostVisibility }
+  | {
+      status: 'published';
+      id: string;
+      slug: string;
+      // 게시하면서 저장한 제목 (화면의 사이드바 제목을 맞추는 데 사용)
+      title: string;
+      visibility: PostVisibility;
+    }
   // 아직 채우지 않은 빈칸이 남아 있음
   | { status: 'has_blanks'; count: number }
   | { status: 'no_title' }
@@ -106,7 +112,9 @@ export async function publishDraft(
 
     return {
       status: 'published',
-      path: getPostPath(published),
+      id: published.id,
+      slug: published.slug,
+      title,
       visibility: published.visibility,
     };
   });

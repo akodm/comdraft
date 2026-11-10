@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
-import { Trans, useLingui } from '@lingui/react/macro';
+import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import DialogFrame from '@/components/shared/dialog-frame';
 import {
   BRAND_BUTTON_CLASS,
@@ -142,7 +142,10 @@ const PublishDialog = ({
             role="alert"
             className="text-[12px] leading-[1.6] break-keep text-danger"
           >
-            <Trans>빈칸 {blankCount}개를 채운 뒤 게시할 수 있습니다</Trans>
+            <Plural
+              value={blankCount}
+              other="빈칸 #개를 채우고 완료를 눌러야 게시할 수 있습니다"
+            />
           </p>
         )}
         {!hasBlanks && reason && (

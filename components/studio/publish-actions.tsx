@@ -23,7 +23,7 @@ import { useLocale } from '@/hooks/use-locale';
 import { publishDraft, unpublishDraft } from '@/lib/actions/posts';
 import type { PostVisibility } from '@/lib/db/schema';
 import { checkPublishable } from '@/lib/posts/post-content';
-import { getPostPath, parsePostPath } from '@/lib/posts/post-path';
+import { getPostPath } from '@/lib/posts/post-path';
 import type { StudioDraft } from '@/lib/studio/queries';
 
 const DEFAULT_VISIBILITY: PostVisibility = 'public';
@@ -77,6 +77,7 @@ const PublishActions = ({
     repository,
     draftPublishStates,
     draftStatuses,
+    setDraftTitle,
     setDraftPublishState,
   } = useStudio();
   const { isOpen, toggle, containerRef, triggerRef, firstItemRef, handleBlur } =
@@ -129,18 +130,17 @@ const PublishActions = ({
       );
 
       if (result.status === 'published') {
-        const post = parsePostPath(result.path.replace(/^\/posts\//, ''));
-
-        if (post) {
-          setDraftPublishState(draft.id, {
-            status: 'published',
-            post: { ...post, visibility: result.visibility },
-          });
-          setOpenDialog(null);
-          return;
-        }
-
-        setFailure('error');
+        // 게시가 저장한 제목과 게시 상태를 화면(사이드바, 메뉴)에 바로 반영
+        setDraftTitle(draft.id, result.title);
+        setDraftPublishState(draft.id, {
+          status: 'published',
+          post: {
+            id: result.id,
+            slug: result.slug,
+            visibility: result.visibility,
+          },
+        });
+        setOpenDialog(null);
         return;
       }
 

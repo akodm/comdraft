@@ -1,5 +1,5 @@
 {
-  "id": "4b7ae9d4-63b1-4789-bd97-76f4ed668a1a",
+  "id": "14ea1286-7519-47e9-8db7-52b8476933e0",
   "prevId": "5df4559d-e42b-4b3b-8a33-d740ab449d76",
   "version": "7",
   "dialect": "postgresql",
@@ -814,6 +814,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'draft'"
+        },
+        "visibility": {
+          "name": "visibility",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",

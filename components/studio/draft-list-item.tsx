@@ -99,8 +99,8 @@ const DraftListItem = ({
 }: DraftListItemProps) => {
   const { t, i18n } = useLingui();
   const [isConfirming, setIsConfirming] = useState(false);
-  // 게시한 초안(게시·임시 라벨)은 지우면 게시글도 함께 사라짐
-  const isPublished = draft.status !== 'draft';
+  // 게시글이 있는 초안(게시·임시 라벨)은 지우면 게시글도 함께 사라짐
+  const isPublished = draft.visibility !== null;
 
   return (
     <li className="group relative shrink-0">

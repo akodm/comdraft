@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import PageLayout from '@/components/layout/page-layout';
 import MainFooter from '@/components/main/main-footer';
@@ -6,6 +8,12 @@ import PostFeed from '@/components/posts/post-feed';
 import { getSession } from '@/lib/auth/session';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 import { getPostFeedPage } from '@/lib/posts/queries';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const i18n = await initLingui();
+
+  return { title: i18n._(msg`게시글`) };
+}
 
 export default async function PostsPage() {
   await initLingui();

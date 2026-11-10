@@ -267,6 +267,17 @@ describe('extractPostExcerpt', () => {
     ).toBe('첫 문단 둘째');
   });
 
+  it('줄바꿈은 공백으로 잇는다', () => {
+    expect(
+      extractPostExcerpt(
+        doc({
+          type: 'paragraph',
+          content: [text('가'), { type: 'hardBreak' }, text('나')],
+        }),
+      ),
+    ).toBe('가 나');
+  });
+
   it('요약 160자 자르기', () => {
     expect(extractPostExcerpt(doc(p('가'.repeat(200))))).toHaveLength(160);
   });

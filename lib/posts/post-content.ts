@@ -214,6 +214,11 @@ const getParagraphText = (node: JSONContent): string => {
     return typeof node.text === 'string' ? node.text : '';
   }
 
+  // 줄바꿈은 단어가 붙지 않도록 공백으로
+  if (node.type === 'hardBreak') {
+    return ' ';
+  }
+
   return getChildren(node).map(getParagraphText).join('');
 };
 

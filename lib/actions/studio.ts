@@ -1,11 +1,12 @@
 'use server';
 
-import { and, eq, not, sql } from 'drizzle-orm';
+import { and, eq, not } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { draft, type DraftStatus } from '@/lib/db/schema';
 import {
+  draftStatusAfterContentChange,
   isDraftLocked,
   lockingJobExists,
   syncDraftJobs,
@@ -135,7 +136,7 @@ export async function saveDraftContent(
     .set({
       content,
       title,
-      status: sql`case when ${draft.status} = 'published' then 'temporary' else ${draft.status} end`,
+      status: draftStatusAfterContentChange(),
     })
     .where(and(eq(draft.id, draftId), not(lockingJobExists(draft.id))))
     .returning({ id: draft.id, status: draft.status });

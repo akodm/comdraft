@@ -46,4 +46,26 @@ describe('PostContent', () => {
     expect(html).toContain('href="https://a.com"');
     expect(html).toContain('rel="noopener noreferrer nofollow"');
   });
+
+  it('코드 블록은 언어 이름을 표시하고, 언어가 없으면 표시하지 않는다', () => {
+    const withLanguage = renderToStaticMarkup(
+      <PostContent content={doc(codeBlock('ts', 'const a = 1;'))} />,
+    );
+    const withoutLanguage = renderToStaticMarkup(
+      <PostContent
+        content={doc({
+          type: 'codeBlock',
+          attrs: { language: null },
+          content: [text('plain')],
+        })}
+      />,
+    );
+
+    expect(withLanguage).toContain('TypeScript');
+    expect(withLanguage).toContain('<pre');
+    expect(withLanguage).toContain('const a = 1;');
+    expect(withoutLanguage).toContain('plain');
+    expect(withoutLanguage).not.toContain('font-mono text-[10px]');
+    expect(withoutLanguage).not.toContain('Code<');
+  });
 });

@@ -17,5 +17,4 @@ CREATE TABLE "comdraft"."post" (
 --> statement-breakpoint
 ALTER TABLE "comdraft"."post" ADD CONSTRAINT "post_draft_id_draft_id_fk" FOREIGN KEY ("draft_id") REFERENCES "comdraft"."draft"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "comdraft"."post" ADD CONSTRAINT "post_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "comdraft"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "post_public_published_idx" ON "comdraft"."post" USING btree ("published_at" DESC NULLS LAST,"id" DESC NULLS LAST) WHERE "comdraft"."post"."visibility" = 'public';--> statement-breakpoint
-ALTER TABLE "comdraft"."draft" DROP COLUMN "visibility";
+CREATE INDEX "post_public_published_idx" ON "comdraft"."post" USING btree ("published_at" DESC NULLS LAST,"id" DESC NULLS LAST) WHERE "comdraft"."post"."visibility" = 'public';

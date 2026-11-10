@@ -30,6 +30,13 @@ import { extractDraftTitle } from '@/lib/studio/draft-content';
  * - 상태 전이는 조건부 UPDATE 로만 (이미 끝난 작업을 다시 바꾸지 않음)
  */
 
+/**
+ * 본문이 바뀔 때의 초안 상태 SQL: 게시 중이던 초안은 '임시'로, 나머지는 그대로
+ * - 자동 저장과 AI 결과 반영이 같은 규칙을 쓰도록 한곳에 둠
+ */
+export const draftStatusAfterContentChange = () =>
+  sql`case when ${draft.status} = 'published' then 'temporary' else ${draft.status} end`;
+
 // 화면에 전달하는 작업 상태 (결과 본문, 요청 문구 제외)
 export interface GenerationJobView {
   id: string;
@@ -159,7 +166,12 @@ export const applyCompletedJob = async (jobId: string) => {
 
     await tx
       .update(draft)
-      .set({ content, title: extractDraftTitle(content), updatedAt: now })
+      .set({
+        content,
+        title: extractDraftTitle(content),
+        status: draftStatusAfterContentChange(),
+        updatedAt: now,
+      })
       .where(eq(draft.id, claimed.draftId));
 
     return true;

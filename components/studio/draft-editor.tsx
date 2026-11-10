@@ -182,13 +182,13 @@ const useEditorLock = (editor: Editor | null, isEditable: boolean) => {
 /**
  * AI 작성 결과가 본문에 반영되면(contentRevision 변경) 새 본문으로 교체
  * - 편집기는 초안이 바뀔 때만 다시 만들어지므로, 같은 초안의 새 본문은 여기서 넣음
- * - 사이드바 목록 제목도 새 제목으로 맞춤 (자동 저장으로 바꾼 제목보다 우선)
+ * - 사이드바 목록 제목과 게시 상태도 서버 값으로 맞춤 (자동 저장·게시로 바꾼 값보다 우선)
  */
 const useAppliedContent = (
   editor: Editor | null,
   draft: StudioDraft | null,
 ) => {
-  const { setDraftTitle } = useStudio();
+  const { setDraftTitle, setDraftPublishState } = useStudio();
   const revision = draft?.contentRevision ?? null;
   const appliedRevisionRef = useRef(revision);
 
@@ -205,7 +205,9 @@ const useAppliedContent = (
     appliedRevisionRef.current = revision;
     editor.commands.setContent(draft.content, { emitUpdate: false });
     setDraftTitle(draft.id, draft.title);
-  }, [editor, draft, revision, setDraftTitle]);
+    // 게시 중이던 초안은 결과 반영으로 '임시'가 되므로 화면에서 바꿔 둔 게시 상태도 서버 값으로 맞춤
+    setDraftPublishState(draft.id, { status: draft.status, post: draft.post });
+  }, [editor, draft, revision, setDraftTitle, setDraftPublishState]);
 };
 
 // 작성하지 않은 빈칸 개수 (편집기 내용이 바뀔 때마다 갱신)

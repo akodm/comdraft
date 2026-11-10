@@ -32,7 +32,7 @@ const LANGUAGE_NAMES: Record<string, string> = {
   markdown: 'Markdown',
 };
 
-const getLanguageName = (language: unknown) => {
+export const getLanguageName = (language: unknown) => {
   if (typeof language !== 'string' || !language) {
     return 'Code';
   }
