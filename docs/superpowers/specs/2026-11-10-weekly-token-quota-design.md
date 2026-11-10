@@ -17,26 +17,44 @@
 
 | 주제 | 결정 |
 |---|---|
-| 등급 | `user.role`: `basic`(기본) / `pro` / `max`. max 도 한도가 있다 |
-| 한도 | basic 100,000 / pro 500,000 / max 2,000,000 토큰 (긴 초안 약 1 / 5 / 20회). 상수로 두고 운영 수치를 보고 조정 |
+| 등급 | `user.role`: `basic`(기본) / `pro` / `max`. 등급 목록과 값은 `quota_plan` 테이블이 정한다. max 도 한도가 있다 |
+| 한도와 규칙 값 | `quota_plan` 테이블에 둔다 (주간 한도, 초과 허용 비율, 초기화 시간대·요일·시각). Next.js 와 Lambda 가 같은 행을 읽는다. 코드에 상수로 두지 않는다 |
+| 초기값 | basic 100,000 / pro 500,000 / max 2,000,000 토큰 (긴 초안 약 1 / 5 / 20회), 비율 1.3, `Asia/Seoul` 일요일 0시. 운영 수치를 보고 SQL 로 조정 |
+| 값을 읽지 못할 때 | 사용자 등급의 `quota_plan` 행이 없으면 요청을 거부한다 (Next.js `quota_unavailable`, Lambda 는 작업을 `internal` 로 실패) |
 | 사용량 단위 | Claude 응답의 `input_tokens + output_tokens + cache_creation_input_tokens + cache_read_input_tokens` |
 | 기록 방식 | 작업(`draft_prompt`)별 `estimated_tokens`, `used_tokens` 를 두고 주간 합계로 계산 (사용자별 누적 컬럼 없음) |
-| 주 경계 | 작업의 `created_at` 이 속한 주. 주 시작 = 그 시각 이전의 가장 가까운 일요일 00:00 KST |
+| 주 경계 | 작업의 `created_at` 이 속한 주. 주 시작 = 그 시각 이전(포함)의 가장 가까운 `reset_weekday` 요일 `reset_hour` 시 (`reset_timezone` 기준) |
 | 검사 1 (요청 시) | 남은 양 ≤ 0 이면 작업을 만들지 않고 거부 |
-| 검사 2 (Lambda) | 커밋 준비 후 Claude 호출 전, 예상량 > 남은 양 × 1.3 이면 `quota_exceeded` 로 실패 (사용량 0) |
+| 검사 2 (Lambda) | 커밋 준비 후 Claude 호출 전, 예상량 > 남은 양 × `overrun_ratio` 이면 `quota_exceeded` 로 실패 (사용량 0) |
 | 동시 요청 | Lambda 검사와 예상량 기록을 사용자 단위 advisory lock 트랜잭션 하나로 처리 |
 | 감사 기록 | 요청 문구, 옵션, 커밋 SHA 는 이미 저장됨. 작업별 참고 링크 주소(`reference_urls`)를 추가로 저장. 커밋 본문은 저장하지 않음 |
-| 날짜 처리 | dayjs (`utc`, `timezone` 플러그인) |
+| 날짜 처리 | dayjs (`utc`, `timezone` 플러그인). Lambda 에도 dayjs 를 추가해 같은 계산 함수를 쓴다 |
 
 ## 3. 데이터 구조
 
-### 3.1 `user`
+### 3.1 `quota_plan` (새 테이블, 등급별 할당량 정책)
 
-- `role text not null default 'basic'`, check `user_role_check` (`role in ('basic','pro','max')`)
+| 컬럼 | 타입 | 내용 |
+|---|---|---|
+| `role` | text PK | 등급 이름 (`basic`, `pro`, `max`) |
+| `weekly_token_limit` | integer not null, check `> 0` | 주간 토큰 한도 |
+| `overrun_ratio` | numeric(4,2) not null, check `>= 1` | 남은 양 대비 초과 허용 비율 (1.30) |
+| `reset_timezone` | text not null | 초기화 기준 시간대 (IANA 이름, `Asia/Seoul`) |
+| `reset_weekday` | smallint not null, check `0..6` | 초기화 요일 (0 = 일요일) |
+| `reset_hour` | smallint not null, check `0..23` | 초기화 시각 (0 = 0시) |
+| `updated_at` | timestamptz(3) not null default now() | 마지막 수정 시각 |
+
+- 마이그레이션에서 세 행을 넣는다: `('basic', 100000, 1.30, 'Asia/Seoul', 0, 0)`, `('pro', 500000, …)`, `('max', 2000000, …)`.
+- 초기화 규칙(시간대·요일·시각, 비율)도 등급별 행에 둔다. 지금은 세 행 모두 같은 값이지만, 나중에 등급마다 다르게 둘 수 있다.
+- 값을 바꿀 때는 SQL 로 이 테이블만 수정한다. 배포 없이 Next.js 와 Lambda 에 함께 반영된다.
+
+### 3.2 `user`
+
+- `role text not null default 'basic'`, `quota_plan.role` 을 참조하는 외래 키 (`on update cascade`, 삭제는 막음). 별도 check 제약은 두지 않는다 (등급 목록은 `quota_plan` 이 정한다).
 - Better Auth 설정의 `user.additionalFields` 에 `role` 을 `input: false` 로 등록한다. 가입이나 프로필 수정 요청으로 등급을 바꿀 수 없게 한다.
 - 등급 변경은 당분간 SQL 로만 한다 (관리 화면 없음).
 
-### 3.2 `draft_prompt` (작업)
+### 3.3 `draft_prompt` (작업)
 
 | 컬럼 | 내용 |
 |---|---|
@@ -46,22 +64,22 @@
 
 - 실패 사유 `GenerationErrorCode` 에 `quota_exceeded` 를 추가한다 (Next.js `lib/generation/contract.ts`, Lambda `src/contract.ts` 양쪽). `error_code` 는 text 라 DB 제약 변경은 없다.
 
-### 3.3 마이그레이션
+### 3.4 마이그레이션
 
-하나의 마이그레이션에 `user.role`, `user_role_check`, `draft_prompt` 세 컬럼을 추가한다. 컬럼 추가만 있으므로 배포 순서와 상관없이 안전하다. 로컬과 운영 적용은 사용자 허락에 따라 구현자가 직접 한다 (운영 `comdraft` 계정에 임시 CREATE 권한이 남아 있는 상태).
+하나의 마이그레이션에 `quota_plan` 생성과 초기 행 삽입, `user.role` 과 외래 키, `draft_prompt` 세 컬럼을 넣는다. drizzle-kit 이 만든 SQL 에 초기 행 `INSERT` 를 덧붙인다 (`user.role` 외래 키보다 먼저 실행되도록 순서를 맞춘다). 컬럼 추가만 있으므로 배포 순서와 상관없이 안전하다. 로컬과 운영 적용은 사용자 허락에 따라 구현자가 직접 한다 (운영 `comdraft` 계정에 임시 CREATE 권한이 남아 있는 상태).
 
 ## 4. 할당량 규칙 (`lib/generation/quota.ts`, 순수 함수)
 
-- `QUOTA_LIMITS = { basic: 100_000, pro: 500_000, max: 2_000_000 }`
-- `QUOTA_OVERRUN_RATIO = 1.3`
-- `QUOTA_TIMEZONE = 'Asia/Seoul'`
-- `getQuotaWeek(now: Date): { start: Date; resetsAt: Date }`: `start` = now 이전(포함)의 가장 가까운 일요일 00:00 KST, `resetsAt` = start + 7일.
-- `isWithinAllowance(estimate: number, remaining: number): boolean`: `remaining > 0 && estimate <= remaining * 1.3`.
+값은 모두 `quota_plan` 행(`QuotaPlan`)으로 받는다. 코드에는 한도나 비율 상수를 두지 않는다.
+
+- `type QuotaPlan = { role; weeklyTokenLimit; overrunRatio; resetTimezone; resetWeekday; resetHour }`
+- `getQuotaWeek(now: Date, plan: QuotaPlan): { start: Date; resetsAt: Date }`: `start` = now 이전(포함)의 가장 가까운 `resetWeekday` 요일 `resetHour` 시 (`resetTimezone` 기준), `resetsAt` = start + 7일 (그 시간대의 같은 요일·시각).
+- `isWithinAllowance(estimate: number, remaining: number, plan: QuotaPlan): boolean`: `remaining > 0 && estimate <= remaining * plan.overrunRatio`.
 - `getJobUsage(job: { status; estimatedTokens; usedTokens; errorCode }): number`
   - `queued` / `running`: `max(estimatedTokens ?? 0, usedTokens)`
   - `failed` + `quota_exceeded`: 0
   - 그 밖(`completed`, 다른 실패): `usedTokens`
-- `summarizeQuota(role, jobs, now)`: `{ role, limit, used, remaining: limit - used, resetsAt }`
+- `summarizeQuota(plan, jobs, now)`: `{ role, limit, used, remaining: limit - used, resetsAt }`
 
 `remaining` 은 음수가 될 수 있다 (허용 초과분만큼). 화면에는 0 으로 보여 준다.
 
@@ -70,7 +88,7 @@
 ### 5.1 요청할 때 (Next.js `requestDraftGeneration`)
 
 1. 기존: 세션, 입력, 소유, 시간당 20건 검사.
-2. `getUserQuota(userId)`: 사용자 등급과 이번 주 작업들을 읽어 `summarizeQuota`. 서버 전용 조회는 `lib/generation/quota-queries.ts`.
+2. `getUserQuota(userId)`: 사용자 등급의 `quota_plan` 행과 이번 주 작업들을 읽어 `summarizeQuota`. 서버 전용 조회는 `lib/generation/quota-queries.ts`. 행이 없으면 `null` 을 돌려주고, 요청은 `{ status: 'quota_unavailable' }` 로 거부한다 (작성 요청 입력창: "사용량 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.").
 3. `remaining <= 0` 이면 `{ status: 'quota_exhausted', resetsAt }` 를 돌려준다. 작업을 만들지 않고 Lambda 도 부르지 않는다.
 4. 통과하면 작업을 만든다. 이때 초안의 참고 링크 주소를 `reference_urls` 에 저장한다 (새 초안이면 `[]`).
 
@@ -87,8 +105,9 @@
    - 토큰 수는 기존 `estimateTokens` 로 추정한다. 여유분 상수는 `src/generation/limits.ts` 에 둔다.
 3. `reserveQuota(jobId, estimate)`: 트랜잭션 하나에서
    - `pg_advisory_xact_lock(hashtext(user_id))` 로 같은 사용자의 검사를 줄 세운다.
-   - 이번 주 사용량을 계산한다 (이 작업 제외, 4장 규칙). Lambda 는 사용자 등급과 한도를 같은 규칙으로 계산한다 (Lambda `src/quota.ts` 에 한도, 비율, 주 경계 상수를 복제하고 Next.js 쪽과 같은 테스트 값으로 고정한다).
-   - `isWithinAllowance` 통과 시 `estimated_tokens` 를 기록하고 진행한다. 실패 시 작업을 `quota_exceeded` 로 실패 처리한다 (`estimated_tokens` 는 기록, `used_tokens` 0).
+   - 작업 → 초안 → 사용자 → `quota_plan` 을 조인해 등급의 정책 행을 읽는다. 행이 없으면 작업을 `internal` 로 실패 처리한다 (Claude 호출 없음).
+   - 이번 주 사용량을 계산한다 (이 작업 제외, 4장 규칙). 계산 함수는 Lambda `src/quota.ts` 에 Next.js 와 같은 로직으로 두고, 같은 테스트 값으로 고정한다 (값 자체는 테이블에서 읽으므로 로직만 같다).
+   - `isWithinAllowance(estimate, remaining, plan)` 통과 시 `estimated_tokens` 를 기록하고 진행한다. 실패 시 작업을 `quota_exceeded` 로 실패 처리한다 (`estimated_tokens` 는 기록, `used_tokens` 0).
 4. 거부되면 Claude 를 한 번도 부르지 않고 끝낸다. 실패 신호(Broadcast)는 기존 실패와 같다.
 
 ### 5.3 Claude 호출마다
@@ -127,17 +146,18 @@ AI 초안 생성 프롬프트 설계에서 이미 다음을 적용했다. 이번
 
 | 위치 | 내용 |
 |---|---|
-| `lib/db/schema/auth.ts` | `user.role`, `USER_ROLES`, `UserRole` |
+| `lib/db/schema/quota.ts` | `quota_plan` 테이블, `QuotaPlan` 타입 |
+| `lib/db/schema/auth.ts` | `user.role` (`quota_plan.role` 외래 키) |
 | `lib/db/schema/draft.ts` | `draft_prompt` 세 컬럼 |
 | `lib/auth/index.ts` | Better Auth `additionalFields.role` (`input: false`) |
-| `lib/generation/quota.ts` | 4장 순수 함수와 상수 (dayjs) |
+| `lib/generation/quota.ts` | 4장 순수 함수 (dayjs, 값은 `QuotaPlan` 인자) |
 | `lib/generation/quota-queries.ts` | `getUserQuota(userId)` (server-only) |
 | `lib/generation/contract.ts` | `quota_exceeded` |
 | `lib/actions/generation.ts` | 요청 시 검사, `reference_urls` 저장, 상태 조회의 `quota` |
 | `lib/generation/fake-runner.ts` | 고정 사용량 기록 |
 | `components/studio/` | 입력창 오류, 진행 실패 문구, 완료 후 안내 |
 | `comdraft-lambda/src/contract.ts` | `quota_exceeded` |
-| `comdraft-lambda/src/quota.ts` | 한도, 비율, 주 경계, `isWithinAllowance`, `getJobUsage` (Next.js 와 같은 값) |
+| `comdraft-lambda/src/quota.ts` | `getQuotaWeek`, `isWithinAllowance`, `getJobUsage` (Next.js 와 같은 로직, dayjs) |
 | `comdraft-lambda/src/generation/estimate.ts` | `estimateJobTokens` |
 | `comdraft-lambda/src/jobs.ts` | `reserveQuota`, `addUsage` |
 | `comdraft-lambda/src/generation/llm.ts` | 사용량 반환 |
@@ -147,8 +167,8 @@ AI 초안 생성 프롬프트 설계에서 이미 다음을 적용했다. 이번
 
 Next.js (Vitest):
 
-- `getQuotaWeek`: `2026-11-14T14:59:59Z`(토 23:59:59 KST) → start `2026-11-07T15:00:00Z`; `2026-11-14T15:00:00Z`(일 00:00 KST) → start `2026-11-14T15:00:00Z`, resetsAt `2026-11-21T15:00:00Z`.
-- `isWithinAllowance`: (26_000, 20_000) true, (26_001, 20_000) false, (1, 0) false, (1, -5) false.
+- `getQuotaWeek` (정책: `Asia/Seoul`, 일요일 0시): `2026-11-14T14:59:59Z`(토 23:59:59 KST) → start `2026-11-07T15:00:00Z`; `2026-11-14T15:00:00Z`(일 00:00 KST) → start `2026-11-14T15:00:00Z`, resetsAt `2026-11-21T15:00:00Z`. 다른 정책(`UTC`, 월요일 9시)도 한 경우 확인.
+- `isWithinAllowance` (비율 1.3): (26_000, 20_000) true, (26_001, 20_000) false, (1, 0) false, (1, -5) false.
 - `getJobUsage`: 진행 중 max(예상, 실제), 완료 실제, `quota_exceeded` 0, 다른 실패 실제.
 - `summarizeQuota`: 등급별 한도, remaining 음수 허용.
 
@@ -158,12 +178,13 @@ Lambda (node test):
 - `runJob`: 예상량 초과 시 Claude 호출 0회, `quota_exceeded`, 사용량 0; 단계마다 사용량 누적; 두 번째 단계 실패 시 첫 단계 사용량 유지.
 - `llm.ts`: 사용량 4개 항목 합.
 - `src/quota.ts`: Next.js 와 같은 경계·허용 테스트 값.
+- `reserveQuota`: 정책 행이 없으면 `internal` 실패 (Claude 호출 없음).
 
 로컬 브라우저: basic 계정, 가짜 실행기로 완료 후 소진 안내 → 다음 요청 거부 안내 확인. Lambda 거부와 동시 요청 잠금은 단위 테스트로 확인하고, 운영 확인은 요청 시에만 한다.
 
 ## 9. 배포·운영
 
-1. 마이그레이션을 로컬과 운영에 적용한다 (구현자가 직접).
+1. 마이그레이션을 로컬과 운영에 적용한다 (구현자가 직접). `quota_plan` 세 행이 들어갔는지 확인한다.
 2. 운영에서 관리자 계정을 max 로 올린다: `update comdraft."user" set role = 'max' where email = '<관리자 이메일>';`
 3. Next.js 배포 (main push).
 4. Lambda 배포 (`pnpm build`, `terraform apply`). 새 환경 변수 없음.
