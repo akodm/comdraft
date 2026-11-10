@@ -45,6 +45,24 @@ export const isDraftDocument = (value: unknown): value is JSONContent => {
   return type === 'doc' && (content === undefined || Array.isArray(content));
 };
 
+// 클라이언트가 보낸 본문 JSON 문자열을 Tiptap 문서로 (형식이 맞지 않으면 null)
+export const parseDraftDocument = (contentJson: unknown) => {
+  if (
+    typeof contentJson !== 'string' ||
+    contentJson.length > MAX_DRAFT_CONTENT_LENGTH
+  ) {
+    return null;
+  }
+
+  try {
+    const content: unknown = JSON.parse(contentJson);
+
+    return isDraftDocument(content) ? content : null;
+  } catch {
+    return null;
+  }
+};
+
 /**
  * 목록 표시용 초안 제목
  * - 첫 번째 제목(heading), 없으면 내용이 있는 첫 블록의 텍스트

@@ -1,10 +1,10 @@
 'use server';
 
-import { and, eq, not } from 'drizzle-orm';
+import { and, eq, not, sql } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
-import { draft } from '@/lib/db/schema';
+import { draft, type DraftStatus } from '@/lib/db/schema';
 import {
   isDraftLocked,
   lockingJobExists,
@@ -15,8 +15,7 @@ import { GithubApiError, GithubUserTokenError } from '@/lib/github/user-api';
 import {
   extractDraftTitle,
   getCommitSubject,
-  isDraftDocument,
-  MAX_DRAFT_CONTENT_LENGTH,
+  parseDraftDocument,
 } from '@/lib/studio/draft-content';
 import { isOwnedDraft } from '@/lib/studio/queries';
 
@@ -97,29 +96,11 @@ export async function loadStudioCommits(
 }
 
 export type SaveDraftContentResult =
-  | { status: 'saved'; title: string }
+  | { status: 'saved'; title: string; draftStatus: DraftStatus }
   | { status: 'invalid' }
   // AI 작성 중이라 편집 잠금
   | { status: 'locked' }
   | { status: 'not_found' };
-
-// 클라이언트가 보낸 본문 JSON 문자열을 Tiptap 문서로 (형식이 맞지 않으면 null)
-const parseDraftDocument = (contentJson: unknown) => {
-  if (
-    typeof contentJson !== 'string' ||
-    contentJson.length > MAX_DRAFT_CONTENT_LENGTH
-  ) {
-    return null;
-  }
-
-  try {
-    const content: unknown = JSON.parse(contentJson);
-
-    return isDraftDocument(content) ? content : null;
-  } catch {
-    return null;
-  }
-};
 
 /**
  * 편집기 자동 저장 (본문 + 목록 표시용 제목)
@@ -127,6 +108,7 @@ const parseDraftDocument = (contentJson: unknown) => {
  *   Server Action 인자로 그대로 넘기면 직렬화 과정에서 빠짐 (제목 단계, 링크 주소, 코드 언어 등)
  * - 목록 순서가 매번 바뀌지 않도록 화면은 다시 렌더링하지 않고, 바뀐 제목만 돌려줌
  * - AI 작성 작업이 진행 중(또는 결과 반영 전)이면 저장하지 않음 (같은 UPDATE 조건으로 확인)
+ * - 게시한 초안을 고치면 같은 UPDATE 에서 임시 저장 상태로 바꿈 (게시글 스냅샷은 그대로)
  */
 export async function saveDraftContent(
   repositoryId: string,
@@ -150,11 +132,17 @@ export async function saveDraftContent(
   const title = extractDraftTitle(content);
   const [updated] = await db
     .update(draft)
-    .set({ content, title })
+    .set({
+      content,
+      title,
+      status: sql`case when ${draft.status} = 'published' then 'temporary' else ${draft.status} end`,
+    })
     .where(and(eq(draft.id, draftId), not(lockingJobExists(draft.id))))
-    .returning({ id: draft.id });
+    .returning({ id: draft.id, status: draft.status });
 
-  return updated ? { status: 'saved', title } : { status: 'locked' };
+  return updated
+    ? { status: 'saved', title, draftStatus: updated.status }
+    : { status: 'locked' };
 }
 
 export type DeleteDraftResult =
