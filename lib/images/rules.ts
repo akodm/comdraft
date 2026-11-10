@@ -11,6 +11,17 @@ export const IMAGE_ACCEPTED_MIME_TYPES = [
   'image/gif',
   'image/avif',
 ] as const;
+/** sharp 가 판별한 실제 형식 중 허용하는 것 */
+export const IMAGE_ACCEPTED_SHARP_FORMATS = [
+  'jpeg',
+  'png',
+  'webp',
+  'gif',
+  'avif',
+] as const;
+export const IMAGE_MAX_WIDTH = 1280;
+export const IMAGE_WEBP_QUALITY = 80;
+export const IMAGE_MAX_INPUT_PIXELS = 40_000_000;
 /** 방금 올린 이미지가 본문 저장 전에 지워지지 않도록 두는 유예 */
 export const IMAGE_CLEANUP_GRACE_MS = 10 * 60 * 1000;
 export const IMAGE_BUCKET = 'comdraft-images';
