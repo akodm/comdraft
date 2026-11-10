@@ -287,6 +287,7 @@ const PublishActions = ({
             <Trans>게시를 취소하면 공개 주소가 더 이상 열리지 않습니다</Trans>
           }
           confirmLabel={t`게시 취소`}
+          tone="danger"
           isPending={isPending}
           error={
             hasUnpublishError ? (
