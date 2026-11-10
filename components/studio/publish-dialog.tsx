@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import Image from 'next/image';
+import { useState } from 'react';
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 import { Trans, useLingui } from '@lingui/react/macro';
+import DialogFrame from '@/components/shared/dialog-frame';
 import {
   BRAND_BUTTON_CLASS,
-  ICON_BUTTON_CLASS,
   OUTLINE_BUTTON_CLASS,
 } from '@/components/studio/studio-styles';
 import type { PostVisibility } from '@/lib/db/schema';
@@ -26,89 +25,6 @@ const FAILURE_MESSAGES: Record<PublishFailure, MessageDescriptor> = {
   invalid: msg`게시할 수 없는 본문입니다. 내용을 확인해주세요.`,
   not_found: msg`초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.`,
   error: msg`게시하지 못했습니다. 다시 시도해주세요.`,
-};
-
-/**
- * 브라우저 기본 모달 dialog 를 마운트하는 동안 띄움
- * - 바깥 영역 비활성(포커스 가둠), Escape 로 닫기, 닫으면 열었던 버튼으로 포커스 복귀
- * - 열려 있는 동안 뒤 화면 스크롤을 막음
- */
-const useModalDialog = () => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-
-    if (!dialog) {
-      return;
-    }
-
-    const { style } = document.documentElement;
-    const previousOverflow = style.overflow;
-
-    dialog.showModal();
-    style.overflow = 'hidden';
-
-    return () => {
-      style.overflow = previousOverflow;
-      dialog.close();
-    };
-  }, []);
-
-  return dialogRef;
-};
-
-const DIALOG_CLASS =
-  'm-auto w-[calc(100%-32px)] max-w-110 rounded-md border border-line bg-white p-0 text-ink backdrop:bg-ink/33';
-
-interface DialogFrameProps {
-  title: string;
-  onClose: () => void;
-  children: ReactNode;
-}
-
-// 제목 줄과 닫기 버튼이 있는 모달 틀
-const DialogFrame = ({ title, onClose, children }: DialogFrameProps) => {
-  const { t } = useLingui();
-  const titleId = useId();
-  const dialogRef = useModalDialog();
-
-  return (
-    <dialog
-      ref={dialogRef}
-      aria-labelledby={titleId}
-      onCancel={(event) => {
-        event.preventDefault();
-        onClose();
-      }}
-      className={DIALOG_CLASS}
-    >
-      <div className="flex flex-col gap-6 p-4 pc:p-6">
-        <div className="flex items-center justify-between gap-3">
-          <h2
-            id={titleId}
-            className="text-[16px] leading-[normal] font-bold text-ink"
-          >
-            {title}
-          </h2>
-          <button
-            type="button"
-            aria-label={t`닫기`}
-            onClick={onClose}
-            className={`size-7 ${ICON_BUTTON_CLASS}`}
-          >
-            <Image
-              src="/images/studio/close-18.svg"
-              alt=""
-              width={18}
-              height={18}
-            />
-          </button>
-        </div>
-        {children}
-      </div>
-    </dialog>
-  );
 };
 
 const VISIBILITY_OPTIONS: Array<{
@@ -255,57 +171,6 @@ const PublishDialog = ({
           </button>
         </div>
       </form>
-    </DialogFrame>
-  );
-};
-
-interface UnpublishDialogProps {
-  isPending: boolean;
-  hasError: boolean;
-  onConfirm: () => void;
-  onClose: () => void;
-}
-
-/** 게시 취소 확인 창 */
-export const UnpublishDialog = ({
-  isPending,
-  hasError,
-  onConfirm,
-  onClose,
-}: UnpublishDialogProps) => {
-  const { t } = useLingui();
-
-  return (
-    <DialogFrame title={t`게시 취소`} onClose={onClose}>
-      <p className="text-[13px] leading-[1.7] break-keep text-ink-muted">
-        <Trans>게시를 취소하면 공개 주소가 더 이상 열리지 않습니다</Trans>
-      </p>
-      {hasError && (
-        <p
-          role="alert"
-          className="text-[12px] leading-[1.6] break-keep text-danger"
-        >
-          <Trans>게시를 취소하지 못했습니다. 다시 시도해주세요.</Trans>
-        </p>
-      )}
-      <div className="flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onClose}
-          className={`h-8.5 text-[12px] leading-[normal] font-medium ${OUTLINE_BUTTON_CLASS}`}
-        >
-          <Trans>닫기</Trans>
-        </button>
-        <button
-          type="button"
-          disabled={isPending}
-          aria-busy={isPending}
-          onClick={onConfirm}
-          className={`h-8.5 ${BRAND_BUTTON_CLASS}`}
-        >
-          <Trans>게시 취소</Trans>
-        </button>
-      </div>
     </DialogFrame>
   );
 };

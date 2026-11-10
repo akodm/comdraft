@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation';
 import { Trans } from '@lingui/react/macro';
+import DisconnectRepositoryForm from '@/components/dashboard/disconnect-repository-form';
 import StatusMessage from '@/components/dashboard/status-message';
 import PageLayout from '@/components/layout/page-layout';
 import LocalizedLink from '@/components/shared/localized-link';
-import SubmitButton from '@/components/shared/submit-button';
-import { disconnectRepository } from '@/lib/actions/repositories';
 import { requireSession } from '@/lib/auth/session';
 import { getUserRepository } from '@/lib/dashboard/queries';
 import { initLingui } from '@/lib/i18n/server';
+import { countRepositoryContent } from '@/lib/posts/queries';
 
 interface RepositoryPageProps {
   params: Promise<{ repositoryId: string }>;
@@ -31,6 +31,7 @@ export default async function RepositoryPage({
   }
 
   const branch = repository.branch;
+  const content = await countRepositoryContent(user.id, repository.id);
 
   return (
     <PageLayout className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-4 py-10">
@@ -56,15 +57,11 @@ export default async function RepositoryPage({
             </p>
           </div>
           <div className="flex shrink-0 gap-2">
-            <form action={disconnectRepository}>
-              <input type="hidden" name="repositoryId" value={repository.id} />
-              <SubmitButton
-                pendingText={<Trans>제거 중...</Trans>}
-                className="rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-600 disabled:opacity-50"
-              >
-                <Trans>제거</Trans>
-              </SubmitButton>
-            </form>
+            <DisconnectRepositoryForm
+              repositoryId={repository.id}
+              draftCount={content.drafts}
+              postCount={content.posts}
+            />
           </div>
         </div>
       </header>

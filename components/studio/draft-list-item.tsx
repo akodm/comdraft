@@ -1,8 +1,9 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import Image from 'next/image';
 import { Trans, useLingui } from '@lingui/react/macro';
+import ConfirmDialog from '@/components/shared/confirm-dialog';
 import LocalizedLink from '@/components/shared/localized-link';
 import { getDraftStatusLabel } from '@/components/studio/draft-status';
 import { ICON_BUTTON_CLASS } from '@/components/studio/studio-styles';
@@ -17,7 +18,7 @@ interface DraftItemMenuProps {
 /**
  * 초안 항목의 더보기 메뉴 (삭제)
  * - PC 는 항목에 마우스를 올리거나 키보드 포커스가 있을 때, 모바일은 항상 버튼이 보임
- * - 확인 단계 없이 바로 삭제 (확인 디자인이 아직 없음)
+ * - 삭제를 누르면 호출한 쪽이 확인 창을 띄움
  */
 const DraftItemMenu = ({ title, onDelete }: DraftItemMenuProps) => {
   const { t } = useLingui();
@@ -96,7 +97,10 @@ const DraftListItem = ({
   isActive,
   onDelete,
 }: DraftListItemProps) => {
-  const { i18n } = useLingui();
+  const { t, i18n } = useLingui();
+  const [isConfirming, setIsConfirming] = useState(false);
+  // 게시한 초안(게시·임시 라벨)은 지우면 게시글도 함께 사라짐
+  const isPublished = draft.status !== 'draft';
 
   return (
     <li className="group relative shrink-0">
@@ -120,7 +124,32 @@ const DraftListItem = ({
           {i18n._(getDraftStatusLabel(draft.status, draft.visibility))}
         </span>
       </LocalizedLink>
-      <DraftItemMenu title={title} onDelete={onDelete} />
+      <DraftItemMenu title={title} onDelete={() => setIsConfirming(true)} />
+      {isConfirming && (
+        <ConfirmDialog
+          title={t`이 초안을 삭제할까요?`}
+          description={
+            <>
+              <Trans>삭제한 초안은 되돌릴 수 없습니다</Trans>
+              {isPublished && (
+                <>
+                  {' '}
+                  <Trans>
+                    게시글도 함께 삭제되고 공개 주소가 더 이상 열리지 않습니다
+                  </Trans>
+                </>
+              )}
+            </>
+          }
+          confirmLabel={t`삭제`}
+          tone="danger"
+          onConfirm={() => {
+            setIsConfirming(false);
+            onDelete();
+          }}
+          onClose={() => setIsConfirming(false)}
+        />
+      )}
     </li>
   );
 };

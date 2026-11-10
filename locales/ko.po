@@ -23,7 +23,7 @@ msgstr "메뉴 열기"
 msgid "브랜치 목록을 불러오지 못했습니다."
 msgstr "브랜치 목록을 불러오지 못했습니다."
 
-#: components/studio/publish-dialog.tsx:187
+#: components/studio/publish-dialog.tsx:103
 msgid "공개 범위"
 msgstr "공개 범위"
 
@@ -107,7 +107,7 @@ msgstr "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. �
 msgid "게시 · 일부 공개"
 msgstr "게시 · 일부 공개"
 
-#: components/studio/publish-dialog.tsx:281
+#: components/studio/publish-actions.tsx:287
 msgid "게시를 취소하면 공개 주소가 더 이상 열리지 않습니다"
 msgstr "게시를 취소하면 공개 주소가 더 이상 열리지 않습니다"
 
@@ -134,6 +134,10 @@ msgstr "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치�
 #: components/onboarding/complete-step.tsx:48
 msgid "작성 하러 가기"
 msgstr "작성 하러 가기"
+
+#: components/dashboard/disconnect-repository-form.tsx:56
+msgid "연결을 해제할까요?"
+msgstr "연결을 해제할까요?"
 
 #: app/[lang]/dashboard/repositories/page.tsx:66
 msgid "연동"
@@ -275,8 +279,8 @@ msgstr "초안"
 msgid "개발자 이메일 · 예시 주소"
 msgstr "개발자 이메일 · 예시 주소"
 
-#: components/studio/draft-list-item.tsx:27
-#: components/studio/draft-list-item.tsx:117
+#: components/studio/draft-list-item.tsx:28
+#: components/studio/draft-list-item.tsx:121
 msgid "제목 없는 초안"
 msgstr "제목 없는 초안"
 
@@ -319,7 +323,8 @@ msgstr "HTML 파일로 내보내기"
 msgid "저장소를 선택하세요"
 msgstr "저장소를 선택하세요"
 
-#: components/studio/draft-list-item.tsx:75
+#: components/studio/draft-list-item.tsx:76
+#: components/studio/draft-list-item.tsx:144
 msgid "삭제"
 msgstr "삭제"
 
@@ -331,11 +336,11 @@ msgstr "링크를 추가하지 못했습니다. 다시 시도해주세요."
 msgid "커밋 내역을 불러오는 중..."
 msgstr "커밋 내역을 불러오는 중..."
 
-#: components/studio/publish-dialog.tsx:221
+#: components/studio/publish-dialog.tsx:137
 msgid "비공개 저장소의 코드가 본문에 그대로 공개됩니다"
 msgstr "비공개 저장소의 코드가 본문에 그대로 공개됩니다"
 
-#: components/studio/publish-dialog.tsx:229
+#: components/studio/publish-dialog.tsx:145
 msgid "빈칸 {blankCount}개를 채운 뒤 게시할 수 있습니다"
 msgstr "빈칸 {blankCount}개를 채운 뒤 게시할 수 있습니다"
 
@@ -367,9 +372,9 @@ msgstr "다시 시도"
 msgid "로그아웃"
 msgstr "로그아웃"
 
+#: components/shared/confirm-dialog.tsx:63
+#: components/shared/dialog-frame.tsx:73
 #: components/studio/generation-progress.tsx:79
-#: components/studio/publish-dialog.tsx:96
-#: components/studio/publish-dialog.tsx:297
 #: components/studio/reference-link-dialog.tsx:134
 msgid "닫기"
 msgstr "닫기"
@@ -401,7 +406,7 @@ msgstr "메뉴 닫기"
 msgid "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
 msgstr "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:55
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:56
 msgid "추적 브랜치 {branch}"
 msgstr "추적 브랜치 {branch}"
 
@@ -409,7 +414,7 @@ msgstr "추적 브랜치 {branch}"
 msgid "{count, plural, other {커밋 #개}}"
 msgstr "{count, plural, other {커밋 #개}}"
 
-#: components/studio/publish-dialog.tsx:288
+#: components/studio/publish-actions.tsx:293
 msgid "게시를 취소하지 못했습니다. 다시 시도해주세요."
 msgstr "게시를 취소하지 못했습니다. 다시 시도해주세요."
 
@@ -417,7 +422,7 @@ msgstr "게시를 취소하지 못했습니다. 다시 시도해주세요."
 msgid "회원가입 / 로그인"
 msgstr "회원가입 / 로그인"
 
-#: components/studio/publish-dialog.tsx:27
+#: components/studio/publish-dialog.tsx:26
 #: components/studio/reference-link-dialog.tsx:26
 msgid "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
@@ -443,7 +448,7 @@ msgstr "작업 과정을 <0>글 초안으로.</0>"
 msgid "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게시하세요."
 msgstr "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게시하세요."
 
-#: components/studio/publish-dialog.tsx:28
+#: components/studio/publish-dialog.tsx:27
 msgid "게시하지 못했습니다. 다시 시도해주세요."
 msgstr "게시하지 못했습니다. 다시 시도해주세요."
 
@@ -471,6 +476,10 @@ msgstr "실험"
 msgid "AI 작성이 끝난 뒤에 링크를 추가할 수 있습니다."
 msgstr "AI 작성이 끝난 뒤에 링크를 추가할 수 있습니다."
 
+#: components/studio/draft-list-item.tsx:133
+msgid "삭제한 초안은 되돌릴 수 없습니다"
+msgstr "삭제한 초안은 되돌릴 수 없습니다"
+
 #: components/main/profile-menu.tsx:62
 msgid "로그인"
 msgstr "로그인"
@@ -487,7 +496,7 @@ msgstr "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgid "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 msgstr "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 
-#: components/studio/publish-dialog.tsx:126
+#: components/studio/publish-dialog.tsx:42
 msgid "일부 공개"
 msgstr "일부 공개"
 
@@ -495,7 +504,11 @@ msgstr "일부 공개"
 msgid "AI 작성 결과를 초안에 반영하지 못했습니다."
 msgstr "AI 작성 결과를 초안에 반영하지 못했습니다."
 
-#: components/studio/draft-list-item.tsx:45
+#: components/dashboard/disconnect-repository-form.tsx:47
+msgid "저장소 연결 해제"
+msgstr "저장소 연결 해제"
+
+#: components/studio/draft-list-item.tsx:46
 msgid "{label} 메뉴"
 msgstr "{label} 메뉴"
 
@@ -521,6 +534,10 @@ msgstr "AI 초안 · 게시 전 검토 필요"
 #: components/studio/commit-sidebar.tsx:134
 msgid "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한과 추적 브랜치를 확인해주세요."
 msgstr "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한과 추적 브랜치를 확인해주세요."
+
+#: components/studio/draft-list-item.tsx:130
+msgid "이 초안을 삭제할까요?"
+msgstr "이 초안을 삭제할까요?"
 
 #: components/main/main-footer.tsx:31
 msgid "푸터 메뉴"
@@ -551,7 +568,7 @@ msgstr "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgid "작성 요청"
 msgstr "작성 요청"
 
-#: components/studio/publish-dialog.tsx:127
+#: components/studio/publish-dialog.tsx:43
 msgid "주소를 아는 사람만 글을 볼 수 있습니다"
 msgstr "주소를 아는 사람만 글을 볼 수 있습니다"
 
@@ -587,7 +604,7 @@ msgstr "링크"
 msgid "이용약관"
 msgstr "이용약관"
 
-#: components/studio/publish-dialog.tsx:121
+#: components/studio/publish-dialog.tsx:37
 msgid "공개"
 msgstr "공개"
 
@@ -615,7 +632,7 @@ msgstr "Github 계정으로 로그인합니다"
 msgid "이 부분에 작업 계기를 작성해 주세요"
 msgstr "이 부분에 작업 계기를 작성해 주세요"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:39
+#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:40
 #: components/main/profile-menu.tsx:99
 #: components/studio/profile-menu.tsx:58
 msgid "대시보드"
@@ -697,7 +714,7 @@ msgstr "작성 요청을 보내는 중..."
 msgid "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
 msgstr "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
 
-#: components/studio/publish-dialog.tsx:122
+#: components/studio/publish-dialog.tsx:38
 msgid "누구나 목록과 검색에서 글을 찾을 수 있습니다"
 msgstr "누구나 목록과 검색에서 글을 찾을 수 있습니다"
 
@@ -716,6 +733,10 @@ msgstr "작성"
 #: lib/studio/options.ts:60
 msgid "길게"
 msgstr "길게"
+
+#: components/studio/draft-list-item.tsx:137
+msgid "게시글도 함께 삭제되고 공개 주소가 더 이상 열리지 않습니다"
+msgstr "게시글도 함께 삭제되고 공개 주소가 더 이상 열리지 않습니다"
 
 #: components/studio/reference-links.tsx:115
 msgid "참고 링크"
@@ -761,7 +782,7 @@ msgstr "코드 블록"
 msgid "연동 저장소"
 msgstr "연동 저장소"
 
-#: components/studio/publish-dialog.tsx:246
+#: components/studio/publish-dialog.tsx:162
 #: components/studio/reference-link-dialog.tsx:189
 msgid "취소"
 msgstr "취소"
@@ -810,7 +831,7 @@ msgstr "문의하기"
 msgid "브랜치"
 msgstr "브랜치"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:62
+#: components/dashboard/disconnect-repository-form.tsx:35
 msgid "제거 중..."
 msgstr "제거 중..."
 
@@ -838,7 +859,8 @@ msgstr "제목"
 msgid "제목 1"
 msgstr "제목 1"
 
-#: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:65
+#: components/dashboard/disconnect-repository-form.tsx:42
+#: components/dashboard/disconnect-repository-form.tsx:59
 msgid "제거"
 msgstr "제거"
 
@@ -926,8 +948,8 @@ msgid "{commitCount}개 선택"
 msgstr "{commitCount}개 선택"
 
 #: components/studio/publish-actions.tsx:261
-#: components/studio/publish-dialog.tsx:279
-#: components/studio/publish-dialog.tsx:306
+#: components/studio/publish-actions.tsx:285
+#: components/studio/publish-actions.tsx:289
 msgid "게시 취소"
 msgstr "게시 취소"
 
@@ -955,7 +977,7 @@ msgstr "검토 후 게시 및 내보내기"
 msgid "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 msgstr "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 
-#: components/studio/publish-dialog.tsx:26
+#: components/studio/publish-dialog.tsx:25
 msgid "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 msgstr "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 
@@ -1020,6 +1042,10 @@ msgstr "브랜치 목록을 불러오는 중..."
 msgid "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
 msgstr "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
 
+#: components/dashboard/disconnect-repository-form.tsx:50
+msgid "{draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다"
+msgstr "{draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다"
+
 #: components/posts/post-feed.tsx:104
 msgid "글 목록을 불러오지 못했습니다."
 msgstr "글 목록을 불러오지 못했습니다."
@@ -1047,8 +1073,8 @@ msgstr "참고 링크는 최대 {MAX_REFERENCE_LINKS}개까지 추가할 수 있
 #: components/auth/commit-to-draft-motion.tsx:141
 #: components/main/sample-draft-editor.tsx:81
 #: components/studio/publish-actions.tsx:200
-#: components/studio/publish-dialog.tsx:171
-#: components/studio/publish-dialog.tsx:254
+#: components/studio/publish-dialog.tsx:87
+#: components/studio/publish-dialog.tsx:170
 msgid "게시하기"
 msgstr "게시하기"
 
@@ -1062,8 +1088,8 @@ msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니�
 msgstr "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 
 #: components/studio/publish-actions.tsx:198
-#: components/studio/publish-dialog.tsx:171
-#: components/studio/publish-dialog.tsx:254
+#: components/studio/publish-dialog.tsx:87
+#: components/studio/publish-dialog.tsx:170
 msgid "다시 게시"
 msgstr "다시 게시"
 
@@ -1105,7 +1131,7 @@ msgstr "커밋 내역"
 msgid "초안을 만들기 전 반드시 확인해주세요."
 msgstr "초안을 만들기 전 반드시 확인해주세요."
 
-#: components/studio/publish-dialog.tsx:25
+#: components/studio/publish-dialog.tsx:24
 msgid "AI 작성 중에는 게시할 수 없습니다"
 msgstr "AI 작성 중에는 게시할 수 없습니다"
 
@@ -1113,7 +1139,7 @@ msgstr "AI 작성 중에는 게시할 수 없습니다"
 msgid "글머리 기호 목록"
 msgstr "글머리 기호 목록"
 
-#: components/studio/publish-dialog.tsx:24
+#: components/studio/publish-dialog.tsx:23
 msgid "본문에 제목을 넣어 주세요"
 msgstr "본문에 제목을 넣어 주세요"
 

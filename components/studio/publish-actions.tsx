@@ -4,9 +4,9 @@ import { useId, useState } from 'react';
 import Image from 'next/image';
 import { Trans, useLingui } from '@lingui/react/macro';
 import type { Editor } from '@tiptap/react';
+import ConfirmDialog from '@/components/shared/confirm-dialog';
 import LocalizedAnchor from '@/components/shared/localized-anchor';
 import PublishDialog, {
-  UnpublishDialog,
   type PublishFailure,
 } from '@/components/studio/publish-dialog';
 import {
@@ -281,9 +281,18 @@ const PublishActions = ({
         />
       )}
       {openDialog === 'unpublish' && (
-        <UnpublishDialog
+        <ConfirmDialog
+          title={t`게시 취소`}
+          description={
+            <Trans>게시를 취소하면 공개 주소가 더 이상 열리지 않습니다</Trans>
+          }
+          confirmLabel={t`게시 취소`}
           isPending={isPending}
-          hasError={hasUnpublishError}
+          error={
+            hasUnpublishError ? (
+              <Trans>게시를 취소하지 못했습니다. 다시 시도해주세요.</Trans>
+            ) : undefined
+          }
           onConfirm={() => void handleUnpublish()}
           onClose={closeDialog}
         />

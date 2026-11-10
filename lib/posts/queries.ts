@@ -3,7 +3,7 @@ import { cache } from 'react';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import type { JSONContent } from '@tiptap/core';
 import { db } from '@/lib/db';
-import { post, user, type PostVisibility } from '@/lib/db/schema';
+import { draft, post, user, type PostVisibility } from '@/lib/db/schema';
 import type { Locale } from '@/lib/i18n/config';
 import {
   decodeFeedCursor,
@@ -145,4 +145,29 @@ export const listPublicPostPaths = async (): Promise<
     .from(post)
     .where(eq(post.visibility, 'public'))
     .orderBy(desc(post.publishedAt), desc(post.id));
+};
+
+/**
+ * 저장소 연결을 해제하면 함께 삭제되는 초안과 게시글 수
+ * - 게시글은 초안에 딸려 있어 초안이 지워지면 같이 지워짐
+ */
+export const countRepositoryContent = async (
+  userId: string,
+  repositoryId: string,
+): Promise<{ drafts: number; posts: number }> => {
+  const ownDrafts = and(
+    eq(draft.userId, userId),
+    eq(draft.repositoryId, repositoryId),
+  );
+
+  const [drafts, [postRow]] = await Promise.all([
+    db.$count(draft, ownDrafts),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(post)
+      .innerJoin(draft, eq(post.draftId, draft.id))
+      .where(ownDrafts),
+  ]);
+
+  return { drafts, posts: postRow?.count ?? 0 };
 };
