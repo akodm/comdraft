@@ -202,6 +202,26 @@ export function collectImageSrcs(doc: JSONContent | null): string[] {
 }
 
 /**
+ * 여러 본문(중첩 포함)에 든 그 사용자의 공개 버킷 경로 (중복 없이, 본문 순서대로)
+ * - 다른 사용자 경로, 외부 주소, blob 은 넣지 않음 / 빈 본문(null)은 건너뜀
+ * - 본문을 바꿔 저장할 때 바뀌기 전 본문과 새 본문을 함께 넘기면 마지막 사용 시각을 갱신할 경로가 됨
+ */
+export function collectOwnImagePaths(
+  contents: unknown[],
+  supabaseUrl: string,
+  userId: string,
+): Set<string> {
+  return new Set(
+    contents
+      .flatMap((content) => collectImageSrcs(content as JSONContent | null))
+      .flatMap((src) => {
+        const path = parseImagePath(supabaseUrl, src, userId);
+        return path ? [path] : [];
+      }),
+  );
+}
+
+/**
  * 본문에서 안 쓰이는 이미지 중 정리 대상 (초안 삭제 때는 grace: false)
  * - 기본은 마지막 사용 시각(lastUsedAt: 올린 시각, 또는 그 이미지가 든 본문을 마지막으로 저장한 시각)이 유예 이전인 것만
  */

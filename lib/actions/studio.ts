@@ -16,6 +16,7 @@ import { GithubApiError, GithubUserTokenError } from '@/lib/github/user-api';
 import {
   listDraftImages,
   markImagesUsed,
+  readDraftContentForUpdate,
   scheduleDraftImageCleanup,
   scheduleDraftImageRemoval,
 } from '@/lib/images/cleanup';
@@ -119,7 +120,8 @@ export type SaveDraftContentResult =
  * - AI 작성 작업이 진행 중(또는 결과 반영 전)이면 저장하지 않음 (같은 UPDATE 조건으로 확인)
  * - 게시한 초안을 고치면 같은 UPDATE 에서 임시 저장 상태로 바꿈 (게시글 스냅샷은 그대로)
  * - 이미지는 그 사용자의 공개 버킷 주소만 남김 (blob:, 외부 주소, 다른 사용자 경로는 노드째 지움)
- * - 저장한 본문에 든 이미지는 마지막 사용 시각을 갱신 (정리 유예가 이때부터 다시 시작)
+ * - 바뀌기 전 본문과 저장한 본문에 든 이미지는 같은 트랜잭션에서 마지막 사용 시각을 갱신
+ *   (정리 유예가 이때부터 다시 시작: 이번 저장으로 빠진 이미지도 10분 안에 다시 붙여 넣으면 남음)
  * - 저장 후 응답 뒤에 쓰지 않는 이미지를 정리 (정리 실패는 저장 결과를 바꾸지 않고 다음 정리 때 다시 시도)
  */
 export async function saveDraftContent(
@@ -147,21 +149,29 @@ export async function saveDraftContent(
     (src) => parseImagePath(supabaseUrl, src, user.id) !== null,
   );
   const title = extractDraftTitle(content);
-  const [updated] = await db
-    .update(draft)
-    .set({
-      content,
-      title,
-      status: draftStatusAfterContentChange(),
-    })
-    .where(and(eq(draft.id, draftId), not(lockingJobExists(draft.id))))
-    .returning({ id: draft.id, status: draft.status });
+  const updated = await db.transaction(async (tx) => {
+    const previous = await readDraftContentForUpdate(tx, draftId);
+    const [row] = await tx
+      .update(draft)
+      .set({
+        content,
+        title,
+        status: draftStatusAfterContentChange(),
+      })
+      .where(and(eq(draft.id, draftId), not(lockingJobExists(draft.id))))
+      .returning({ id: draft.id, status: draft.status });
+
+    if (row) {
+      await markImagesUsed(tx, user.id, [previous, content]);
+    }
+
+    return row;
+  });
 
   if (!updated) {
     return { status: 'locked' };
   }
 
-  await markImagesUsed(db, user.id, [content]);
   scheduleDraftImageCleanup(draftId);
 
   return { status: 'saved', title, draftStatus: updated.status };

@@ -149,7 +149,7 @@ export const expireStaleJobs = async (
  * - applied_at 을 먼저 선점한 요청만 반영하므로 여러 번 호출해도 결과는 한 번만 들어감
  * - 결과가 없거나 변환에 실패하면 작업을 invalid_result 로 실패 처리 (잠금 해제)
  * - 이미지는 그 초안 사용자의 공개 버킷 주소만 남김 (자동 저장과 같은 규칙)
- * - 반영한 본문에 든 이미지는 같은 트랜잭션에서 마지막 사용 시각을 갱신
+ * - 바뀌기 전 본문과 반영한 본문에 든 이미지는 같은 트랜잭션에서 마지막 사용 시각을 갱신
  * - 반영하면 트랜잭션 밖에서(응답 뒤) 쓰지 않게 된 이미지를 정리
  * @returns 이번 호출에서 반영했는지
  */
@@ -174,11 +174,13 @@ export const applyCompletedJob = async (jobId: string) => {
       return null;
     }
 
+    // 바뀌기 전 본문도 함께 읽음 (행 잠금: 결과로 바뀌어 빠지는 이미지의 마지막 사용 시각 갱신용)
     const [owner] = await tx
-      .select({ userId: draft.userId })
+      .select({ userId: draft.userId, content: draft.content })
       .from(draft)
       .where(eq(draft.id, claimed.draftId))
-      .limit(1);
+      .limit(1)
+      .for('update');
 
     if (!owner) {
       return null;
@@ -216,7 +218,7 @@ export const applyCompletedJob = async (jobId: string) => {
       })
       .where(eq(draft.id, claimed.draftId));
 
-    await markImagesUsed(tx, owner.userId, [content]);
+    await markImagesUsed(tx, owner.userId, [owner.content, content]);
 
     return claimed.draftId;
   });

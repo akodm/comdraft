@@ -13,6 +13,7 @@ import {
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import {
   markImagesUsed,
+  readDraftContentForUpdate,
   scheduleDraftImageCleanup,
 } from '@/lib/images/cleanup';
 import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
@@ -49,7 +50,7 @@ export type PublishDraftResult =
  * - 다시 게시하면 같은 게시글 행을 갱신: id 와 처음 게시한 시각은 유지
  * - 서버 액션 인자는 신뢰할 수 없으므로 공개 범위와 언어를 직접 확인
  * - 이미지는 초안 본문과 게시글 모두 그 사용자의 공개 버킷 주소만 남김
- * - 초안·게시글 본문에 든 이미지는 같은 트랜잭션에서 마지막 사용 시각을 갱신
+ * - 바뀌기 전 초안 본문, 새 초안·게시글 본문에 든 이미지는 같은 트랜잭션에서 마지막 사용 시각을 갱신
  * - 게시 후 응답 뒤에 쓰지 않는 이미지를 정리 (게시글 본문의 이미지도 쓰는 것으로 셈)
  */
 export async function publishDraft(
@@ -110,6 +111,7 @@ export async function publishDraft(
 
   const result = await db.transaction(
     async (tx): Promise<PublishDraftResult> => {
+      const previous = await readDraftContentForUpdate(tx, draftId);
       const [updated] = await tx
         .update(draft)
         .set({ content, title, status: 'published' })
@@ -142,7 +144,7 @@ export async function publishDraft(
           visibility: post.visibility,
         });
 
-      await markImagesUsed(tx, user.id, [content, values.content]);
+      await markImagesUsed(tx, user.id, [previous, content, values.content]);
 
       return {
         status: 'published',

@@ -1,14 +1,12 @@
 import 'server-only';
-import type { JSONContent } from '@tiptap/core';
 import { and, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 import { after } from 'next/server';
 import { db } from '@/lib/db';
 import { draft, image, post } from '@/lib/db/schema';
 import {
-  collectImageSrcs,
+  collectOwnImagePaths,
   excludeReferencedImages,
   findCleanupCandidates,
-  parseImagePath,
 } from '@/lib/images/rules';
 import { removeImages } from '@/lib/images/storage';
 import { getSupabaseUrl } from '@/lib/supabase/server';
@@ -67,36 +65,39 @@ export const removeDraftImages = async (images: ImageRef[]): Promise<void> => {
   );
 };
 
-// 본문 속 이미지 중 그 사용자의 공개 버킷 경로
-const collectUsedPaths = (
-  contents: unknown[],
-  userId: string,
-  supabaseUrl: string,
-): Set<string> =>
-  new Set(
-    contents
-      .flatMap((content) => collectImageSrcs(content as JSONContent | null))
-      .flatMap((src) => {
-        const path = parseImagePath(supabaseUrl, src, userId);
-
-        return path ? [path] : [];
-      }),
-  );
-
-// update 를 쓸 수 있는 실행기 (db 또는 트랜잭션)
-type UpdateExecutor = Pick<typeof db, 'update'>;
+// select·update 를 쓸 수 있는 실행기 (db 또는 트랜잭션)
+type Executor = Pick<typeof db, 'select' | 'update'>;
 
 /**
- * 저장하는 본문들에 든 그 사용자의 이미지 행의 마지막 사용 시각을 지금으로 (쿼리 하나, 이미지가 없으면 쿼리 없음)
- * - 본문 저장과 같은 트랜잭션 안이나 저장 바로 뒤, 정리를 예약하기 전에 부름
- * @param contents 이미지 규칙으로 이미 정리한 본문 (초안·게시글)
+ * 본문을 바꾸기 직전, 같은 트랜잭션에서 그 초안의 지금 본문을 행 잠금과 함께 읽음 (초안이 없으면 null)
+ * - 잠금으로 동시에 저장하는 다른 요청이 그 사이 본문을 바꾸지 못하므로, 읽은 본문이 곧 바뀌기 전 본문
+ */
+export const readDraftContentForUpdate = async (
+  tx: Executor,
+  draftId: string,
+): Promise<unknown> => {
+  const [row] = await tx
+    .select({ content: draft.content })
+    .from(draft)
+    .where(eq(draft.id, draftId))
+    .for('update');
+
+  return row?.content ?? null;
+};
+
+/**
+ * 본문들에 든 그 사용자의 이미지 행의 마지막 사용 시각을 지금으로 (쿼리 하나, 이미지가 없으면 쿼리 없음)
+ * - 본문 저장과 같은 트랜잭션 안에서, 정리를 예약하기 전에 부름
+ * - 바뀌기 전 본문도 함께 넘김: 이번 저장으로 빠지는 이미지도 지금부터 10분 유예를 받아
+ *   오래 쉬던 초안에서 잘라 붙이기·실행 취소를 해도 지워지지 않음
+ * @param contents 바뀌기 전 본문(검사 전 DB 값이어도 됨)과 저장하는 본문 (초안·게시글)
  */
 export const markImagesUsed = async (
-  executor: UpdateExecutor,
+  executor: Executor,
   userId: string,
   contents: unknown[],
 ): Promise<void> => {
-  const paths = [...collectUsedPaths(contents, userId, getSupabaseUrl())];
+  const paths = [...collectOwnImagePaths(contents, getSupabaseUrl(), userId)];
 
   if (paths.length === 0) {
     return;
@@ -197,10 +198,10 @@ export const cleanupDraftImages = async (
     return;
   }
 
-  const usedPaths = collectUsedPaths(
+  const usedPaths = collectOwnImagePaths(
     [row.draftContent, row.postContent],
-    row.userId,
     getSupabaseUrl(),
+    row.userId,
   );
   const candidates = findCleanupCandidates(
     images.filter((item) => item.draftId === draftId),

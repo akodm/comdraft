@@ -4,6 +4,7 @@ import {
   IMAGE_CLEANUP_GRACE_MS,
   checkImageFile,
   collectImageSrcs,
+  collectOwnImagePaths,
   excludeReferencedImages,
   findCleanupCandidates,
   findUnusedImages,
@@ -465,6 +466,36 @@ describe('collectImageSrcs', () => {
       ],
     } as unknown as JSONContent;
     expect(collectImageSrcs(doc)).toEqual(['a']);
+  });
+});
+
+describe('collectOwnImagePaths', () => {
+  const ID_2 = '7c9d0e1f-2a3b-4c5d-8e6f-1a2b3c4d5e6f';
+  const src = (user: string, id: string) =>
+    `${URL_BASE}/storage/v1/object/public/comdraft-images/${user}/${id}.webp`;
+  const body = (...srcs: string[]) => ({
+    type: 'doc',
+    content: srcs.map((s) => ({ type: 'image', attrs: { src: s } })),
+  });
+
+  it('바뀌기 전 본문과 새 본문의 그 사용자 경로를 합침 (빠지는 이미지도 마지막 사용 시각을 갱신)', () => {
+    const before = body(src(USER, ID), src(USER, ID_2));
+    const after = body(src(USER, ID_2));
+    expect([...collectOwnImagePaths([before, after], URL_BASE, USER)]).toEqual([
+      `${USER}/${ID}.webp`,
+      `${USER}/${ID_2}.webp`,
+    ]);
+  });
+
+  it('다른 사용자 경로, 외부 주소, blob, 빈 본문은 넣지 않음', () => {
+    const doc = body(
+      src('user-2', ID),
+      'https://evil.example/x.webp',
+      'blob:http://localhost:3003/a',
+    );
+    expect(
+      collectOwnImagePaths([doc, null, undefined], URL_BASE, USER).size,
+    ).toBe(0);
   });
 });
 
