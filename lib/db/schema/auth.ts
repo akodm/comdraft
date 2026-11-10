@@ -2,12 +2,14 @@ import { relations } from 'drizzle-orm';
 import {
   bigint,
   boolean,
+  foreignKey,
   index,
   integer,
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
 import { comdraftSchema } from '@/lib/db/pg-schema';
+import { quotaPlan } from '@/lib/db/schema/quota';
 
 /**
  * Better Auth 코어 테이블 (GitHub 회원가입/로그인 전용)
@@ -17,20 +19,34 @@ import { comdraftSchema } from '@/lib/db/pg-schema';
  * - 저장소 권한(GitHub App 설치) 관련 테이블은 github.ts 참고
  */
 
-export const user = comdraftSchema.table('user', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-  emailVerified: boolean('email_verified').default(false).notNull(),
-  image: text('image'),
-  // 온보딩 완료 시각 (null 이면 GitHub 인증만 끝난 가입 미완료 상태 → /onboarding 으로 유도)
-  onboardedAt: timestamp('onboarded_at'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at')
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+export const user = comdraftSchema.table(
+  'user',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    email: text('email').notNull().unique(),
+    emailVerified: boolean('email_verified').default(false).notNull(),
+    image: text('image'),
+    // 사용량 등급 (quota_plan.role 참조, 한도는 정책 테이블에서 조회)
+    role: text('role').default('basic').notNull(),
+    // 온보딩 완료 시각 (null 이면 GitHub 인증만 끝난 가입 미완료 상태 → /onboarding 으로 유도)
+    onboardedAt: timestamp('onboarded_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: 'user_role_quota_plan_fk',
+      columns: [table.role],
+      foreignColumns: [quotaPlan.role],
+    })
+      .onUpdate('cascade')
+      .onDelete('restrict'),
+  ],
+);
 
 // 로그인 세션 (DB 저장형 세션, 쿠키에는 불투명 토큰만 저장)
 export const session = comdraftSchema.table(

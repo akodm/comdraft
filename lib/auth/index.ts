@@ -56,6 +56,12 @@ export const auth = betterAuth({
   },
   user: {
     additionalFields: {
+      // 사용량 등급 (quota_plan.role), 클라이언트에서 변경 불가
+      role: {
+        type: 'string',
+        required: false,
+        input: false,
+      },
       // 세션 user 객체에 포함시키기 위해 등록
       // input: false → 클라이언트(updateUser 등)에서 임의로 설정 불가, 온보딩 서버 액션에서만 기록
       onboardedAt: {

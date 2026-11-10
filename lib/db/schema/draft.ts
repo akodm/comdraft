@@ -3,6 +3,7 @@ import {
   check,
   foreignKey,
   index,
+  integer,
   jsonb,
   smallint,
   text,
@@ -110,6 +111,15 @@ export const draftPrompt = comdraftSchema.table(
     result: text('result'),
     // 실패 사유 코드 (요청/코드 원문 없이)
     errorCode: text('error_code'),
+    // 요청 시점의 예상 토큰 수 (Lambda 가 한도 검사 때 기록, 진행 중인 작업의 사용량 추정에 사용)
+    estimatedTokens: integer('estimated_tokens'),
+    // 실제 사용한 토큰 수 (입력, 출력, 캐시 생성, 캐시 읽기 합계, 실패한 작업도 쓴 만큼 남음)
+    usedTokens: integer('used_tokens').default(0).notNull(),
+    // 요청에 사용한 참조 링크 URL (요청 당시 값 보존)
+    referenceUrls: jsonb('reference_urls')
+      .$type<string[]>()
+      .default([])
+      .notNull(),
     // Lambda 가 처리를 시작한 시각 (시간 초과 판정 기준)
     startedAt: timestamp('started_at', { withTimezone: true, precision: 3 }),
     finishedAt: timestamp('finished_at', { withTimezone: true, precision: 3 }),
