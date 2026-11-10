@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { image } from '@/lib/db/schema';
 import { isDraftEditLocked } from '@/lib/generation/jobs';
 import { convertToWebp, UnsupportedImageError } from '@/lib/images/convert';
+import { insertImageWithinLimit } from '@/lib/images/records';
 import {
   getImagePath,
   getImagePublicUrl,
@@ -89,6 +90,7 @@ export async function requestImageUpload(
 /**
  * 올린 원본을 WebP 로 변환해 공개 버킷에 저장하고 기록
  * - 경로는 세션 사용자 기준으로만 만듦 (클라이언트 입력은 UUID 형식의 uploadId 뿐)
+ * - 장 수 상한은 기록을 넣을 때 초안 단위 잠금 안에서 다시 세어 확정 (앞의 검사는 빠른 거절용)
  * - 변환이 거부되면 원본을 지우고 unsupported, 그 밖의 오류는 원본을 지우고 failed
  * - 원본이 IMAGE_MAX_BYTES 를 넘으면 변환하지 않고 unsupported 'too_large'
  *   (브라우저가 올리기 전에 크기를 막으므로 검사를 건너뛴 요청만 해당: 새 사유를 만들지 않고 기존 사유를 씀)
@@ -120,13 +122,16 @@ export async function finalizeImageUpload(
 
     const converted = await convertToWebp(original);
 
-    const imageId = crypto.randomUUID();
-    const path = getImagePath(user.id, imageId);
+    // 이미지 id 를 업로드 id 로 써서, 같은 업로드를 동시에 두 번 마무리해도 공개 파일(upsert 없음)과
+    // 기록(기본 키) 중 하나만 생기게 함. 공개 파일 올리기가 실패한 쪽은 남의 파일을 지우지 않음
+    const path = getImagePath(user.id, uploadId);
     await putImage(path, converted.data);
 
+    let inserted: boolean;
+
     try {
-      await db.insert(image).values({
-        id: imageId,
+      inserted = await insertImageWithinLimit({
+        id: uploadId,
         userId: user.id,
         draftId,
         path,
@@ -138,6 +143,13 @@ export async function finalizeImageUpload(
       // 기록이 없는 파일이 남지 않도록 방금 올린 공개 파일 제거
       await removeImages([path]);
       throw error;
+    }
+
+    if (!inserted) {
+      // 동시에 마무리한 다른 업로드가 마지막 자리를 차지함
+      await removeImages([path]);
+      await removeUploads([uploadPath]);
+      return { status: 'limit' };
     }
 
     await removeUploads([uploadPath]);
