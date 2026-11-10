@@ -3,7 +3,9 @@ import {
   collectBlobSrcs,
   countImageSlots,
   getImageAlt,
+  IMAGE_RETRY_MAX_ATTEMPTS,
   pickImageFiles,
+  planImageRetry,
   toSavableContent,
   uploadImageFile,
   type ImageUploadDeps,
@@ -243,5 +245,59 @@ describe('uploadImageFile', () => {
         uploadImageFile(deps, 'repo', 'draft', file),
       ).resolves.toEqual(expected);
     }
+  });
+});
+
+describe('planImageRetry', () => {
+  it('남은 blob 이 없으면 다시 시도하지 않고 횟수를 비움', () => {
+    const plan = planImageRetry([], new Map([[BLOB_A, 2]]));
+    expect(plan.retry).toBe(false);
+    expect(plan.attempts.size).toBe(0);
+  });
+
+  it('남은 blob 마다 횟수를 하나씩 올리고 다시 시도', () => {
+    const plan = planImageRetry([BLOB_A, BLOB_B], new Map([[BLOB_A, 1]]));
+    expect(plan.retry).toBe(true);
+    expect([...plan.attempts]).toEqual([
+      [BLOB_A, 2],
+      [BLOB_B, 1],
+    ]);
+  });
+
+  it(`blob 한 장당 ${IMAGE_RETRY_MAX_ATTEMPTS}번까지만 (모두 다 쓰면 그만)`, () => {
+    let attempts = new Map<string, number>();
+    const results: boolean[] = [];
+
+    for (let i = 0; i <= IMAGE_RETRY_MAX_ATTEMPTS; i += 1) {
+      const plan = planImageRetry([BLOB_A], attempts);
+      results.push(plan.retry);
+      attempts = plan.attempts;
+    }
+
+    expect(results).toEqual([
+      ...Array.from({ length: IMAGE_RETRY_MAX_ATTEMPTS }, () => true),
+      false,
+    ]);
+    expect(attempts.get(BLOB_A)).toBe(IMAGE_RETRY_MAX_ATTEMPTS);
+  });
+
+  it('다 쓴 blob 이 있어도 새로 남은 blob 이 있으면 다시 시도', () => {
+    const plan = planImageRetry(
+      [BLOB_A, BLOB_B],
+      new Map([[BLOB_A, IMAGE_RETRY_MAX_ATTEMPTS]]),
+    );
+    expect(plan.retry).toBe(true);
+    expect(plan.attempts.get(BLOB_A)).toBe(IMAGE_RETRY_MAX_ATTEMPTS);
+    expect(plan.attempts.get(BLOB_B)).toBe(1);
+  });
+
+  it('올라가서 사라진 blob 의 횟수는 지움 (입력 Map 은 바꾸지 않음)', () => {
+    const before = new Map([
+      [BLOB_A, 2],
+      [BLOB_B, 1],
+    ]);
+    const plan = planImageRetry([BLOB_B], before);
+    expect(plan.attempts.has(BLOB_A)).toBe(false);
+    expect(before.get(BLOB_A)).toBe(2);
   });
 });

@@ -471,9 +471,9 @@ describe('collectImageSrcs', () => {
 describe('findUnusedImages', () => {
   const now = new Date('2026-11-10T12:00:00Z');
   const images = [
-    { id: 'a', path: 'u/a.webp', createdAt: new Date('2026-11-10T11:00:00Z') },
-    { id: 'b', path: 'u/b.webp', createdAt: new Date('2026-11-10T11:55:00Z') },
-    { id: 'c', path: 'u/c.webp', createdAt: new Date('2026-11-10T11:00:00Z') },
+    { id: 'a', path: 'u/a.webp', lastUsedAt: new Date('2026-11-10T11:00:00Z') },
+    { id: 'b', path: 'u/b.webp', lastUsedAt: new Date('2026-11-10T11:55:00Z') },
+    { id: 'c', path: 'u/c.webp', lastUsedAt: new Date('2026-11-10T11:00:00Z') },
   ];
 
   it('정리 대상: 안 쓰이고 유예가 지난 것만', () => {
@@ -493,7 +493,7 @@ describe('findUnusedImages', () => {
       {
         id: 'e',
         path: 'u/e.webp',
-        createdAt: new Date(now.getTime() - IMAGE_CLEANUP_GRACE_MS),
+        lastUsedAt: new Date(now.getTime() - IMAGE_CLEANUP_GRACE_MS),
       },
     ];
     expect(findUnusedImages(edge, new Set(), now)).toEqual([
@@ -503,10 +503,22 @@ describe('findUnusedImages', () => {
       {
         id: 'y',
         path: 'u/y.webp',
-        createdAt: new Date(now.getTime() - IMAGE_CLEANUP_GRACE_MS + 1),
+        lastUsedAt: new Date(now.getTime() - IMAGE_CLEANUP_GRACE_MS + 1),
       },
     ];
     expect(findUnusedImages(young, new Set(), now)).toEqual([]);
+  });
+
+  it('오래전에 올렸어도 1분 전에 저장한 본문에 있던 이미지는 남김 (잘라 붙이기·실행 취소)', () => {
+    const rows = [
+      {
+        id: 'm',
+        path: 'u/m.webp',
+        createdAt: new Date('2026-11-01T00:00:00Z'),
+        lastUsedAt: new Date(now.getTime() - 60 * 1000),
+      },
+    ];
+    expect(findUnusedImages(rows, new Set(), now)).toEqual([]);
   });
 });
 
@@ -514,10 +526,10 @@ describe('findCleanupCandidates', () => {
   const now = new Date('2026-11-10T12:00:00Z');
   const old = new Date(now.getTime() - IMAGE_CLEANUP_GRACE_MS - 1);
   const fresh = new Date(now.getTime() - 1000);
-  const row = (id: string, createdAt: Date) => ({
+  const row = (id: string, lastUsedAt: Date) => ({
     id,
     path: `${USER}/${id}.webp`,
-    createdAt,
+    lastUsedAt,
   });
 
   it('초안이 지워진 그 사용자의 행도 후보에 넣고, 본문에서 쓰는 것은 뺌', () => {

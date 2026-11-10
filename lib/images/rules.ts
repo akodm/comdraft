@@ -1,6 +1,6 @@
 import type { JSONContent } from '@tiptap/core';
 
-// 클라이언트와 서버가 함께 쓰는 순수 규칙 모듈 (server-only, Lingui 사용 금지)
+// 클라이언트와 서버가 함께 쓰는 순수 규칙 모듈 (브라우저에서도 불러오므로 server-only 를 붙이지 않고, Lingui 도 쓰지 않음)
 
 export const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 export const IMAGE_MAX_PER_DRAFT = 10;
@@ -24,7 +24,10 @@ export const IMAGE_ACCEPTED_SHARP_FORMATS = [
 export const IMAGE_MAX_WIDTH = 1280;
 export const IMAGE_WEBP_QUALITY = 80;
 export const IMAGE_MAX_INPUT_PIXELS = 40_000_000;
-/** 방금 올린 이미지가 본문 저장 전에 지워지지 않도록 두는 유예 */
+/**
+ * 쓰지 않게 된 이미지를 지우기 전에 두는 유예 (마지막으로 저장된 본문에 있던 시각부터)
+ * - 방금 올린 이미지가 본문 저장 전에, 잘라 낸 이미지가 다시 붙여 넣기 전에 지워지지 않도록
+ */
 export const IMAGE_CLEANUP_GRACE_MS = 10 * 60 * 1000;
 export const IMAGE_BUCKET = 'comdraft-images';
 export const IMAGE_UPLOAD_BUCKET = 'comdraft-uploads';
@@ -198,9 +201,12 @@ export function collectImageSrcs(doc: JSONContent | null): string[] {
   return srcs;
 }
 
-/** 본문에서 안 쓰이는 이미지 중 정리 대상 (기본은 유예 이전에 만든 것만, 초안 삭제 때는 grace: false) */
+/**
+ * 본문에서 안 쓰이는 이미지 중 정리 대상 (초안 삭제 때는 grace: false)
+ * - 기본은 마지막 사용 시각(lastUsedAt: 올린 시각, 또는 그 이미지가 든 본문을 마지막으로 저장한 시각)이 유예 이전인 것만
+ */
 export function findUnusedImages(
-  images: Array<{ id: string; path: string; createdAt: Date }>,
+  images: Array<{ id: string; path: string; lastUsedAt: Date }>,
   usedPaths: Set<string>,
   now: Date,
   options: { grace: boolean } = { grace: true },
@@ -208,7 +214,9 @@ export function findUnusedImages(
   const threshold = now.getTime() - IMAGE_CLEANUP_GRACE_MS;
   return images
     .filter((image) => !usedPaths.has(image.path))
-    .filter((image) => !options.grace || image.createdAt.getTime() <= threshold)
+    .filter(
+      (image) => !options.grace || image.lastUsedAt.getTime() <= threshold,
+    )
     .map(({ id, path }) => ({ id, path }));
 }
 
@@ -218,8 +226,8 @@ export function findUnusedImages(
  * - 초안이 지워져 draft_id 가 빈 그 사용자의 행: 같은 규칙이지만 유예는 항상 둠
  */
 export function findCleanupCandidates(
-  draftImages: Array<{ id: string; path: string; createdAt: Date }>,
-  orphanImages: Array<{ id: string; path: string; createdAt: Date }>,
+  draftImages: Array<{ id: string; path: string; lastUsedAt: Date }>,
+  orphanImages: Array<{ id: string; path: string; lastUsedAt: Date }>,
   usedPaths: Set<string>,
   now: Date,
   options: { grace: boolean } = { grace: true },

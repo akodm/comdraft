@@ -14,10 +14,14 @@ export const DRAFT_HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
 export type DraftHeadingLevel = (typeof DRAFT_HEADING_LEVELS)[number];
 
+// Markdown 이미지 대체 글에서 문법을 깨는 \, [, ] 를 이스케이프
+const escapeMarkdownAlt = (alt: string) => alt.replace(/[\\[\]]/g, '\\$&');
+
 /**
  * 본문 이미지 (블록, base64 금지)
  * - 속성은 src/alt/width/height 만 (기본 확장의 title 은 뺌)
  * - 주소 허용 검사는 저장·게시·AI 반영 때 서버에서 (lib/images/rules.ts)
+ * - MD 내보내기는 `![대체 글](주소)` (대체 글은 이스케이프, 주소는 공개 버킷 주소라 그대로)
  */
 export const DraftImage = Image.extend({
   addAttributes() {
@@ -27,6 +31,12 @@ export const DraftImage = Image.extend({
       width: { default: null },
       height: { default: null },
     };
+  },
+  renderMarkdown: (node) => {
+    const src = typeof node.attrs?.src === 'string' ? node.attrs.src : '';
+    const alt = typeof node.attrs?.alt === 'string' ? node.attrs.alt : '';
+
+    return `![${escapeMarkdownAlt(alt)}](${src})`;
   },
 }).configure({ inline: false, allowBase64: false });
 

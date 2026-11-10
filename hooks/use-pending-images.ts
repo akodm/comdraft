@@ -56,7 +56,7 @@ const uploadDeps: ImageUploadDeps = {
  * 편집기에 넣은 이미지의 대기 목록과 올리기
  * - 넣을 때: 형식·크기·장 수를 검사하고, blob: 주소로 바로 보여 주며 원본은 대기 목록(blob → File)에 둠
  * - 저장할 때: 본문의 blob 이미지를 한 장씩 올리고 편집기 주소를 공개 주소로 바꿈
- *   (실패하면 blob 으로 두고 안내, 다음 자동 저장 때 다시 시도 / 저장 본문에서는 뺌)
+ *   (실패·장 수 상한이면 blob 으로 두고 안내, 잠시 뒤나 다음 자동 저장 때 다시 시도 / 저장 본문에서는 뺌)
  * - 올리는 중이거나 못 올린 이미지가 남았으면 페이지를 떠나기 전에 확인
  */
 export const usePendingImages = (repositoryId: string) => {
@@ -184,8 +184,9 @@ export const usePendingImages = (repositoryId: string) => {
           return;
         }
 
-        if (outcome.status === 'failed') {
-          showNotice('failed');
+        // 올리기 실패, 장 수 상한: blob 과 원본을 그대로 두고 다음 시도 때 다시 올림
+        if (outcome.status === 'failed' || outcome.status === 'limit') {
+          showNotice(outcome.status);
           continue;
         }
 
@@ -201,8 +202,8 @@ export const usePendingImages = (repositoryId: string) => {
           uploadedRef.current.set(src, result);
           apply(src, result);
         } else {
-          // 서버가 거부한 형식·해상도, 장 수 상한: 편집기에서 지움
-          showNotice(outcome.status === 'limit' ? 'limit' : outcome.reason);
+          // 서버가 거부한 형식·해상도: 다시 올려도 같으므로 편집기에서 지움
+          showNotice(outcome.reason);
           apply(src, null);
         }
 

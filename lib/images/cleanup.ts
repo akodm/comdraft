@@ -15,8 +15,11 @@ import { getSupabaseUrl } from '@/lib/supabase/server';
 
 /**
  * 쓰지 않는 이미지 정리 (spec 6장)
- * - 대상: 그 초안의 image 행 중 경로가 초안 본문에도 게시글 본문에도 없는 것 (기본은 올린 지 10분 지난 것만)
+ * - 대상: 그 초안의 image 행 중 경로가 초안 본문에도 게시글 본문에도 없는 것
+ *   (기본은 마지막 사용 시각 last_used_at 에서 10분 지난 것만)
  *   + 초안이 지워져 draft_id 가 빈 그 사용자의 행 (항상 10분 유예)
+ * - 본문을 저장할 때마다 그 본문에 든 이미지의 last_used_at 을 갱신 (markImagesUsed):
+ *   올린 지 오래된 이미지를 잘라 내 저장한 뒤 다시 붙여 넣어도 유예 안에서는 지우지 않음
  * - 같은 사용자의 다른 초안·게시글 본문이 쓰는 경로는 지우지 않음 (초안 사이에 복사한 이미지)
  * - Storage 삭제가 성공했을 때만 행을 지움: 실패하면 행을 남기고(다음 정리 때 다시 시도) 오류를 던짐
  * - 저장·게시 같은 본 작업의 결과를 바꾸지 않도록 응답 뒤(after)에 실행하는 함수를 함께 둠
@@ -80,6 +83,31 @@ const collectUsedPaths = (
       }),
   );
 
+// update 를 쓸 수 있는 실행기 (db 또는 트랜잭션)
+type UpdateExecutor = Pick<typeof db, 'update'>;
+
+/**
+ * 저장하는 본문들에 든 그 사용자의 이미지 행의 마지막 사용 시각을 지금으로 (쿼리 하나, 이미지가 없으면 쿼리 없음)
+ * - 본문 저장과 같은 트랜잭션 안이나 저장 바로 뒤, 정리를 예약하기 전에 부름
+ * @param contents 이미지 규칙으로 이미 정리한 본문 (초안·게시글)
+ */
+export const markImagesUsed = async (
+  executor: UpdateExecutor,
+  userId: string,
+  contents: unknown[],
+): Promise<void> => {
+  const paths = [...collectUsedPaths(contents, userId, getSupabaseUrl())];
+
+  if (paths.length === 0) {
+    return;
+  }
+
+  await executor
+    .update(image)
+    .set({ lastUsedAt: sql`now()` })
+    .where(and(eq(image.userId, userId), inArray(image.path, paths)));
+};
+
 /**
  * 후보 경로 중 그 사용자의 다른 초안·게시글 본문에 들어 있는 것 (쿼리 하나)
  * - 본문 JSON 문자열에 경로가 들어 있는지로 판단: 링크 글자 등에 들어 있어도 쓰는 것으로 보고 남김 (지우는 쪽보다 안전)
@@ -129,6 +157,30 @@ export const cleanupDraftImages = async (
   draftId: string,
   options: { grace: boolean } = { grace: true },
 ): Promise<void> => {
+  // 이미지 행을 먼저 봄: 이미지가 없는 초안(대부분의 저장)은 본문을 읽지 않고 끝냄
+  const draftOwner = db
+    .select({ userId: draft.userId })
+    .from(draft)
+    .where(eq(draft.id, draftId));
+  const images = await db
+    .select({
+      id: image.id,
+      path: image.path,
+      lastUsedAt: image.lastUsedAt,
+      draftId: image.draftId,
+    })
+    .from(image)
+    .where(
+      or(
+        eq(image.draftId, draftId),
+        and(isNull(image.draftId), inArray(image.userId, draftOwner)),
+      ),
+    );
+
+  if (images.length === 0) {
+    return;
+  }
+
   const [row] = await db
     .select({
       userId: draft.userId,
@@ -144,21 +196,6 @@ export const cleanupDraftImages = async (
   if (!row) {
     return;
   }
-
-  const images = await db
-    .select({
-      id: image.id,
-      path: image.path,
-      createdAt: image.createdAt,
-      draftId: image.draftId,
-    })
-    .from(image)
-    .where(
-      or(
-        eq(image.draftId, draftId),
-        and(eq(image.userId, row.userId), isNull(image.draftId)),
-      ),
-    );
 
   const usedPaths = collectUsedPaths(
     [row.draftContent, row.postContent],

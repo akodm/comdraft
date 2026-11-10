@@ -27,10 +27,11 @@ export type ImageRejection = 'heic' | 'type' | 'size' | 'limit';
 export type ImageUploadOutcome =
   | ({ status: 'ok' } & UploadedImage)
   | { status: 'unsupported'; reason: 'heic' | 'type' | 'too_large' }
+  // 장 수 상한: blob 은 그대로 두고 안내 (다른 이미지를 지우면 다음 시도 때 올라감)
   | { status: 'limit' }
   // AI 작성 잠금 또는 초안 없음: 이번 차례는 그만 올리고 blob 은 그대로 둠 (안내 없음)
   | { status: 'stopped' }
-  // 요청·올리기 실패: blob 은 그대로 두고 다음 자동 저장 때 다시 시도
+  // 요청·올리기 실패: blob 은 그대로 두고 잠시 뒤·다음 자동 저장 때 다시 시도
   | { status: 'failed' };
 
 export interface ImageUploadDeps {
@@ -55,6 +56,36 @@ export const getImageAlt = (fileName: string) =>
     .trim()
     .replace(/(?<=.)\.[^./\\]+$/, '')
     .trim();
+
+// 저장 뒤에도 편집기에 남은(못 올린) blob 이미지를 다시 올려 저장하기까지 기다리는 시간과 blob 한 장당 횟수
+export const IMAGE_RETRY_DELAY = 8000;
+export const IMAGE_RETRY_MAX_ATTEMPTS = 3;
+
+/**
+ * 저장 뒤 편집기에 남은 blob 이미지를 다시 올릴지와 갱신한 시도 횟수 (입력 Map 은 바꾸지 않음)
+ * - 남은 blob 마다 횟수를 하나씩 올리고, 아직 다 쓰지 않은 blob 이 하나라도 있으면 다시 시도
+ * - 남지 않은 blob(올라갔거나 지운 것)의 횟수는 버림 / 새로 입력하면 호출하는 쪽이 횟수를 비움
+ */
+export const planImageRetry = (
+  blobSrcs: string[],
+  attempts: ReadonlyMap<string, number>,
+): { retry: boolean; attempts: Map<string, number> } => {
+  const next = new Map<string, number>();
+  let retry = false;
+
+  for (const src of blobSrcs) {
+    const count = attempts.get(src) ?? 0;
+
+    if (count < IMAGE_RETRY_MAX_ATTEMPTS) {
+      retry = true;
+      next.set(src, count + 1);
+    } else {
+      next.set(src, count);
+    }
+  }
+
+  return { retry, attempts: next };
+};
 
 /** 본문의 blob: 이미지 주소 (중복 없이 순서대로) */
 export const collectBlobSrcs = (doc: JSONContent): string[] => [

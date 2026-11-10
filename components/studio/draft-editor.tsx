@@ -17,7 +17,11 @@ import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import { getDraftStatusLabel } from '@/components/studio/draft-status';
 import { createEditorExtensions } from '@/components/studio/editor-extensions';
 import EditorToolbar from '@/components/studio/editor-toolbar';
-import { collectBlobSrcs } from '@/components/studio/image-upload';
+import {
+  collectBlobSrcs,
+  IMAGE_RETRY_DELAY,
+  planImageRetry,
+} from '@/components/studio/image-upload';
 import { useStudio } from '@/components/studio/studio-context';
 import PublishActions from '@/components/studio/publish-actions';
 import { PROSE_CLASS } from '@/components/shared/prose';
@@ -79,6 +83,9 @@ const downloadFile = (fileName: string, text: string, type: string) => {
  * - 입력이 멈추고 AUTOSAVE_DELAY 가 지나면 저장, 저장 중 다시 입력하면 끝난 뒤 이어서 저장
  * - 화면을 떠날 때 저장하지 않은 내용이 있으면 바로 저장 요청
  * - 저장 직전에 prepareContent 로 본문의 이미지를 올림 (올리는 동안 입력한 내용은 끝난 뒤 이어서 저장)
+ * - 저장한 뒤에도 편집기에 못 올린 blob 이미지가 남으면 잠시 뒤 다시 올려 저장
+ *   (blob 한 장당 정해진 횟수까지, 새로 입력하면 횟수를 비움)
+ * - 화면을 떠날 때 못 올린 blob 이미지만 남았어도 마지막으로 한 번 올려 저장
  */
 const useDraftAutosave = (
   repositoryId: string,
@@ -93,14 +100,20 @@ const useDraftAutosave = (
   const timerRef = useRef<number | undefined>(undefined);
   // 진행 중인 저장 (게시 전에 끝날 때까지 기다리거나, 중복 저장을 막는 데 사용)
   const inFlightRef = useRef<Promise<void> | null>(null);
+  // 못 올린 blob 이미지를 다시 올리는 타이머와 blob 마다의 시도 횟수
+  const retryTimerRef = useRef<number | undefined>(undefined);
+  const retryAttemptsRef = useRef(new Map<string, number>());
 
-  // 대기 중인 내용이 없을 때까지 차례로 저장 (저장 중 새로 입력한 내용은 끝난 뒤 이어서 저장)
-  const saveUntilIdle = useCallback(async () => {
+  /**
+   * 대기 중인 내용이 없을 때까지 차례로 저장 (저장 중 새로 입력한 내용은 끝난 뒤 이어서 저장)
+   * @returns 모두 저장하고 끝났는지 (삭제·잠금·오류로 멈추면 false)
+   */
+  const saveUntilIdle = useCallback(async (): Promise<boolean> => {
     while (draftId && pendingRef.current) {
       // 삭제한 초안은 남은 내용을 저장하지 않음
       if (isDraftRemoved(draftId)) {
         pendingRef.current = null;
-        return;
+        return false;
       }
 
       const content = pendingRef.current;
@@ -127,7 +140,7 @@ const useDraftAutosave = (
               ? 'idle'
               : 'error',
           );
-          return;
+          return false;
         }
 
         setDraftTitle(draftId, result.title);
@@ -136,11 +149,12 @@ const useDraftAutosave = (
         // 실패한 내용은 다음 입력 때 다시 저장되도록 되돌려 둠
         pendingRef.current ??= content;
         setSaveState('error');
-        return;
+        return false;
       }
     }
 
     setSaveState('idle');
+    return true;
   }, [
     repositoryId,
     draftId,
@@ -150,7 +164,7 @@ const useDraftAutosave = (
     isDraftRemoved,
   ]);
 
-  const flush = useCallback(() => {
+  const flush = useCallback((): Promise<void> => {
     window.clearTimeout(timerRef.current);
 
     // 저장 중이면 그 저장이 끝난 뒤 대기 내용까지 이어서 저장함
@@ -158,9 +172,48 @@ const useDraftAutosave = (
       return inFlightRef.current ?? Promise.resolve();
     }
 
-    const task = saveUntilIdle().finally(() => {
-      inFlightRef.current = null;
-    });
+    window.clearTimeout(retryTimerRef.current);
+
+    // 이 초안의 편집기 (저장이 끝나기 전에 초안을 바꿔도 새 초안의 편집기를 보지 않도록 지금 잡아 둠)
+    const editor = editorRef.current;
+
+    // 저장을 마친 뒤 편집기에 못 올린 blob 이미지가 남았으면 잠시 뒤 이 초안에 다시 저장
+    const scheduleImageRetry = () => {
+      if (!editor || editor.isDestroyed || !editor.isEditable) {
+        return;
+      }
+
+      const plan = planImageRetry(
+        collectBlobSrcs(editor.getJSON()),
+        retryAttemptsRef.current,
+      );
+
+      retryAttemptsRef.current = plan.attempts;
+
+      if (!plan.retry) {
+        return;
+      }
+
+      retryTimerRef.current = window.setTimeout(() => {
+        // 그 사이 입력해 대기 중인 저장이 있으면 그 저장이 이미지를 올림
+        if (editor.isDestroyed || pendingRef.current) {
+          return;
+        }
+
+        pendingRef.current = editor.getJSON();
+        void flush();
+      }, IMAGE_RETRY_DELAY);
+    };
+
+    const task = saveUntilIdle()
+      .finally(() => {
+        inFlightRef.current = null;
+      })
+      .then((isSaved) => {
+        if (isSaved) {
+          scheduleImageRetry();
+        }
+      });
 
     inFlightRef.current = task;
 
@@ -176,6 +229,7 @@ const useDraftAutosave = (
    */
   const settle = useCallback(async () => {
     window.clearTimeout(timerRef.current);
+    window.clearTimeout(retryTimerRef.current);
     pendingRef.current = null;
     await inFlightRef.current;
     pendingRef.current = null;
@@ -186,6 +240,9 @@ const useDraftAutosave = (
     (editor: Editor) => {
       editorRef.current = editor;
       pendingRef.current = editor.getJSON();
+      // 새로 입력하면 못 올린 이미지의 다시 시도 횟수를 비움 (이번 저장이 다시 올림)
+      retryAttemptsRef.current = new Map();
+      window.clearTimeout(retryTimerRef.current);
       setSaveState('pending');
       window.clearTimeout(timerRef.current);
       timerRef.current = window.setTimeout(() => void flush(), AUTOSAVE_DELAY);
@@ -205,6 +262,22 @@ const useDraftAutosave = (
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.clearTimeout(retryTimerRef.current);
+
+      // 못 올린 blob 이미지만 남아 대기 내용이 없어도 이 초안에 마지막으로 한 번 올려 저장
+      // (이 시점에는 편집기가 아직 살아 있음: 초안을 바꾸면 이 정리 뒤에, 화면을 떠나면 다음 틱에 없어짐)
+      const editor = editorRef.current;
+
+      if (
+        !pendingRef.current &&
+        editor &&
+        !editor.isDestroyed &&
+        editor.isEditable &&
+        collectBlobSrcs(editor.getJSON()).length > 0
+      ) {
+        pendingRef.current = editor.getJSON();
+      }
+
       // 다른 초안으로 이동하면 남은 내용을 바로 저장
       void flush();
     };

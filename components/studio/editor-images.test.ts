@@ -227,4 +227,15 @@ describe('이미지 내보내기', () => {
     );
     expect(editor.getMarkdown().trim()).toBe(`![cat](${PUBLIC_SRC})`);
   });
+
+  it('Markdown 대체 글의 [, ], \\ 는 이스케이프해 이미지 문법이 깨지지 않음', () => {
+    editor = createEditor({
+      type: 'doc',
+      content: [image(PUBLIC_SRC, 'a [b] \\ c](x)')],
+    });
+
+    expect(editor.getMarkdown().trim()).toBe(
+      `![a \\[b\\] \\\\ c\\](x)](${PUBLIC_SRC})`,
+    );
+  });
 });

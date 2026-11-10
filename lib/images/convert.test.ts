@@ -124,6 +124,45 @@ describe('convertToWebp', () => {
     expect(await reasonOf(convertToWebp(input))).toBe('type');
   });
 
+  it('줄여도 세로가 WebP 최대 크기(16383px)를 넘으면 too_large 로 거부한다', async () => {
+    // 1000x17000 = 17,000,000 픽셀 (픽셀 한도 안), 가로 1280 이하라 줄이지 않아 세로 17000
+    const input = await solid(1000, 17000).png().toBuffer();
+    expect(await reasonOf(convertToWebp(input))).toBe('too_large');
+  });
+
+  it('가로를 1280 으로 줄이면 세로가 한도 안에 드는 긴 이미지는 변환한다', async () => {
+    // 2000x20000 → 1280x12800
+    const input = await solid(2000, 20000).png().toBuffer();
+    const result = await convertToWebp(input);
+    expect(result.width).toBe(1280);
+    expect(result.height).toBe(12800);
+  });
+
+  it('EXIF 회전으로 세로가 되는 이미지도 회전 뒤 크기로 검사한다', async () => {
+    // 17000x1000 을 90도 회전 → 1000x17000
+    const input = await solid(17000, 1000)
+      .withMetadata({ orientation: 6 })
+      .jpeg()
+      .toBuffer();
+    expect(await reasonOf(convertToWebp(input))).toBe('too_large');
+  });
+
+  it('머리만 있고 잘린 PNG 는 failed 가 아니라 type 으로 거부한다', async () => {
+    const full = await sharp({
+      create: {
+        width: 256,
+        height: 256,
+        channels: 3,
+        background,
+        noise: { type: 'gaussian', mean: 128, sigma: 40 },
+      },
+    })
+      .png()
+      .toBuffer();
+    const truncated = full.subarray(0, Math.floor(full.length / 2));
+    expect(await reasonOf(convertToWebp(truncated))).toBe('type');
+  });
+
   it('픽셀 수가 한도를 넘으면 too_large 로 거부한다', async () => {
     const input = await solid(8000, 6000)
       .png({ compressionLevel: 1 })

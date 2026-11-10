@@ -10,6 +10,7 @@ import {
   getImagePath,
   getImagePublicUrl,
   getUploadPath,
+  IMAGE_MAX_BYTES,
   IMAGE_MAX_PER_DRAFT,
   isUuid,
 } from '@/lib/images/rules';
@@ -89,6 +90,8 @@ export async function requestImageUpload(
  * 올린 원본을 WebP 로 변환해 공개 버킷에 저장하고 기록
  * - 경로는 세션 사용자 기준으로만 만듦 (클라이언트 입력은 UUID 형식의 uploadId 뿐)
  * - 변환이 거부되면 원본을 지우고 unsupported, 그 밖의 오류는 원본을 지우고 failed
+ * - 원본이 IMAGE_MAX_BYTES 를 넘으면 변환하지 않고 unsupported 'too_large'
+ *   (브라우저가 올리기 전에 크기를 막으므로 검사를 건너뛴 요청만 해당: 새 사유를 만들지 않고 기존 사유를 씀)
  */
 export async function finalizeImageUpload(
   repositoryId: string,
@@ -110,6 +113,11 @@ export async function finalizeImageUpload(
 
   try {
     const original = await downloadUpload(uploadPath);
+
+    if (original.length > IMAGE_MAX_BYTES) {
+      throw new UnsupportedImageError('too_large');
+    }
+
     const converted = await convertToWebp(original);
 
     const imageId = crypto.randomUUID();

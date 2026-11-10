@@ -28,6 +28,11 @@ export const image = comdraftSchema.table(
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
+    // 마지막 사용 시각: 올린 시각, 그 뒤로는 이 경로가 든 본문(초안·게시글)을 저장할 때마다 갱신
+    // (정리 유예의 기준: 잘라 붙이기나 실행 취소로 잠깐 본문에서 빠진 이미지를 지우지 않도록)
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
   },
   (table) => [
     index('image_draft_idx').on(table.draftId),

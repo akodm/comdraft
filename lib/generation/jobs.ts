@@ -23,7 +23,10 @@ import type {
 import { isGenerationErrorCode } from '@/lib/generation/contract';
 import { getStaleCutoffs } from '@/lib/generation/job-state';
 import { markdownToDraftDocument } from '@/lib/generation/markdown';
-import { scheduleDraftImageCleanup } from '@/lib/images/cleanup';
+import {
+  markImagesUsed,
+  scheduleDraftImageCleanup,
+} from '@/lib/images/cleanup';
 import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
 import { extractDraftTitle } from '@/lib/studio/draft-content';
 import { getSupabaseUrl } from '@/lib/supabase/server';
@@ -146,6 +149,7 @@ export const expireStaleJobs = async (
  * - applied_at 을 먼저 선점한 요청만 반영하므로 여러 번 호출해도 결과는 한 번만 들어감
  * - 결과가 없거나 변환에 실패하면 작업을 invalid_result 로 실패 처리 (잠금 해제)
  * - 이미지는 그 초안 사용자의 공개 버킷 주소만 남김 (자동 저장과 같은 규칙)
+ * - 반영한 본문에 든 이미지는 같은 트랜잭션에서 마지막 사용 시각을 갱신
  * - 반영하면 트랜잭션 밖에서(응답 뒤) 쓰지 않게 된 이미지를 정리
  * @returns 이번 호출에서 반영했는지
  */
@@ -211,6 +215,8 @@ export const applyCompletedJob = async (jobId: string) => {
         updatedAt: now,
       })
       .where(eq(draft.id, claimed.draftId));
+
+    await markImagesUsed(tx, owner.userId, [content]);
 
     return claimed.draftId;
   });
