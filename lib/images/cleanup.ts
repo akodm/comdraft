@@ -1,12 +1,13 @@
 import 'server-only';
 import type { JSONContent } from '@tiptap/core';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 import { after } from 'next/server';
 import { db } from '@/lib/db';
 import { draft, image, post } from '@/lib/db/schema';
 import {
   collectImageSrcs,
-  findUnusedImages,
+  excludeReferencedImages,
+  findCleanupCandidates,
   parseImagePath,
 } from '@/lib/images/rules';
 import { removeImages } from '@/lib/images/storage';
@@ -15,6 +16,8 @@ import { getSupabaseUrl } from '@/lib/supabase/server';
 /**
  * 쓰지 않는 이미지 정리 (spec 6장)
  * - 대상: 그 초안의 image 행 중 경로가 초안 본문에도 게시글 본문에도 없는 것 (기본은 올린 지 10분 지난 것만)
+ *   + 초안이 지워져 draft_id 가 빈 그 사용자의 행 (항상 10분 유예)
+ * - 같은 사용자의 다른 초안·게시글 본문이 쓰는 경로는 지우지 않음 (초안 사이에 복사한 이미지)
  * - Storage 삭제가 성공했을 때만 행을 지움: 실패하면 행을 남기고(다음 정리 때 다시 시도) 오류를 던짐
  * - 저장·게시 같은 본 작업의 결과를 바꾸지 않도록 응답 뒤(after)에 실행하는 함수를 함께 둠
  *   (after 안에서 던진 오류는 응답에 영향이 없고 Next 가 서버 로그로 남김)
@@ -78,22 +81,54 @@ const collectUsedPaths = (
   );
 
 /**
- * 초안 본문과 게시글 본문 어디에도 없는 그 초안의 이미지 정리
+ * 후보 경로 중 그 사용자의 다른 초안·게시글 본문에 들어 있는 것 (쿼리 하나)
+ * - 본문 JSON 문자열에 경로가 들어 있는지로 판단: 링크 글자 등에 들어 있어도 쓰는 것으로 보고 남김 (지우는 쪽보다 안전)
+ * @param excludeDraftId 이 초안과 그 게시글은 제외 (본문은 호출하는 쪽이 이미 확인), null 이면 모두 확인
+ */
+const findReferencedPaths = async (
+  userId: string,
+  paths: string[],
+  excludeDraftId: string | null,
+): Promise<Set<string>> => {
+  if (paths.length === 0) {
+    return new Set();
+  }
+
+  const candidates = sql.join(
+    paths.map((path) => sql`(${path}::text)`),
+    sql`, `,
+  );
+  const otherDraft = excludeDraftId
+    ? sql`and ${draft.id} <> ${excludeDraftId}`
+    : sql``;
+  const otherPost = excludeDraftId
+    ? sql`and ${post.draftId} <> ${excludeDraftId}`
+    : sql``;
+  const rows = await db.execute<{ path: string }>(sql`
+    select candidate.path from (values ${candidates}) as candidate(path)
+    where exists (
+      select 1 from ${draft}
+      where ${draft.userId} = ${userId} ${otherDraft}
+        and position(candidate.path in ${draft.content}::text) > 0
+    ) or exists (
+      select 1 from ${post}
+      where ${post.userId} = ${userId} ${otherPost}
+        and position(candidate.path in ${post.content}::text) > 0
+    )
+  `);
+
+  return new Set(rows.map(({ path }) => path));
+};
+
+/**
+ * 초안 본문과 게시글 본문 어디에도 없는 그 초안의 이미지 정리 (주인 없는 그 사용자의 이미지도 함께)
+ * - 같은 사용자의 다른 초안·게시글이 쓰는 경로는 남김
  * - Storage 삭제가 실패하면 행을 남기고 ImageRemovalError (다음 정리 때 다시 시도)
  */
 export const cleanupDraftImages = async (
   draftId: string,
   options: { grace: boolean } = { grace: true },
 ): Promise<void> => {
-  const images = await db
-    .select({ id: image.id, path: image.path, createdAt: image.createdAt })
-    .from(image)
-    .where(eq(image.draftId, draftId));
-
-  if (images.length === 0) {
-    return;
-  }
-
   const [row] = await db
     .select({
       userId: draft.userId,
@@ -105,20 +140,50 @@ export const cleanupDraftImages = async (
     .where(eq(draft.id, draftId))
     .limit(1);
 
-  // 초안이 지워지면 행의 draft_id 가 비므로 여기까지 오지 않음 (지운 초안의 이미지는 removeDraftImages 로)
+  // 그 사이 초안이 지워짐: 그 초안의 행은 삭제 흐름이, 주인 없는 행은 다음 정리가 맡음
   if (!row) {
     return;
   }
+
+  const images = await db
+    .select({
+      id: image.id,
+      path: image.path,
+      createdAt: image.createdAt,
+      draftId: image.draftId,
+    })
+    .from(image)
+    .where(
+      or(
+        eq(image.draftId, draftId),
+        and(eq(image.userId, row.userId), isNull(image.draftId)),
+      ),
+    );
 
   const usedPaths = collectUsedPaths(
     [row.draftContent, row.postContent],
     row.userId,
     getSupabaseUrl(),
   );
-
-  await removeDraftImages(
-    findUnusedImages(images, usedPaths, new Date(), options),
+  const candidates = findCleanupCandidates(
+    images.filter((item) => item.draftId === draftId),
+    images.filter((item) => item.draftId === null),
+    usedPaths,
+    new Date(),
+    options,
   );
+
+  if (candidates.length === 0) {
+    return;
+  }
+
+  const referenced = await findReferencedPaths(
+    row.userId,
+    candidates.map(({ path }) => path),
+    draftId,
+  );
+
+  await removeDraftImages(excludeReferencedImages(candidates, referenced));
 };
 
 /** 응답 뒤에 초안 이미지 정리 (정리 실패가 저장·게시 결과를 바꾸지 않음) */
@@ -126,11 +191,25 @@ export const scheduleDraftImageCleanup = (draftId: string) => {
   after(() => cleanupDraftImages(draftId));
 };
 
-/** 응답 뒤에 모아 둔 이미지 파일과 행 삭제 (초안 삭제 때: 유예 없음) */
-export const scheduleDraftImageRemoval = (images: ImageRef[]) => {
+/**
+ * 응답 뒤에 지운 초안의 이미지 파일과 행 삭제 (유예 없음)
+ * - 같은 사용자의 다른 초안·게시글이 쓰는 경로는 남김: 그 행은 주인 없는 행이 되어 쓰지 않게 된 뒤 다음 정리 때 지워짐
+ */
+export const scheduleDraftImageRemoval = (
+  userId: string,
+  images: ImageRef[],
+) => {
   if (images.length === 0) {
     return;
   }
 
-  after(() => removeDraftImages(images));
+  after(async () => {
+    const referenced = await findReferencedPaths(
+      userId,
+      images.map(({ path }) => path),
+      null,
+    );
+
+    await removeDraftImages(excludeReferencedImages(images, referenced));
+  });
 };

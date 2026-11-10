@@ -211,3 +211,29 @@ export function findUnusedImages(
     .filter((image) => !options.grace || image.createdAt.getTime() <= threshold)
     .map(({ id, path }) => ({ id, path }));
 }
+
+/**
+ * 초안 하나를 정리할 때의 후보
+ * - 그 초안의 행: 본문에서 안 쓰고 유예가 지난 것 (options 그대로, 초안 삭제 때는 grace: false)
+ * - 초안이 지워져 draft_id 가 빈 그 사용자의 행: 같은 규칙이지만 유예는 항상 둠
+ */
+export function findCleanupCandidates(
+  draftImages: Array<{ id: string; path: string; createdAt: Date }>,
+  orphanImages: Array<{ id: string; path: string; createdAt: Date }>,
+  usedPaths: Set<string>,
+  now: Date,
+  options: { grace: boolean } = { grace: true },
+): Array<{ id: string; path: string }> {
+  return [
+    ...findUnusedImages(draftImages, usedPaths, now, options),
+    ...findUnusedImages(orphanImages, usedPaths, now, { grace: true }),
+  ];
+}
+
+/** 같은 사용자의 다른 초안·게시글이 쓰는 경로를 뺌 (초안 사이에 복사한 이미지를 지우지 않도록) */
+export function excludeReferencedImages<T extends { path: string }>(
+  images: T[],
+  referencedPaths: Set<string>,
+): T[] {
+  return images.filter((image) => !referencedPaths.has(image.path));
+}

@@ -177,6 +177,7 @@ export type DeleteDraftResult =
  *   목록에서 숨기고 다른 초안으로 옮기는 일은 클라이언트가 처리
  * - AI 작성 작업이 진행 중이면 삭제하지 않음
  * - 그 초안에 올린 이미지는 삭제 전에 모아 두고, 삭제(게시글도 함께) 후 응답 뒤에 파일과 행을 유예 없이 지움
+ *   (같은 사용자의 다른 초안·게시글이 쓰는 이미지는 남김)
  */
 export async function deleteDraft(
   repositoryId: string,
@@ -209,7 +210,7 @@ export async function deleteDraft(
     return { status: 'not_found' };
   }
 
-  scheduleDraftImageRemoval(images);
+  scheduleDraftImageRemoval(user.id, images);
 
   return { status: 'deleted' };
 }

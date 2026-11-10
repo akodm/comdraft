@@ -4,6 +4,8 @@ import {
   IMAGE_CLEANUP_GRACE_MS,
   checkImageFile,
   collectImageSrcs,
+  excludeReferencedImages,
+  findCleanupCandidates,
   findUnusedImages,
   getImagePath,
   getImagePublicUrl,
@@ -505,6 +507,66 @@ describe('findUnusedImages', () => {
       },
     ];
     expect(findUnusedImages(young, new Set(), now)).toEqual([]);
+  });
+});
+
+describe('findCleanupCandidates', () => {
+  const now = new Date('2026-11-10T12:00:00Z');
+  const old = new Date(now.getTime() - IMAGE_CLEANUP_GRACE_MS - 1);
+  const fresh = new Date(now.getTime() - 1000);
+  const row = (id: string, createdAt: Date) => ({
+    id,
+    path: `${USER}/${id}.webp`,
+    createdAt,
+  });
+
+  it('초안이 지워진 그 사용자의 행도 후보에 넣고, 본문에서 쓰는 것은 뺌', () => {
+    const used = new Set([`${USER}/used.webp`]);
+    expect(
+      findCleanupCandidates(
+        [row('own-old', old), row('used', old)],
+        [row('orphan-old', old), row('used', old)],
+        used,
+        now,
+      ),
+    ).toEqual([
+      { id: 'own-old', path: `${USER}/own-old.webp` },
+      { id: 'orphan-old', path: `${USER}/orphan-old.webp` },
+    ]);
+  });
+
+  it('주인 없는 행은 grace: false 여도 항상 10분 유예', () => {
+    expect(
+      findCleanupCandidates(
+        [row('own-fresh', fresh)],
+        [row('orphan-fresh', fresh), row('orphan-old', old)],
+        new Set(),
+        now,
+        { grace: false },
+      ),
+    ).toEqual([
+      { id: 'own-fresh', path: `${USER}/own-fresh.webp` },
+      { id: 'orphan-old', path: `${USER}/orphan-old.webp` },
+    ]);
+  });
+
+  it('기본은 그 초안의 행에도 유예', () => {
+    expect(
+      findCleanupCandidates([row('own-fresh', fresh)], [], new Set(), now),
+    ).toEqual([]);
+  });
+});
+
+describe('excludeReferencedImages', () => {
+  it('다른 초안·게시글이 쓰는 경로는 지우지 않음 (같은 사용자의 초안 사이 복사)', () => {
+    const images = [
+      { id: 'a', path: `${USER}/a.webp` },
+      { id: 'b', path: `${USER}/b.webp` },
+    ];
+    expect(
+      excludeReferencedImages(images, new Set([`${USER}/b.webp`])),
+    ).toEqual([{ id: 'a', path: `${USER}/a.webp` }]);
+    expect(excludeReferencedImages(images, new Set())).toEqual(images);
   });
 });
 
