@@ -1,8 +1,12 @@
 import { getSchema } from '@tiptap/core';
 import type { JSONContent } from '@tiptap/core';
 import { DraftBlank } from '@/lib/studio/draft-blank-node';
+import { normalizeBlankAttrs } from '@/lib/studio/draft-blank';
 import { extractDraftTitle } from '@/lib/studio/draft-content';
-import { createDraftSchemaExtensions } from '@/lib/studio/editor-schema';
+import {
+  createDraftSchemaExtensions,
+  DRAFT_HEADING_LEVELS,
+} from '@/lib/studio/editor-schema';
 
 /**
  * 초안을 게시할 때 쓰는 순수 함수 (서버/클라이언트 공용, 테스트 가능)
@@ -21,25 +25,54 @@ const ALLOWED_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
 
 const schema = getSchema(createDraftSchemaExtensions());
 
+/** 게시할 수 없는 구조의 문서 (루트가 doc 이 아니거나 스키마에 맞지 않음) */
+export class InvalidPostContentError extends Error {
+  constructor(message = '게시할 수 없는 문서입니다.') {
+    super(message);
+    this.name = 'InvalidPostContentError';
+  }
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+// 클라이언트가 보낸 JSON 이라 content 가 배열이 아니거나 자식이 객체가 아닐 수 있음
+const getChildren = (node: JSONContent): JSONContent[] =>
+  Array.isArray(node.content) ? node.content.filter(isRecord) : [];
+
 // 채워졌든 아니든 남아 있는 빈칸 노드는 모두 게시를 막으므로 전부 센다
 const countBlankNodes = (node: JSONContent): number =>
   (node.type === DraftBlank.name ? 1 : 0) +
-  (node.content ?? []).reduce((sum, child) => sum + countBlankNodes(child), 0);
+  getChildren(node).reduce((sum, child) => sum + countBlankNodes(child), 0);
 
-/** 게시 가능 여부 (빈칸 검사가 제목 검사보다 먼저) */
+// 제목·요약 추출 함수가 잘못된 구조에서 던지지 않도록 모양만 다듬은 사본
+const normalizeShape = (node: JSONContent): JSONContent => ({
+  type: typeof node.type === 'string' ? node.type : undefined,
+  text: typeof node.text === 'string' ? node.text : undefined,
+  content: getChildren(node).map(normalizeShape),
+});
+
+/**
+ * 게시 가능 여부 (빈칸 검사가 제목 검사보다 먼저)
+ * - 구조가 잘못된 항목은 무시하고 검사 (루트가 객체가 아니면 InvalidPostContentError)
+ */
 export const checkPublishable = (doc: JSONContent): PublishCheck => {
+  if (!isRecord(doc)) {
+    throw new InvalidPostContentError();
+  }
+
   const count = countBlankNodes(doc);
 
   if (count > 0) {
     return { status: 'has_blanks', count };
   }
 
-  const title = extractDraftTitle(doc);
+  const title = extractDraftTitle(normalizeShape(doc));
 
   return title ? { status: 'ok', title } : { status: 'no_title' };
 };
 
-const isAllowedHref = (href: unknown) => {
+const isAllowedHref = (href: unknown): href is string => {
   if (typeof href !== 'string') {
     return false;
   }
@@ -51,46 +84,71 @@ const isAllowedHref = (href: unknown) => {
   }
 };
 
-// 스키마 spec 에 정의된 속성 키만 남김
-const pickAttrs = (
-  specAttrs: Record<string, unknown> | undefined,
-  attrs: Record<string, unknown> | undefined,
-) => {
-  if (!specAttrs || !attrs) {
-    return undefined;
+const CODE_LANGUAGE_PATTERN = /^[\w+#.-]{1,32}$/;
+
+type Attrs = Record<string, unknown>;
+
+// 노드 종류별 속성 값 검증 (값이 틀리면 속성을 빼서 스키마 기본값이 쓰이게 함)
+const sanitizeNodeAttrs = (type: string, attrs: Attrs): Attrs | undefined => {
+  switch (type) {
+    case 'heading':
+      return (DRAFT_HEADING_LEVELS as readonly unknown[]).includes(attrs.level)
+        ? { level: attrs.level }
+        : undefined;
+    case 'codeBlock':
+      return {
+        language:
+          typeof attrs.language === 'string' &&
+          CODE_LANGUAGE_PATTERN.test(attrs.language)
+            ? attrs.language
+            : null,
+      };
+    case DraftBlank.name:
+      return normalizeBlankAttrs(attrs);
+    case 'orderedList':
+      return Number.isInteger(attrs.start) && (attrs.start as number) >= 1
+        ? { start: attrs.start }
+        : undefined;
+    default:
+      return undefined;
   }
-
-  const picked = Object.fromEntries(
-    Object.keys(specAttrs)
-      .filter((key) => key in attrs)
-      .map((key) => [key, attrs[key]]),
-  );
-
-  return Object.keys(picked).length > 0 ? picked : undefined;
 };
 
-const sanitizeMarks = (marks: JSONContent['marks']) => {
-  const cleaned = (marks ?? []).flatMap((mark) => {
-    const markType = schema.marks[mark.type];
+// 링크는 검증한 href 만 남기고 target/rel/class 는 스키마 기본값(편집기 설정)에 맡김
+const sanitizeMark = (mark: unknown) => {
+  if (!isRecord(mark) || typeof mark.type !== 'string') {
+    return null;
+  }
 
-    if (!markType) {
-      return [];
-    }
+  if (!schema.marks[mark.type]) {
+    return null;
+  }
 
-    const attrs = pickAttrs(markType.spec.attrs, mark.attrs);
+  if (mark.type === 'link') {
+    const href = isRecord(mark.attrs) ? mark.attrs.href : undefined;
 
-    // 위험한 프로토콜의 링크는 마크만 지우고 글자는 남김
-    if (mark.type === 'link' && !isAllowedHref(attrs?.href)) {
-      return [];
-    }
+    return isAllowedHref(href) ? { type: 'link', attrs: { href } } : null;
+  }
 
-    return [attrs ? { type: mark.type, attrs } : { type: mark.type }];
+  // 그 밖의 마크(굵게, 기울임, 코드 등)는 속성을 쓰지 않음
+  return { type: mark.type };
+};
+
+const sanitizeMarks = (marks: unknown) => {
+  const cleaned = (Array.isArray(marks) ? marks : []).flatMap((mark) => {
+    const result = sanitizeMark(mark);
+
+    return result ? [result] : [];
   });
 
   return cleaned.length > 0 ? cleaned : undefined;
 };
 
-const sanitizeNode = (node: JSONContent): JSONContent | null => {
+const sanitizeNode = (node: unknown): JSONContent | null => {
+  if (!isRecord(node)) {
+    return null;
+  }
+
   if (node.type === 'text') {
     if (typeof node.text !== 'string' || node.text === '') {
       return null;
@@ -103,18 +161,21 @@ const sanitizeNode = (node: JSONContent): JSONContent | null => {
       : { type: 'text', text: node.text };
   }
 
-  const nodeType = node.type ? schema.nodes[node.type] : undefined;
-
-  if (!nodeType) {
+  if (typeof node.type !== 'string' || !schema.nodes[node.type]) {
     return null;
   }
 
-  const attrs = pickAttrs(nodeType.spec.attrs, node.attrs);
-  const content = (node.content ?? []).flatMap((child) => {
-    const cleaned = sanitizeNode(child);
+  const attrs = sanitizeNodeAttrs(
+    node.type,
+    isRecord(node.attrs) ? node.attrs : {},
+  );
+  const content = (Array.isArray(node.content) ? node.content : []).flatMap(
+    (child) => {
+      const cleaned = sanitizeNode(child);
 
-    return cleaned ? [cleaned] : [];
-  });
+      return cleaned ? [cleaned] : [];
+    },
+  );
 
   return {
     type: node.type,
@@ -124,32 +185,45 @@ const sanitizeNode = (node: JSONContent): JSONContent | null => {
 };
 
 /**
- * 공개용 본문 정리
- * - 스키마에 없는 노드/마크/속성을 버리고, http·https·mailto 밖의 링크는 마크만 지움
- * - 마지막에 ProseMirror 로 구조를 검증 (맞지 않으면 예외)
+ * 공개용 본문 정리 (공개 페이지에 그대로 그려지므로 보안 경계)
+ * - 스키마에 없는 노드/마크를 버리고, 속성은 값까지 검증해 안전한 것만 남김
+ * - 링크는 http·https·mailto 의 href 만 남기고 아니면 마크만 지움 (글자는 유지)
+ * - draftBlank 노드는 그대로 남기므로 호출하기 전에 checkPublishable 로 빈칸이 없는지 확인할 것
+ * - 구조가 문서 스키마에 맞지 않으면 InvalidPostContentError
  */
 export const sanitizePostContent = (doc: JSONContent): JSONContent => {
   const cleaned = sanitizeNode(doc);
 
   if (!cleaned || cleaned.type !== 'doc') {
-    throw new Error('게시할 수 없는 문서입니다.');
+    throw new InvalidPostContentError();
   }
 
-  const node = schema.nodeFromJSON(cleaned);
+  try {
+    const node = schema.nodeFromJSON(cleaned);
 
-  node.check();
+    node.check();
 
-  return node.toJSON() as JSONContent;
+    return node.toJSON() as JSONContent;
+  } catch {
+    throw new InvalidPostContentError();
+  }
 };
 
-const getParagraphText = (node: JSONContent): string =>
-  node.type === 'text'
-    ? (node.text ?? '')
-    : (node.content ?? []).map(getParagraphText).join('');
+const getParagraphText = (node: JSONContent): string => {
+  if (node.type === 'text') {
+    return typeof node.text === 'string' ? node.text : '';
+  }
+
+  return getChildren(node).map(getParagraphText).join('');
+};
 
 /** 목록용 요약 (최상위 문단 글자만 이어 160자까지, 코드·제목은 건너뜀) */
 export const extractPostExcerpt = (doc: JSONContent): string => {
-  const text = (doc.content ?? [])
+  if (!isRecord(doc)) {
+    return '';
+  }
+
+  const text = getChildren(doc)
     .filter((node) => node.type === 'paragraph')
     .map((node) => getParagraphText(node).replace(/\s+/g, ' ').trim())
     .filter(Boolean)

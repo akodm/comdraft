@@ -2,6 +2,7 @@ import type { JSONContent } from '@tiptap/core';
 import { describe, expect, it } from 'vitest';
 import {
   checkPublishable,
+  InvalidPostContentError,
   extractPostExcerpt,
   sanitizePostContent,
 } from '@/lib/posts/post-content';
@@ -74,7 +75,135 @@ describe('checkPublishable', () => {
   });
 });
 
+describe('checkPublishable 잘못된 구조', () => {
+  it('던지지 않고 잘못된 항목을 무시한다', () => {
+    const bad = {
+      type: 'doc',
+      content: [null, { type: 'paragraph', content: 'x' }, h(1, '제목')],
+    } as unknown as JSONContent;
+
+    expect(checkPublishable(bad)).toEqual({ status: 'ok', title: '제목' });
+    expect(() => checkPublishable(null as never)).toThrow(
+      InvalidPostContentError,
+    );
+  });
+});
+
 describe('sanitizePostContent', () => {
+  it.each([' JavaScript:alert(1)', 'java\tscript:x', 'data:text/html,x'])(
+    '위험한 링크 %j 는 마크가 지워진다',
+    (href) => {
+      const out = sanitizePostContent(
+        doc({ type: 'paragraph', content: [link('a', href)] }),
+      );
+
+      expect(out.content?.[0].content?.[0]).toEqual({
+        type: 'text',
+        text: 'a',
+      });
+    },
+  );
+
+  it('알 수 없는 마크는 버린다', () => {
+    const out = sanitizePostContent(
+      doc({
+        type: 'paragraph',
+        content: [
+          { ...text('a'), marks: [{ type: 'evil' }, { type: 'bold' }] },
+        ],
+      }),
+    );
+
+    expect(out.content?.[0].content?.[0].marks).toEqual([{ type: 'bold' }]);
+  });
+
+  it('링크의 rel·target·class 는 클라이언트 값을 버리고 편집기 설정을 쓴다', () => {
+    const out = sanitizePostContent(
+      doc({
+        type: 'paragraph',
+        content: [
+          {
+            ...text('a'),
+            marks: [
+              {
+                type: 'link',
+                attrs: {
+                  href: 'https://a.com',
+                  rel: '',
+                  target: '_top',
+                  class: 'fixed inset-0 z-50',
+                },
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    expect(out.content?.[0].content?.[0].marks?.[0].attrs).toMatchObject({
+      href: 'https://a.com',
+      target: '_blank',
+      rel: 'noopener noreferrer nofollow',
+      class: null,
+    });
+  });
+
+  it('codeBlock language 는 안전한 값만 허용', () => {
+    const lang = (language: string) =>
+      sanitizePostContent(doc(codeBlock(language, 'x'))).content?.[0].attrs
+        ?.language;
+
+    expect(lang('ts evil')).toBeNull();
+    expect(lang('c++')).toBe('c++');
+  });
+
+  it('heading level 이 범위 밖이면 기본값', () => {
+    const out = sanitizePostContent(doc(h(99, '제목')));
+
+    expect(out.content?.[0].attrs?.level).toBe(1);
+  });
+
+  it('draftBlank 속성은 정리한다', () => {
+    const out = sanitizePostContent(
+      doc({
+        ...blank(),
+        attrs: { kind: 'oops', hint: 'a"b' },
+        content: [p('x')],
+      }),
+    );
+
+    expect(out.content?.[0].attrs).toEqual({ kind: 'detail', hint: 'ab' });
+  });
+
+  it('잘못된 구조는 버리거나 InvalidPostContentError', () => {
+    const out = sanitizePostContent(
+      doc(
+        null as unknown as JSONContent,
+        {
+          type: 'paragraph',
+          content: [
+            text('a'),
+            null as unknown as JSONContent,
+            { ...text('b'), marks: {} as never },
+          ],
+        },
+        { type: 'paragraph', content: 'x' as never },
+      ),
+    );
+
+    expect(out).toEqual(
+      doc(
+        // 같은 마크의 이웃한 글자는 ProseMirror 가 하나로 합침
+        p('ab'),
+        { type: 'paragraph' },
+      ),
+    );
+    expect(() => sanitizePostContent(p('a'))).toThrow(InvalidPostContentError);
+    expect(() => sanitizePostContent(null as never)).toThrow(
+      InvalidPostContentError,
+    );
+  });
+
   it('javascript: 링크는 마크만 지우고 글자는 남긴다', () => {
     const out = sanitizePostContent(
       doc({
