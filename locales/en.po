@@ -834,7 +834,7 @@ msgstr "Removing..."
 
 #: components/studio/publish-dialog.tsx:145
 msgid "{blankCount, plural, other {빈칸 #개를 채우고 완료를 눌러야 게시할 수 있습니다}}"
-msmsgstr "{blankCount, plural, one {Fill in # blank and mark it done before publishing.} other {Fill in # blanks and mark them done before publishing.}}"
+msgstr "{blankCount, plural, one {Fill in # blank and mark it done before publishing.} other {Fill in # blanks and mark them done before publishing.}}"
 
 #: components/studio/generation-progress.tsx:32
 msgid "알 수 없는 오류로 작성하지 못했습니다. 다시 시도해주세요."
