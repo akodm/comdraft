@@ -37,7 +37,10 @@ describe('buildPostValues', () => {
         p(link('x', 'javascript:x')),
       ],
     };
-    const values = buildPostValues(content, 'Sharp 최적화', 'ko', 'unlisted');
+    const values = buildPostValues(content, 'Sharp 최적화', 'ko', 'unlisted', {
+      imageOwnerId: 'user-1',
+      supabaseUrl: 'https://ref.supabase.co',
+    });
 
     expect(values).toMatchObject({
       title: 'Sharp 최적화',

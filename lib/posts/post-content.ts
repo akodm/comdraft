@@ -1,5 +1,6 @@
 import { getSchema } from '@tiptap/core';
 import type { JSONContent } from '@tiptap/core';
+import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
 import { DraftBlank } from '@/lib/studio/draft-blank-node';
 import { normalizeBlankAttrs } from '@/lib/studio/draft-blank';
 import { extractDraftTitle } from '@/lib/studio/draft-content';
@@ -109,6 +110,14 @@ const sanitizeNodeAttrs = (type: string, attrs: Attrs): Attrs | undefined => {
       return Number.isInteger(attrs.start) && (attrs.start as number) >= 1
         ? { start: attrs.start }
         : undefined;
+    case 'image':
+      // 주소와 값 검사는 removeDisallowedImages 가 맡음 (저장·AI 반영과 같은 규칙)
+      return {
+        src: attrs.src,
+        alt: attrs.alt,
+        width: attrs.width,
+        height: attrs.height,
+      };
     default:
       return undefined;
   }
@@ -184,19 +193,35 @@ const sanitizeNode = (node: unknown): JSONContent | null => {
   };
 };
 
+export interface SanitizePostContentOptions {
+  // 이미지 주소의 사용자 경로로 허용하는 사용자 (그 초안의 사용자)
+  imageOwnerId: string;
+  // 공개 이미지 주소의 기준 (NEXT_PUBLIC_SUPABASE_URL)
+  supabaseUrl: string;
+}
+
 /**
  * 공개용 본문 정리 (공개 페이지에 그대로 그려지므로 보안 경계)
  * - 스키마에 없는 노드/마크를 버리고, 속성은 값까지 검증해 안전한 것만 남김
  * - 링크는 http·https·mailto 의 href 만 남기고 아니면 마크만 지움 (글자는 유지)
+ * - 이미지는 그 초안 사용자의 공개 버킷 주소만 남기고 노드째 지움 (속성은 src/alt/width/height 만)
  * - draftBlank 노드는 그대로 남기므로 호출하기 전에 checkPublishable 로 빈칸이 없는지 확인할 것
  * - 구조가 문서 스키마에 맞지 않으면 InvalidPostContentError
  */
-export const sanitizePostContent = (doc: JSONContent): JSONContent => {
-  const cleaned = sanitizeNode(doc);
+export const sanitizePostContent = (
+  doc: JSONContent,
+  { imageOwnerId, supabaseUrl }: SanitizePostContentOptions,
+): JSONContent => {
+  const shaped = sanitizeNode(doc);
 
-  if (!cleaned || cleaned.type !== 'doc') {
+  if (!shaped || shaped.type !== 'doc') {
     throw new InvalidPostContentError();
   }
+
+  const cleaned = removeDisallowedImages(
+    shaped,
+    (src) => parseImagePath(supabaseUrl, src, imageOwnerId) !== null,
+  );
 
   try {
     const node = schema.nodeFromJSON(cleaned);
@@ -222,7 +247,7 @@ const getParagraphText = (node: JSONContent): string => {
   return getChildren(node).map(getParagraphText).join('');
 };
 
-/** 목록용 요약 (최상위 문단 글자만 이어 160자까지, 코드·제목은 건너뜀) */
+/** 목록용 요약 (최상위 문단 글자만 이어 160자까지, 코드·제목·이미지는 건너뜀) */
 export const extractPostExcerpt = (doc: JSONContent): string => {
   if (!isRecord(doc)) {
     return '';

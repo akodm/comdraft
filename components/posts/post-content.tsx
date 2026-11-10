@@ -38,6 +38,41 @@ const renderCodeBlock = ({
   );
 };
 
+const toPositiveInteger = (value: unknown) =>
+  typeof value === 'number' && Number.isInteger(value) && value > 0
+    ? value
+    : undefined;
+
+/**
+ * 이미지: 본문 폭을 넘지 않게 줄이고 화면에 가까워질 때 불러옴
+ * - 주소는 게시할 때 정리한 공개 버킷 주소만 남아 있음 (sanitizePostContent)
+ * - 원본 크기(width/height)로 자리를 먼저 잡아 불러오는 동안 글이 밀리지 않게 함
+ */
+const renderImage = ({
+  node,
+}: {
+  node: { attrs?: Record<string, unknown> };
+}) => {
+  const { src, alt, width, height } = node.attrs ?? {};
+
+  if (typeof src !== 'string' || !src) {
+    return null;
+  }
+
+  return (
+    // 게시 때 정리한 공개 저장소의 WebP 주소를 그대로 씀 (이미 변환·축소한 파일)
+    <img
+      src={src}
+      alt={typeof alt === 'string' ? alt : ''}
+      width={toPositiveInteger(width)}
+      height={toPositiveInteger(height)}
+      loading="lazy"
+      decoding="async"
+      className="h-auto max-w-full"
+    />
+  );
+};
+
 /**
  * 게시글 본문 (서버에서 Tiptap 문서를 편집기와 같은 스키마로 그림)
  * - 편집기와 같은 prose 클래스를 써서 모양을 맞춤
@@ -48,7 +83,9 @@ const PostContent = ({ content }: PostContentProps) => {
       {renderToReactElement({
         content,
         extensions: createDraftSchemaExtensions(),
-        options: { nodeMapping: { codeBlock: renderCodeBlock } },
+        options: {
+          nodeMapping: { codeBlock: renderCodeBlock, image: renderImage },
+        },
       })}
     </div>
   );

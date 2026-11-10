@@ -89,13 +89,18 @@ export function getImagePublicUrl(supabaseUrl: string, path: string): string {
   return `${trimTrailingSlash(supabaseUrl)}${PUBLIC_PATH_PREFIX}${path}`;
 }
 
-/** 허용된 주소면 버킷 안 경로를, 아니면 null (정해진 접두사 뒤가 `{uuid}.webp` 한 조각일 때만 허용) */
+/**
+ * 허용된 주소면 버킷 안 경로를, 아니면 null (정해진 접두사 뒤가 `{uuid}.webp` 한 조각일 때만 허용)
+ * - 기준 주소나 사용자 id 가 비었거나 사용자 id 에 `/` 가 있으면 접두사가 무너지므로 거부
+ */
 export function parseImagePath(
   supabaseUrl: string,
   src: string,
   userId: string,
 ): string | null {
-  const prefix = `${trimTrailingSlash(supabaseUrl)}${PUBLIC_PATH_PREFIX}${userId}/`;
+  const base = trimTrailingSlash(supabaseUrl);
+  if (!base || !userId || userId.includes('/')) return null;
+  const prefix = `${base}${PUBLIC_PATH_PREFIX}${userId}/`;
   if (!src.startsWith(prefix)) return null;
   const file = src.slice(prefix.length);
   if (!IMAGE_FILE_PATTERN.test(file)) return null;
@@ -119,37 +124,75 @@ function sanitizeImageAttrs(
   return cleaned;
 }
 
-/** 허용되지 않는 image 노드를 (중첩 포함) 제거하고, 남는 image 노드의 속성을 정리 (입력은 변경하지 않음) */
+// 비어도 스키마에 맞는 글자 블록 (이미지를 빼서 비어도 지우지 않음: 목록 항목의 첫 문단 자리 등)
+const TEXTBLOCK_TYPES = new Set(['paragraph', 'heading', 'codeBlock']);
+
+function isNodeObject(value: unknown): value is JSONContent {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+// 자식 목록에서 허용 안 되는 이미지를 지운 결과 (객체가 아닌 자식은 그대로 둠)
+function filterChildren(
+  children: JSONContent[],
+  allow: (src: string) => boolean,
+): JSONContent[] {
+  return children.flatMap((child) => {
+    if (!isNodeObject(child)) return [child];
+    const filtered = filterNode(child, allow);
+    return filtered ? [filtered] : [];
+  });
+}
+
+// 노드 하나 정리 (지울 노드면 null)
+function filterNode(
+  node: JSONContent,
+  allow: (src: string) => boolean,
+): JSONContent | null {
+  if (node.type === 'image') {
+    const src = node.attrs?.src;
+    if (typeof src !== 'string' || !allow(src)) return null;
+    return { type: 'image', attrs: sanitizeImageAttrs(node.attrs ?? {}, src) };
+  }
+  if (!Array.isArray(node.content) || node.content.length === 0) return node;
+
+  const content = filterChildren(node.content, allow);
+  if (content.length > 0) return { ...node, content };
+
+  // 이미지를 빼서 비게 됨: 글자 블록은 빈 채로 남기고, 그 밖의 묶음(목록 항목, 목록, 인용, 빈칸)은 지움
+  if (node.type && TEXTBLOCK_TYPES.has(node.type)) {
+    const emptied = { ...node };
+    delete emptied.content;
+    return emptied;
+  }
+  return null;
+}
+
+/**
+ * 허용되지 않는 image 노드를 (중첩 포함) 제거하고, 남는 image 노드는 type 과 정리한 attrs 만 남김 (입력은 변경하지 않음)
+ * - 문서 스키마를 지키도록, 이미지를 빼서 비게 된 묶음 노드(목록 항목, 목록, 인용 등)는 지우고 그 부모도 비면 함께 지움
+ * - 글자 블록(문단, 제목, 코드)은 비어도 스키마에 맞으므로 남김
+ * - 그렇게 해서 문서가 비면 빈 문단 하나를 남김 (원래 비어 있던 문서는 그대로)
+ */
 export function removeDisallowedImages(
   doc: JSONContent,
   allow: (src: string) => boolean,
 ): JSONContent {
-  if (!doc.content) return doc;
-  const content: JSONContent[] = [];
-  for (const node of doc.content) {
-    if (node.type === 'image') {
-      const src = node.attrs?.src;
-      if (typeof src === 'string' && allow(src)) {
-        content.push({
-          ...node,
-          attrs: sanitizeImageAttrs(node.attrs ?? {}, src),
-        });
-      }
-      continue;
-    }
-    content.push(removeDisallowedImages(node, allow));
-  }
-  return { ...doc, content };
+  if (!Array.isArray(doc.content) || doc.content.length === 0) return doc;
+  const content = filterChildren(doc.content, allow);
+  return {
+    ...doc,
+    content: content.length > 0 ? content : [{ type: 'paragraph' }],
+  };
 }
 
-/** 본문(중첩 포함)의 image 노드 src 를 순서대로 모음 */
+/** 본문(중첩 포함)의 image 노드 src 를 순서대로 모음 (저장된 본문의 잘못된 자식은 건너뜀) */
 export function collectImageSrcs(doc: JSONContent | null): string[] {
-  if (!doc) return [];
   const srcs: string[] = [];
-  const walk = (node: JSONContent) => {
+  const walk = (node: unknown) => {
+    if (!isNodeObject(node)) return;
     if (node.type === 'image' && typeof node.attrs?.src === 'string')
       srcs.push(node.attrs.src);
-    node.content?.forEach(walk);
+    if (Array.isArray(node.content)) node.content.forEach(walk);
   };
   walk(doc);
   return srcs;

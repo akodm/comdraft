@@ -1,5 +1,6 @@
 import type { AnyExtension } from '@tiptap/core';
 import { CodeBlock } from '@tiptap/extension-code-block';
+import { Image } from '@tiptap/extension-image';
 import { StarterKit } from '@tiptap/starter-kit';
 import { DraftBlank } from '@/lib/studio/draft-blank-node';
 
@@ -12,6 +13,22 @@ import { DraftBlank } from '@/lib/studio/draft-blank-node';
 export const DRAFT_HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
 export type DraftHeadingLevel = (typeof DRAFT_HEADING_LEVELS)[number];
+
+/**
+ * 본문 이미지 (블록, base64 금지)
+ * - 속성은 src/alt/width/height 만 (기본 확장의 title 은 뺌)
+ * - 주소 허용 검사는 저장·게시·AI 반영 때 서버에서 (lib/images/rules.ts)
+ */
+export const DraftImage = Image.extend({
+  addAttributes() {
+    return {
+      src: { default: null },
+      alt: { default: null },
+      width: { default: null },
+      height: { default: null },
+    };
+  },
+}).configure({ inline: false, allowBase64: false });
 
 export const createDraftSchemaExtensions = (
   codeBlock: AnyExtension = CodeBlock,
@@ -29,4 +46,5 @@ export const createDraftSchemaExtensions = (
   }),
   codeBlock,
   draftBlank,
+  DraftImage,
 ];

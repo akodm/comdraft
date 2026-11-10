@@ -1,3 +1,4 @@
+import { getSchema, type JSONContent } from '@tiptap/core';
 import { describe, expect, it } from 'vitest';
 import {
   IMAGE_CLEANUP_GRACE_MS,
@@ -11,11 +12,16 @@ import {
   parseImagePath,
   removeDisallowedImages,
 } from '@/lib/images/rules';
+import { createDraftSchemaExtensions } from '@/lib/studio/editor-schema';
 
 const URL_BASE = 'https://ref.supabase.co';
 const USER = 'user-1';
 const ID = '3f2b8c1e-1a2b-4c3d-8e9f-0a1b2c3d4e5f';
 const ok = `${URL_BASE}/storage/v1/object/public/comdraft-images/${USER}/${ID}.webp`;
+const schema = getSchema(createDraftSchemaExtensions());
+
+// 정리 결과가 문서 스키마에 맞는지 (맞지 않으면 던짐)
+const checkSchema = (doc: JSONContent) => schema.nodeFromJSON(doc).check();
 
 describe('checkImageFile', () => {
   it('파일 검사', () => {
@@ -135,6 +141,26 @@ describe('경로와 주소', () => {
     expect(parseImagePath(URL_BASE, '', USER)).toBeNull();
   });
 
+  it('기준 주소나 사용자 id 가 비었거나 사용자 id 에 / 가 있으면 거부', () => {
+    const rootPrefix = '/storage/v1/object/public/comdraft-images/';
+    expect(parseImagePath('', `${rootPrefix}${USER}/${ID}.webp`, USER)).toBe(
+      null,
+    );
+    expect(parseImagePath('/', `${rootPrefix}${USER}/${ID}.webp`, USER)).toBe(
+      null,
+    );
+    expect(
+      parseImagePath(URL_BASE, `${URL_BASE}${rootPrefix}/${ID}.webp`, ''),
+    ).toBeNull();
+    expect(
+      parseImagePath(
+        URL_BASE,
+        `${URL_BASE}${rootPrefix}${USER}/x/${ID}.webp`,
+        `${USER}/x`,
+      ),
+    ).toBeNull();
+  });
+
   it('기준 주소 끝의 슬래시는 무시', () => {
     expect(parseImagePath(`${URL_BASE}/`, ok, USER)).toBe(`${USER}/${ID}.webp`);
     expect(getImagePublicUrl(`${URL_BASE}/`, `${USER}/${ID}.webp`)).toBe(ok);
@@ -198,11 +224,150 @@ describe('removeDisallowedImages', () => {
     const cleaned = removeDisallowedImages(
       {
         type: 'doc',
-        content: [{ type: 'image' }, { type: 'image', attrs: { src: 1 } }],
+        content: [
+          { type: 'image' },
+          { type: 'image', attrs: { src: 1 } },
+          { type: 'paragraph' },
+        ],
       },
       () => true,
     );
-    expect(cleaned.content).toEqual([]);
+    expect(cleaned.content).toEqual([{ type: 'paragraph' }]);
+  });
+
+  it('남기는 이미지는 type 과 attrs 만 (content, marks, text 등은 버림)', () => {
+    const cleaned = removeDisallowedImages(
+      {
+        type: 'doc',
+        content: [
+          {
+            type: 'image',
+            attrs: { src: ok },
+            content: [{ type: 'text', text: 'x' }],
+            marks: [{ type: 'bold' }],
+            text: 'y',
+          } as JSONContent,
+        ],
+      },
+      () => true,
+    );
+    expect(cleaned.content).toEqual([{ type: 'image', attrs: { src: ok } }]);
+  });
+
+  it('이미지를 빼서 비게 된 목록 항목·목록·인용은 지우고 문서는 스키마에 맞음', () => {
+    const para = { type: 'paragraph', content: [{ type: 'text', text: 'a' }] };
+    const cleaned = removeDisallowedImages(
+      {
+        type: 'doc',
+        content: [
+          para,
+          {
+            type: 'bulletList',
+            content: [
+              {
+                type: 'listItem',
+                content: [{ type: 'image', attrs: { src: 'blob:x' } }],
+              },
+            ],
+          },
+          {
+            type: 'orderedList',
+            content: [
+              { type: 'listItem', content: [para] },
+              {
+                type: 'listItem',
+                content: [{ type: 'image', attrs: { src: 'blob:y' } }],
+              },
+            ],
+          },
+          {
+            type: 'blockquote',
+            content: [
+              {
+                type: 'blockquote',
+                content: [{ type: 'image', attrs: { src: 'data:x' } }],
+              },
+            ],
+          },
+        ],
+      },
+      () => false,
+    );
+    expect(cleaned).toEqual({
+      type: 'doc',
+      content: [
+        para,
+        {
+          type: 'orderedList',
+          content: [{ type: 'listItem', content: [para] }],
+        },
+      ],
+    });
+    expect(() => checkSchema(cleaned)).not.toThrow();
+  });
+
+  it('글자 블록(문단, 제목)은 비어도 남겨 목록 항목 첫 문단 자리를 지킴', () => {
+    const nested = {
+      type: 'bulletList',
+      content: [{ type: 'listItem', content: [{ type: 'paragraph' }] }],
+    };
+    const cleaned = removeDisallowedImages(
+      {
+        type: 'doc',
+        content: [
+          {
+            type: 'bulletList',
+            content: [
+              {
+                type: 'listItem',
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [{ type: 'image', attrs: { src: 'blob:x' } }],
+                  },
+                  nested,
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      () => false,
+    );
+    expect(cleaned.content).toEqual([
+      {
+        type: 'bulletList',
+        content: [
+          { type: 'listItem', content: [{ type: 'paragraph' }, nested] },
+        ],
+      },
+    ]);
+    expect(() => checkSchema(cleaned)).not.toThrow();
+  });
+
+  it('모두 지워져 빈 문서가 되면 빈 문단 하나를 남김 (원래 빈 문서는 그대로)', () => {
+    const cleaned = removeDisallowedImages(
+      {
+        type: 'doc',
+        content: [
+          {
+            type: 'blockquote',
+            content: [{ type: 'image', attrs: { src: 'blob:x' } }],
+          },
+        ],
+      },
+      () => false,
+    );
+    expect(cleaned).toEqual({ type: 'doc', content: [{ type: 'paragraph' }] });
+    expect(() => checkSchema(cleaned)).not.toThrow();
+    expect(
+      removeDisallowedImages({ type: 'doc', content: [] }, () => false),
+    ).toEqual({ type: 'doc', content: [] });
+  });
+
+  it('객체가 아닌 자식은 건드리지 않음', () => {
+    const doc = { type: 'doc', content: [null, 'x'] } as unknown as JSONContent;
+    expect(removeDisallowedImages(doc, () => false)).toEqual(doc);
   });
 
   it('중첩 노드(목록, 인용)도 처리하고 다른 노드는 그대로 둠', () => {
@@ -246,7 +411,6 @@ describe('removeDisallowedImages', () => {
             },
           ],
         },
-        { type: 'blockquote', content: [] },
       ],
     });
   });
@@ -286,6 +450,19 @@ describe('collectImageSrcs', () => {
       ],
     };
     expect(collectImageSrcs(doc)).toEqual(['a', 'b']);
+  });
+
+  it('저장된 본문의 잘못된 자식(객체 아님, content 가 배열 아님)은 건너뜀', () => {
+    const doc = {
+      type: 'doc',
+      content: [
+        null,
+        'x',
+        { type: 'paragraph', content: 'y' },
+        { type: 'image', attrs: { src: 'a' } },
+      ],
+    } as unknown as JSONContent;
+    expect(collectImageSrcs(doc)).toEqual(['a']);
   });
 });
 

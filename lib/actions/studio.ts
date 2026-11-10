@@ -14,11 +14,18 @@ import {
 import { COMMITS_PER_PAGE, listRepositoryCommits } from '@/lib/github/commits';
 import { GithubApiError, GithubUserTokenError } from '@/lib/github/user-api';
 import {
+  listDraftImages,
+  scheduleDraftImageCleanup,
+  scheduleDraftImageRemoval,
+} from '@/lib/images/cleanup';
+import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
+import {
   extractDraftTitle,
   getCommitSubject,
   parseDraftDocument,
 } from '@/lib/studio/draft-content';
 import { isOwnedDraft } from '@/lib/studio/queries';
+import { getSupabaseUrl } from '@/lib/supabase/server';
 
 // 커밋 내역 사이드바에 필요한 값만 전달 (커밋 내용은 저장하지 않음)
 export interface StudioCommit {
@@ -110,6 +117,8 @@ export type SaveDraftContentResult =
  * - 목록 순서가 매번 바뀌지 않도록 화면은 다시 렌더링하지 않고, 바뀐 제목만 돌려줌
  * - AI 작성 작업이 진행 중(또는 결과 반영 전)이면 저장하지 않음 (같은 UPDATE 조건으로 확인)
  * - 게시한 초안을 고치면 같은 UPDATE 에서 임시 저장 상태로 바꿈 (게시글 스냅샷은 그대로)
+ * - 이미지는 그 사용자의 공개 버킷 주소만 남김 (blob:, 외부 주소, 다른 사용자 경로는 노드째 지움)
+ * - 저장 후 응답 뒤에 쓰지 않는 이미지를 정리 (정리 실패는 저장 결과를 바꾸지 않고 다음 정리 때 다시 시도)
  */
 export async function saveDraftContent(
   repositoryId: string,
@@ -117,9 +126,9 @@ export async function saveDraftContent(
   contentJson: string,
 ): Promise<SaveDraftContentResult> {
   const { user } = await requireSession();
-  const content = parseDraftDocument(contentJson);
+  const parsed = parseDraftDocument(contentJson);
 
-  if (!content) {
+  if (!parsed) {
     return { status: 'invalid' };
   }
 
@@ -130,6 +139,11 @@ export async function saveDraftContent(
   // 시간 초과된 작업 정리, 완료한 결과 반영 (반영되면 잠금이 풀림)
   await syncDraftJobs(draftId);
 
+  const supabaseUrl = getSupabaseUrl();
+  const content = removeDisallowedImages(
+    parsed,
+    (src) => parseImagePath(supabaseUrl, src, user.id) !== null,
+  );
   const title = extractDraftTitle(content);
   const [updated] = await db
     .update(draft)
@@ -141,9 +155,13 @@ export async function saveDraftContent(
     .where(and(eq(draft.id, draftId), not(lockingJobExists(draft.id))))
     .returning({ id: draft.id, status: draft.status });
 
-  return updated
-    ? { status: 'saved', title, draftStatus: updated.status }
-    : { status: 'locked' };
+  if (!updated) {
+    return { status: 'locked' };
+  }
+
+  scheduleDraftImageCleanup(draftId);
+
+  return { status: 'saved', title, draftStatus: updated.status };
 }
 
 export type DeleteDraftResult =
@@ -158,6 +176,7 @@ export type DeleteDraftResult =
  * - 화면은 다시 렌더링하지 않음: 열려 있는 초안이면 다시 그리는 순간 404 가 되므로,
  *   목록에서 숨기고 다른 초안으로 옮기는 일은 클라이언트가 처리
  * - AI 작성 작업이 진행 중이면 삭제하지 않음
+ * - 그 초안에 올린 이미지는 삭제 전에 모아 두고, 삭제(게시글도 함께) 후 응답 뒤에 파일과 행을 유예 없이 지움
  */
 export async function deleteDraft(
   repositoryId: string,
@@ -173,6 +192,8 @@ export async function deleteDraft(
     return { status: 'locked' };
   }
 
+  // 삭제하면 행의 draft_id 가 비므로 먼저 모아 둠
+  const images = await listDraftImages(draftId);
   const deleted = await db
     .delete(draft)
     .where(
@@ -184,5 +205,11 @@ export async function deleteDraft(
     )
     .returning({ id: draft.id });
 
-  return deleted.length > 0 ? { status: 'deleted' } : { status: 'not_found' };
+  if (deleted.length === 0) {
+    return { status: 'not_found' };
+  }
+
+  scheduleDraftImageRemoval(images);
+
+  return { status: 'deleted' };
 }

@@ -27,6 +27,38 @@ const getMarkdownManager = () => {
   return markdownManager;
 };
 
+// 이미지를 담을 수 없는 글자 블록 (Markdown 의 인라인 이미지가 이 안에 들어옴)
+const TEXTBLOCK_TYPES = new Set(['paragraph', 'heading']);
+
+/**
+ * 글자 블록 안의 이미지를 그 블록 바로 뒤로 꺼냄 (이미지는 블록 노드라 문단 안에 둘 수 없음)
+ * - 이미지만 있던 문단은 빈 문단으로 남겨 목록 항목의 첫 문단 자리를 지킴
+ */
+const liftImages = (children: JSONContent[]): JSONContent[] =>
+  children.flatMap((child) => {
+    const inner = child.content ?? [];
+
+    if (
+      !TEXTBLOCK_TYPES.has(child.type ?? '') ||
+      !inner.some((node) => node.type === 'image')
+    ) {
+      return [child];
+    }
+
+    const block: JSONContent = { ...child };
+    const rest = inner.filter((node) => node.type !== 'image');
+    const images = inner.filter((node) => node.type === 'image');
+
+    // 이미지만 있던 문단은 content 없이 빈 문단으로
+    if (rest.length > 0) {
+      block.content = rest;
+    } else {
+      delete block.content;
+    }
+
+    return [block, ...images];
+  });
+
 const normalizeMarks = (marks: JSONContent['marks']) => {
   const safeMarks = marks?.filter(
     (mark) =>
@@ -41,6 +73,7 @@ const normalizeMarks = (marks: JSONContent['marks']) => {
  * 생성된 문서를 편집기 스키마에 맞게 정리 (순수 함수)
  * - 제목 단계는 편집기에서 쓰는 범위(DRAFT_HEADING_LEVELS) 안으로 맞춤 (벗어나면 가장 가까운 단계로)
  * - 안전하지 않은 링크 마크 제거
+ * - 문단 안의 이미지는 문단 뒤로 꺼내고, 빈칸 안의 이미지는 버림 (주소 허용 검사는 반영할 때 따로)
  */
 export const normalizeGeneratedDocument = (node: JSONContent): JSONContent => {
   const normalized: JSONContent = { ...node };
@@ -59,14 +92,20 @@ export const normalizeGeneratedDocument = (node: JSONContent): JSONContent => {
   }
 
   if (node.content) {
-    normalized.content = node.content.map(normalizeGeneratedDocument);
+    normalized.content = liftImages(
+      node.content.map(normalizeGeneratedDocument),
+    );
   }
 
   if (node.type === 'draftBlank') {
+    const paragraphs = normalized.content?.filter(
+      (child) => child.type !== 'image',
+    );
+
     normalized.attrs = normalizeBlankAttrs(node.attrs);
     normalized.content =
-      normalized.content && normalized.content.length > 0
-        ? normalized.content
+      paragraphs && paragraphs.length > 0
+        ? paragraphs
         : [{ type: 'paragraph' }];
   }
 

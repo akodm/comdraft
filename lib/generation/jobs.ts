@@ -23,7 +23,10 @@ import type {
 import { isGenerationErrorCode } from '@/lib/generation/contract';
 import { getStaleCutoffs } from '@/lib/generation/job-state';
 import { markdownToDraftDocument } from '@/lib/generation/markdown';
+import { scheduleDraftImageCleanup } from '@/lib/images/cleanup';
+import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
 import { extractDraftTitle } from '@/lib/studio/draft-content';
+import { getSupabaseUrl } from '@/lib/supabase/server';
 
 /**
  * AI 작성 작업(draft_prompt) 저장소
@@ -142,10 +145,13 @@ export const expireStaleJobs = async (
  * 완료한 작업의 결과(Markdown)를 초안 본문에 한 번만 반영
  * - applied_at 을 먼저 선점한 요청만 반영하므로 여러 번 호출해도 결과는 한 번만 들어감
  * - 결과가 없거나 변환에 실패하면 작업을 invalid_result 로 실패 처리 (잠금 해제)
+ * - 이미지는 그 초안 사용자의 공개 버킷 주소만 남김 (자동 저장과 같은 규칙)
+ * - 반영하면 트랜잭션 밖에서(응답 뒤) 쓰지 않게 된 이미지를 정리
  * @returns 이번 호출에서 반영했는지
  */
 export const applyCompletedJob = async (jobId: string) => {
-  return db.transaction(async (tx) => {
+  const supabaseUrl = getSupabaseUrl();
+  const appliedDraftId = await db.transaction(async (tx) => {
     const now = new Date();
     const [claimed] = await tx
       .update(draftPrompt)
@@ -161,13 +167,28 @@ export const applyCompletedJob = async (jobId: string) => {
 
     // 그 사이 초안이 삭제됐으면 반영할 곳이 없음 (작업 행은 사용량 기록으로만 남음)
     if (!claimed?.draftId) {
-      return false;
+      return null;
+    }
+
+    const [owner] = await tx
+      .select({ userId: draft.userId })
+      .from(draft)
+      .where(eq(draft.id, claimed.draftId))
+      .limit(1);
+
+    if (!owner) {
+      return null;
     }
 
     let content: ReturnType<typeof markdownToDraftDocument> | null = null;
 
     try {
-      content = claimed.result ? markdownToDraftDocument(claimed.result) : null;
+      content = claimed.result
+        ? removeDisallowedImages(
+            markdownToDraftDocument(claimed.result),
+            (src) => parseImagePath(supabaseUrl, src, owner.userId) !== null,
+          )
+        : null;
     } catch {
       content = null;
     }
@@ -178,7 +199,7 @@ export const applyCompletedJob = async (jobId: string) => {
         .set({ status: 'failed', errorCode: 'invalid_result' })
         .where(eq(draftPrompt.id, jobId));
 
-      return false;
+      return null;
     }
 
     await tx
@@ -191,8 +212,16 @@ export const applyCompletedJob = async (jobId: string) => {
       })
       .where(eq(draft.id, claimed.draftId));
 
-    return true;
+    return claimed.draftId;
   });
+
+  if (!appliedDraftId) {
+    return false;
+  }
+
+  scheduleDraftImageCleanup(appliedDraftId);
+
+  return true;
 };
 
 /**

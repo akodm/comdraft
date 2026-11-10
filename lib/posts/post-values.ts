@@ -4,6 +4,7 @@ import type { Locale } from '@/lib/i18n/config';
 import {
   extractPostExcerpt,
   sanitizePostContent,
+  type SanitizePostContentOptions,
 } from '@/lib/posts/post-content';
 import { createPostSlug } from '@/lib/posts/post-path';
 
@@ -19,6 +20,7 @@ export const parsePostVisibility = (value: unknown): PostVisibility | null => {
 /**
  * 게시글에 저장할 값 (본문은 정리한 스냅샷, 요약은 정리한 본문에서 추출)
  * - 잘못된 구조면 sanitizePostContent 가 InvalidPostContentError 를 던짐
+ * - 이미지는 sanitizeOptions 의 사용자 공개 버킷 주소만 남음
  * - 빈칸 검사는 호출하는 쪽에서 먼저 해야 함 (checkPublishable)
  */
 export const buildPostValues = (
@@ -26,8 +28,9 @@ export const buildPostValues = (
   title: string,
   locale: Locale,
   visibility: PostVisibility,
+  sanitizeOptions: SanitizePostContentOptions,
 ) => {
-  const sanitized = sanitizePostContent(content);
+  const sanitized = sanitizePostContent(content, sanitizeOptions);
 
   return {
     title,

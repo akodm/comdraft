@@ -32,6 +32,20 @@ const blank = (): JSONContent => ({
   attrs: { kind: 'detail', hint: '' },
   content: [{ type: 'paragraph' }],
 });
+const SUPABASE_URL = 'https://ref.supabase.co';
+const OWNER = 'user-1';
+const OTHER = 'user-2';
+const IMAGE_ID = '3f2b8c1e-1a2b-4c3d-8e9f-0a1b2c3d4e5f';
+const OPTIONS = { imageOwnerId: OWNER, supabaseUrl: SUPABASE_URL };
+const imageUrl = (userId: string) =>
+  `${SUPABASE_URL}/storage/v1/object/public/comdraft-images/${userId}/${IMAGE_ID}.webp`;
+const image = (attrs: Record<string, unknown>): JSONContent => ({
+  type: 'image',
+  attrs,
+});
+// 기존 검사는 이미지가 없으므로 같은 옵션으로 정리
+const sanitizeWithOptions = (input: JSONContent) =>
+  sanitizePostContent(input, OPTIONS);
 const codeBlock = (language: string, value: string): JSONContent => ({
   type: 'codeBlock',
   attrs: { language },
@@ -94,7 +108,7 @@ describe('sanitizePostContent', () => {
   it.each([' JavaScript:alert(1)', 'java\tscript:x', 'data:text/html,x'])(
     '위험한 링크 %j 는 마크가 지워진다',
     (href) => {
-      const out = sanitizePostContent(
+      const out = sanitizeWithOptions(
         doc({ type: 'paragraph', content: [link('a', href)] }),
       );
 
@@ -106,7 +120,7 @@ describe('sanitizePostContent', () => {
   );
 
   it('알 수 없는 마크는 버린다', () => {
-    const out = sanitizePostContent(
+    const out = sanitizeWithOptions(
       doc({
         type: 'paragraph',
         content: [
@@ -119,7 +133,7 @@ describe('sanitizePostContent', () => {
   });
 
   it('링크의 rel·target·class 는 클라이언트 값을 버리고 편집기 설정을 쓴다', () => {
-    const out = sanitizePostContent(
+    const out = sanitizeWithOptions(
       doc({
         type: 'paragraph',
         content: [
@@ -151,7 +165,7 @@ describe('sanitizePostContent', () => {
 
   it('codeBlock language 는 안전한 값만 허용', () => {
     const lang = (language: string) =>
-      sanitizePostContent(doc(codeBlock(language, 'x'))).content?.[0].attrs
+      sanitizeWithOptions(doc(codeBlock(language, 'x'))).content?.[0].attrs
         ?.language;
 
     expect(lang('ts evil')).toBeNull();
@@ -159,13 +173,13 @@ describe('sanitizePostContent', () => {
   });
 
   it('heading level 이 범위 밖이면 기본값', () => {
-    const out = sanitizePostContent(doc(h(99, '제목')));
+    const out = sanitizeWithOptions(doc(h(99, '제목')));
 
     expect(out.content?.[0].attrs?.level).toBe(1);
   });
 
   it('draftBlank 속성은 정리한다', () => {
-    const out = sanitizePostContent(
+    const out = sanitizeWithOptions(
       doc({
         ...blank(),
         attrs: { kind: 'oops', hint: 'a"b' },
@@ -177,7 +191,7 @@ describe('sanitizePostContent', () => {
   });
 
   it('잘못된 구조는 버리거나 InvalidPostContentError', () => {
-    const out = sanitizePostContent(
+    const out = sanitizeWithOptions(
       doc(
         null as unknown as JSONContent,
         {
@@ -199,14 +213,14 @@ describe('sanitizePostContent', () => {
         { type: 'paragraph' },
       ),
     );
-    expect(() => sanitizePostContent(p('a'))).toThrow(InvalidPostContentError);
-    expect(() => sanitizePostContent(null as never)).toThrow(
+    expect(() => sanitizeWithOptions(p('a'))).toThrow(InvalidPostContentError);
+    expect(() => sanitizeWithOptions(null as never)).toThrow(
       InvalidPostContentError,
     );
   });
 
   it('javascript: 링크는 마크만 지우고 글자는 남긴다', () => {
-    const out = sanitizePostContent(
+    const out = sanitizeWithOptions(
       doc({
         type: 'paragraph',
         content: [link('클릭', 'javascript:alert(1)')],
@@ -220,7 +234,7 @@ describe('sanitizePostContent', () => {
   });
 
   it('파싱할 수 없는 href 도 마크를 지운다', () => {
-    const out = sanitizePostContent(
+    const out = sanitizeWithOptions(
       doc({ type: 'paragraph', content: [link('a', '/relative')] }),
     );
 
@@ -229,7 +243,7 @@ describe('sanitizePostContent', () => {
 
   it('http, https, mailto 링크는 유지', () => {
     for (const href of ['http://a.com', 'https://a.com', 'mailto:a@a.com']) {
-      const out = sanitizePostContent(
+      const out = sanitizeWithOptions(
         doc({ type: 'paragraph', content: [link('a', href)] }),
       );
 
@@ -238,7 +252,7 @@ describe('sanitizePostContent', () => {
   });
 
   it('스키마에 없는 노드와 속성은 버린다', () => {
-    const out = sanitizePostContent(
+    const out = sanitizeWithOptions(
       doc(
         { type: 'iframe', attrs: { src: 'x' } },
         {
@@ -255,11 +269,131 @@ describe('sanitizePostContent', () => {
   it('정상 문서는 그대로', () => {
     const input = doc(h(2, '제목'), p('본문'), codeBlock('ts', 'const a = 1;'));
 
-    expect(sanitizePostContent(input)).toEqual(input);
+    expect(sanitizeWithOptions(input)).toEqual(input);
+  });
+});
+
+describe('sanitizePostContent 이미지', () => {
+  it('허용 이미지는 남기고 속성은 src/alt/width/height 만', () => {
+    const out = sanitizePostContent(
+      doc(
+        {
+          ...image({
+            src: imageUrl(OWNER),
+            alt: '그림',
+            width: 640,
+            height: 480,
+            title: 't',
+            onerror: 'alert(1)',
+          }),
+          content: [text('x')],
+          marks: [{ type: 'bold' }],
+        },
+        p('본문'),
+      ),
+      OPTIONS,
+    );
+
+    expect(out).toEqual(
+      doc(
+        image({ src: imageUrl(OWNER), alt: '그림', width: 640, height: 480 }),
+        p('본문'),
+      ),
+    );
+  });
+
+  it('다른 사용자 경로, 외부 주소, blob:, data: 이미지는 노드째 지운다', () => {
+    const out = sanitizePostContent(
+      doc(
+        p('앞'),
+        image({ src: imageUrl(OTHER) }),
+        image({ src: 'https://evil.example/a.webp' }),
+        image({ src: 'blob:http://localhost/x' }),
+        image({ src: 'data:image/png;base64,AAA' }),
+        image({ alt: 'src 없음' }),
+        p('뒤'),
+      ),
+      OPTIONS,
+    );
+
+    expect(out).toEqual(doc(p('앞'), p('뒤')));
+  });
+
+  it('alt 는 200자로 자른다', () => {
+    const out = sanitizePostContent(
+      doc(image({ src: imageUrl(OWNER), alt: '가'.repeat(250) })),
+      OPTIONS,
+    );
+
+    expect(out.content?.[0].attrs?.alt).toBe('가'.repeat(200));
+  });
+
+  it('width/height 는 양의 정수만, alt 는 문자열만 (아니면 비움)', () => {
+    const out = sanitizePostContent(
+      doc(
+        image({ src: imageUrl(OWNER), alt: 5, width: -3, height: '480' }),
+        image({ src: imageUrl(OWNER), width: 1.5, height: 0 }),
+      ),
+      OPTIONS,
+    );
+
+    expect(out.content?.map((node) => node.attrs)).toEqual([
+      { src: imageUrl(OWNER), alt: null, width: null, height: null },
+      { src: imageUrl(OWNER), alt: null, width: null, height: null },
+    ]);
+  });
+
+  it('이미지를 빼서 비게 된 인용·목록 항목이 있어도 게시할 수 있다', () => {
+    const out = sanitizePostContent(
+      doc(
+        p('본문'),
+        { type: 'blockquote', content: [image({ src: 'blob:x' })] },
+        {
+          type: 'bulletList',
+          content: [
+            {
+              type: 'listItem',
+              content: [p('항목'), image({ src: imageUrl(OTHER) })],
+            },
+          ],
+        },
+      ),
+      OPTIONS,
+    );
+
+    expect(out).toEqual(
+      doc(p('본문'), {
+        type: 'bulletList',
+        content: [{ type: 'listItem', content: [p('항목')] }],
+      }),
+    );
+  });
+
+  it('소유자나 기준 주소가 비었으면 이미지를 모두 지운다', () => {
+    const input = doc(p('a'), image({ src: imageUrl(OWNER) }));
+
+    expect(
+      sanitizePostContent(input, { ...OPTIONS, imageOwnerId: '' }),
+    ).toEqual(doc(p('a')));
+    expect(sanitizePostContent(input, { ...OPTIONS, supabaseUrl: '' })).toEqual(
+      doc(p('a')),
+    );
   });
 });
 
 describe('extractPostExcerpt', () => {
+  it('이미지는 건너뛴다', () => {
+    expect(
+      extractPostExcerpt(
+        doc(
+          p('앞'),
+          image({ src: imageUrl(OWNER), alt: '그림 설명' }),
+          p('뒤'),
+        ),
+      ),
+    ).toBe('앞 뒤');
+  });
+
   it('요약은 문단 글자만, 코드·제목 건너뜀', () => {
     expect(
       extractPostExcerpt(
