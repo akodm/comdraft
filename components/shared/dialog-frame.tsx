@@ -22,6 +22,11 @@ const useModalDialog = () => {
 
     const { style } = document.documentElement;
     const previousOverflow = style.overflow;
+    // 닫을 때 돌아갈 포커스 (언마운트로 닫히면 브라우저가 포커스를 되돌려 주지 않아 직접 복귀)
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
 
     dialog.showModal();
     style.overflow = 'hidden';
@@ -29,6 +34,10 @@ const useModalDialog = () => {
     return () => {
       style.overflow = previousOverflow;
       dialog.close();
+
+      if (previousFocus?.isConnected) {
+        previousFocus.focus();
+      }
     };
   }, []);
 

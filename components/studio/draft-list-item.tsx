@@ -27,7 +27,10 @@ const DraftItemMenu = ({ title, onDelete }: DraftItemMenuProps) => {
     useDropdown<HTMLButtonElement>();
   const label = title || t`제목 없는 초안`;
 
+  // 확인 창(dialog)은 닫힐 때 열기 전 포커스로 돌아가므로, 사라질 메뉴 항목 대신 메뉴 버튼에 포커스를 둔 뒤 염
+  // (취소해도 키보드 포커스가 초안 항목에 남음)
   const handleDelete = () => {
+    triggerRef.current?.focus();
     toggle();
     onDelete();
   };

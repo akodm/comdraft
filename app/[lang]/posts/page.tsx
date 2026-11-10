@@ -33,8 +33,13 @@ export default async function PostsPage() {
         <h1 className="sr-only">
           <Trans>게시글</Trans>
         </h1>
+        {/* 첫 페이지가 바뀌면(새로고침·새 글) 이어 붙인 목록을 버리고 새로 시작 */}
         {firstPage.posts.length > 0 ? (
-          <PostFeed initialPage={firstPage} locale={locale} />
+          <PostFeed
+            key={`${locale}:${firstPage.posts[0]?.id ?? ''}:${firstPage.nextCursor ?? ''}`}
+            initialPage={firstPage}
+            locale={locale}
+          />
         ) : (
           <p className="my-auto text-center text-[14px] leading-[1.7] text-ink-muted">
             <Trans>아직 게시된 글이 없습니다</Trans>
