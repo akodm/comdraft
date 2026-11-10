@@ -37,22 +37,22 @@ export const createEditorExtensions = (labels: EditorLabels) => [
     }),
     DraftBlank.extend({
       addNodeView() {
-        return createDraftBlankNodeView(labels.blank);
+        return createDraftBlankNodeView({
+          ...labels.blank,
+          placeholder: labels.blankPlaceholder,
+        });
       },
     }),
   ),
   Placeholder.configure({
     // 빈칸 안의 문단도 안내 문구를 보여 주려고 자식 노드까지 포함
+    // 빈칸 안 문구는 빈칸 노드 뷰가 CSS 변수로 덮어씀 (여기서 부모를 찾으면
+    // 이 함수가 새 문서 기준 위치로 불리는 동안 editor.state 는 이전 문서라 위치가 어긋남)
     includeChildren: true,
-    placeholder: ({ node, editor, pos }) => {
-      if (node.type.name === 'heading') {
-        return labels.headingPlaceholder;
-      }
-
-      return editor.state.doc.resolve(pos).parent.type.name === 'draftBlank'
-        ? labels.blankPlaceholder
-        : labels.paragraphPlaceholder;
-    },
+    placeholder: ({ node }) =>
+      node.type.name === 'heading'
+        ? labels.headingPlaceholder
+        : labels.paragraphPlaceholder,
   }),
   Markdown,
 ];

@@ -4,6 +4,8 @@ import { normalizeBlankAttrs, type BlankKind } from '@/lib/studio/draft-blank';
 export interface DraftBlankLabels {
   kinds: Record<BlankKind, { label: string; fallback: string }>;
   done: string;
+  // 빈칸 안 빈 문단의 안내 문구 (없으면 편집기 기본 문구)
+  placeholder?: string;
 }
 
 /**
@@ -67,6 +69,16 @@ export const createDraftBlankNodeView =
       'shrink-0 rounded px-2 py-1 font-sans text-[11px] leading-[normal] font-medium text-brand hover:bg-brand/10 disabled:text-ink-faint disabled:hover:bg-transparent',
     );
     const content = createElement('div', 'min-w-0');
+
+    // 빈칸 안 빈 문단은 편집기 Placeholder 대신 이 문구를 보여 줌 (draft-editor 의 PROSE_CLASS 에서 사용)
+    content.dataset.blankContent = '';
+
+    if (labels.placeholder) {
+      dom.style.setProperty(
+        '--blank-placeholder',
+        JSON.stringify(labels.placeholder),
+      );
+    }
 
     header.contentEditable = 'false';
     icon.src = '/images/studio/pencil-line.svg';

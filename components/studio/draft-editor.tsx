@@ -57,6 +57,8 @@ const PROSE_CLASS = [
   '[&>*]:mb-0! [&>*]:mt-6.5! pc:[&>*]:mt-6! [&>h1+*]:mt-4! pc:[&>h1+*]:mt-4.5! [&>h2+*]:mt-2.5! pc:[&>h2+*]:mt-2! [&>:is(h3,h4,h5,h6)+*]:mt-2! [&>:first-child]:mt-0!',
   // 빈 줄 안내 문구 (Placeholder 확장)
   '[&_.is-empty]:before:pointer-events-none [&_.is-empty]:before:float-left [&_.is-empty]:before:h-0 [&_.is-empty]:before:text-ink-subtle [&_.is-empty]:before:content-[attr(data-placeholder)]',
+  // 빈칸 안 빈 문단은 빈칸 노드 뷰가 정한 문구로 (draft-blank-node-view 의 --blank-placeholder)
+  '[&_[data-blank-content]_.is-empty]:before:content-(--blank-placeholder)',
 ].join(' ');
 
 // 파일 이름에 쓸 수 없는 문자 제거 (제목이 없으면 draft)
