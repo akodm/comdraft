@@ -5,14 +5,9 @@ import { Trans } from '@lingui/react/macro';
 import DialogFrame from '@/components/shared/dialog-frame';
 import {
   BRAND_BUTTON_CLASS,
+  DANGER_BUTTON_CLASS,
   OUTLINE_BUTTON_CLASS,
 } from '@/components/studio/studio-styles';
-
-// 삭제처럼 되돌릴 수 없는 작업의 확인 버튼 색
-const DANGER_BUTTON_CLASS = BRAND_BUTTON_CLASS.replaceAll(
-  /\b(border|bg)-brand\b/g,
-  '$1-danger',
-);
 
 interface ConfirmDialogProps {
   title: string;

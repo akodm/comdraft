@@ -20,6 +20,11 @@ export const OUTLINE_BUTTON_CLASS =
 export const BRAND_BUTTON_CLASS =
   'flex items-center justify-center gap-2 rounded border border-brand bg-brand px-3.5 text-[12px] leading-[normal] font-medium whitespace-nowrap text-white disabled:opacity-50';
 
+// 빨간색 작업 버튼 (삭제처럼 되돌릴 수 없는 작업의 확인)
+// - Tailwind 가 소스에서 클래스 이름을 찾아 만들므로 문자열 치환으로 만들지 말고 그대로 적어 둠
+export const DANGER_BUTTON_CLASS =
+  'flex items-center justify-center gap-2 rounded border border-danger bg-danger px-3.5 text-[12px] leading-[normal] font-medium whitespace-nowrap text-white disabled:opacity-50';
+
 // 아이콘만 있는 투명 버튼 (편집 도구, 닫기, 외부 링크)
 export const ICON_BUTTON_CLASS =
   'flex shrink-0 items-center justify-center rounded hover:bg-surface focus-visible:bg-surface disabled:opacity-40 disabled:hover:bg-transparent';
