@@ -92,6 +92,13 @@
       "when": 1794291815155,
       "tag": "0012_tan_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794296129310,
+      "tag": "0013_jittery_nomad",
+      "breakpoints": true
     }
   ]
 }

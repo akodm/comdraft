@@ -59,9 +59,6 @@ export const draft = comdraftSchema.table(
     // Tiptap 문서(JSON). 아직 작성 요청을 보내지 않은 초안은 null
     content: jsonb('content'),
     status: text('status').$type<DraftStatus>().default('draft').notNull(),
-    // 사용하지 않음: 공개 범위는 post.visibility 로 옮겨졌고, 배포 후 다음 마이그레이션에서 삭제 예정
-    // (배포 순서 때문에 이전 코드가 이 컬럼을 읽고 쓰는 동안은 남겨 둠, 앱에서 읽거나 쓰지 말 것)
-    visibility: text('visibility'),
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
