@@ -61,6 +61,14 @@ export function checkImageFile(file: {
   return { ok: true };
 }
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+/** 경로에 쓰기 전 UUID 형식 검사 */
+export function isUuid(value: string): boolean {
+  return UUID_PATTERN.test(value);
+}
+
 /** 공개 버킷 안 경로 */
 export function getImagePath(userId: string, imageId: string): string {
   return `${userId}/${imageId}.webp`;

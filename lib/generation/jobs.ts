@@ -236,6 +236,19 @@ export const isDraftLocked = async (draftId: string) => {
   return Boolean(active);
 };
 
+// 초안을 잠그는 작업(진행 중 또는 반영 전 결과)이 있는지: 정리 후 `lockingJobExists` 로 확인 (본문 저장과 같은 조건)
+export const isDraftEditLocked = async (draftId: string) => {
+  await syncDraftJobs(draftId);
+
+  const [locked] = await db
+    .select({ id: draft.id })
+    .from(draft)
+    .where(and(eq(draft.id, draftId), lockingJobExists(draft.id)))
+    .limit(1);
+
+  return Boolean(locked);
+};
+
 // 초안의 가장 최근 작업
 export const getLatestDraftJob = async (
   draftId: string,
