@@ -75,6 +75,37 @@ describe('convertToWebp', () => {
     expect(result.width).toBe(40);
   });
 
+  it('AVIF 는 허용해 WebP 로 바꾼다', async () => {
+    const input = await solid(64, 48).avif().toBuffer();
+    const result = await convertToWebp(input);
+    const meta = await sharp(result.data).metadata();
+    expect(meta.format).toBe('webp');
+    expect(result.width).toBe(64);
+    expect(result.height).toBe(48);
+  });
+
+  it('프레임마다는 작아도 전체 픽셀이 한도를 넘는 애니메이션은 too_large 로 거부한다', async () => {
+    // 200x200 프레임 1001장 = 40,040,000 픽셀 (프레임당 한도로는 걸리지 않음)
+    const colors = [
+      { r: 255, g: 0, b: 0 },
+      { r: 0, g: 0, b: 255 },
+    ];
+    const frames = await Promise.all(
+      colors.map((background) =>
+        sharp({ create: { width: 200, height: 200, channels: 3, background } })
+          .png()
+          .toBuffer(),
+      ),
+    );
+    const input = await sharp(
+      Array.from({ length: 1001 }, (_, i) => frames[i % 2]),
+      { join: { animated: true } },
+    )
+      .gif()
+      .toBuffer();
+    expect(await reasonOf(convertToWebp(input))).toBe('too_large');
+  });
+
   it('이미지가 아닌 바이트는 type 으로 거부한다', async () => {
     expect(await reasonOf(convertToWebp(Buffer.from('not an image')))).toBe(
       'type',

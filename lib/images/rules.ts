@@ -11,13 +11,15 @@ export const IMAGE_ACCEPTED_MIME_TYPES = [
   'image/gif',
   'image/avif',
 ] as const;
-/** sharp 가 판별한 실제 형식 중 허용하는 것 */
+/**
+ * sharp 가 판별한 실제 형식 중 허용하는 것.
+ * AVIF 는 sharp 에서 `heif` + 압축 `av1` 로 보고되므로 여기 없고 convert 에서 따로 허용한다.
+ */
 export const IMAGE_ACCEPTED_SHARP_FORMATS = [
   'jpeg',
   'png',
   'webp',
   'gif',
-  'avif',
 ] as const;
 export const IMAGE_MAX_WIDTH = 1280;
 export const IMAGE_WEBP_QUALITY = 80;
