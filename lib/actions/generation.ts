@@ -1,6 +1,6 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import { refresh } from 'next/cache';
 import { headers } from 'next/headers';
 import { requireSession } from '@/lib/auth/session';
@@ -23,6 +23,7 @@ import {
   MAX_GENERATION_COMMITS,
   MAX_GENERATION_PROMPT_LENGTH,
 } from '@/lib/generation/limits';
+import { getUserQuota } from '@/lib/generation/quota-queries';
 import type { Locale } from '@/lib/i18n/config';
 import { getRequestLocale } from '@/lib/i18n/request';
 import {
@@ -55,6 +56,10 @@ export type RequestDraftGenerationResult =
   // 이 초안에 이미 진행 중인 작업이 있음
   | { status: 'busy' }
   | { status: 'rate_limited' }
+  // 이번 주 사용량을 모두 사용함 (resetsAt 은 ISO)
+  | { status: 'quota_exhausted'; resetsAt: string }
+  // 등급의 할당량 정책이 없어 확인할 수 없음
+  | { status: 'quota_unavailable' }
   | { status: 'invalid' }
   | { status: 'not_found' }
   | { status: 'github_reauth' }
@@ -118,12 +123,25 @@ const createJob = async (
 
   try {
     await db.transaction(async (tx) => {
+      // 요청 시점의 참고 링크 (작성기는 이 목록만 읽음)
+      let referenceUrls = request.referenceUrls;
+
       if (request.draftId) {
         // 최근 수정순 목록의 맨 위로 올림
         await tx
           .update(draft)
           .set({ updatedAt: new Date() })
           .where(eq(draft.id, draftId));
+
+        const links = await tx
+          .select({ url: draftReferenceLink.url })
+          .from(draftReferenceLink)
+          .where(eq(draftReferenceLink.draftId, draftId))
+          .orderBy(
+            asc(draftReferenceLink.createdAt),
+            asc(draftReferenceLink.id),
+          );
+        referenceUrls = links.map((link) => link.url);
       } else {
         await tx.insert(draft).values({ id: draftId, userId, repositoryId });
 
@@ -147,6 +165,7 @@ const createJob = async (
         length: request.options.length,
         requiredBlocks: request.options.requiredBlocks,
         commitShas: request.commitShas,
+        referenceUrls,
         locale,
       });
     });
@@ -192,6 +211,19 @@ export async function requestDraftGeneration(
 
   if ((await countUserJobsSince(user.id, since)) >= GENERATION_HOURLY_LIMIT) {
     return { status: 'rate_limited' };
+  }
+
+  const quota = await getUserQuota(user.id);
+
+  if (!quota) {
+    return { status: 'quota_unavailable' };
+  }
+
+  if (quota.remaining <= 0) {
+    return {
+      status: 'quota_exhausted',
+      resetsAt: quota.resetsAt.toISOString(),
+    };
   }
 
   let githubToken: string;
@@ -247,7 +279,12 @@ export async function requestDraftGeneration(
 }
 
 export type GenerationStatusResult =
-  | { status: 'ok'; job: GenerationJobView }
+  | {
+      status: 'ok';
+      job: GenerationJobView;
+      // 종료된 작업일 때만 남은 사용량 (정책이 없거나 진행 중이면 null)
+      quota: { remaining: number; resetsAt: string } | null;
+    }
   | { status: 'not_found' };
 
 /**
@@ -273,5 +310,21 @@ export async function getGenerationStatus(
 
   const job = await getUserJob(user.id, jobId);
 
-  return job ? { status: 'ok', job } : { status: 'not_found' };
+  if (!job) {
+    return { status: 'not_found' };
+  }
+
+  const isTerminal = job.status === 'completed' || job.status === 'failed';
+  const summary = isTerminal ? await getUserQuota(user.id) : null;
+
+  return {
+    status: 'ok',
+    job,
+    quota: summary
+      ? {
+          remaining: summary.remaining,
+          resetsAt: summary.resetsAt.toISOString(),
+        }
+      : null,
+  };
 }

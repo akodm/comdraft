@@ -29,6 +29,8 @@ export const GENERATION_ERROR_MESSAGES: Record<
   llm_failed: msg`AI 작성 중 오류가 발생했습니다. 다시 시도해주세요.`,
   invalid_result: msg`AI 작성 결과를 초안에 반영하지 못했습니다.`,
   runner_unavailable: msg`AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.`,
+  // TODO(Task 4): 전용 문구로 교체
+  quota_exceeded: msg`알 수 없는 오류로 작성하지 못했습니다. 다시 시도해주세요.`,
   internal: msg`알 수 없는 오류로 작성하지 못했습니다. 다시 시도해주세요.`,
 };
 

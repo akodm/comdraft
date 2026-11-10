@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import type { DraftPromptStatus } from '@/lib/db/schema/draft';
+import type { QuotaPlanRow } from '@/lib/db/schema/quota';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -13,6 +14,18 @@ export interface QuotaPlan {
   resetTimezone: string;
   resetWeekday: number;
   resetHour: number;
+}
+
+/** DB 행을 정책 값으로 (numeric 이 문자열로 오더라도 숫자로 맞춤) */
+export function toQuotaPlan(row: QuotaPlanRow): QuotaPlan {
+  return {
+    role: row.role,
+    weeklyTokenLimit: Number(row.weeklyTokenLimit),
+    overrunRatio: Number(row.overrunRatio),
+    resetTimezone: row.resetTimezone,
+    resetWeekday: Number(row.resetWeekday),
+    resetHour: Number(row.resetHour),
+  };
 }
 
 export interface QuotaJob {

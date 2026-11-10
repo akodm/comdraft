@@ -283,7 +283,13 @@ const PromptComposer = ({
         });
 
         if (result.status !== 'started') {
-          setNotice(result.status);
+          // TODO(Task 4): 할당량 거부는 전용 문구로 안내
+          setNotice(
+            result.status === 'quota_exhausted' ||
+              result.status === 'quota_unavailable'
+              ? 'error'
+              : result.status,
+          );
           return;
         }
 

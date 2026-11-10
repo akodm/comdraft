@@ -4,6 +4,7 @@ import {
   getQuotaWeek,
   isWithinAllowance,
   summarizeQuota,
+  toQuotaPlan,
   type QuotaPlan,
 } from '@/lib/generation/quota';
 
@@ -130,5 +131,21 @@ describe('summarizeQuota', () => {
       remaining: -20_000,
     });
     expect(summary.resetsAt).toEqual(new Date('2026-11-14T15:00:00Z'));
+  });
+});
+
+describe('toQuotaPlan', () => {
+  it('numeric 문자열 비율도 숫자로', () => {
+    expect(
+      toQuotaPlan({
+        role: 'pro',
+        weeklyTokenLimit: 500_000,
+        overrunRatio: '1.30' as unknown as number,
+        resetTimezone: 'Asia/Seoul',
+        resetWeekday: 0,
+        resetHour: 0,
+        updatedAt: new Date(),
+      }).overrunRatio,
+    ).toBe(1.3);
   });
 });

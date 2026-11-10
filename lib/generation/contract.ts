@@ -46,6 +46,8 @@ export const GENERATION_ERROR_CODES = [
   'invalid_result',
   // 작성기(Lambda) 호출 실패
   'runner_unavailable',
+  // 이번 요청이 남은 사용량보다 커서 시작하지 않음 (사용량 차감 없음)
+  'quota_exceeded',
   // 그 밖의 오류
   'internal',
 ] as const;
