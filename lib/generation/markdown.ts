@@ -7,7 +7,7 @@ import {
 } from '@/lib/studio/editor-schema';
 
 /**
- * 작성 결과(Markdown) → 초안 문서(Tiptap JSON)
+ * 작성 결과(Markdown) ↔ 초안 문서(Tiptap JSON)
  * - 편집기와 같은 스키마 확장으로 파싱해 제목 단계, 코드 언어, 링크를 그대로 유지
  * - DOM 없이 동작하므로 서버에서 변환
  */
@@ -115,6 +115,10 @@ export const normalizeGeneratedDocument = (node: JSONContent): JSONContent => {
 
   return normalized;
 };
+
+// 초안 문서(Tiptap JSON) → Markdown (편집기 MD 내보내기와 같은 스키마 확장으로 직렬화)
+export const draftDocumentToMarkdown = (doc: JSONContent): string =>
+  getMarkdownManager().serialize(doc);
 
 export const markdownToDraftDocument = (markdown: string): JSONContent => {
   const document = getMarkdownManager().parse(markdown);

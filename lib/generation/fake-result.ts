@@ -60,3 +60,13 @@ export const buildFakeResultMarkdown = ({
     ...sections,
   ].join('\n\n');
 };
+
+/**
+ * [임시] 가짜 실행기의 빈칸 채우기 결과: 글쓴이 답을 그대로 한 문단으로
+ * - 줄바꿈은 공백 한 칸으로 합치고, ASCII 문장 부호는 모두 이스케이프해 글자 그대로 읽히게 함
+ */
+export const buildFakeFillMarkdown = (answer: string) =>
+  answer
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[!-/:-@[-`{-~]/g, '\\$&');

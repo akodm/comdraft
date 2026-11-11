@@ -1,6 +1,7 @@
 import 'server-only';
 import {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -12,11 +13,14 @@ import {
   sql,
   type SQL,
 } from 'drizzle-orm';
+import type { JSONContent } from '@tiptap/core';
 import type { PgColumn } from 'drizzle-orm/pg-core';
 import { db } from '@/lib/db';
 import { draft, draftPrompt } from '@/lib/db/schema';
+import { fillResultToParagraphs } from '@/lib/generation/blank-fill';
 import type {
   GenerationErrorCode,
+  GenerationJobKind,
   GenerationStatus,
   GenerationStep,
 } from '@/lib/generation/contract';
@@ -28,7 +32,8 @@ import {
   scheduleDraftImageCleanup,
 } from '@/lib/images/cleanup';
 import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
-import { extractDraftTitle } from '@/lib/studio/draft-content';
+import { ensureBlankIds, replaceBlank } from '@/lib/studio/draft-blank';
+import { extractDraftTitle, isDraftDocument } from '@/lib/studio/draft-content';
 import { getSupabaseUrl } from '@/lib/supabase/server';
 
 /**
@@ -46,11 +51,15 @@ export const draftStatusAfterContentChange = () =>
 // 화면에 전달하는 작업 상태 (결과 본문, 요청 문구 제외)
 export interface GenerationJobView {
   id: string;
+  // 작업 종류 (fill 은 편집기 전체가 아니라 blankId 의 빈칸만 막음)
+  kind: GenerationJobKind;
+  // 빈칸 채우기 대상 빈칸 id (초안 작성 작업은 null)
+  blankId: string | null;
   channel: string;
   status: GenerationStatus;
   step: GenerationStep;
   errorCode: GenerationErrorCode | null;
-  // 결과를 초안에 반영했는지 (완료 + 미반영이면 편집 잠금)
+  // 결과를 초안에 반영했는지 (초안 작성: 완료 + 미반영이면 편집 잠금)
   applied: boolean;
   finishedAt: string | null;
 }
@@ -59,6 +68,8 @@ const ACTIVE_STATUSES: GenerationStatus[] = ['queued', 'running'];
 
 const jobViewColumns = {
   id: draftPrompt.id,
+  kind: draftPrompt.kind,
+  blankId: draftPrompt.blankId,
   channel: draftPrompt.channel,
   status: draftPrompt.status,
   step: draftPrompt.step,
@@ -69,6 +80,8 @@ const jobViewColumns = {
 
 interface JobViewRow {
   id: string;
+  kind: GenerationJobKind;
+  blankId: string | null;
   channel: string;
   status: GenerationStatus;
   step: number;
@@ -79,6 +92,8 @@ interface JobViewRow {
 
 const toJobView = (row: JobViewRow): GenerationJobView => ({
   id: row.id,
+  kind: row.kind,
+  blankId: row.kind === 'fill' ? row.blankId : null,
   channel: row.channel,
   status: row.status,
   step: Math.min(Math.max(row.step, 0), 3) as GenerationStep,
@@ -89,11 +104,13 @@ const toJobView = (row: JobViewRow): GenerationJobView => ({
 
 /**
  * 초안을 잠그는 작업이 있는지 (SQL 조건, 초안 id 컬럼 기준)
- * - 진행 중(queued/running)이거나 완료 후 아직 반영하지 않은 작업
+ * - 초안 작성 작업 중 진행 중(queued/running)이거나 완료 후 아직 반영하지 않은 작업
+ * - 빈칸 채우기 작업은 잠그지 않음 (자동 저장·게시·이미지 올리기는 그대로)
  */
 export const lockingJobExists = (draftIdColumn: PgColumn): SQL => sql`exists (
   select 1 from ${draftPrompt}
   where ${draftPrompt.draftId} = ${draftIdColumn}
+    and ${draftPrompt.kind} = 'draft'
     and (${draftPrompt.status} in ('queued', 'running')
       or (${draftPrompt.status} = 'completed' and ${draftPrompt.appliedAt} is null))
 )`;
@@ -145,7 +162,7 @@ export const expireStaleJobs = async (
 };
 
 /**
- * 완료한 작업의 결과(Markdown)를 초안 본문에 한 번만 반영
+ * 완료한 초안 작성 작업의 결과(Markdown)를 초안 본문에 한 번만 반영
  * - applied_at 을 먼저 선점한 요청만 반영하므로 여러 번 호출해도 결과는 한 번만 들어감
  * - 결과가 없거나 변환에 실패하면 작업을 invalid_result 로 실패 처리 (잠금 해제)
  * - 이미지는 그 초안 사용자의 공개 버킷 주소만 남김 (자동 저장과 같은 규칙)
@@ -163,6 +180,7 @@ export const applyCompletedJob = async (jobId: string) => {
       .where(
         and(
           eq(draftPrompt.id, jobId),
+          eq(draftPrompt.kind, 'draft'),
           eq(draftPrompt.status, 'completed'),
           isNull(draftPrompt.appliedAt),
         ),
@@ -232,15 +250,163 @@ export const applyCompletedJob = async (jobId: string) => {
   return true;
 };
 
+// 반영 표시를 아직 남기지 않은 완료된 빈칸 채우기 작업 (서버 반영과 편집기 반영 표시가 같은 조건으로 선점)
+const unappliedFillCondition = (jobId: string) =>
+  and(
+    eq(draftPrompt.id, jobId),
+    eq(draftPrompt.kind, 'fill'),
+    eq(draftPrompt.status, 'completed'),
+    isNull(draftPrompt.appliedAt),
+  );
+
 /**
- * 초안의 작업 상태 정리: 시간 초과 처리 후, 완료했지만 반영하지 않은 결과 반영
- * - 스튜디오 화면을 열 때, 초안을 바꾸는 액션 전에 호출
+ * 완료한 빈칸 채우기 결과를 그 id 의 빈칸 자리에 한 번만 반영 (화면이 닫혀 있던 경우, 초안을 열 때)
+ * - applied_at 을 먼저 선점한 요청만 반영 (편집기가 markFillApplied 로 먼저 선점했으면 아무것도 하지 않음)
+ * - 결과에 문단이 없으면 작업을 invalid_result 로 실패 처리 (빈칸과 답은 그대로)
+ * - 본문은 행 잠금으로 읽고 빈칸 id 를 정리한 뒤 그 빈칸만 바꿈 (다른 내용은 그대로)
+ * - 빈칸이 사라졌으면 결과를 버리고 반영 표시만 남김
+ * - 결과는 문단만이라 이미지가 늘지 않지만, 본문을 바꾸는 다른 경로와 같게 마지막 사용 시각 갱신과 정리를 함께 함
+ * @returns 이번 호출에서 본문을 바꿨는지
  */
-export const syncDraftJobs = async (draftId: string) => {
+export const applyCompletedFillJob = async (jobId: string) => {
+  const appliedDraftId = await db.transaction(async (tx) => {
+    const now = new Date();
+    const [claimed] = await tx
+      .update(draftPrompt)
+      .set({ appliedAt: now })
+      .where(unappliedFillCondition(jobId))
+      .returning({
+        draftId: draftPrompt.draftId,
+        blankId: draftPrompt.blankId,
+        result: draftPrompt.result,
+      });
+
+    if (!claimed?.draftId) {
+      return null;
+    }
+
+    const paragraphs = fillResultToParagraphs(claimed.result);
+
+    if (paragraphs.length === 0) {
+      await tx
+        .update(draftPrompt)
+        .set({ status: 'failed', errorCode: 'invalid_result' })
+        .where(eq(draftPrompt.id, jobId));
+
+      return null;
+    }
+
+    const [owner] = await tx
+      .select({ userId: draft.userId, content: draft.content })
+      .from(draft)
+      .where(eq(draft.id, claimed.draftId))
+      .limit(1)
+      .for('update');
+
+    if (!owner || !claimed.blankId || !isDraftDocument(owner.content)) {
+      return null;
+    }
+
+    const { doc: content, replaced } = replaceBlank(
+      ensureBlankIds(owner.content),
+      claimed.blankId,
+      paragraphs,
+    );
+
+    if (!replaced) {
+      return null;
+    }
+
+    await tx
+      .update(draft)
+      .set({
+        content,
+        title: extractDraftTitle(content),
+        status: draftStatusAfterContentChange(),
+        updatedAt: now,
+      })
+      .where(eq(draft.id, claimed.draftId));
+
+    await markImagesUsed(tx, owner.userId, [owner.content, content]);
+
+    return claimed.draftId;
+  });
+
+  if (!appliedDraftId) {
+    return false;
+  }
+
+  scheduleDraftImageCleanup(appliedDraftId);
+
+  return true;
+};
+
+/**
+ * 편집기가 빈칸 채우기 결과를 직접 반영했다는 표시 (applied_at 선점)
+ * @returns 이번 호출에서 선점했는지 (이미 서버나 다른 화면이 반영했으면 false)
+ */
+export const claimFillJob = async (jobId: string) => {
+  const [row] = await db
+    .update(draftPrompt)
+    .set({ appliedAt: new Date() })
+    .where(unappliedFillCondition(jobId))
+    .returning({ id: draftPrompt.id });
+
+  return Boolean(row);
+};
+
+/**
+ * 완료한 빈칸 채우기 결과 → 빈칸 자리에 넣을 문단 (편집기가 반영할 때 상태 조회로 받음)
+ * - 반영 여부와 무관하게 돌려줌: 서버가 먼저 반영했어도 열려 있는 편집기에 빈칸이 남아 있으면 같은 결과를 넣음
+ * - 문단이 없으면 반영 전인 작업은 invalid_result 로 실패 처리하고 null
+ */
+export const getFillJobParagraphs = async (
+  jobId: string,
+): Promise<JSONContent[] | null> => {
+  const [row] = await db
+    .select({ result: draftPrompt.result })
+    .from(draftPrompt)
+    .where(
+      and(
+        eq(draftPrompt.id, jobId),
+        eq(draftPrompt.kind, 'fill'),
+        eq(draftPrompt.status, 'completed'),
+      ),
+    )
+    .limit(1);
+
+  if (!row) {
+    return null;
+  }
+
+  const paragraphs = fillResultToParagraphs(row.result);
+
+  if (paragraphs.length > 0) {
+    return paragraphs;
+  }
+
+  await db
+    .update(draftPrompt)
+    .set({ status: 'failed', errorCode: 'invalid_result' })
+    .where(unappliedFillCondition(jobId));
+
+  return null;
+};
+
+/**
+ * 초안의 작업 상태 정리: 시간 초과 처리 후, 완료했지만 반영하지 않은 결과 반영 (만든 순서대로)
+ * - 스튜디오 화면을 열 때, 초안을 바꾸는 액션 전에 호출
+ * - 빈칸 채우기 결과는 applyFills 일 때만 (초안을 열 때만): 열려 있는 편집기는 상태 조회로 결과를 받아
+ *   직접 반영하므로, 자동 저장·게시 전에 서버가 먼저 넣으면 곧바로 편집기 본문으로 덮이고 반영 표시만 남음
+ */
+export const syncDraftJobs = async (
+  draftId: string,
+  { applyFills = false }: { applyFills?: boolean } = {},
+) => {
   await expireStaleJobs({ draftId });
 
   const pending = await db
-    .select({ id: draftPrompt.id })
+    .select({ id: draftPrompt.id, kind: draftPrompt.kind })
     .from(draftPrompt)
     .where(
       and(
@@ -248,14 +414,19 @@ export const syncDraftJobs = async (draftId: string) => {
         eq(draftPrompt.status, 'completed'),
         isNull(draftPrompt.appliedAt),
       ),
-    );
+    )
+    .orderBy(asc(draftPrompt.createdAt));
 
-  for (const { id } of pending) {
-    await applyCompletedJob(id);
+  for (const { id, kind } of pending) {
+    if (kind === 'draft') {
+      await applyCompletedJob(id);
+    } else if (applyFills) {
+      await applyCompletedFillJob(id);
+    }
   }
 };
 
-// 초안을 바꿀 수 없는 상태인지 (정리 후 진행 중 작업이 남아 있으면 잠금)
+// 초안을 바꿀 수 없는 상태인지 (정리 후 진행 중인 초안 작성 작업이 남아 있으면 잠금, 빈칸 채우기는 잠그지 않음)
 export const isDraftLocked = async (draftId: string) => {
   await syncDraftJobs(draftId);
 
@@ -265,6 +436,7 @@ export const isDraftLocked = async (draftId: string) => {
     .where(
       and(
         eq(draftPrompt.draftId, draftId),
+        eq(draftPrompt.kind, 'draft'),
         inArray(draftPrompt.status, ACTIVE_STATUSES),
       ),
     )
@@ -286,18 +458,42 @@ export const isDraftEditLocked = async (draftId: string) => {
   return Boolean(locked);
 };
 
-// 초안의 가장 최근 작업
+// 초안의 가장 최근 작업 (kind 를 주면 그 종류 중에서)
 export const getLatestDraftJob = async (
   draftId: string,
+  kind?: GenerationJobKind,
 ): Promise<GenerationJobView | null> => {
   const [row] = await db
     .select(jobViewColumns)
     .from(draftPrompt)
-    .where(eq(draftPrompt.draftId, draftId))
+    .where(
+      and(
+        eq(draftPrompt.draftId, draftId),
+        kind ? eq(draftPrompt.kind, kind) : undefined,
+      ),
+    )
     .orderBy(desc(draftPrompt.createdAt))
     .limit(1);
 
   return row ? toJobView(row) : null;
+};
+
+// 초안의 최근 초안 작성 작업의 옵션과 로케일 (화면 기본 옵션, 빈칸 채우기 작업에 복사, 없으면 null)
+export const getLatestDraftJobOptions = async (draftId: string) => {
+  const [row] = await db
+    .select({
+      tone: draftPrompt.tone,
+      postType: draftPrompt.postType,
+      length: draftPrompt.length,
+      requiredBlocks: draftPrompt.requiredBlocks,
+      locale: draftPrompt.locale,
+    })
+    .from(draftPrompt)
+    .where(and(eq(draftPrompt.draftId, draftId), eq(draftPrompt.kind, 'draft')))
+    .orderBy(desc(draftPrompt.createdAt))
+    .limit(1);
+
+  return row ?? null;
 };
 
 // 사용자 본인 초안의 작업 하나 (다른 사용자의 작업이면 null)

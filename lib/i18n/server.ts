@@ -1,28 +1,9 @@
 import 'server-only';
-import { setupI18n, type I18n, type Messages } from '@lingui/core';
 import { setI18n } from '@lingui/react/server';
 import { notFound } from 'next/navigation';
 import { lang } from 'next/root-params';
-import { isLocale, LOCALES, type Locale } from '@/lib/i18n/config';
-import { messages as enMessages } from '@/locales/en';
-import { messages as koMessages } from '@/locales/ko';
-
-// lingui compile 로 생성된 카탈로그 (pnpm i18n:extract → 번역 → pnpm i18n:compile)
-const CATALOGS: Record<Locale, Messages> = {
-  ko: koMessages,
-  en: enMessages,
-};
-
-// 로케일별 I18n 인스턴스
-// 서버는 여러 로케일 요청을 동시에 처리하므로 하나의 인스턴스를 activate 로 바꿔 쓰면 안 됨
-const I18N_INSTANCES = Object.fromEntries(
-  LOCALES.map((locale) => [
-    locale,
-    setupI18n({ locale, messages: { [locale]: CATALOGS[locale] } }),
-  ]),
-) as Record<Locale, I18n>;
-
-export const getI18nInstance = (locale: Locale) => I18N_INSTANCES[locale];
+import { isLocale, type Locale } from '@/lib/i18n/config';
+import { getI18nInstance } from '@/lib/i18n/instances';
 
 // [lang] 루트 세그먼트의 로케일 (Server Component 전용)
 export const getLocale = async (): Promise<Locale> => {

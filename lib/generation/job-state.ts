@@ -1,6 +1,7 @@
 import {
   GENERATION_QUEUED_TIMEOUT_MS,
   GENERATION_RUNNING_TIMEOUT_MS,
+  type GenerationJobKind,
   type GenerationStatus,
 } from '@/lib/generation/contract';
 
@@ -44,15 +45,18 @@ export const isJobActive = (status: GenerationStatus) => {
 };
 
 /**
- * 초안 편집을 잠가야 하는 작업인지
+ * 초안 편집을 잠가야 하는 작업인지 (초안 작성 작업만, 서버의 lockingJobExists 와 같은 조건)
  * - 진행 중이거나, 완료했지만 결과를 아직 초안에 반영하지 않은 작업
+ * - 빈칸 채우기 작업은 그 빈칸만 막으므로 편집기 전체를 잠그지 않음
  */
 export const isJobLocking = (job: {
+  kind: GenerationJobKind;
   status: GenerationStatus;
   applied: boolean;
 }) => {
   return (
-    isJobActive(job.status) || (job.status === 'completed' && !job.applied)
+    job.kind === 'draft' &&
+    (isJobActive(job.status) || (job.status === 'completed' && !job.applied))
   );
 };
 
@@ -60,18 +64,19 @@ export const isJobLocking = (job: {
 export const RECENT_FAILURE_MS = 10 * 60 * 1000;
 
 /**
- * 화면을 열 때 이어서 보여 줄 작업인지
- * - 잠금 중인 작업은 진행 상태를 이어서 받고, 최근에 실패한 작업은 실패 사유를 보여 줌
+ * 화면을 열 때 이어서 보여 줄 작업인지 (작업 종류와 무관)
+ * - 진행 중이거나 잠금 중인 작업은 진행 상태를 이어서 받고, 최근에 실패한 작업은 실패 사유를 보여 줌
  */
 export const isJobResumable = (
   job: {
+    kind: GenerationJobKind;
     status: GenerationStatus;
     applied: boolean;
     finishedAt: string | null;
   },
   now: Date,
 ) => {
-  if (isJobLocking(job)) {
+  if (isJobActive(job.status) || isJobLocking(job)) {
     return true;
   }
 

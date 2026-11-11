@@ -5,7 +5,6 @@ import type { JSONContent } from '@tiptap/core';
 import { db } from '@/lib/db';
 import {
   draft,
-  draftPrompt,
   draftReferenceLink,
   githubRepository,
   post,
@@ -23,9 +22,11 @@ import type { ReferenceLink } from '@/lib/studio/reference-link';
 import { isJobResumable } from '@/lib/generation/job-state';
 import {
   getLatestDraftJob,
+  getLatestDraftJobOptions,
   syncDraftJobs,
   type GenerationJobView,
 } from '@/lib/generation/jobs';
+import { persistBlankIds } from '@/lib/studio/draft-blank-store';
 
 // 스튜디오 사이드바 상단에 표시하는 저장소 정보
 export interface StudioRepository {
@@ -52,13 +53,14 @@ export interface StudioDraft extends StudioDraftSummary {
   content: JSONContent | null;
   // 게시글 (게시 전에는 null, 주소 생성과 공개 범위에 사용)
   post: { id: string; slug: string; visibility: PostVisibility } | null;
-  // 마지막 작성 요청의 기본 옵션 (요청 기록이 없으면 기본값)
+  // 마지막 초안 작성 요청의 기본 옵션 (빈칸 채우기 작업은 건너뜀, 요청 기록이 없으면 기본값)
   promptOptions: PromptOptions;
   // 추가한 순서대로
   referenceLinks: ReferenceLink[];
-  // 이어서 보여 줄 AI 작성 작업 (진행 중이거나 최근에 실패한 작업)
+  // 이어서 보여 줄 AI 작업 (종류와 무관하게 가장 최근 작업이 진행 중이거나 최근에 실패했으면)
   resumableJob: GenerationJobView | null;
-  // 마지막으로 본문에 반영한 작업 id (바뀌면 편집기가 새 본문을 다시 불러옴)
+  // 마지막으로 본문 전체를 바꾼 초안 작성 작업 id (바뀌면 편집기가 새 본문을 다시 불러옴)
+  // - 빈칸 채우기는 편집기가 그 빈칸만 직접 바꾸므로 넣지 않음 (다시 불러오면 저장 전 편집이 사라짐)
   contentRevision: string | null;
 }
 
@@ -157,8 +159,8 @@ export const getStudioDraft = async (
     return null;
   }
 
-  // 화면을 열 때 시간 초과된 작업 정리 + 완료한 결과 반영 (본문을 읽기 전에)
-  await syncDraftJobs(draftId);
+  // 화면을 열 때 시간 초과된 작업 정리 + 완료한 결과 반영 (본문을 읽기 전에, 빈칸 채우기 결과도)
+  await syncDraftJobs(draftId, { applyFills: true });
 
   const [row] = await db
     .select({
@@ -185,21 +187,17 @@ export const getStudioDraft = async (
     return null;
   }
 
-  const [[lastPrompt], referenceLinks, latestJob] = await Promise.all([
-    db
-      .select({
-        tone: draftPrompt.tone,
-        postType: draftPrompt.postType,
-        length: draftPrompt.length,
-        requiredBlocks: draftPrompt.requiredBlocks,
-      })
-      .from(draftPrompt)
-      .where(eq(draftPrompt.draftId, row.id))
-      .orderBy(desc(draftPrompt.createdAt))
-      .limit(1),
-    listDraftReferenceLinks(row.id),
-    getLatestDraftJob(row.id),
-  ]);
+  const [content, lastPrompt, referenceLinks, latestJob, latestDraftJob] =
+    await Promise.all([
+      // id 가 없는 빈칸(기능 추가 전 본문)에 id 를 붙여 저장 (빈칸 채우기는 저장된 id 로 찾음)
+      isDraftDocument(row.content)
+        ? persistBlankIds(row.id, row.content)
+        : null,
+      getLatestDraftJobOptions(row.id),
+      listDraftReferenceLinks(row.id),
+      getLatestDraftJob(row.id),
+      getLatestDraftJob(row.id, 'draft'),
+    ]);
 
   const { postId, postSlug, ...draftRow } = row;
 
@@ -209,14 +207,14 @@ export const getStudioDraft = async (
       postId !== null && postSlug !== null && row.visibility !== null
         ? { id: postId, slug: postSlug, visibility: row.visibility }
         : null,
-    content: isDraftDocument(row.content) ? row.content : null,
+    content,
     promptOptions: parsePromptOptions(lastPrompt) ?? DEFAULT_PROMPT_OPTIONS,
     referenceLinks,
     resumableJob:
       latestJob && isJobResumable(latestJob, new Date()) ? latestJob : null,
     contentRevision:
-      latestJob?.status === 'completed' && latestJob.applied
-        ? latestJob.id
+      latestDraftJob?.status === 'completed' && latestDraftJob.applied
+        ? latestDraftJob.id
         : null,
   };
 };
