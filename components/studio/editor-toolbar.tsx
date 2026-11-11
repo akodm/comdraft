@@ -272,8 +272,10 @@ const LinkMenu = ({
     toggle();
   };
 
+  // 모바일은 링크 버튼 기준 가운데 정렬이면 좁은 화면(320px)에서 오른쪽으로 넘쳐,
+  // 도구 모음(relative) 기준으로 도구 모음 폭에 맞춰 펼침
   return (
-    <div ref={containerRef} className="relative" onBlur={handleBlur}>
+    <div ref={containerRef} className="pc:relative" onBlur={handleBlur}>
       <button
         ref={triggerRef}
         type="button"
@@ -291,7 +293,7 @@ const LinkMenu = ({
         <form
           id={menuId}
           onSubmit={submit}
-          className={`absolute top-[calc(100%+4px)] left-1/2 w-72 -translate-x-1/2 ${DROPDOWN_PANEL_CLASS}`}
+          className={`absolute inset-x-0 top-[calc(100%+4px)] pc:inset-x-auto pc:left-1/2 pc:w-72 pc:-translate-x-1/2 ${DROPDOWN_PANEL_CLASS}`}
         >
           <label className="flex flex-col gap-2 text-[12px] leading-[normal] font-medium text-ink">
             <Trans>링크 주소</Trans>
@@ -446,7 +448,7 @@ const EditorToolbar = ({
     <div
       role="toolbar"
       aria-label={t`편집 서식`}
-      className="flex h-11.5 shrink-0 items-center gap-0.5 border-y border-line px-1 pc:gap-1.5 pc:px-3"
+      className="relative flex h-11.5 shrink-0 items-center gap-0.5 border-y border-line px-1 pc:gap-1.5 pc:px-3"
     >
       <BlockStyleMenu
         editor={editor}

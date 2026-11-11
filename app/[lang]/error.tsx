@@ -11,8 +11,8 @@ interface ErrorPageProps {
 // ([lang]/layout 안쪽에서 렌더링되므로 LinguiClientProvider 의 번역을 그대로 사용)
 const ErrorPage = ({ retry }: ErrorPageProps) => {
   return (
-    <PageLayout className="flex flex-col items-center justify-center gap-6">
-      <p role="alert" className="text-sm text-red-600">
+    <PageLayout className="flex flex-col items-center justify-center gap-6 px-5">
+      <p role="alert" className="text-center text-sm break-keep text-red-600">
         <Trans>요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.</Trans>
       </p>
       <button

@@ -126,7 +126,7 @@ const GenerationProgress = ({
           <Trans>AI 초안 작성 중</Trans>
         )}
       </span>
-      <ol className="flex items-center gap-1.5">
+      <ol className="flex flex-wrap items-center gap-1.5">
         {GENERATION_STEPS.map((step) => {
           const state = getStepState(step, job);
 

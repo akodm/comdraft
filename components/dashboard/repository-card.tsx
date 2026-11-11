@@ -59,7 +59,7 @@ const RepositoryCard = ({ repository }: RepositoryCardProps) => {
           </div>
         </div>
         {description && (
-          <p className="line-clamp-2 text-[13px] leading-[1.8] break-keep text-ink-muted pc:text-[14px]">
+          <p className="line-clamp-2 text-[13px] leading-[1.8] break-keep wrap-break-word text-ink-muted pc:text-[14px]">
             {description}
           </p>
         )}

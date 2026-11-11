@@ -76,10 +76,11 @@ const renderImage = ({
 /**
  * 게시글 본문 (서버에서 Tiptap 문서를 편집기와 같은 스키마로 그림)
  * - 편집기와 같은 prose 클래스를 써서 모양을 맞춤
+ * - 편집기(ProseMirror 기본 스타일)처럼 긴 URL·인라인 코드도 줄을 바꿔 모바일에서 화면 밖으로 밀리지 않게 함
  */
 const PostContent = ({ content }: PostContentProps) => {
   return (
-    <div className={PROSE_CLASS}>
+    <div className={`${PROSE_CLASS} wrap-break-word`}>
       {renderToReactElement({
         content,
         extensions: createDraftSchemaExtensions(),

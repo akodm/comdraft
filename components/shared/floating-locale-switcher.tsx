@@ -16,11 +16,18 @@ const HIDDEN_PATHS = new Set([
 // 초안 작성 스튜디오: 사이드바에 언어 선택이 있음
 const STUDIO_PATH_PATTERN = /^\/dashboard\/repositories\/[^/]+\/drafts(\/|$)/;
 
+// 게시글 목록 · 상세: 메인 헤더의 언어 변경 버튼과 겹침
+const POSTS_PATH_PATTERN = /^\/posts(\/|$)/;
+
 // 화면 우측 상단에 고정된 언어 전환 링크
 const FloatingLocaleSwitcher = () => {
   const path = useLocalizedPathname();
 
-  if (HIDDEN_PATHS.has(path) || STUDIO_PATH_PATTERN.test(path)) {
+  if (
+    HIDDEN_PATHS.has(path) ||
+    STUDIO_PATH_PATTERN.test(path) ||
+    POSTS_PATH_PATTERN.test(path)
+  ) {
     return null;
   }
 

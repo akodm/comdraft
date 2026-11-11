@@ -82,7 +82,7 @@ const RepositoryList = ({ initialPage }: RepositoryListProps) => {
 
   return (
     <div className="flex flex-col gap-6">
-      <ul className="grid gap-4 pc:grid-cols-2 pc:gap-6">
+      <ul className="grid grid-cols-1 gap-4 pc:grid-cols-2 pc:gap-6">
         {repositories.map((repository) => (
           <li key={repository.id} className="flex flex-col">
             <RepositoryCard repository={repository} />

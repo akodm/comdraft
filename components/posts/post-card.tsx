@@ -35,7 +35,7 @@ const PostCard = ({ post, locale }: PostCardProps) => {
           {excerpt}
         </p>
       )}
-      <div className="flex items-center gap-2 text-[13px] text-ink-muted">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-ink-muted">
         {isGithubAvatar(author.image) && (
           <Image
             src={author.image}

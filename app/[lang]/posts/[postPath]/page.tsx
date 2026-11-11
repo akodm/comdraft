@@ -68,10 +68,10 @@ export default async function PostPage({ params }: PostPageProps) {
     >
       <article className="mx-auto w-full max-w-3xl px-5 pt-8 pb-12 pc:px-0 pc:pt-14 pc:pb-20">
         <header className="mb-8 flex flex-col gap-4 pc:mb-12">
-          <h1 className="text-[23px] leading-[1.5] font-bold tracking-[-0.8px] text-ink pc:text-[32px] pc:tracking-[-1px]">
+          <h1 className="text-[23px] leading-[1.5] font-bold tracking-[-0.8px] wrap-break-word text-ink pc:text-[32px] pc:tracking-[-1px]">
             {post.title}
           </h1>
-          <div className="flex items-center gap-3 text-[13px] text-ink-muted pc:text-[14px]">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted pc:text-[14px]">
             {isGithubAvatar(post.author.image) && (
               <Image
                 src={post.author.image}

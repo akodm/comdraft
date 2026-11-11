@@ -111,10 +111,12 @@ const SelectedCommitsMenu = () => {
           height={12}
         />
       </button>
+      {/* 모바일은 사이드바 열기 버튼 뒤(왼쪽에서 약 74px)에서 시작하므로,
+          좁은 화면(320px)에서도 작성 요청 상자 오른쪽 끝을 넘지 않게 폭을 제한 */}
       {isOpen && (
         <div
           id={menuId}
-          className={`absolute bottom-[calc(100%+6px)] left-0 w-72 ${DROPDOWN_PANEL_CLASS}`}
+          className={`absolute bottom-[calc(100%+6px)] left-0 w-72 max-w-[calc(100vw-90px)] ${DROPDOWN_PANEL_CLASS}`}
         >
           <p className="text-[12px] leading-[1.2] font-bold text-ink">
             <Trans>선택한 커밋</Trans>
