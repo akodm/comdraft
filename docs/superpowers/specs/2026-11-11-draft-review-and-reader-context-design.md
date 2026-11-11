@@ -151,7 +151,7 @@ ko/en 프롬프트에 공통 규칙 `READER_RULE` 을 추가하고 기획·분�
   - 고치면서 새 사실을 더하지 않는다. 재료 범위 안에서 풀어 쓰거나 지운다.
   - 초안의 자리표시자는 모두 그대로 둔다. `{{link:…}}` 는 `link_context` 를 고칠 때 재료의 링크 번호로 더할 수 있다.
   - 응답은 고친 초안 전체 Markdown 만 쓴다.
-- 입력: 글 재료, 참고 링크(역할·관계 포함), 초안, 문제 목록 (`<issue kind>` 에 `<quote>`, `<fix>`).
+- 입력: 글 재료, 요청(`<request>`, 검토 입력과 공유), 참고 링크(역할·관계 포함), 초안, 문제 목록 (`<issue kind>` 에 `<quote>`, `<fix>`).
 - 시스템 검증 (`acceptRevision`) — 하나라도 어기면 원래 초안을 쓴다:
   - 앞뒤 공백을 뺀 첫 줄이 `# ` 로 시작한다.
   - 초안에 있던 `{{code:…}}` 와 `{{ask:…}}` 가 각각 같은 횟수로 남아 있고, 새로 생긴 code·ask 번호가 없다.
@@ -170,19 +170,11 @@ ko/en 프롬프트에 공통 규칙 `READER_RULE` 을 추가하고 기획·분�
 
 ### 6.5 예상량
 
-`estimateJobTokens` 에 두 단계를 더한다 (모두 실행된다고 보고 넉넉하게):
+검토·고쳐 쓰기는 `estimateJobTokens` 에 넣지 않는다. 예상량은 작성 단계까지의 기존 식 그대로 두고, 두 단계의 실제 사용량만 `onUsage` 로 기록한다.
 
-- `SystemTokens` 에 `review`, `revise` 추가 (각 system 프롬프트 토큰).
-- 새 상수:
-  - `ESTIMATE_OUTLINE_CODE = 4_000`: 글 재료에 들어가는 코드 원문 여유분
-  - `ESTIMATE_REVIEW_OUTPUT = 2_000`: 검토 출력
-- 더하는 양:
-  - 검토 입력: `requestTokens` + 재료(`ESTIMATE_ANALYSIS_OUTPUT` + `ESTIMATE_OUTLINE_CODE`) + 초안(`ESTIMATE_WRITE_OUTPUT[length]`)
-  - 검토 출력: `ESTIMATE_REVIEW_OUTPUT`
-  - 고쳐 쓰기 입력: 재료(`ESTIMATE_ANALYSIS_OUTPUT` + `ESTIMATE_OUTLINE_CODE`) + 초안(`ESTIMATE_WRITE_OUTPUT[length]`) + `ESTIMATE_REVIEW_OUTPUT`
-  - 고쳐 쓰기 출력: `ESTIMATE_WRITE_OUTPUT[length]`
-- 작성 단계 입력의 코드 원문도 지금 빠져 있으므로 `ESTIMATE_OUTLINE_CODE` 를 한 번 더 더한다.
-- 실제 사용량은 대략 한 건당 30~50% 늘고, 고쳐 쓰기가 없으면 10~15% 늘 것으로 본다.
+- 이유: 기본 등급 한도에서 작업 시작이 막히지 않게 하기 위해서다. 검토는 덤이라 할당량 검사 기준은 작성까지와 같다. 두 단계를 예상량에 더하면 기본 등급(주간 100,000 토큰, 초과 허용 1.30배)에서 긴 글이나 큰 diff 가 사용량 0 인데도 `quota_exceeded` 로 막힌다.
+- `SystemTokens` 에 `review`, `revise` 를 더하지 않는다. `ESTIMATE_OUTLINE_CODE`, `ESTIMATE_REVIEW_OUTPUT` 상수도 두지 않는다.
+- 실제 사용량은 대략 한 건당 30~50% 늘고, 고쳐 쓰기가 없으면 10~15% 늘 것으로 본다. 이 증가분은 기록으로만 남고 시작 전 검사에는 반영하지 않는다.
 
 ## 7. comdraft 변경
 
