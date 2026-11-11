@@ -269,6 +269,10 @@ msgstr "굵게"
 msgid "AI 작성 시간이 초과되었습니다. 다시 시도해주세요."
 msgstr "AI 작성 시간이 초과되었습니다. 다시 시도해주세요."
 
+#: components/studio/generation-progress.tsx:22
+msgid "작성·검토"
+msgstr "작성·검토"
+
 #: components/studio/editor-toolbar.tsx:83
 msgid "인용"
 msgstr "인용"
@@ -772,10 +776,6 @@ msgstr "필수 항목 더 보기"
 #: components/studio/prompt-composer.tsx:63
 msgid "작성 요청을 입력해주세요."
 msgstr "작성 요청을 입력해주세요."
-
-#: components/studio/generation-progress.tsx:22
-msgid "작성"
-msgstr "작성"
 
 #: lib/studio/options.ts:60
 msgid "길게"

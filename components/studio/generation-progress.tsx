@@ -19,7 +19,7 @@ const STEP_LABELS: Record<
 > = {
   1: msg`구분`,
   2: msg`분석`,
-  3: msg`작성`,
+  3: msg`작성·검토`,
 };
 
 // quota_exceeded 는 초기화 시각이 들어가므로 아래 컴포넌트에서 따로 안내
