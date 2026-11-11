@@ -12,6 +12,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
+import type { GenerationJobKind } from '@/lib/generation/contract';
 import { comdraftSchema } from '@/lib/db/pg-schema';
 import type { Locale } from '@/lib/i18n/config';
 import { user } from '@/lib/db/schema/auth';
@@ -47,6 +48,9 @@ export type DraftPromptStatus = (typeof DRAFT_PROMPT_STATUSES)[number];
 
 // 완료한 단계 (0: 시작 전, 1: 구분, 2: 분석, 3: 작성)
 export const DRAFT_PROMPT_LAST_STEP = 3;
+
+// 초안 작성 분석 단계 결과 (Lambda 가 기록, comdraft 는 해석 없이 그대로 전달)
+export type StoredAnalysis = Record<string, unknown>;
 
 export const draft = comdraftSchema.table(
   'draft',
@@ -96,6 +100,8 @@ export const draftPrompt = comdraftSchema.table(
     draftId: text('draft_id').references(() => draft.id, {
       onDelete: 'set null',
     }),
+    // 작업 종류 (draft: 초안 작성, fill: 빈칸 하나 다듬기, 빈칸 작업은 편집 잠금 대상이 아님)
+    kind: text('kind').$type<GenerationJobKind>().default('draft').notNull(),
     prompt: text('prompt').notNull(),
     // 기본 옵션 값 (lib/studio/options.ts 의 키)
     tone: text('tone').notNull(),
@@ -126,6 +132,14 @@ export const draftPrompt = comdraftSchema.table(
       .$type<string[]>()
       .default([])
       .notNull(),
+    // 빈칸 채우기 작업 전용 (kind = 'fill'): 대상 빈칸 id, 질문, 사용자의 답
+    blankId: text('blank_id'),
+    blankQuestion: text('blank_question'),
+    blankAnswer: text('blank_answer'),
+    // 요청 시점의 본문 Markdown (대상 빈칸 자리는 {{target}}, Lambda 가 Tiptap 없이 본문을 읽기 위함)
+    blankContext: text('blank_context'),
+    // 초안 작성 분석 단계 결과 (Lambda 가 기록)
+    analysis: jsonb('analysis').$type<StoredAnalysis>(),
     // Lambda 가 처리를 시작한 시각 (시간 초과 판정 기준)
     startedAt: timestamp('started_at', { withTimezone: true, precision: 3 }),
     finishedAt: timestamp('finished_at', { withTimezone: true, precision: 3 }),
@@ -154,6 +168,7 @@ export const draftPrompt = comdraftSchema.table(
       'draft_prompt_step_check',
       sql`${table.step} between 0 and ${sql.raw(String(DRAFT_PROMPT_LAST_STEP))}`,
     ),
+    check('draft_prompt_kind_check', sql`${table.kind} in ('draft', 'fill')`),
     check('draft_prompt_locale_check', sql`${table.locale} in ('ko', 'en')`),
   ],
 );

@@ -11,6 +11,10 @@
 // 작업 상태 (lib/db/schema/draft.ts 의 draft_prompt.status 와 같은 값)
 export type GenerationStatus = 'queued' | 'running' | 'completed' | 'failed';
 
+// 작업 종류 (draft: 초안 작성, fill: 빈칸 하나를 AI 로 다듬기)
+export const GENERATION_JOB_KINDS = ['draft', 'fill'] as const;
+export type GenerationJobKind = (typeof GENERATION_JOB_KINDS)[number];
+
 // 완료한 단계 (0: 시작 전, 1: 구분, 2: 분석, 3: 작성)
 export const GENERATION_STEPS = [1, 2, 3] as const;
 export type GenerationStep = 0 | (typeof GENERATION_STEPS)[number];
