@@ -63,8 +63,8 @@ export const isGenerationErrorCode = (
   return GENERATION_ERROR_CODES.includes(value as GenerationErrorCode);
 };
 
-// Lambda 실행 시간 제한 (Lambda 설정 lambda_timeout_seconds 와 맞출 것, Lambda 최대값 15분)
-export const GENERATION_LAMBDA_TIMEOUT_MS = 15 * 60 * 1000;
+// Lambda 실행 시간 제한 (Lambda 설정 lambda_timeout_seconds 와 맞출 것)
+export const GENERATION_LAMBDA_TIMEOUT_MS = 7 * 60 * 1000;
 
 // running 상태가 이 시간을 넘기면 시간 초과 (Lambda 제한 + 여유)
 export const GENERATION_RUNNING_TIMEOUT_MS =
