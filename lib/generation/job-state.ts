@@ -76,6 +76,66 @@ export const isFillPending = (job: {
 };
 
 /**
+ * 열린 편집기가 보는 작업 상태 (빈칸 채우기의 applied 만 바꿈)
+ * - 빈칸 채우기: 서버 반영 여부가 아니라 이 편집기가 결과를 넣거나 반영 표시를 했는지 (doneFillJobId)
+ *   다른 화면에서 초안을 열어 서버가 먼저 반영했어도, 이 편집기는 결과를 넣을 때까지 그 빈칸을 막음
+ * - 초안 작성: 서버 반영 여부 그대로
+ */
+export const toEditorJobView = <
+  T extends { id: string; kind: GenerationJobKind; applied: boolean },
+>(
+  job: T,
+  doneFillJobId: string | null,
+): T => {
+  return job.kind === 'fill'
+    ? { ...job, applied: doneFillJobId === job.id }
+    : job;
+};
+
+// 완료한 빈칸 채우기 결과를 열린 편집기가 처리할 방법 (insert: 그 빈칸에 넣음, mark: 반영 표시만, none: 할 일 없음)
+export type FillResultAction = 'insert' | 'mark' | 'none';
+
+/**
+ * 완료한 빈칸 채우기 결과를 열린 편집기가 어떻게 처리할지
+ * - 서버 반영 여부(applied)는 보지 않음: 다른 화면에서 초안을 열어 서버가 먼저 반영했어도 이 편집기 본문에는
+ *   빈칸이 남아 있어, 넣지 않으면 다음 자동 저장이 서버 본문을 덮어 결과를 잃음
+ *   (빈칸이 있으면 넣고, 반영 표시는 이미 남아 있으면 already_applied 로 끝남)
+ * - 이 편집기가 이미 넣었거나 표시했으면 none, 빈칸이 사라졌으면 결과를 버리고 mark
+ */
+export const getFillResultAction = (
+  job: {
+    kind: GenerationJobKind;
+    status: GenerationStatus;
+    blankId: string | null;
+    applied: boolean;
+  },
+  {
+    hasParagraphs,
+    isDoneHere,
+    isBlankPresent,
+  }: {
+    // 넣을 결과 문단이 있는지
+    hasParagraphs: boolean;
+    // 이 편집기가 이미 결과를 넣었거나 반영 표시를 했는지
+    isDoneHere: boolean;
+    // 이 편집기 본문에 그 id 의 빈칸이 있는지
+    isBlankPresent: boolean;
+  },
+): FillResultAction => {
+  if (
+    job.kind !== 'fill' ||
+    job.status !== 'completed' ||
+    !job.blankId ||
+    !hasParagraphs ||
+    isDoneHere
+  ) {
+    return 'none';
+  }
+
+  return isBlankPresent ? 'insert' : 'mark';
+};
+
+/**
  * 화면이 Realtime 구독·주기 조회로 따라가야 하는 작업인지
  * - 초안 작성은 편집기를 잠그는 동안, 빈칸 채우기는 진행 중인 동안 (편집기는 잠그지 않음)
  */

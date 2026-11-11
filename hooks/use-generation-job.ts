@@ -9,6 +9,7 @@ import {
   isFillPending,
   isJobLocking,
   shouldWatchJob,
+  toEditorJobView,
 } from '@/lib/generation/job-state';
 import type { GenerationJobView } from '@/lib/generation/jobs';
 import { getBrowserSupabase } from '@/lib/supabase/browser';
@@ -31,13 +32,21 @@ export interface BlankFillResult {
 }
 
 interface JobState {
+  // 서버가 알려준 작업 상태 (applied 는 서버 반영 여부)
   job: GenerationJobView | null;
   quota: GenerationQuota | null;
   // 완료한 빈칸 채우기 작업의 결과 문단 (상태 조회로 받음)
   fillParagraphs: JSONContent[] | null;
+  // 이 편집기가 결과를 넣었거나 반영 표시를 한 빈칸 채우기 작업 (서버 반영 여부와 별개)
+  doneFillJobId: string | null;
 }
 
-const EMPTY_STATE: JobState = { job: null, quota: null, fillParagraphs: null };
+const EMPTY_STATE: JobState = {
+  job: null,
+  quota: null,
+  fillParagraphs: null,
+  doneFillJobId: null,
+};
 
 /**
  * 초안의 AI 작업 상태 (초안 작성·빈칸 채우기, 초안당 진행 작업은 하나)
@@ -46,22 +55,30 @@ const EMPTY_STATE: JobState = { job: null, quota: null, fillParagraphs: null };
  * - 초안 작성: 완료(결과 반영) 또는 실패하면 구독을 끝내고 잠금 해제, 반영되면 onApplied
  * - 빈칸 채우기: 편집기를 잠그지 않음. 완료하면 결과 문단(fillResult)을 넘기고, 편집기가 넣은 뒤
  *   markFillDone 으로 넣었다고 표시 (화면을 다시 불러오지 않음)
+ *   서버가 먼저 반영했어도(다른 화면에서 초안을 엶) 이 편집기가 넣기 전까지는 결과를 넘김:
+ *   넣지 않으면 이 편집기의 다음 자동 저장이 서버에 반영된 결과를 덮어 잃음
  */
 export const useGenerationJob = ({
   initialJob,
   onApplied,
 }: UseGenerationJobOptions) => {
   // 화면을 열 때 받은 작업은 사용량 정보가 없음 (상태를 다시 조회하면 채워짐)
-  const [{ job, quota, fillParagraphs }, setState] = useState<JobState>({
-    ...EMPTY_STATE,
-    job: initialJob,
-  });
+  const [{ job: serverJob, quota, fillParagraphs, doneFillJobId }, setState] =
+    useState<JobState>({
+      ...EMPTY_STATE,
+      job: initialJob,
+    });
   // 사용량 소진 안내를 닫은 작업 (화면을 다시 불러와도 상태가 유지되므로 닫은 뒤에는 다시 뜨지 않음)
   const [dismissedNoticeJobId, setDismissedNoticeJobId] = useState<
     string | null
   >(null);
   // 이미 반영을 알린 작업 (같은 완료를 여러 번 받아도 한 번만 처리)
   const notifiedJobIdRef = useRef<string | null>(null);
+  // 빈칸 채우기의 applied 는 이 편집기가 처리했는지로 바꿔 봄 (그 빈칸 잠금, 결과 넘기기)
+  const job = useMemo(
+    () => (serverJob ? toEditorJobView(serverJob, doneFillJobId) : null),
+    [serverJob, doneFillJobId],
+  );
   const jobId = job?.id ?? null;
   const channel = job?.channel ?? null;
   const isLocked = job ? isJobLocking(job) : false;
@@ -84,10 +101,11 @@ export const useGenerationJob = ({
           return EMPTY_STATE;
         }
 
-        // 편집기가 이미 넣은 빈칸 채우기는 늦게 도착한 조회 결과로 되돌리지 않음
+        // 서버 반영은 되돌아가지 않으므로 늦게 도착한 조회 결과로 반영 전으로 돌리지 않음
         const applied = current.job.applied || result.job.applied;
 
         return {
+          ...current,
           job: { ...result.job, applied },
           quota: result.quota,
           fillParagraphs: result.fillParagraphs,
@@ -150,7 +168,10 @@ export const useGenerationJob = ({
   const dismiss = useCallback(
     () =>
       setState((current) =>
-        current.job && isFillPending(current.job) ? current : EMPTY_STATE,
+        current.job &&
+        isFillPending(toEditorJobView(current.job, current.doneFillJobId))
+          ? current
+          : EMPTY_STATE,
       ),
     [],
   );
@@ -158,10 +179,11 @@ export const useGenerationJob = ({
   const markFillDone = useCallback((doneJobId: string) => {
     setState((current) =>
       current.job?.id === doneJobId
-        ? { ...current, job: { ...current.job, applied: true } }
+        ? { ...current, doneFillJobId: doneJobId }
         : current,
     );
   }, []);
+  // 이 편집기가 아직 처리하지 않은 결과 (job.applied 는 이 편집기 기준, 서버 반영 여부는 보지 않음)
   const fillResult = useMemo<BlankFillResult | null>(
     () =>
       job?.kind === 'fill' &&

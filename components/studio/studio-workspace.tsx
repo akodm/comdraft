@@ -153,6 +153,7 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
           scrollAreaRef={editorScrollRef}
           isLocked={generation.isLocked}
           job={generation.job}
+          quota={generation.quota}
           fillResult={generation.fillResult}
           onFillStarted={generation.start}
           onFillDone={generation.markFillDone}

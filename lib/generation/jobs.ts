@@ -7,6 +7,7 @@ import {
   eq,
   gte,
   inArray,
+  isNotNull,
   isNull,
   lt,
   or,
@@ -133,7 +134,10 @@ const expireTargetCondition = (target: ExpireTarget) => {
   return eq(draftPrompt.userId, target.userId);
 };
 
-// 시간 제한을 넘긴 진행 중 작업을 timeout 으로 실패 처리 (초안, 작업 하나 또는 사용자 기준)
+/**
+ * 시간 제한을 넘긴 진행 중 작업을 timeout 으로 실패 처리 (초안, 작업 하나 또는 사용자 기준)
+ * - 빈칸 채우기의 본문 스냅숏(blank_context)도 지움 (Lambda 는 queued 에서 시작할 때만 읽으므로 더 쓰지 않음)
+ */
 export const expireStaleJobs = async (
   target: ExpireTarget,
   now = new Date(),
@@ -142,7 +146,12 @@ export const expireStaleJobs = async (
 
   await db
     .update(draftPrompt)
-    .set({ status: 'failed', errorCode: 'timeout', finishedAt: now })
+    .set({
+      status: 'failed',
+      errorCode: 'timeout',
+      finishedAt: now,
+      blankContext: null,
+    })
     .where(
       and(
         expireTargetCondition(target),
@@ -250,6 +259,27 @@ export const applyCompletedJob = async (jobId: string) => {
   return true;
 };
 
+/**
+ * 실패로 끝난 빈칸 채우기 작업의 본문 스냅숏(blank_context) 지우기 (초안 또는 작업 하나 기준)
+ * - Lambda 가 남긴 실패(사용량 초과, LLM 오류 등)도 정리: 끝난 작업은 Lambda 가 다시 읽지 않음
+ * - 질문과 답(blank_question, blank_answer)은 기록으로 남김
+ */
+export const clearFailedFillContexts = async (
+  target: { draftId: string } | { jobId: string },
+) => {
+  await db
+    .update(draftPrompt)
+    .set({ blankContext: null })
+    .where(
+      and(
+        expireTargetCondition(target),
+        eq(draftPrompt.kind, 'fill'),
+        eq(draftPrompt.status, 'failed'),
+        isNotNull(draftPrompt.blankContext),
+      ),
+    );
+};
+
 // 반영 표시를 아직 남기지 않은 완료된 빈칸 채우기 작업 (서버 반영과 편집기 반영 표시가 같은 조건으로 선점)
 const unappliedFillCondition = (jobId: string) =>
   and(
@@ -262,6 +292,7 @@ const unappliedFillCondition = (jobId: string) =>
 /**
  * 완료한 빈칸 채우기 결과를 그 id 의 빈칸 자리에 한 번만 반영 (화면이 닫혀 있던 경우, 초안을 열 때)
  * - applied_at 을 먼저 선점한 요청만 반영 (편집기가 markFillApplied 로 먼저 선점했으면 아무것도 하지 않음)
+ * - 선점하면서 본문 스냅숏(blank_context)을 지움 (질문과 답은 기록으로 남김)
  * - 결과에 문단이 없으면 작업을 invalid_result 로 실패 처리 (빈칸과 답은 그대로)
  * - 본문은 행 잠금으로 읽고 빈칸 id 를 정리한 뒤 그 빈칸만 바꿈 (다른 내용은 그대로)
  * - 빈칸이 사라졌으면 결과를 버리고 반영 표시만 남김
@@ -273,7 +304,7 @@ export const applyCompletedFillJob = async (jobId: string) => {
     const now = new Date();
     const [claimed] = await tx
       .update(draftPrompt)
-      .set({ appliedAt: now })
+      .set({ appliedAt: now, blankContext: null })
       .where(unappliedFillCondition(jobId))
       .returning({
         draftId: draftPrompt.draftId,
@@ -342,13 +373,13 @@ export const applyCompletedFillJob = async (jobId: string) => {
 };
 
 /**
- * 편집기가 빈칸 채우기 결과를 직접 반영했다는 표시 (applied_at 선점)
+ * 편집기가 빈칸 채우기 결과를 직접 반영했다는 표시 (applied_at 선점, 본문 스냅숏 blank_context 는 지움)
  * @returns 이번 호출에서 선점했는지 (이미 서버나 다른 화면이 반영했으면 false)
  */
 export const claimFillJob = async (jobId: string) => {
   const [row] = await db
     .update(draftPrompt)
-    .set({ appliedAt: new Date() })
+    .set({ appliedAt: new Date(), blankContext: null })
     .where(unappliedFillCondition(jobId))
     .returning({ id: draftPrompt.id });
 
@@ -387,7 +418,7 @@ export const getFillJobParagraphs = async (
 
   await db
     .update(draftPrompt)
-    .set({ status: 'failed', errorCode: 'invalid_result' })
+    .set({ status: 'failed', errorCode: 'invalid_result', blankContext: null })
     .where(unappliedFillCondition(jobId));
 
   return null;
@@ -398,6 +429,7 @@ export const getFillJobParagraphs = async (
  * - 스튜디오 화면을 열 때, 초안을 바꾸는 액션 전에 호출
  * - 빈칸 채우기 결과는 applyFills 일 때만 (초안을 열 때만): 열려 있는 편집기는 상태 조회로 결과를 받아
  *   직접 반영하므로, 자동 저장·게시 전에 서버가 먼저 넣으면 곧바로 편집기 본문으로 덮이고 반영 표시만 남음
+ *   초안을 열 때는 실패한 빈칸 채우기의 본문 스냅숏도 지움 (자동 저장마다 하지 않음)
  */
 export const syncDraftJobs = async (
   draftId: string,
@@ -423,6 +455,10 @@ export const syncDraftJobs = async (
     } else if (applyFills) {
       await applyCompletedFillJob(id);
     }
+  }
+
+  if (applyFills) {
+    await clearFailedFillContexts({ draftId });
   }
 };
 
@@ -582,14 +618,19 @@ export const completeJob = async (
   return Boolean(row);
 };
 
-// 실패 처리 (진행 중인 작업만, 사유 코드만 남김)
+// 실패 처리 (진행 중인 작업만, 사유 코드만 남기고 빈칸 채우기의 본문 스냅숏은 지움)
 export const failJob = async (
   jobId: string,
   errorCode: GenerationErrorCode,
 ) => {
   const [row] = await db
     .update(draftPrompt)
-    .set({ status: 'failed', errorCode, finishedAt: new Date() })
+    .set({
+      status: 'failed',
+      errorCode,
+      finishedAt: new Date(),
+      blankContext: null,
+    })
     .where(
       and(
         eq(draftPrompt.id, jobId),

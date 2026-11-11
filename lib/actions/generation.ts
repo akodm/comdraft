@@ -18,6 +18,7 @@ import { getGenerationRunner } from '@/lib/generation/get-runner';
 import {
   applyCompletedJob,
   claimFillJob,
+  clearFailedFillContexts,
   countUserJobsSince,
   expireStaleJobs,
   failJob,
@@ -350,6 +351,7 @@ export type GenerationStatusResult =
  * - 완료한 초안 작성 결과는 여기서 초안에 한 번만 반영한 뒤 applied 로 돌려줌
  * - 완료한 빈칸 채우기 결과는 반영하지 않고 문단으로 돌려줌: 열려 있는 편집기가 그 빈칸만 바꾼 뒤
  *   markFillApplied 를 부름 (화면이 닫혀 있으면 다음에 초안을 열 때 서버가 반영)
+ * - 실패한 빈칸 채우기는 본문 스냅숏(blank_context)을 지움
  */
 export async function getGenerationStatus(
   jobId: string,
@@ -386,6 +388,10 @@ export async function getGenerationStatus(
     if (!fillParagraphs) {
       job = (await getUserJob(user.id, jobId)) ?? job;
     }
+  }
+
+  if (job.kind === 'fill' && job.status === 'failed') {
+    await clearFailedFillContexts({ jobId });
   }
 
   const isTerminal = job.status === 'completed' || job.status === 'failed';

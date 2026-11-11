@@ -181,9 +181,11 @@ comdraft-lambda (node:test):
 
 ## 9. 배포
 
-1. 마이그레이션 로컬·운영 적용 (컬럼 추가만).
-2. comdraft 배포 (Lambda 보다 먼저).
-3. Lambda 배포 (`pnpm build`, `terraform apply`, 실행 직전 확인).
+1. 마이그레이션 로컬·운영 적용 (컬럼 추가만, 완료).
+2. Lambda 배포 먼저 (`pnpm build`, `terraform apply`, 실행 직전 확인).
+3. comdraft 배포.
+
+Lambda 를 먼저 올리는 이유: 새 comdraft 가 옛 Lambda 를 부르면 `kind='fill'` 작업을 모르는 Lambda 가 그 작업을 초안 작성 전체 과정으로 돌려, 빈칸 하나 대신 초안 전체를 쓰고 사용량도 그만큼 씀. 반대로 새 Lambda 와 옛 comdraft 는 안전함 (옛 comdraft 는 `kind='draft'` 작업만 만들고, 새 Lambda 는 초안 작성을 그대로 처리).
 
 ## 10. 범위 밖
 

@@ -32,6 +32,7 @@ import { OUTLINE_BUTTON_CLASS } from '@/components/studio/studio-styles';
 import { useBlankFill } from '@/hooks/use-blank-fill';
 import type { BlankFillResult } from '@/hooks/use-generation-job';
 import { usePendingImages, type ImageNotice } from '@/hooks/use-pending-images';
+import type { GenerationQuota } from '@/lib/actions/generation';
 import { saveDraftContent } from '@/lib/actions/studio';
 import type { GenerationJobView } from '@/lib/generation/jobs';
 import { countEmptyBlanks } from '@/lib/studio/draft-blank';
@@ -388,6 +389,8 @@ interface DraftEditorProps {
   isLocked: boolean;
   // 이 초안의 AI 작업 (빈칸 채우기 중인 빈칸 잠금, 다듬기 막음)
   job: GenerationJobView | null;
+  // 상태 조회로 받은 사용량 (빈칸 채우기 실패 안내의 초기화 시각)
+  quota: GenerationQuota | null;
   // 완료한 빈칸 채우기 결과 (그 빈칸에 넣음)
   fillResult: BlankFillResult | null;
   onFillStarted: (job: GenerationJobView) => void;
@@ -412,6 +415,7 @@ const DraftEditor = ({
   scrollAreaRef,
   isLocked,
   job,
+  quota,
   fillResult,
   onFillStarted,
   onFillDone,
@@ -523,6 +527,7 @@ const DraftEditor = ({
     repositoryId,
     draftId: draft?.id ?? null,
     job,
+    quota,
     fillResult,
     saveNow: flush,
     onStarted: onFillStarted,

@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getFillResultAction,
   isFillPending,
   isJobLocking,
   isJobResumable,
   RECENT_FAILURE_MS,
   shouldWatchJob,
+  toEditorJobView,
 } from '@/lib/generation/job-state';
 
 const now = new Date('2026-11-11T12:00:00Z');
@@ -117,5 +119,89 @@ describe('shouldWatchJob', () => {
     expect(
       shouldWatchJob({ kind: 'draft', status: 'completed', applied: true }),
     ).toBe(false);
+  });
+});
+
+describe('getFillResultAction', () => {
+  const completedFill = {
+    kind: 'fill' as const,
+    status: 'completed' as const,
+    blankId: 'blank-1',
+    applied: false,
+  };
+  const ready = {
+    hasParagraphs: true,
+    isDoneHere: false,
+    isBlankPresent: true,
+  };
+
+  it('서버가 먼저 반영했어도 이 편집기가 넣지 않았고 빈칸이 있으면 넣는다', () => {
+    expect(
+      getFillResultAction({ ...completedFill, applied: true }, ready),
+    ).toBe('insert');
+    expect(getFillResultAction(completedFill, ready)).toBe('insert');
+  });
+
+  it('이 편집기가 이미 넣었거나 표시했으면 아무것도 하지 않는다', () => {
+    expect(
+      getFillResultAction(
+        { ...completedFill, applied: true },
+        { ...ready, isDoneHere: true },
+      ),
+    ).toBe('none');
+  });
+
+  it('빈칸이 사라졌으면 반영 표시만 남긴다', () => {
+    expect(
+      getFillResultAction(
+        { ...completedFill, applied: true },
+        { ...ready, isBlankPresent: false },
+      ),
+    ).toBe('mark');
+    expect(
+      getFillResultAction(completedFill, { ...ready, isBlankPresent: false }),
+    ).toBe('mark');
+  });
+
+  it('완료한 빈칸 채우기 결과가 아니면 아무것도 하지 않는다', () => {
+    expect(
+      getFillResultAction({ ...completedFill, status: 'running' }, ready),
+    ).toBe('none');
+    expect(
+      getFillResultAction({ ...completedFill, kind: 'draft' }, ready),
+    ).toBe('none');
+    expect(
+      getFillResultAction({ ...completedFill, blankId: null }, ready),
+    ).toBe('none');
+    expect(
+      getFillResultAction(completedFill, { ...ready, hasParagraphs: false }),
+    ).toBe('none');
+  });
+});
+
+describe('toEditorJobView', () => {
+  const fill = {
+    id: 'job-1',
+    kind: 'fill' as const,
+    status: 'completed' as const,
+    applied: true,
+  };
+
+  it('빈칸 채우기의 applied 는 서버 반영이 아니라 이 편집기가 처리했는지로 본다', () => {
+    expect(toEditorJobView(fill, null).applied).toBe(false);
+    expect(toEditorJobView(fill, 'other-job').applied).toBe(false);
+    expect(toEditorJobView({ ...fill, applied: false }, 'job-1').applied).toBe(
+      true,
+    );
+    expect(isFillPending(toEditorJobView(fill, null))).toBe(true);
+  });
+
+  it('초안 작성 작업은 서버 반영 여부를 그대로 쓴다', () => {
+    const draft = { ...fill, kind: 'draft' as const };
+
+    expect(toEditorJobView(draft, null).applied).toBe(true);
+    expect(toEditorJobView({ ...draft, applied: false }, 'job-1').applied).toBe(
+      false,
+    );
   });
 });

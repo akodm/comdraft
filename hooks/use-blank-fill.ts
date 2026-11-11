@@ -10,12 +10,20 @@ import {
 } from '@/components/studio/draft-blank-fill';
 import {
   BLANK_FILL_FAILED_MESSAGE,
+  getBlankFillJobMessage,
   getBlankFillRequestMessage,
+  NEXT_RESET_LABEL,
 } from '@/components/studio/blank-fill-messages';
 import type { BlankFillResult } from '@/hooks/use-generation-job';
 import { useLocale } from '@/hooks/use-locale';
-import { markFillApplied, requestBlankFill } from '@/lib/actions/generation';
+import {
+  markFillApplied,
+  requestBlankFill,
+  type GenerationQuota,
+} from '@/lib/actions/generation';
+import { getFillResultAction } from '@/lib/generation/job-state';
 import type { GenerationJobView } from '@/lib/generation/jobs';
+import { formatQuotaReset } from '@/lib/generation/quota-format';
 import { getBlankFillLock } from '@/lib/studio/blank-fill-state';
 import { getBlankAnswer } from '@/lib/studio/draft-blank';
 
@@ -23,8 +31,10 @@ interface UseBlankFillOptions {
   editor: Editor | null;
   repositoryId: string;
   draftId: string | null;
-  // 이 초안의 AI 작업 (초안 작성·빈칸 채우기)
+  // 이 초안의 AI 작업 (초안 작성·빈칸 채우기, 빈칸 채우기의 applied 는 이 편집기가 처리했는지)
   job: GenerationJobView | null;
+  // 상태 조회로 받은 사용량 (실패 안내의 초기화 시각, 화면을 열 때 받은 작업에는 없음)
+  quota: GenerationQuota | null;
   // 완료한 빈칸 채우기 결과 (편집기가 아직 넣지 않음)
   fillResult: BlankFillResult | null;
   // 대기 중인 자동 저장을 바로 마침 (저장까지 끝났는지)
@@ -41,14 +51,16 @@ interface UseBlankFillOptions {
  * - 요청: 서버가 최신 본문을 읽도록 자동 저장을 마친 뒤 requestBlankFill
  * - 결과: 그 빈칸만 트랜잭션으로 바꾸고, 그 본문이 저장된 뒤에 markFillApplied
  *   (먼저 남기면 저장 전에 탭을 닫을 때 결과를 잃음, 저장에 실패하면 다음 저장이 끝난 뒤 남김)
+ *   서버가 먼저 반영했어도 이 편집기 본문에 빈칸이 있으면 넣음 (getFillResultAction)
  *   빈칸이 사라졌으면 결과를 버리고 반영 표시만 남김
- * - 실패: 잠금을 풀고 답은 그대로 둔 채 그 빈칸에 안내
+ * - 실패: 잠금을 풀고 답은 그대로 둔 채 그 빈칸에 사유 안내 (사용량 초과·시간 초과는 작성 요청과 같은 문구)
  */
 export const useBlankFill = ({
   editor,
   repositoryId,
   draftId,
   job,
+  quota,
   fillResult,
   saveNow,
   onStarted,
@@ -71,12 +83,22 @@ export const useBlankFill = ({
   const { fillingBlankId, isBusy } = getBlankFillLock(job, pendingBlankId);
   const failureMessage = i18n._(BLANK_FILL_FAILED_MESSAGE);
   // 실패한 빈칸 채우기 작업 (화면을 다시 열었을 때 떠난 사이 실패한 작업 포함)
-  const failedFillBlankId =
-    job?.kind === 'fill' && job.status === 'failed' ? job.blankId : null;
+  const failedFillJob =
+    job?.kind === 'fill' && job.status === 'failed' ? job : null;
+  const failedFillMessage = failedFillJob
+    ? i18n._(
+        getBlankFillJobMessage(
+          failedFillJob.errorCode,
+          quota
+            ? formatQuotaReset(new Date(quota.resetsAt), locale)
+            : i18n._(NEXT_RESET_LABEL),
+        ),
+      )
+    : null;
   const notice =
     requestNotice ??
-    (failedFillBlankId
-      ? { blankId: failedFillBlankId, message: failureMessage }
+    (failedFillJob?.blankId && failedFillMessage
+      ? { blankId: failedFillJob.blankId, message: failedFillMessage }
       : null);
   const noticeBlankId = notice?.blankId ?? null;
   const noticeMessage = notice?.message ?? null;
@@ -184,21 +206,28 @@ export const useBlankFill = ({
   }, [markApplied]);
 
   useEffect(() => {
-    if (
-      !editor ||
-      editor.isDestroyed ||
-      !fillResult ||
-      appliedJobIdRef.current === fillResult.jobId
-    ) {
+    if (!editor || editor.isDestroyed || !job || !fillResult) {
       return;
     }
 
     const { jobId, blankId, paragraphs } = fillResult;
+    // 서버 반영 여부와 무관하게, 이 편집기가 아직 처리하지 않았으면 넣거나 표시만 남김
+    const action = getFillResultAction(job, {
+      hasParagraphs: job.id === jobId && paragraphs.length > 0,
+      isDoneHere: appliedJobIdRef.current === jobId,
+      isBlankPresent: Boolean(findBlankById(editor.state.doc, blankId)),
+    });
+
+    if (action === 'none') {
+      return;
+    }
 
     appliedJobIdRef.current = jobId;
 
     // 그 빈칸만 결과로 바꿈 (update 이벤트로 자동 저장이 예약됨)
-    const replaced = replaceBlankWithParagraphs(editor, blankId, paragraphs);
+    const replaced =
+      action === 'insert' &&
+      replaceBlankWithParagraphs(editor, blankId, paragraphs);
 
     onDone(jobId);
 
@@ -214,7 +243,7 @@ export const useBlankFill = ({
         handleSaved();
       }
     });
-  }, [editor, fillResult, onDone, saveNow, markApplied, handleSaved]);
+  }, [editor, job, fillResult, onDone, saveNow, markApplied, handleSaved]);
 
   return { requestFill, handleSaved };
 };
