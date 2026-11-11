@@ -4,6 +4,7 @@ import {
   countEmptyBlanks,
   ensureBlankIds,
   findBlank,
+  getBlankAnswer,
   hasDraftBody,
   normalizeBlankAttrs,
   replaceBlank,
@@ -136,6 +137,19 @@ describe('findBlank', () => {
       text: '내 답',
     });
     expect(findBlank(doc, ID_B)).toBeNull();
+  });
+});
+
+describe('getBlankAnswer', () => {
+  it('빈칸 안 문단 글을 줄바꿈으로 잇고 앞뒤 공백을 지운다 (서버가 받는 답과 같은 규칙)', () => {
+    const node: JSONContent = {
+      type: 'draftBlank',
+      attrs: { id: ID_A, kind: 'result', hint: '' },
+      content: [p('  첫 줄'), p('둘째 줄 ')],
+    };
+
+    expect(getBlankAnswer(node)).toBe('첫 줄\n둘째 줄');
+    expect(getBlankAnswer(blank(ID_A))).toBe('');
   });
 });
 

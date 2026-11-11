@@ -13,6 +13,8 @@ interface ConfirmDialogProps {
   title: string;
   description: ReactNode;
   confirmLabel: string;
+  // 닫기 버튼 문구 (기본 "닫기")
+  cancelLabel?: ReactNode;
   // danger 는 삭제처럼 되돌릴 수 없는 작업, default 는 일반 확인
   tone?: 'default' | 'danger';
   // 진행 중이면 확인 버튼을 막음
@@ -31,6 +33,7 @@ const ConfirmDialog = ({
   title,
   description,
   confirmLabel,
+  cancelLabel,
   tone = 'default',
   isPending = false,
   error,
@@ -55,7 +58,7 @@ const ConfirmDialog = ({
         onClick={onClose}
         className={`h-8.5 text-[12px] leading-[normal] font-medium ${OUTLINE_BUTTON_CLASS}`}
       >
-        <Trans>닫기</Trans>
+        {cancelLabel ?? <Trans>닫기</Trans>}
       </button>
       <button
         type="button"

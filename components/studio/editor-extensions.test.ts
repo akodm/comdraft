@@ -9,7 +9,11 @@ const LABELS = {
   blankPlaceholder: '여기에 직접 작성',
   codeBlock: { copy: '복사', copied: '복사됨' },
   blank: {
-    done: '완료',
+    fill: 'AI 로 다듬기',
+    insert: '그대로 넣기',
+    remove: '지우기',
+    filling: '다듬는 중',
+    tooLong: '너무 김',
     kinds: {
       motivation: { label: '계기', fallback: '계기 기본' },
       result: { label: '결과', fallback: '결과 기본' },

@@ -70,21 +70,23 @@ export const applyImageChanges = (
   editor.view.dispatch(tr);
 };
 
-// 트랜잭션이 이미지 노드를 넣는지 (글자 입력처럼 이미지가 없는 변경은 문서를 훑지 않음)
-const insertsImage = (tr: Transaction) =>
+// 트랜잭션이 이 종류의 노드를 넣는지 (글자 입력처럼 해당 노드가 없는 변경은 문서를 훑지 않음)
+export const insertsNode = (tr: Transaction, typeName: string) =>
   tr.steps.some((step) => {
     const slice = (step as { slice?: { content: ProseMirrorNode['content'] } })
       .slice;
     let found = false;
 
     slice?.content.descendants((node) => {
-      found ||= node.type.name === IMAGE_NODE;
+      found ||= node.type.name === typeName;
 
       return !found;
     });
 
     return found;
   });
+
+const insertsImage = (tr: Transaction) => insertsNode(tr, IMAGE_NODE);
 
 /**
  * 붙여넣기의 HTML 에 글자가 없을 때만 파일로 넣음

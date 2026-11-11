@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
+import ConfirmDialog from '@/components/shared/confirm-dialog';
 import { DROPDOWN_PANEL_CLASS } from '@/components/shared/dropdown-styles';
 import Spinner from '@/components/shared/spinner';
 import GenerationProgress from '@/components/studio/generation-progress';
@@ -57,7 +58,8 @@ type Notice =
   | 'quota_unavailable'
   | 'error';
 
-const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
+// 작성 요청 결과 안내 (빈칸 다듬기 요청도 시간당 제한·인증·서버 연결 안내는 같은 문구를 씀)
+export const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
   no_prompt: msg`작성 요청을 입력해주세요.`,
   no_commits: msg`커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요.`,
   too_many_commits: msg`커밋은 한 번에 ${MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다.`,
@@ -235,6 +237,8 @@ interface PromptComposerProps {
   // 상태 조회로 받은 사용량 (진행 표시의 사용량 초과 안내에 사용)
   quota: GenerationQuota | null;
   isLocked: boolean;
+  // 다시 작성하면 사라질 본문이 있는지 (있으면 제출 전에 확인)
+  hasBody: () => boolean;
   onJobStarted: (job: GenerationJobView) => void;
   onJobDismiss: () => void;
 }
@@ -245,6 +249,7 @@ interface PromptComposerProps {
  * - 모바일: 왼쪽에 초안 목록 / 커밋 내역 사이드바 여는 버튼
  * - 제출하면 AI 작성 작업을 시작 (새 초안이면 초안을 만들고 그 화면으로 이동해 진행 상태를 이어서 받음)
  * - 작업이 진행 중이면 제출할 수 없고, 진행 단계/실패 사유를 표시
+ * - 본문이 있는 초안을 다시 작성하면 본문이 바뀌므로 제출 전에 확인 창을 띄움
  */
 const PromptComposer = ({
   draftId,
@@ -253,6 +258,7 @@ const PromptComposer = ({
   job,
   quota,
   isLocked,
+  hasBody,
   onJobStarted,
   onJobDismiss,
 }: PromptComposerProps) => {
@@ -267,28 +273,13 @@ const PromptComposer = ({
     ? formatQuotaReset(new Date(exhausted.resetsAt), locale)
     : '';
   const [isPending, startTransition] = useTransition();
+  // 다시 작성 확인 창
+  const [isConfirming, setIsConfirming] = useState(false);
   const promptId = useId();
 
-  const submit = () => {
-    if (isPending || isLocked) {
-      return;
-    }
-
-    if (!prompt.trim()) {
-      setNotice('no_prompt');
-      return;
-    }
-
-    if (selectedCommits.length === 0) {
-      setNotice('no_commits');
-      return;
-    }
-
-    if (selectedCommits.length > MAX_GENERATION_COMMITS) {
-      setNotice('too_many_commits');
-      return;
-    }
-
+  // 작성 요청 보내기 (다시 작성 확인 창에서 확인해도 여기로)
+  const send = () => {
+    setIsConfirming(false);
     setNotice(null);
     setExhausted(null);
     onJobDismiss();
@@ -326,6 +317,35 @@ const PromptComposer = ({
         setNotice('error');
       }
     });
+  };
+
+  const submit = () => {
+    if (isPending || isLocked) {
+      return;
+    }
+
+    if (!prompt.trim()) {
+      setNotice('no_prompt');
+      return;
+    }
+
+    if (selectedCommits.length === 0) {
+      setNotice('no_commits');
+      return;
+    }
+
+    if (selectedCommits.length > MAX_GENERATION_COMMITS) {
+      setNotice('too_many_commits');
+      return;
+    }
+
+    // 본문이 있는 초안은 다시 작성하기 전에 확인
+    if (draftId && hasBody()) {
+      setIsConfirming(true);
+      return;
+    }
+
+    send();
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -458,6 +478,24 @@ const PromptComposer = ({
           </button>
         </div>
       </form>
+      {isConfirming && (
+        <ConfirmDialog
+          title={t`초안을 다시 작성할까요?`}
+          description={
+            <p>
+              <Trans>
+                새로 작성하면 지금 본문이 AI 결과로 바뀝니다. 직접 고친 내용도
+                사라집니다.
+              </Trans>
+            </p>
+          }
+          confirmLabel={t`다시 작성`}
+          cancelLabel={<Trans>취소</Trans>}
+          isPending={isPending}
+          onConfirm={send}
+          onClose={() => setIsConfirming(false)}
+        />
+      )}
     </div>
   );
 };

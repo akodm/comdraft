@@ -60,6 +60,33 @@ export const isJobLocking = (job: {
   );
 };
 
+/**
+ * 빈칸 채우기 작업이 그 빈칸을 막고 있는지
+ * - 진행 중이거나, 완료했지만 열린 편집기가 결과를 아직 그 빈칸에 넣지 않은 작업
+ */
+export const isFillPending = (job: {
+  kind: GenerationJobKind;
+  status: GenerationStatus;
+  applied: boolean;
+}) => {
+  return (
+    job.kind === 'fill' &&
+    (isJobActive(job.status) || (job.status === 'completed' && !job.applied))
+  );
+};
+
+/**
+ * 화면이 Realtime 구독·주기 조회로 따라가야 하는 작업인지
+ * - 초안 작성은 편집기를 잠그는 동안, 빈칸 채우기는 진행 중인 동안 (편집기는 잠그지 않음)
+ */
+export const shouldWatchJob = (job: {
+  kind: GenerationJobKind;
+  status: GenerationStatus;
+  applied: boolean;
+}) => {
+  return isJobLocking(job) || (job.kind === 'fill' && isJobActive(job.status));
+};
+
 // 실패를 화면에 다시 보여 줄 기간 (화면을 다시 열었을 때 방금 실패한 작업 안내)
 export const RECENT_FAILURE_MS = 10 * 60 * 1000;
 

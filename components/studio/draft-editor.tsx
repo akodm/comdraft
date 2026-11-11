@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   type Ref,
+  type RefObject,
 } from 'react';
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
@@ -14,6 +15,7 @@ import { Trans, useLingui } from '@lingui/react/macro';
 import type { JSONContent } from '@tiptap/core';
 import type { Transaction } from '@tiptap/pm/state';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
+import { assignBlankIds } from '@/components/studio/draft-blank-fill';
 import { getDraftStatusLabel } from '@/components/studio/draft-status';
 import { createEditorExtensions } from '@/components/studio/editor-extensions';
 import EditorToolbar from '@/components/studio/editor-toolbar';
@@ -27,8 +29,11 @@ import PublishActions from '@/components/studio/publish-actions';
 import { PROSE_CLASS } from '@/components/shared/prose';
 import { resolvePublishState } from '@/components/studio/publish-state';
 import { OUTLINE_BUTTON_CLASS } from '@/components/studio/studio-styles';
+import { useBlankFill } from '@/hooks/use-blank-fill';
+import type { BlankFillResult } from '@/hooks/use-generation-job';
 import { usePendingImages, type ImageNotice } from '@/hooks/use-pending-images';
 import { saveDraftContent } from '@/lib/actions/studio';
+import type { GenerationJobView } from '@/lib/generation/jobs';
 import { countEmptyBlanks } from '@/lib/studio/draft-blank';
 import type { StudioDraft } from '@/lib/studio/queries';
 
@@ -86,11 +91,13 @@ const downloadFile = (fileName: string, text: string, type: string) => {
  * - 저장한 뒤에도 편집기에 못 올린 blob 이미지가 남으면 잠시 뒤 다시 올려 저장
  *   (blob 한 장당 정해진 횟수까지, 새로 입력하면 횟수를 비움)
  * - 화면을 떠날 때 못 올린 blob 이미지만 남았어도 마지막으로 한 번 올려 저장
+ * - 대기 중인 내용을 모두 저장하고 끝나면 onSavedRef 를 부름 (빈칸 채우기 반영 표시)
  */
 const useDraftAutosave = (
   repositoryId: string,
   draftId: string | null,
   prepareContent: PrepareContent,
+  onSavedRef?: RefObject<(() => void) | null>,
 ) => {
   const { setDraftTitle, setDraftStatus, isDraftRemoved } = useStudio();
   const [saveState, setSaveState] = useState<SaveState>('idle');
@@ -99,7 +106,7 @@ const useDraftAutosave = (
   const editorRef = useRef<Editor | null>(null);
   const timerRef = useRef<number | undefined>(undefined);
   // 진행 중인 저장 (게시 전에 끝날 때까지 기다리거나, 중복 저장을 막는 데 사용)
-  const inFlightRef = useRef<Promise<void> | null>(null);
+  const inFlightRef = useRef<Promise<boolean> | null>(null);
   // 못 올린 blob 이미지를 다시 올리는 타이머와 blob 마다의 시도 횟수
   const retryTimerRef = useRef<number | undefined>(undefined);
   const retryAttemptsRef = useRef(new Map<string, number>());
@@ -164,12 +171,16 @@ const useDraftAutosave = (
     isDraftRemoved,
   ]);
 
-  const flush = useCallback((): Promise<void> => {
+  /**
+   * 대기 중인 내용을 바로 저장
+   * @returns 대기 내용까지 모두 저장했는지 (대기 내용이 없으면 true)
+   */
+  const flush = useCallback((): Promise<boolean> => {
     window.clearTimeout(timerRef.current);
 
     // 저장 중이면 그 저장이 끝난 뒤 대기 내용까지 이어서 저장함
     if (inFlightRef.current || !pendingRef.current) {
-      return inFlightRef.current ?? Promise.resolve();
+      return inFlightRef.current ?? Promise.resolve(true);
     }
 
     window.clearTimeout(retryTimerRef.current);
@@ -213,13 +224,16 @@ const useDraftAutosave = (
       .then((isSaved) => {
         if (isSaved) {
           scheduleImageRetry();
+          onSavedRef?.current?.();
         }
+
+        return isSaved;
       });
 
     inFlightRef.current = task;
 
     return task;
-  }, [saveUntilIdle]);
+  }, [saveUntilIdle, onSavedRef]);
 
   /**
    * 게시 직전에 자동 저장과 겹치지 않도록 정리
@@ -284,7 +298,7 @@ const useDraftAutosave = (
     };
   }, [flush]);
 
-  return { saveState, schedule, settle };
+  return { saveState, schedule, settle, flush };
 };
 
 // AI 작성 중에는 읽기 전용 (잠금이 풀리면 다시 편집 가능)
@@ -372,6 +386,15 @@ interface DraftEditorProps {
   scrollAreaRef?: Ref<HTMLDivElement>;
   // AI 작성 중이라 읽기 전용
   isLocked: boolean;
+  // 이 초안의 AI 작업 (빈칸 채우기 중인 빈칸 잠금, 다듬기 막음)
+  job: GenerationJobView | null;
+  // 완료한 빈칸 채우기 결과 (그 빈칸에 넣음)
+  fillResult: BlankFillResult | null;
+  onFillStarted: (job: GenerationJobView) => void;
+  // 빈칸 채우기 결과를 넣었음 (또는 빈칸이 없어 버림)
+  onFillDone: (jobId: string) => void;
+  // 작업 영역이 지금 본문을 읽는 데 쓰는 편집기 (다시 작성 확인)
+  editorRef?: RefObject<Editor | null>;
 }
 
 // 커서가 화면 끝에 닿기 전에 스크롤할 간격 (px)
@@ -388,15 +411,24 @@ const DraftEditor = ({
   bottomInset,
   scrollAreaRef,
   isLocked,
+  job,
+  fillResult,
+  onFillStarted,
+  onFillDone,
+  editorRef,
 }: DraftEditorProps) => {
   const { t, i18n } = useLingui();
   const { draftPublishStates, draftStatuses } = useStudio();
   const images = usePendingImages(repositoryId);
   const { insertFiles, isAllowedSrc, uploadEditorImages, showNotice } = images;
-  const { saveState, schedule, settle } = useDraftAutosave(
+  // 자동 저장이 끝날 때 / 빈칸의 AI 로 다듬기를 누를 때 부를 함수 (편집기 확장은 초안마다 한 번 만들어 ref 로 넘김)
+  const savedHandlerRef = useRef<(() => void) | null>(null);
+  const fillHandlerRef = useRef<((blankId: string) => void) | null>(null);
+  const { saveState, schedule, settle, flush } = useDraftAutosave(
     repositoryId,
     draft?.id ?? null,
     images.prepareContent,
+    savedHandlerRef,
   );
   const extensions = useMemo(
     () =>
@@ -424,11 +456,16 @@ const DraftEditor = ({
                 fallback: t`이 부분은 자세한 설명이 필요합니다`,
               },
             },
-            done: t`완료`,
+            fill: t`AI 로 다듬기`,
+            insert: t`그대로 넣기`,
+            remove: t`지우기`,
+            filling: t`AI 가 다듬는 중이에요`,
+            tooLong: t`답은 1,000자까지 적을 수 있습니다`,
           },
           blankPlaceholder: t`여기에 직접 작성해 주세요`,
         },
         { onFiles: insertFiles, isAllowedSrc },
+        { onFill: (blankId) => fillHandlerRef.current?.(blankId) },
       ),
     [t, insertFiles, isAllowedSrc],
   );
@@ -462,6 +499,10 @@ const DraftEditor = ({
         scrollMargin: scrollMarginRef.current,
         scrollThreshold: scrollMarginRef.current,
       },
+      // id 가 없거나 겹치는 빈칸에 id 를 붙임 (편집할 수 있으면 자동 저장으로 남음)
+      onCreate: ({ editor: created }) => {
+        assignBlankIds(created);
+      },
       // 사용자가 편집할 수 있을 때의 변경만 자동 저장 (잠금 중 본문 교체 등은 제외)
       onUpdate: ({ editor: current }) => {
         if (current.isEditable) {
@@ -476,6 +517,34 @@ const DraftEditor = ({
 
   useEditorLock(editor, Boolean(draft) && !isLocked);
   useAppliedContent(editor, draft);
+
+  const { requestFill, handleSaved } = useBlankFill({
+    editor,
+    repositoryId,
+    draftId: draft?.id ?? null,
+    job,
+    fillResult,
+    saveNow: flush,
+    onStarted: onFillStarted,
+    onDone: onFillDone,
+  });
+
+  useEffect(() => {
+    savedHandlerRef.current = handleSaved;
+    fillHandlerRef.current = (blankId) => void requestFill(blankId);
+  }, [handleSaved, requestFill]);
+
+  useEffect(() => {
+    if (!editorRef) {
+      return;
+    }
+
+    editorRef.current = editor;
+
+    return () => {
+      editorRef.current = null;
+    };
+  }, [editor, editorRef]);
 
   // 게시·자동 저장으로 바뀐 상태가 서버에서 받은 값보다 우선
   const publishState = resolvePublishState(

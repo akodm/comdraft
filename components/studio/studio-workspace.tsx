@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { Editor } from '@tiptap/react';
 import DraftEditor from '@/components/studio/draft-editor';
 import QuotaExhaustedBanner from '@/components/studio/quota-exhausted-banner';
 import PromptComposer from '@/components/studio/prompt-composer';
@@ -11,6 +12,7 @@ import { PC_MEDIA_QUERY } from '@/components/studio/studio-styles';
 import { useGenerationJob } from '@/hooks/use-generation-job';
 import { useLocalizedRouter } from '@/hooks/use-localized-router';
 import { useReferenceLinks } from '@/hooks/use-reference-links';
+import { hasDraftBody } from '@/lib/studio/draft-blank';
 import {
   DEFAULT_PROMPT_OPTIONS,
   type PromptOptions as PromptOptionsValue,
@@ -33,12 +35,19 @@ interface StudioWorkspaceProps {
 const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
   const { repository } = useStudio();
   const router = useLocalizedRouter();
-  // AI 작성 작업: 진행 중(또는 결과 반영 전)에는 편집기/참고 링크/제출 잠금,
+  // AI 작업: 초안 작성이 진행 중(또는 결과 반영 전)이면 편집기/참고 링크/제출 잠금,
   // 결과가 반영되면 화면을 다시 불러와 새 본문을 편집기에 표시
+  // 빈칸 채우기는 그 빈칸만 막고, 결과는 편집기가 그 빈칸에 넣음
   const generation = useGenerationJob({
     initialJob: draft?.resumableJob ?? null,
     onApplied: router.refresh,
   });
+  // 작성 요청 영역의 진행 상태·실패 안내는 초안 작성 작업만 (빈칸 채우기 안내는 그 빈칸에)
+  const draftJob = generation.job?.kind === 'draft' ? generation.job : null;
+  const editorRef = useRef<Editor | null>(null);
+  // 다시 작성하면 사라질 본문이 있는지 (편집기의 지금 내용 기준)
+  const hasBody = () =>
+    hasDraftBody(editorRef.current?.getJSON() ?? draft?.content ?? null);
   // 초안의 마지막 작성 요청 옵션으로 시작
   const [options, setOptions] = useState<PromptOptionsValue>(
     draft?.promptOptions ?? DEFAULT_PROMPT_OPTIONS,
@@ -143,6 +152,11 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
           bottomInset={optionsHeight}
           scrollAreaRef={editorScrollRef}
           isLocked={generation.isLocked}
+          job={generation.job}
+          fillResult={generation.fillResult}
+          onFillStarted={generation.start}
+          onFillDone={generation.markFillDone}
+          editorRef={editorRef}
         />
         <div ref={bottomAreaRef} className="relative shrink-0">
           {/* 편집기와 작성 요청 사이 간격(12px)을 그대로 두고 작성 요청 위에 겹쳐 띄움 */}
@@ -165,9 +179,10 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
             pendingReferenceUrls={
               draft ? [] : referenceLinks.links.map(({ url }) => url)
             }
-            job={generation.job}
+            job={draftJob}
             quota={generation.quota}
             isLocked={generation.isLocked}
+            hasBody={hasBody}
             onJobStarted={generation.start}
             onJobDismiss={generation.dismiss}
           />

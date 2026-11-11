@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  isFillPending,
   isJobLocking,
   isJobResumable,
   RECENT_FAILURE_MS,
+  shouldWatchJob,
 } from '@/lib/generation/job-state';
 
 const now = new Date('2026-11-11T12:00:00Z');
@@ -59,6 +61,61 @@ describe('isJobResumable', () => {
     ).toBe(false);
     expect(
       isJobResumable(job({ status: 'completed', applied: true }), now),
+    ).toBe(false);
+  });
+});
+
+describe('isFillPending', () => {
+  it('빈칸 채우기는 진행 중이거나 편집기가 아직 넣지 않은 완료면 그 빈칸을 막는다', () => {
+    expect(
+      isFillPending({ kind: 'fill', status: 'queued', applied: false }),
+    ).toBe(true);
+    expect(
+      isFillPending({ kind: 'fill', status: 'running', applied: false }),
+    ).toBe(true);
+    expect(
+      isFillPending({ kind: 'fill', status: 'completed', applied: false }),
+    ).toBe(true);
+  });
+
+  it('넣은 완료·실패와 초안 작성 작업은 아니다', () => {
+    expect(
+      isFillPending({ kind: 'fill', status: 'completed', applied: true }),
+    ).toBe(false);
+    expect(
+      isFillPending({ kind: 'fill', status: 'failed', applied: false }),
+    ).toBe(false);
+    expect(
+      isFillPending({ kind: 'draft', status: 'running', applied: false }),
+    ).toBe(false);
+  });
+});
+
+describe('shouldWatchJob', () => {
+  it('진행 중인 빈칸 채우기도 구독·조회한다 (편집기를 잠그지 않아도)', () => {
+    expect(
+      shouldWatchJob({ kind: 'fill', status: 'queued', applied: false }),
+    ).toBe(true);
+    expect(
+      shouldWatchJob({ kind: 'fill', status: 'running', applied: false }),
+    ).toBe(true);
+  });
+
+  it('끝난 빈칸 채우기는 더 조회하지 않는다', () => {
+    expect(
+      shouldWatchJob({ kind: 'fill', status: 'completed', applied: false }),
+    ).toBe(false);
+    expect(
+      shouldWatchJob({ kind: 'fill', status: 'failed', applied: false }),
+    ).toBe(false);
+  });
+
+  it('초안 작성은 잠그는 동안 조회한다', () => {
+    expect(
+      shouldWatchJob({ kind: 'draft', status: 'completed', applied: false }),
+    ).toBe(true);
+    expect(
+      shouldWatchJob({ kind: 'draft', status: 'completed', applied: true }),
     ).toBe(false);
   });
 });

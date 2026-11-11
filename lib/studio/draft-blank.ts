@@ -101,6 +101,10 @@ const getPlainText = (node: JSONContent): string =>
     ? (node.text ?? '')
     : (node.content ?? []).map(getPlainText).join('\n');
 
+/** 빈칸 안에 적힌 글 (문단은 줄바꿈으로 잇고 앞뒤 공백을 지움, 빈칸 채우기 요청의 답) */
+export const getBlankAnswer = (node: JSONContent): string =>
+  getPlainText(node).trim();
+
 const findBlankNode = (
   node: JSONContent,
   blankId: string,
@@ -130,7 +134,7 @@ export const findBlank = (
   return {
     kind: String(node.attrs?.kind ?? DEFAULT_BLANK_KIND),
     hint: String(node.attrs?.hint ?? ''),
-    text: getPlainText(node).trim(),
+    text: getBlankAnswer(node),
   };
 };
 
