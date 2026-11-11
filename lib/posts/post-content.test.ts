@@ -187,7 +187,10 @@ describe('sanitizePostContent', () => {
       }),
     );
 
-    expect(out.content?.[0].attrs).toEqual({ kind: 'detail', hint: 'ab' });
+    expect(out.content?.[0].attrs).toMatchObject({
+      kind: 'detail',
+      hint: 'ab',
+    });
   });
 
   it('잘못된 구조는 버리거나 InvalidPostContentError', () => {

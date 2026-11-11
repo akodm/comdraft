@@ -9,7 +9,7 @@ import { countEmptyBlanks } from '@/lib/studio/draft-blank';
 const blankMarkdown = createBlockMarkdownSpec({
   nodeName: 'draftBlank',
   name: 'blank',
-  allowedAttributes: ['kind', 'hint'],
+  allowedAttributes: ['id', 'kind', 'hint'],
 });
 
 export const DraftBlank = Node.create({
@@ -20,6 +20,12 @@ export const DraftBlank = Node.create({
 
   addAttributes() {
     return {
+      // 빈칸을 가리키는 고정 id (AI 채우기 결과를 이 id 로만 찾아 넣음)
+      id: {
+        default: null,
+        parseHTML: (el) => el.getAttribute('data-blank-id'),
+        renderHTML: (attrs) => (attrs.id ? { 'data-blank-id': attrs.id } : {}),
+      },
       kind: {
         default: 'detail',
         parseHTML: (el) => el.getAttribute('data-kind') ?? 'detail',

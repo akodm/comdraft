@@ -1,6 +1,6 @@
 import { resolveExtensions, type JSONContent } from '@tiptap/core';
 import { MarkdownManager } from '@tiptap/markdown';
-import { normalizeBlankAttrs } from '@/lib/studio/draft-blank';
+import { ensureBlankIds, normalizeBlankAttrs } from '@/lib/studio/draft-blank';
 import {
   createDraftSchemaExtensions,
   DRAFT_HEADING_LEVELS,
@@ -102,7 +102,11 @@ export const normalizeGeneratedDocument = (node: JSONContent): JSONContent => {
       (child) => child.type !== 'image',
     );
 
-    normalized.attrs = normalizeBlankAttrs(node.attrs);
+    // id 는 ensureBlankIds 가 형식을 검사하므로 그대로 넘김
+    normalized.attrs = {
+      id: node.attrs?.id,
+      ...normalizeBlankAttrs(node.attrs),
+    };
     normalized.content =
       paragraphs && paragraphs.length > 0
         ? paragraphs
@@ -115,7 +119,10 @@ export const normalizeGeneratedDocument = (node: JSONContent): JSONContent => {
 export const markdownToDraftDocument = (markdown: string): JSONContent => {
   const document = getMarkdownManager().parse(markdown);
 
-  return normalizeGeneratedDocument(
-    document.type === 'doc' ? document : { type: 'doc', content: [document] },
+  // 빈칸마다 고정 id 를 붙여 이후 AI 채우기가 그 빈칸만 찾을 수 있게 함
+  return ensureBlankIds(
+    normalizeGeneratedDocument(
+      document.type === 'doc' ? document : { type: 'doc', content: [document] },
+    ),
   );
 };

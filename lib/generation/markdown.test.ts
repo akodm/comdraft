@@ -1,6 +1,7 @@
 import { getSchema, type JSONContent } from '@tiptap/core';
 import { describe, expect, it } from 'vitest';
 import { markdownToDraftDocument } from '@/lib/generation/markdown';
+import { isUuid } from '@/lib/images/rules';
 import { createDraftSchemaExtensions } from '@/lib/studio/editor-schema';
 
 describe('markdownToDraftDocument 빈칸', () => {
@@ -14,6 +15,25 @@ describe('markdownToDraftDocument 빈칸', () => {
       attrs: { kind: 'motivation', hint: '계기를 적어 주세요' },
       content: [{ type: 'paragraph' }],
     });
+  });
+
+  it('빈칸마다 서로 다른 UUID id 가 붙는다', () => {
+    const doc = markdownToDraftDocument(
+      ':::blank {kind="detail" hint="a"}\n:::\n\n:::blank {kind="result" hint="b"}\n:::',
+    );
+    const ids = doc.content!.map((n) => n.attrs?.id as string);
+
+    expect(ids.every((id) => isUuid(id))).toBe(true);
+    expect(new Set(ids).size).toBe(2);
+  });
+
+  it('Markdown 에 id 가 있어도 UUID 면 유지한다', () => {
+    const id = '11111111-1111-4111-8111-111111111111';
+    const doc = markdownToDraftDocument(
+      `:::blank {id="${id}" kind="detail" hint="a"}\n:::`,
+    );
+
+    expect(doc.content?.[0].attrs?.id).toBe(id);
   });
 
   it('잘못된 kind 는 detail 로 바꾼다', () => {
