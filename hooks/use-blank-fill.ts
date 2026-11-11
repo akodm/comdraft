@@ -12,7 +12,6 @@ import {
   BLANK_FILL_FAILED_MESSAGE,
   getBlankFillJobMessage,
   getBlankFillRequestMessage,
-  NEXT_RESET_LABEL,
 } from '@/components/studio/blank-fill-messages';
 import type { BlankFillResult } from '@/hooks/use-generation-job';
 import { useLocale } from '@/hooks/use-locale';
@@ -89,9 +88,7 @@ export const useBlankFill = ({
     ? i18n._(
         getBlankFillJobMessage(
           failedFillJob.errorCode,
-          quota
-            ? formatQuotaReset(new Date(quota.resetsAt), locale)
-            : i18n._(NEXT_RESET_LABEL),
+          quota ? formatQuotaReset(new Date(quota.resetsAt), locale) : null,
         ),
       )
     : null;
