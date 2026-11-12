@@ -6,10 +6,16 @@
  * 흐름: Next.js 서버 액션 → API Gateway(IAM) → Lambda 비동기 실행
  *   Lambda 는 단계(구분 → 분석 → 작성)를 마칠 때마다 draft_prompt.step/status 를 갱신하고
  *   작업의 channel 로 Supabase Realtime Broadcast 를 보냄 (내용 없이 신호만)
+ *   기획이 묻기로 하면 awaiting_input 으로 멈추고, 답을 받으면 같은 작업을 queued 로 되돌려 다시 실행
  */
 
 // 작업 상태 (lib/db/schema/draft.ts 의 draft_prompt.status 와 같은 값)
-export type GenerationStatus = 'queued' | 'running' | 'completed' | 'failed';
+export type GenerationStatus =
+  | 'queued'
+  | 'running'
+  | 'awaiting_input'
+  | 'completed'
+  | 'failed';
 
 // 작업 종류 (draft: 초안 작성, fill: 빈칸 하나를 AI 로 다듬기)
 export const GENERATION_JOB_KINDS = ['draft', 'fill'] as const;
@@ -52,6 +58,8 @@ export const GENERATION_ERROR_CODES = [
   'runner_unavailable',
   // 이번 요청이 남은 사용량보다 커서 시작하지 않음 (사용량 차감 없음)
   'quota_exceeded',
+  // 작성자가 질문 카드에서 취소
+  'cancelled',
   // 그 밖의 오류
   'internal',
 ] as const;
@@ -62,6 +70,30 @@ export const isGenerationErrorCode = (
 ): value is GenerationErrorCode => {
   return GENERATION_ERROR_CODES.includes(value as GenerationErrorCode);
 };
+
+// 작성 전 되묻기: 기획이 던진 질문 하나 (보기가 없으면 직접 입력만)
+export interface GenerationClarificationQuestion {
+  id: string;
+  question: string;
+  options: string[];
+}
+
+// 작성자의 답 하나 (질문 id 로 연결)
+export interface GenerationClarificationAnswer {
+  id: string;
+  answer: string;
+}
+
+// draft_prompt.clarification (null 이면 아직 묻지 않은 작업)
+export interface GenerationClarification {
+  reason: string;
+  questions: GenerationClarificationQuestion[];
+  // null: 답변 대기, 배열: 답함 (답한 질문만), 'skipped': 그냥 작성
+  answers: GenerationClarificationAnswer[] | 'skipped' | null;
+}
+
+// 답 하나의 최대 글자 수 (입력 상한)
+export const CLARIFICATION_ANSWER_MAX_LENGTH = 500;
 
 // Lambda 실행 시간 제한 (Lambda 설정 lambda_timeout_seconds 와 맞출 것)
 export const GENERATION_LAMBDA_TIMEOUT_MS = 7 * 60 * 1000;
