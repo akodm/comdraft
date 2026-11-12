@@ -27,6 +27,7 @@ import {
   syncDraftJobs,
   type GenerationJobView,
 } from '@/lib/generation/jobs';
+import { clampModel } from '@/lib/generation/models';
 import { persistBlankIds } from '@/lib/studio/draft-blank-store';
 
 // 스튜디오 사이드바 상단에 표시하는 저장소 정보
@@ -161,9 +162,16 @@ export const listDraftReferenceLinks = async (
     .orderBy(asc(draftReferenceLink.createdAt), asc(draftReferenceLink.id));
 };
 
-// 본인이 해당 저장소에 만든 초안 (아니면 null)
+// 저장된 모델을 지금 등급에서 쓸 수 있는 가장 높은 모델로 낮춤
+const clampPromptModel = (
+  options: PromptOptions,
+  role: string | null | undefined,
+): PromptOptions => ({ ...options, model: clampModel(role, options.model) });
+
+// 본인이 해당 저장소에 만든 초안 (아니면 null, role 은 사용자 등급)
 export const getStudioDraft = async (
   userId: string,
+  role: string | null | undefined,
   repositoryId: string,
   draftId: string,
 ): Promise<StudioDraft | null> => {
@@ -220,7 +228,10 @@ export const getStudioDraft = async (
         ? { id: postId, slug: postSlug, visibility: row.visibility }
         : null,
     content,
-    promptOptions: parsePromptOptions(lastPrompt) ?? DEFAULT_PROMPT_OPTIONS,
+    promptOptions: clampPromptModel(
+      parsePromptOptions(lastPrompt) ?? DEFAULT_PROMPT_OPTIONS,
+      role,
+    ),
     referenceLinks,
     resumableJob:
       latestJob && isJobResumable(latestJob, new Date()) ? latestJob : null,

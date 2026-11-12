@@ -19,6 +19,7 @@ import {
   FAKE_CLARIFICATION,
   getFakeSimulation,
 } from '@/lib/generation/fake-simulation';
+import { usageCost } from '@/lib/generation/models';
 import {
   completeJob,
   failJob,
@@ -49,6 +50,20 @@ const FAKE_STEP_DELAY_MS = 1700;
 // 가짜 작업이 완료될 때 기록하는 사용량 (할당량 화면 확인용)
 export const FAKE_USED_TOKENS = 30_000;
 export const FAKE_FILL_USED_TOKENS = 3_000;
+
+// 가짜 작업의 입력·출력 토큰 (합이 위 사용 토큰과 같음, 비용은 작업 모델 단가로 계산)
+const FAKE_USAGE = {
+  input: 20_000,
+  output: 10_000,
+  cacheWrite: 0,
+  cacheRead: 0,
+};
+const FAKE_FILL_USAGE = {
+  input: 2_000,
+  output: 1_000,
+  cacheWrite: 0,
+  cacheRead: 0,
+};
 
 // 되묻기 흉내 상수와 판단 함수는 순수 모듈에 있고, 기존 import 경로 유지를 위해 다시 내보냄
 export {
@@ -88,6 +103,7 @@ const loadJobContext = async (jobId: string) => {
   const [context] = await db
     .select({
       kind: draftPrompt.kind,
+      model: draftPrompt.model,
       prompt: draftPrompt.prompt,
       blankAnswer: draftPrompt.blankAnswer,
       clarification: draftPrompt.clarification,
@@ -193,7 +209,14 @@ export const runFakeJob = async (
         context.blankAnswer ?? context.prompt,
       );
 
-      if (await completeJob(jobId, result, FAKE_FILL_USED_TOKENS)) {
+      if (
+        await completeJob(
+          jobId,
+          result,
+          FAKE_FILL_USED_TOKENS,
+          usageCost(context.model, FAKE_FILL_USAGE),
+        )
+      ) {
         currentStep = 3;
         await signal('completed');
       }
@@ -228,7 +251,14 @@ export const runFakeJob = async (
     await wait(stepDelayMs);
     const result = buildFakeResultMarkdown({ prompt: context.prompt, commits });
 
-    if (await completeJob(jobId, result, FAKE_USED_TOKENS)) {
+    if (
+      await completeJob(
+        jobId,
+        result,
+        FAKE_USED_TOKENS,
+        usageCost(context.model, FAKE_USAGE),
+      )
+    ) {
       currentStep = 3;
       await signal('completed');
     }

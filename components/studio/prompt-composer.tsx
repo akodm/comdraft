@@ -51,6 +51,7 @@ type Notice =
   | 'no_commits'
   | 'too_many_commits'
   | 'invalid'
+  | 'model_locked'
   | 'busy'
   | 'rate_limited'
   | 'github_reauth'
@@ -65,6 +66,7 @@ export const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
   no_commits: msg`커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요.`,
   too_many_commits: msg`커밋은 한 번에 ${MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다.`,
   invalid: msg`작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해주세요.`,
+  model_locked: msg`이 모델은 현재 등급에서 쓸 수 없습니다.`,
   busy: msg`이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요.`,
   rate_limited: msg`작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.`,
   github_reauth: msg`GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요.`,
