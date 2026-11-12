@@ -12,7 +12,10 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import type { GenerationJobKind } from '@/lib/generation/contract';
+import type {
+  GenerationClarification,
+  GenerationJobKind,
+} from '@/lib/generation/contract';
 import { comdraftSchema } from '@/lib/db/pg-schema';
 import type { Locale } from '@/lib/i18n/config';
 import { user } from '@/lib/db/schema/auth';
@@ -28,7 +31,7 @@ import { githubRepository, userRepository } from '@/lib/db/schema/github';
  *   → 초안이 삭제돼도 행은 남고 draft_id 만 null (사용자의 주간 사용량이 줄어들지 않도록 user_id 로 셈)
  *   → 커밋 내용(메시지/작성자 등)은 저장하지 않고 SHA 만 남김, 내용은 필요할 때 GitHub API 로 조회
  *   → Lambda 가 구분 → 분석 → 작성 단계를 마칠 때마다 step/status 를 갱신하고 channel 로 Realtime Broadcast
- *   → 초안마다 진행 중(queued/running)인 작업은 하나만 (진행 중에는 초안 편집 잠금)
+ *   → 초안마다 진행 중(queued/running/awaiting_input)인 작업은 하나만 (진행 중에는 초안 편집 잠금)
  * - draft_reference_link: 초안의 작성 요청에 함께 쓰는 참고 링크 (초안마다 따로 관리)
  *   → 주소만 저장하고 서버에서 링크를 열어 보지 않음 (SSRF 방지)
  */
@@ -37,10 +40,11 @@ import { githubRepository, userRepository } from '@/lib/db/schema/github';
 export const DRAFT_STATUSES = ['draft', 'temporary', 'published'] as const;
 export type DraftStatus = (typeof DRAFT_STATUSES)[number];
 
-// AI 작성 작업 상태 (queued: Lambda 호출 전/대기, running: 단계 진행 중, completed/failed: 종료)
+// AI 작성 작업 상태 (queued: Lambda 호출 전/대기, running: 단계 진행 중, awaiting_input: 작성자 답 대기, completed/failed: 종료)
 export const DRAFT_PROMPT_STATUSES = [
   'queued',
   'running',
+  'awaiting_input',
   'completed',
   'failed',
 ] as const;
@@ -140,7 +144,9 @@ export const draftPrompt = comdraftSchema.table(
     blankContext: text('blank_context'),
     // 초안 작성 분석 단계 결과 (Lambda 가 기록)
     analysis: jsonb('analysis').$type<StoredAnalysis>(),
-    // Lambda 가 처리를 시작한 시각 (시간 초과 판정 기준)
+    // 작성 전 되묻기 질문과 답 (null 이면 아직 묻지 않은 작업)
+    clarification: jsonb('clarification').$type<GenerationClarification>(),
+    // Lambda 가 처리를 시작한 시각, 답을 받아 다시 대기열에 넣은 시각 (시간 초과 판정 기준)
     startedAt: timestamp('started_at', { withTimezone: true, precision: 3 }),
     finishedAt: timestamp('finished_at', { withTimezone: true, precision: 3 }),
     // 완료한 작업의 결과를 초안 본문에 반영한 시각 (반영은 한 번만, null 이면 아직 반영 전이라 편집 잠금)
@@ -159,10 +165,10 @@ export const draftPrompt = comdraftSchema.table(
     // 초안마다 진행 중인 작업은 하나만 (동시 요청 방지, 편집 잠금 조회에도 사용)
     uniqueIndex('draft_prompt_draft_active_unique')
       .on(table.draftId)
-      .where(sql`${table.status} in ('queued', 'running')`),
+      .where(sql`${table.status} in ('queued', 'running', 'awaiting_input')`),
     check(
       'draft_prompt_status_check',
-      sql`${table.status} in ('queued', 'running', 'completed', 'failed')`,
+      sql`${table.status} in ('queued', 'running', 'awaiting_input', 'completed', 'failed')`,
     ),
     check(
       'draft_prompt_step_check',

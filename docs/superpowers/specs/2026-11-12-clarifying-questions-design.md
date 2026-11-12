@@ -59,7 +59,7 @@ interface Clarification {
    - 예약한 예상량(`estimated_tokens`)을 비운다. 사용량은 실제로 쓴 토큰(기획 1회)만 남는다.
    - Realtime 신호를 보내고 Lambda 를 끝낸다 (`RunJobOutcome` 에 `'awaiting_input'` 추가).
 2. **화면**: 질문 카드에서 답하기 / 그냥 작성 / 취소.
-   - 답하기·그냥 작성: 서버 액션이 `answers` 를 저장하고 `awaiting_input` → `queued` (내 작업이고 답변 대기인 작업만), `step = 0`, `started_at = null`, 같은 jobId 로 Lambda 를 다시 호출한다.
+   - 답하기·그냥 작성: 서버 액션이 `answers` 를 저장하고 `awaiting_input` → `queued` (내 작업이고 답변 대기인 작업만), `step = 0`, `started_at = now()` (queued 시간 초과를 재대기 시각부터 재기 위함), 같은 jobId 로 Lambda 를 다시 호출한다.
    - 취소: `awaiting_input` → `failed`, 오류 코드 `cancelled`.
    - 작성기 호출에 실패하면 지금처럼 `runner_unavailable` 로 실패 처리.
 3. **Lambda 재실행**: `clarification` 이 있으므로 판단하지 않는다 (프롬프트에 판단하지 말라고 넣고, 코드에서도 `clarify` 를 무시). 준비부터 다시 하고 예상량을 다시 예약한 뒤, 답을 넣어 기획부터 진행한다.
@@ -70,7 +70,7 @@ interface Clarification {
 
 - 사용량: 주간 사용량 계산에서 `awaiting_input` 작업은 `used_tokens` 만 센다 (진행 중 작업처럼 예상량으로 세지 않음).
 - 잠금: `awaiting_input` 은 `isJobLocking` 대상 (진행 중처럼 편집기를 잠금).
-- 시간 초과: `awaiting_input` 은 `isJobStale` 대상이 아니다. 재실행 때 `started_at` 을 새로 기록하므로 7분 제한은 그때부터 잰다.
+- 시간 초과: `awaiting_input` 은 `isJobStale` 대상이 아니다. 재실행 때 `started_at` 을 새로 기록하므로 7분 제한은 그때부터 잰다. queued 시간 초과는 `coalesce(started_at, created_at)` 기준으로 본다.
 - 시간당 요청 제한: 재실행(답하기·그냥 작성)은 새 요청으로 세지 않는다.
 
 ## 4. 화면
