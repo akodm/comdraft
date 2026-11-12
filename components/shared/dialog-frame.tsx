@@ -10,7 +10,7 @@ import { ICON_BUTTON_CLASS } from '@/components/studio/studio-styles';
  * - 바깥 영역 비활성(포커스 가둠), Escape 로 닫기, 닫으면 열었던 버튼으로 포커스 복귀
  * - 열려 있는 동안 뒤 화면 스크롤을 막음
  */
-const useModalDialog = () => {
+export const useModalDialog = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {

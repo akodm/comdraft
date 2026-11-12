@@ -39,6 +39,8 @@ export interface StudioRepository {
   branch: string;
   // 비공개 저장소 여부 (게시하면 코드가 공개된다는 경고에 사용)
   isPrivate: boolean;
+  // GitHub 저장소의 기본 브랜치 (저장소 설정의 브랜치 목록에서 맨 앞에 둠)
+  defaultBranch: string;
 }
 
 // 초안 목록 항목
@@ -87,6 +89,7 @@ export const getStudioRepository = cache(
         name: githubRepository.name,
         htmlUrl: githubRepository.htmlUrl,
         isPrivate: githubRepository.isPrivate,
+        defaultBranch: githubRepository.defaultBranch,
         branch: userRepository.branch,
       })
       .from(userRepository)
