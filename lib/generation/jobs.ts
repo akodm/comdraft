@@ -9,7 +9,6 @@ import {
   inArray,
   isNotNull,
   isNull,
-  lt,
   or,
   sql,
   type SQL,
@@ -20,12 +19,15 @@ import { db } from '@/lib/db';
 import { draft, draftPrompt } from '@/lib/db/schema';
 import { fillResultToParagraphs } from '@/lib/generation/blank-fill';
 import type {
+  GenerationClarificationAnswer,
+  GenerationClarificationQuestion,
   GenerationErrorCode,
   GenerationJobKind,
   GenerationStatus,
   GenerationStep,
 } from '@/lib/generation/contract';
 import { isGenerationErrorCode } from '@/lib/generation/contract';
+import { parseStoredClarification } from '@/lib/generation/clarification';
 import { getStaleCutoffs } from '@/lib/generation/job-state';
 import { markdownToDraftDocument } from '@/lib/generation/markdown';
 import {
@@ -63,9 +65,21 @@ export interface GenerationJobView {
   // 결과를 초안에 반영했는지 (초안 작성: 완료 + 미반영이면 편집 잠금)
   applied: boolean;
   finishedAt: string | null;
+  // 답변 대기(awaiting_input) 중일 때의 질문 (답은 넣지 않음, 그 밖의 상태는 null)
+  clarification: {
+    reason: string;
+    questions: GenerationClarificationQuestion[];
+  } | null;
 }
 
+// Lambda 가 도는 상태 (실패 처리와 시간 초과 대상)
 const ACTIVE_STATUSES: GenerationStatus[] = ['queued', 'running'];
+
+// 초안을 잠그는 상태: 답변 대기도 같은 초안의 새 작성이나 본문 수정을 막음
+const LOCKING_ACTIVE_STATUSES: GenerationStatus[] = [
+  ...ACTIVE_STATUSES,
+  'awaiting_input',
+];
 
 const jobViewColumns = {
   id: draftPrompt.id,
@@ -77,6 +91,7 @@ const jobViewColumns = {
   errorCode: draftPrompt.errorCode,
   appliedAt: draftPrompt.appliedAt,
   finishedAt: draftPrompt.finishedAt,
+  clarification: draftPrompt.clarification,
 };
 
 interface JobViewRow {
@@ -89,7 +104,19 @@ interface JobViewRow {
   errorCode: string | null;
   appliedAt: Date | null;
   finishedAt: Date | null;
+  clarification: unknown;
 }
+
+// 답변 대기 중인 작업의 질문 (저장된 값이 형식에 맞지 않으면 null)
+const toViewClarification = (row: JobViewRow) => {
+  if (row.status !== 'awaiting_input') {
+    return null;
+  }
+
+  const stored = parseStoredClarification(row.clarification);
+
+  return stored ? { reason: stored.reason, questions: stored.questions } : null;
+};
 
 const toJobView = (row: JobViewRow): GenerationJobView => ({
   id: row.id,
@@ -101,18 +128,19 @@ const toJobView = (row: JobViewRow): GenerationJobView => ({
   errorCode: isGenerationErrorCode(row.errorCode) ? row.errorCode : null,
   applied: row.appliedAt !== null,
   finishedAt: row.finishedAt?.toISOString() ?? null,
+  clarification: toViewClarification(row),
 });
 
 /**
  * 초안을 잠그는 작업이 있는지 (SQL 조건, 초안 id 컬럼 기준)
- * - 초안 작성 작업 중 진행 중(queued/running)이거나 완료 후 아직 반영하지 않은 작업
+ * - 초안 작성 작업 중 진행 중(queued/running)이거나 답변 대기(awaiting_input)이거나 완료 후 아직 반영하지 않은 작업
  * - 빈칸 채우기 작업은 잠그지 않음 (자동 저장·게시·이미지 올리기는 그대로)
  */
 export const lockingJobExists = (draftIdColumn: PgColumn): SQL => sql`exists (
   select 1 from ${draftPrompt}
   where ${draftPrompt.draftId} = ${draftIdColumn}
     and ${draftPrompt.kind} = 'draft'
-    and (${draftPrompt.status} in ('queued', 'running')
+    and (${draftPrompt.status} in ('queued', 'running', 'awaiting_input')
       or (${draftPrompt.status} = 'completed' and ${draftPrompt.appliedAt} is null))
 )`;
 
@@ -163,7 +191,8 @@ export const expireStaleJobs = async (
           ),
           and(
             eq(draftPrompt.status, 'queued'),
-            lt(draftPrompt.createdAt, queuedCreatedBefore),
+            // 다시 대기열에 넣은 작업은 started_at 부터 재서 running 과 같은 방식으로 비교
+            sql`coalesce(${draftPrompt.startedAt}, ${draftPrompt.createdAt}) < ${queuedCreatedBefore.toISOString()}::timestamptz`,
           ),
         ),
       ),
@@ -473,7 +502,7 @@ export const isDraftLocked = async (draftId: string) => {
       and(
         eq(draftPrompt.draftId, draftId),
         eq(draftPrompt.kind, 'draft'),
-        inArray(draftPrompt.status, ACTIVE_STATUSES),
+        inArray(draftPrompt.status, LOCKING_ACTIVE_STATUSES),
       ),
     )
     .limit(1);
@@ -635,6 +664,91 @@ export const failJob = async (
       and(
         eq(draftPrompt.id, jobId),
         inArray(draftPrompt.status, ACTIVE_STATUSES),
+      ),
+    )
+    .returning({ channel: draftPrompt.channel });
+
+  return row ?? null;
+};
+
+/**
+ * 답변 대기 → queued 로 되돌려 다시 실행 (초안 작성 작업만)
+ * - 조건부 UPDATE 라 다른 탭이 먼저 처리했으면 false (실행기를 두 번 부르지 않음)
+ * - started_at 은 다시 대기열에 넣은 시각 (queued 시간 초과를 이 시각부터 잼)
+ * - 답은 clarification.answers 에 저장, 건너뛰면 "skipped"
+ */
+export const requeueAwaitingJob = async (
+  jobId: string,
+  answers: GenerationClarificationAnswer[] | 'skipped',
+) => {
+  const [row] = await db
+    .update(draftPrompt)
+    .set({
+      status: 'queued',
+      step: 0,
+      startedAt: new Date(),
+      clarification: sql`jsonb_set(${draftPrompt.clarification}, '{answers}', ${JSON.stringify(answers)}::jsonb)`,
+    })
+    .where(
+      and(
+        eq(draftPrompt.id, jobId),
+        eq(draftPrompt.kind, 'draft'),
+        eq(draftPrompt.status, 'awaiting_input'),
+      ),
+    )
+    .returning({ id: draftPrompt.id });
+
+  return Boolean(row);
+};
+
+/**
+ * 답변 대기 중인 작업을 취소 (cancelled 로 실패 처리, 잠금 해제)
+ * @returns 이번 호출에서 취소했는지 (이미 처리됐으면 false)
+ */
+export const cancelAwaitingJob = async (jobId: string) => {
+  const [row] = await db
+    .update(draftPrompt)
+    .set({
+      status: 'failed',
+      errorCode: 'cancelled',
+      finishedAt: new Date(),
+    })
+    .where(
+      and(eq(draftPrompt.id, jobId), eq(draftPrompt.status, 'awaiting_input')),
+    )
+    .returning({ id: draftPrompt.id });
+
+  return Boolean(row);
+};
+
+/**
+ * running → awaiting_input: 질문을 저장하고 멈춤 (가짜 작성기 전용, Lambda 의 pauseForInput 과 같은 규칙)
+ * - 아직 묻지 않은 running 작업만 (이미 질문을 저장한 작업은 다시 멈추지 않음)
+ * - 예상 사용량은 비워 멈춘 동안 할당량에 잡히지 않게 함
+ */
+export const pauseJobForInput = async (
+  jobId: string,
+  clarification: {
+    reason: string;
+    questions: GenerationClarificationQuestion[];
+  },
+) => {
+  const [row] = await db
+    .update(draftPrompt)
+    .set({
+      status: 'awaiting_input',
+      clarification: {
+        reason: clarification.reason,
+        questions: clarification.questions,
+        answers: null,
+      },
+      estimatedTokens: null,
+    })
+    .where(
+      and(
+        eq(draftPrompt.id, jobId),
+        eq(draftPrompt.status, 'running'),
+        isNull(draftPrompt.clarification),
       ),
     )
     .returning({ channel: draftPrompt.channel });
