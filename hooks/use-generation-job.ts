@@ -22,6 +22,8 @@ interface UseGenerationJobOptions {
   initialJob: GenerationJobView | null;
   // 초안 작성 결과가 초안에 반영되면 한 번 호출 (화면을 다시 불러와 새 본문 표시)
   onApplied: () => void;
+  // 진행 중이던 작업이 답변 대기가 되면 한 번 호출 (초안 목록의 답변 대기 표시를 위해 화면을 다시 불러옴)
+  onAwaitingInput?: () => void;
 }
 
 // 완료한 빈칸 채우기 결과 (편집기가 그 빈칸에 넣을 문단)
@@ -61,6 +63,7 @@ const EMPTY_STATE: JobState = {
 export const useGenerationJob = ({
   initialJob,
   onApplied,
+  onAwaitingInput,
 }: UseGenerationJobOptions) => {
   // 화면을 열 때 받은 작업은 사용량 정보가 없음 (상태를 다시 조회하면 채워짐)
   const [{ job: serverJob, quota, fillParagraphs, doneFillJobId }, setState] =
@@ -74,6 +77,11 @@ export const useGenerationJob = ({
   >(null);
   // 이미 반영을 알린 작업 (같은 완료를 여러 번 받아도 한 번만 처리)
   const notifiedJobIdRef = useRef<string | null>(null);
+  // 이미 답변 대기를 알린 작업
+  // (화면을 열 때 이미 답변 대기인 작업은 목록도 이미 반영되어 있으므로 알리지 않음)
+  const awaitingNotifiedJobIdRef = useRef<string | null>(
+    initialJob?.status === 'awaiting_input' ? initialJob.id : null,
+  );
   // 빈칸 채우기의 applied 는 이 편집기가 처리했는지로 바꿔 봄 (그 빈칸 잠금, 결과 넘기기)
   const job = useMemo(
     () => (serverJob ? toEditorJobView(serverJob, doneFillJobId) : null),
@@ -159,6 +167,17 @@ export const useGenerationJob = ({
       onApplied();
     }
   }, [job, onApplied]);
+
+  useEffect(() => {
+    if (
+      job?.kind === 'draft' &&
+      job.status === 'awaiting_input' &&
+      awaitingNotifiedJobIdRef.current !== job.id
+    ) {
+      awaitingNotifiedJobIdRef.current = job.id;
+      onAwaitingInput?.();
+    }
+  }, [job, onAwaitingInput]);
 
   // 새로 시작한 작업 추적 / 실패 안내 닫기
   const start = useCallback((startedJob: GenerationJobView) => {

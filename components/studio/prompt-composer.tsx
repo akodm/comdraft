@@ -14,6 +14,7 @@ import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import ConfirmDialog from '@/components/shared/confirm-dialog';
 import { DROPDOWN_PANEL_CLASS } from '@/components/shared/dropdown-styles';
 import Spinner from '@/components/shared/spinner';
+import ClarificationCard from '@/components/studio/clarification-card';
 import GenerationProgress from '@/components/studio/generation-progress';
 import { useStudio } from '@/components/studio/studio-context';
 import {
@@ -278,6 +279,8 @@ const PromptComposer = ({
   // 다시 작성 확인 창
   const [isConfirming, setIsConfirming] = useState(false);
   const promptId = useId();
+  // 질문에 답하기 전에는 아무것도 작성하지 않으므로 제출 버튼에 작성 중 표시를 하지 않음
+  const isAwaitingInput = job?.status === 'awaiting_input';
 
   // 작성 요청 보내기 (다시 작성 확인 창에서 확인해도 여기로)
   const send = () => {
@@ -437,12 +440,20 @@ const PromptComposer = ({
             </Trans>
           </p>
         )}
-        {job && (
-          <GenerationProgress
+        {job?.status === 'awaiting_input' ? (
+          <ClarificationCard
             job={job}
-            quota={quota}
-            onDismiss={onJobDismiss}
+            onResumed={onJobStarted}
+            onCancelled={onJobDismiss}
           />
+        ) : (
+          job && (
+            <GenerationProgress
+              job={job}
+              quota={quota}
+              onDismiss={onJobDismiss}
+            />
+          )
         )}
         <div className="flex items-center justify-between gap-3">
           <p
@@ -456,7 +467,7 @@ const PromptComposer = ({
             disabled={isPending || isLocked}
             className={`h-8 min-w-18 pc:h-8.5 ${BRAND_BUTTON_CLASS}`}
           >
-            {isPending || isLocked ? (
+            {isPending || (isLocked && !isAwaitingInput) ? (
               <Spinner
                 label={
                   isLocked ? (

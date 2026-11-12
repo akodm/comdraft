@@ -41,6 +41,7 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
   const generation = useGenerationJob({
     initialJob: draft?.resumableJob ?? null,
     onApplied: router.refresh,
+    onAwaitingInput: router.refresh,
   });
   // 작성 요청 영역의 진행 상태·실패 안내는 초안 작성 작업만 (빈칸 채우기 안내는 그 빈칸에)
   const draftJob = generation.job?.kind === 'draft' ? generation.job : null;

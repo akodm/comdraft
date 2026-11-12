@@ -1,10 +1,11 @@
 import 'server-only';
 import { cache } from 'react';
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import type { JSONContent } from '@tiptap/core';
 import { db } from '@/lib/db';
 import {
   draft,
+  draftPrompt,
   draftReferenceLink,
   githubRepository,
   post,
@@ -46,10 +47,15 @@ export interface StudioDraftSummary {
   status: DraftStatus;
   // 게시한 초안의 공개 범위 (post 조인 결과, 게시 전에는 null)
   visibility: PostVisibility | null;
+  // 답변 대기(awaiting_input)인 초안 작성 작업이 있는지 (목록 표시용)
+  isAwaitingInput: boolean;
 }
 
 // 편집기에서 여는 초안
-export interface StudioDraft extends StudioDraftSummary {
+export interface StudioDraft extends Omit<
+  StudioDraftSummary,
+  'isAwaitingInput'
+> {
   content: JSONContent | null;
   // 게시글 (게시 전에는 null, 주소 생성과 공개 범위에 사용)
   post: { id: string; slug: string; visibility: PostVisibility } | null;
@@ -110,6 +116,12 @@ export const listStudioDrafts = async (
       title: draft.title,
       status: draft.status,
       visibility: post.visibility,
+      isAwaitingInput: sql<boolean>`exists (
+        select 1 from ${draftPrompt}
+        where ${draftPrompt.draftId} = ${draft.id}
+          and ${draftPrompt.kind} = 'draft'
+          and ${draftPrompt.status} = 'awaiting_input'
+      )`,
     })
     .from(draft)
     .leftJoin(post, eq(post.draftId, draft.id))
