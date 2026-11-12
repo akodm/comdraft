@@ -189,6 +189,7 @@ const SelectedCommitsMenu = () => {
 };
 
 // 선택한 커밋 요약 (PC 3개, 모바일 1개 + 나머지 개수)
+// - 모바일은 부모가 items-start 라 내용 폭만큼 늘어나므로 max-w-full 로 입력창 폭에 묶어 제목을 말줄임
 const SelectedCommitsSummary = () => {
   const { selectedCommits } = useStudio();
   const count = selectedCommits.length;
@@ -201,7 +202,7 @@ const SelectedCommitsSummary = () => {
   const mobileRest = count - MOBILE_SUMMARY_COUNT;
 
   return (
-    <ul className="flex min-w-0 items-center gap-2 overflow-hidden text-[11px] leading-[normal] whitespace-nowrap pc:flex-1 pc:flex-wrap pc:gap-x-3 pc:gap-y-1.5">
+    <ul className="flex max-w-full min-w-0 items-center gap-2 overflow-hidden text-[11px] leading-[normal] whitespace-nowrap pc:flex-1 pc:flex-wrap pc:gap-x-3 pc:gap-y-1.5">
       {selectedCommits.slice(0, PC_SUMMARY_COUNT).map((commit, index) => (
         <li
           key={commit.sha}
