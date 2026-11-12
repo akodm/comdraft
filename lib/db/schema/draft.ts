@@ -1,5 +1,6 @@
 import { relations, sql } from 'drizzle-orm';
 import {
+  bigint,
   check,
   foreignKey,
   index,
@@ -15,6 +16,7 @@ import {
 import type {
   GenerationClarification,
   GenerationJobKind,
+  GenerationModel,
 } from '@/lib/generation/contract';
 import { comdraftSchema } from '@/lib/db/pg-schema';
 import type { Locale } from '@/lib/i18n/config';
@@ -131,6 +133,11 @@ export const draftPrompt = comdraftSchema.table(
     estimatedTokens: integer('estimated_tokens'),
     // 실제 사용한 토큰 수 (입력, 출력, 캐시 생성, 캐시 읽기 합계, 실패한 작업도 쓴 만큼 남음)
     usedTokens: integer('used_tokens').default(0).notNull(),
+    // 작성에 쓰는 모델 (옛 작업과 옛 요청은 기본값 haiku)
+    model: text('model').$type<GenerationModel>().default('haiku').notNull(),
+    // 요청 시점의 예상 비용과 실제 사용 비용 (마이크로달러, 주간 사용량은 이 값으로 셈)
+    estimatedCost: bigint('estimated_cost', { mode: 'number' }),
+    usedCost: bigint('used_cost', { mode: 'number' }).default(0).notNull(),
     // 요청에 사용한 참조 링크 URL (요청 당시 값 보존)
     referenceUrls: jsonb('reference_urls')
       .$type<string[]>()
@@ -176,6 +183,10 @@ export const draftPrompt = comdraftSchema.table(
     ),
     check('draft_prompt_kind_check', sql`${table.kind} in ('draft', 'fill')`),
     check('draft_prompt_locale_check', sql`${table.locale} in ('ko', 'en')`),
+    check(
+      'draft_prompt_model_check',
+      sql`${table.model} in ('haiku', 'sonnet', 'opus')`,
+    ),
   ],
 );
 

@@ -95,8 +95,22 @@ export interface GenerationClarification {
 // 답 하나의 최대 글자 수 (입력 상한)
 export const CLARIFICATION_ANSWER_MAX_LENGTH = 500;
 
-// Lambda 실행 시간 제한 (Lambda 설정 lambda_timeout_seconds 와 맞출 것)
-export const GENERATION_LAMBDA_TIMEOUT_MS = 7 * 60 * 1000;
+// 작성에 쓰는 모델 (draft_prompt.model, 기본값 haiku)
+export const GENERATION_MODELS = ['haiku', 'sonnet', 'opus'] as const;
+export type GenerationModel = (typeof GENERATION_MODELS)[number];
+
+// 모델별 Anthropic 모델 ID
+export const GENERATION_MODEL_IDS: Record<GenerationModel, string> = {
+  haiku: 'claude-haiku-5-5',
+  sonnet: 'claude-sonnet-5-5',
+  opus: 'claude-opus-5-5',
+};
+
+export const isGenerationModel = (value: unknown): value is GenerationModel =>
+  GENERATION_MODELS.some((model) => model === value);
+
+// Lambda 실행 시간 제한 (Lambda 설정 lambda_timeout_seconds 720초와 맞출 것)
+export const GENERATION_LAMBDA_TIMEOUT_MS = 12 * 60 * 1000;
 
 // running 상태가 이 시간을 넘기면 시간 초과 (Lambda 제한 + 여유)
 export const GENERATION_RUNNING_TIMEOUT_MS =

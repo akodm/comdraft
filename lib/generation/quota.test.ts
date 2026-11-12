@@ -10,7 +10,7 @@ import {
 
 const seoul: QuotaPlan = {
   role: 'basic',
-  weeklyTokenLimit: 100_000,
+  weeklyCostLimit: 100_000,
   overrunRatio: 1.3,
   resetTimezone: 'Asia/Seoul',
   resetWeekday: 0,
@@ -62,59 +62,59 @@ describe('getJobUsage', () => {
     expect(
       getJobUsage({
         status: 'running',
-        estimatedTokens: 50_000,
-        usedTokens: 12_000,
+        estimatedCost: 50_000,
+        usedCost: 12_000,
         errorCode: null,
       }),
     ).toBe(50_000);
     expect(
       getJobUsage({
         status: 'running',
-        estimatedTokens: 50_000,
-        usedTokens: 61_000,
+        estimatedCost: 50_000,
+        usedCost: 61_000,
         errorCode: null,
       }),
     ).toBe(61_000);
     expect(
       getJobUsage({
         status: 'queued',
-        estimatedTokens: null,
-        usedTokens: 0,
+        estimatedCost: null,
+        usedCost: 0,
         errorCode: null,
       }),
     ).toBe(0);
     expect(
       getJobUsage({
         status: 'completed',
-        estimatedTokens: 50_000,
-        usedTokens: 42_000,
+        estimatedCost: 50_000,
+        usedCost: 42_000,
         errorCode: null,
       }),
     ).toBe(42_000);
     expect(
       getJobUsage({
         status: 'failed',
-        estimatedTokens: 90_000,
-        usedTokens: 0,
+        estimatedCost: 90_000,
+        usedCost: 0,
         errorCode: 'quota_exceeded',
       }),
     ).toBe(0);
     expect(
       getJobUsage({
         status: 'failed',
-        estimatedTokens: 50_000,
-        usedTokens: 7_000,
+        estimatedCost: 50_000,
+        usedCost: 7_000,
         errorCode: 'llm_failed',
       }),
     ).toBe(7_000);
   });
 
-  it('답변 대기 작업은 예상량이 남아 있어도 쓴 토큰만 센다', () => {
+  it('답변 대기 작업은 예상량이 남아 있어도 쓴 비용만 센다', () => {
     expect(
       getJobUsage({
         status: 'awaiting_input',
-        estimatedTokens: 50_000,
-        usedTokens: 9_000,
+        estimatedCost: 50_000,
+        usedCost: 9_000,
         errorCode: null,
       }),
     ).toBe(9_000);
@@ -128,8 +128,8 @@ describe('summarizeQuota', () => {
       [
         {
           status: 'completed',
-          estimatedTokens: 0,
-          usedTokens: 120_000,
+          estimatedCost: 0,
+          usedCost: 120_000,
           errorCode: null,
         },
       ],
@@ -151,6 +151,7 @@ describe('toQuotaPlan', () => {
       toQuotaPlan({
         role: 'pro',
         weeklyTokenLimit: 500_000,
+        weeklyCostLimit: 6_000_000,
         overrunRatio: '1.30' as unknown as number,
         resetTimezone: 'Asia/Seoul',
         resetWeekday: 0,
