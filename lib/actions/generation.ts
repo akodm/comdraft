@@ -13,10 +13,12 @@ import {
   parseBlankFillRequest,
   type BlankFillRequest,
 } from '@/lib/generation/blank-fill';
+import { parseClarificationAnswers } from '@/lib/generation/clarification';
 import { getDefaultBlankQuestions } from '@/lib/generation/blank-questions';
 import { getGenerationRunner } from '@/lib/generation/get-runner';
 import {
   applyCompletedJob,
+  cancelAwaitingJob,
   claimFillJob,
   clearFailedFillContexts,
   countUserJobsSince,
@@ -26,6 +28,7 @@ import {
   getLatestDraftJobOptions,
   getUserJob,
   isActiveJobConflict,
+  requeueAwaitingJob,
   syncDraftJobs,
   type GenerationJobView,
 } from '@/lib/generation/jobs';
@@ -619,4 +622,106 @@ export async function markFillApplied(
   return (await claimFillJob(jobId))
     ? { status: 'applied' }
     : { status: 'already_applied' };
+}
+
+export interface ResumeClarifiedJobInput {
+  jobId: string;
+  // 'skipped'(그냥 작성) 이거나 질문 id 별 답 배열
+  answers: unknown;
+}
+
+export type ResumeClarifiedJobResult =
+  | { status: 'started'; job: GenerationJobView }
+  | {
+      status: 'invalid' | 'not_found' | 'github_reauth' | 'runner_unavailable';
+    };
+
+/**
+ * 되묻기에 답하거나 건너뛰고 작업을 다시 실행
+ * 1. 세션, 내 초안 작성 작업이 답변 대기인지
+ * 2. 답 검증 (저장된 질문 기준, 건너뛰면 생략)
+ * 3. GitHub 토큰
+ * 4. 답변 대기 → queued (다른 탭이 먼저 처리했으면 not_found, 실행기를 두 번 부르지 않음)
+ * 5. 작성기 시작, 시작하지 못하면 실패 처리
+ * - 시간당 요청 수와 주간 할당량은 검사하지 않음: 새 요청이 아니고 사용량은 Lambda 가 예약할 때 검사
+ */
+export async function resumeClarifiedJob(
+  input: ResumeClarifiedJobInput,
+): Promise<ResumeClarifiedJobResult> {
+  const { user } = await requireSession();
+  const jobId = typeof input?.jobId === 'string' ? input.jobId : null;
+  const owned = jobId ? await getUserJob(user.id, jobId) : null;
+
+  if (
+    !jobId ||
+    !owned ||
+    owned.kind !== 'draft' ||
+    owned.status !== 'awaiting_input'
+  ) {
+    return { status: 'not_found' };
+  }
+
+  let answers: ReturnType<typeof parseClarificationAnswers> | 'skipped';
+
+  if (input.answers === 'skipped') {
+    answers = 'skipped';
+  } else {
+    answers = parseClarificationAnswers(
+      input.answers,
+      owned.clarification?.questions ?? [],
+    );
+  }
+
+  if (!answers) {
+    return { status: 'invalid' };
+  }
+
+  let githubToken: string;
+
+  try {
+    githubToken = await getGithubUserToken(user.id, await headers());
+  } catch (error) {
+    if (error instanceof GithubUserTokenError) {
+      return { status: 'github_reauth' };
+    }
+
+    throw error;
+  }
+
+  if (!(await requeueAwaitingJob(jobId, answers))) {
+    return { status: 'not_found' };
+  }
+
+  try {
+    await getGenerationRunner().start({ jobId, githubToken });
+  } catch {
+    await failJob(jobId, 'runner_unavailable');
+    refresh();
+    return { status: 'runner_unavailable' };
+  }
+
+  // 목록의 답변 대기 표시를 지움
+  refresh();
+
+  const job = await getUserJob(user.id, jobId);
+
+  return job ? { status: 'started', job } : { status: 'not_found' };
+}
+
+/**
+ * 되묻기 중인 작업을 취소 (내 초안 작성 작업의 답변 대기만, 잠금 해제)
+ */
+export async function cancelClarifiedJob(
+  jobId: string,
+): Promise<{ status: 'cancelled' | 'not_found' }> {
+  const { user } = await requireSession();
+  const owned = typeof jobId === 'string' && (await getUserJob(user.id, jobId));
+
+  if (!owned || owned.kind !== 'draft' || !(await cancelAwaitingJob(jobId))) {
+    return { status: 'not_found' };
+  }
+
+  refresh();
+
+  return { status: 'cancelled' };
 }
