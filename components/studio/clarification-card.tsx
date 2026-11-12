@@ -81,7 +81,7 @@ const QuestionField = ({
       {hasOptions && (
         <div className="flex flex-col gap-1.5 pc:flex-row pc:flex-wrap">
           {question.options.map((option, index) => (
-            <label key={option} className={RADIO_LABEL_CLASS}>
+            <label key={index} className={RADIO_LABEL_CLASS}>
               <input
                 type="radio"
                 name={fieldId}
@@ -168,6 +168,19 @@ const ClarificationCard = ({
         if (result.status === 'started') {
           onResumed(result.job);
           return;
+        }
+
+        // 서버가 이미 작업을 실패 처리했거나 다른 탭이 처리했으면 낡은 답변 대기 상태를 현재 작업으로 바꿈
+        if (
+          result.status === 'runner_unavailable' ||
+          result.status === 'not_found'
+        ) {
+          const { job: current } = result;
+
+          if (current && current.status !== 'awaiting_input') {
+            onResumed(current);
+            return;
+          }
         }
 
         setError(result.status);

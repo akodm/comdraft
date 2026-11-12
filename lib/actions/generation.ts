@@ -632,8 +632,11 @@ export interface ResumeClarifiedJobInput {
 
 export type ResumeClarifiedJobResult =
   | { status: 'started'; job: GenerationJobView }
+  | { status: 'invalid' | 'github_reauth' }
+  // job: 지금 서버가 아는 작업 (화면이 낡은 답변 대기 상태에서 벗어나도록, 없거나 내 것이 아니면 null)
   | {
-      status: 'invalid' | 'not_found' | 'github_reauth' | 'runner_unavailable';
+      status: 'not_found' | 'runner_unavailable';
+      job: GenerationJobView | null;
     };
 
 /**
@@ -658,7 +661,10 @@ export async function resumeClarifiedJob(
     owned.kind !== 'draft' ||
     owned.status !== 'awaiting_input'
   ) {
-    return { status: 'not_found' };
+    return {
+      status: 'not_found',
+      job: owned?.kind === 'draft' ? owned : null,
+    };
   }
 
   let answers: ReturnType<typeof parseClarificationAnswers> | 'skipped';
@@ -689,7 +695,10 @@ export async function resumeClarifiedJob(
   }
 
   if (!(await requeueAwaitingJob(jobId, answers))) {
-    return { status: 'not_found' };
+    return {
+      status: 'not_found',
+      job: await getUserJob(user.id, jobId),
+    };
   }
 
   try {
@@ -697,7 +706,10 @@ export async function resumeClarifiedJob(
   } catch {
     await failJob(jobId, 'runner_unavailable');
     refresh();
-    return { status: 'runner_unavailable' };
+    return {
+      status: 'runner_unavailable',
+      job: await getUserJob(user.id, jobId),
+    };
   }
 
   // 목록의 답변 대기 표시를 지움
@@ -705,7 +717,7 @@ export async function resumeClarifiedJob(
 
   const job = await getUserJob(user.id, jobId);
 
-  return job ? { status: 'started', job } : { status: 'not_found' };
+  return job ? { status: 'started', job } : { status: 'not_found', job: null };
 }
 
 /**
