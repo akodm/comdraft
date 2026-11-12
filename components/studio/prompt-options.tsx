@@ -15,6 +15,11 @@ import {
 } from '@/components/studio/studio-styles';
 import { useDropdown } from '@/hooks/use-dropdown';
 import {
+  GENERATION_MODELS,
+  type GenerationModel,
+} from '@/lib/generation/contract';
+import { MODEL_USAGE_RATIO, ROLE_MODELS } from '@/lib/generation/models';
+import {
   LENGTH_LABELS,
   LENGTHS,
   POST_TYPE_LABELS,
@@ -30,6 +35,31 @@ import {
 const TONE_LABEL = msg`말투`;
 const POST_TYPE_LABEL = msg`유형`;
 const LENGTH_LABEL = msg`길이`;
+const MODEL_LABEL = msg`모델`;
+
+// 모델 이름은 고유명사라 번역하지 않음
+const MODEL_NAMES: Record<GenerationModel, string> = {
+  haiku: 'Haiku',
+  sonnet: 'Sonnet',
+  opus: 'Opus',
+};
+const MODEL_LABELS = Object.fromEntries(
+  GENERATION_MODELS.map((model) => [model, { message: MODEL_NAMES[model] }]),
+) as Record<GenerationModel, MessageDescriptor>;
+
+// 쓸 수 없는 모델의 잠금 표시: 그 모델을 처음 쓸 수 있는 등급
+const UNLOCK_ROLE_LABELS: Record<string, MessageDescriptor> = {
+  pro: msg`Pro 이상`,
+  max: msg`Max`,
+};
+
+const getUnlockRoleLabel = (model: GenerationModel) => {
+  const role = Object.keys(ROLE_MODELS).find((key) =>
+    ROLE_MODELS[key].includes(model),
+  );
+
+  return role ? UNLOCK_ROLE_LABELS[role] : undefined;
+};
 
 interface RadioGroupProps<T extends string> {
   label: MessageDescriptor;
@@ -38,9 +68,16 @@ interface RadioGroupProps<T extends string> {
   labels: Record<T, MessageDescriptor>;
   value: T;
   onChange: (value: T) => void;
+  // 선택 불가 항목 (비활성 + 잠금 표시). 없으면 모두 선택 가능
+  isOptionDisabled?: (option: T) => boolean;
+  // 항목 문구를 바꿔 그림 (잠금 표시 등을 라벨에 포함해 스크린 리더가 함께 읽음)
+  renderLabel?: (option: T, label: string, isDisabled: boolean) => ReactNode;
+  // 그룹 아래 안내 한 줄
+  hint?: string;
+  className?: string;
 }
 
-// 말투 / 유형 / 길이 단일 선택
+// 말투 / 유형 / 길이 / 모델 단일 선택
 const RadioGroup = <T extends string>({
   label,
   name,
@@ -48,28 +85,37 @@ const RadioGroup = <T extends string>({
   labels,
   value,
   onChange,
+  isOptionDisabled,
+  renderLabel,
+  hint,
+  className = 'pc:w-70',
 }: RadioGroupProps<T>) => {
   const { i18n } = useLingui();
 
   return (
-    <fieldset className="min-w-0 pc:w-70">
+    <fieldset className={`min-w-0 ${className}`}>
       <legend className="mb-2 text-[11px] leading-[normal] font-bold text-ink-faint pc:font-normal">
         {i18n._(label)}
       </legend>
       <div className="flex flex-wrap gap-2 pc:gap-4">
         {values.map((option) => {
           const isChecked = option === value;
+          const isDisabled = isOptionDisabled?.(option) ?? false;
+          const label = i18n._(labels[option]);
 
           return (
             <label
               key={option}
-              className="flex h-7 cursor-pointer items-center gap-1.5 pc:h-auto pc:gap-2"
+              className={`flex h-7 items-center gap-1.5 pc:h-auto pc:gap-2 ${
+                isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+              }`}
             >
               <input
                 type="radio"
                 name={name}
                 value={option}
                 checked={isChecked}
+                disabled={isDisabled}
                 onChange={() => onChange(option)}
                 className="peer sr-only"
               />
@@ -100,12 +146,17 @@ const RadioGroup = <T extends string>({
                     : 'text-ink pc:text-ink-muted'
                 }`}
               >
-                {i18n._(labels[option])}
+                {renderLabel ? renderLabel(option, label, isDisabled) : label}
               </span>
             </label>
           );
         })}
       </div>
+      {hint && (
+        <p className="mt-2 text-[11px] leading-[normal] text-ink-faint">
+          {hint}
+        </p>
+      )}
     </fieldset>
   );
 };
@@ -244,6 +295,8 @@ const RequiredBlocksSelect = ({
 interface PromptOptionsProps {
   value: PromptOptionsValue;
   onChange: (value: PromptOptionsValue) => void;
+  // 현재 등급에서 쓸 수 있는 모델 (나머지는 잠금 표시)
+  allowedModels: GenerationModel[];
   // 작업 영역이 패널 높이를 재서 편집기 아래 여백을 맞추는 데 사용
   ref?: Ref<HTMLElement>;
   className?: string;
@@ -274,6 +327,7 @@ const byExpanded = (
 const PromptOptions = ({
   value,
   onChange,
+  allowedModels,
   ref,
   className = '',
   children,
@@ -281,6 +335,32 @@ const PromptOptions = ({
   const { t, i18n } = useLingui();
   const groupName = useId();
   const contentId = useId();
+  const renderModelLabel = (
+    model: GenerationModel,
+    name: string,
+    isLocked: boolean,
+  ) => {
+    const ratio = MODEL_USAGE_RATIO[model];
+    const unlockLabel = getUnlockRoleLabel(model);
+    const detail = model === 'haiku' ? t`기본` : t`사용량 약 ${ratio}배`;
+
+    return (
+      <>
+        {name} · {detail}
+        {isLocked && unlockLabel && (
+          <span className="ml-1.5 inline-flex items-center gap-0.5 align-middle">
+            <Image
+              src="/images/studio/lock.svg"
+              alt=""
+              width={12}
+              height={12}
+            />
+            {i18n._(unlockLabel)}
+          </span>
+        )}
+      </>
+    );
+  };
   // 펼침 상태 (기본: PC 펼침, 모바일 접힘). 마운트 전에는 null
   const [isExpanded, setIsExpanded] = useState<boolean | null>(null);
 
@@ -295,6 +375,7 @@ const PromptOptions = ({
     LENGTH_LABELS[value.length],
   ]
     .map((label) => i18n._(label))
+    .concat(MODEL_NAMES[value.model])
     .join(' · ');
 
   return (
@@ -376,6 +457,20 @@ const PromptOptions = ({
           labels={LENGTH_LABELS}
           value={value.length}
           onChange={(length) => onChange({ ...value, length })}
+        />
+        <RadioGroup
+          label={MODEL_LABEL}
+          name={`${groupName}-model`}
+          values={GENERATION_MODELS}
+          labels={MODEL_LABELS}
+          value={value.model}
+          onChange={(model) => onChange({ ...value, model })}
+          isOptionDisabled={(model) => !allowedModels.includes(model)}
+          renderLabel={(model, name, isLocked) =>
+            renderModelLabel(model, name, isLocked)
+          }
+          hint={t`높은 모델일수록 이번 주 사용량이 빨리 줄어듭니다.`}
+          className="pc:w-full"
         />
         <RequiredBlocksSelect
           value={value.requiredBlocks}

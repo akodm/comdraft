@@ -79,6 +79,10 @@ msgstr "Needs detail"
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요."
 msgstr "Your GitHub session has expired. Sign in again and retry."
 
+#: components/studio/prompt-options.tsx:472
+msgid "높은 모델일수록 이번 주 사용량이 빨리 줄어듭니다."
+msgstr "Higher models use up this week's allowance faster."
+
 #: components/main/language-menu.tsx:43
 msgid "언어 변경"
 msgstr "Change language"
@@ -169,7 +173,7 @@ msgstr "Waiting for AI writer"
 msgid "제목 4"
 msgstr "Heading 4"
 
-#: components/studio/prompt-options.tsx:31
+#: components/studio/prompt-options.tsx:36
 msgid "유형"
 msgstr "Type"
 
@@ -245,7 +249,7 @@ msgstr "Analyze"
 msgid "· 빈칸 {emptyBlankCount}개"
 msgstr "· {emptyBlankCount, plural, one {# blank} other {# blanks}}"
 
-#: components/studio/prompt-options.tsx:164
+#: components/studio/prompt-options.tsx:215
 msgid "{label} 제거"
 msgstr "Remove {label}"
 
@@ -407,6 +411,10 @@ msgstr "There are no commits on the tracked branch."
 #: components/studio/commit-sidebar.tsx:105
 msgid "다시 시도"
 msgstr "Try again"
+
+#: components/studio/prompt-options.tsx:53
+msgid "Max"
+msgstr "Max"
 
 #: components/shared/sign-out-button.tsx:33
 msgid "로그아웃"
@@ -606,7 +614,7 @@ msgstr "Footer menu"
 msgid "친근하게"
 msgstr "Friendly"
 
-#: components/studio/prompt-options.tsx:191
+#: components/studio/prompt-options.tsx:242
 msgid "더 보기"
 msgstr "More"
 
@@ -790,7 +798,7 @@ msgstr "Couldn't access the repository or commits, so nothing was written."
 msgid "누구나 목록과 검색에서 글을 찾을 수 있습니다"
 msgstr "Anyone can find the post in lists and search."
 
-#: components/studio/prompt-options.tsx:184
+#: components/studio/prompt-options.tsx:235
 msgid "필수 항목 더 보기"
 msgstr "More required blocks"
 
@@ -846,6 +854,10 @@ msgstr "Rewriting replaces the current body with the AI result. Your own edits w
 msgid "이 기록을 하나의 글로 정리"
 msgstr "Turn this history into one post"
 
+#: components/studio/prompt-options.tsx:345
+msgid "기본"
+msgstr "Default"
+
 #: components/studio/prompt-composer.tsx:490
 msgid "제출"
 msgstr "Submit"
@@ -887,6 +899,10 @@ msgstr "Start writing"
 msgid "개인 공개 저장소 · main"
 msgstr "Personal public repository · main"
 
+#: components/studio/prompt-options.tsx:52
+msgid "Pro 이상"
+msgstr "Pro and up"
+
 #: components/studio/draft-editor.tsx:460
 #: lib/generation/blank-questions.ts:16
 msgid "이 부분은 자세한 설명이 필요합니다"
@@ -918,11 +934,15 @@ msgstr "Removing..."
 msgid "{blankCount, plural, other {빈칸 #개를 채우고 완료를 눌러야 게시할 수 있습니다}}"
 msgstr "{blankCount, plural, one {Fill in # blank and mark it done before publishing.} other {Fill in # blanks and mark them done before publishing.}}"
 
+#: components/studio/prompt-options.tsx:38
+msgid "모델"
+msgstr "Model"
+
 #: components/studio/generation-progress.tsx:37
 msgid "알 수 없는 오류로 작성하지 못했습니다. 다시 시도해주세요."
 msgstr "An unknown error stopped the writing. Please try again."
 
-#: components/studio/prompt-options.tsx:324
+#: components/studio/prompt-options.tsx:405
 msgid "기본 옵션 접기"
 msgstr "Collapse default options"
 
@@ -1048,6 +1068,10 @@ msgstr "{commitCount} selected"
 msgid "게시 취소"
 msgstr "Unpublish"
 
+#: components/studio/prompt-options.tsx:345
+msgid "사용량 약 {ratio}배"
+msgstr "About {ratio}× usage"
+
 #: components/studio/draft-editor.tsx:633
 msgid "· 저장하지 못했습니다"
 msgstr "· Couldn't save"
@@ -1056,7 +1080,7 @@ msgstr "· Couldn't save"
 msgid "추가"
 msgstr "Add"
 
-#: components/studio/prompt-options.tsx:324
+#: components/studio/prompt-options.tsx:405
 msgid "기본 옵션 펼치기"
 msgstr "Expand default options"
 
@@ -1093,7 +1117,7 @@ msgstr "fix: disconnect observer on unmount"
 msgid "답하고 작성"
 msgstr "Answer and write"
 
-#: components/studio/prompt-options.tsx:149
+#: components/studio/prompt-options.tsx:200
 msgid "필수 항목"
 msgstr "Required blocks"
 
@@ -1133,7 +1157,7 @@ msgstr "Couldn't load repositories."
 msgid "홈으로 이동"
 msgstr "Go to home"
 
-#: components/studio/prompt-options.tsx:32
+#: components/studio/prompt-options.tsx:37
 msgid "길이"
 msgstr "Length"
 
@@ -1178,7 +1202,7 @@ msgstr "Formatting"
 msgid "적용"
 msgstr "Apply"
 
-#: components/studio/prompt-options.tsx:30
+#: components/studio/prompt-options.tsx:35
 msgid "말투"
 msgstr "Tone"
 
@@ -1320,8 +1344,8 @@ msgstr "Select the commits to use from the commit history."
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
 msgstr "Your GitHub authorization has expired. Please sign in again."
 
-#: components/studio/prompt-options.tsx:303
-#: components/studio/prompt-options.tsx:308
+#: components/studio/prompt-options.tsx:384
+#: components/studio/prompt-options.tsx:389
 msgid "기본 옵션"
 msgstr "Default options"
 
