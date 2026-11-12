@@ -39,6 +39,10 @@ msgstr "Code in your commits is never stored anywhere on the site."
 msgid "초안을 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't delete the draft. Please try again."
 
+#: components/studio/account-settings-panel.tsx:162
+msgid "현재 사용량"
+msgstr "Current usage"
+
 #: components/studio/generation-progress.tsx:35
 #: components/studio/prompt-composer.tsx:73
 msgid "AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요."
@@ -76,6 +80,7 @@ msgstr "Needs detail"
 
 #: components/studio/generation-progress.tsx:31
 #: components/studio/prompt-composer.tsx:72
+#: components/studio/repository-settings-panel.tsx:55
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요."
 msgstr "Your GitHub session has expired. Sign in again and retry."
 
@@ -92,7 +97,7 @@ msgid "사용량 정보를 불러오지 못했습니다. 잠시 후 다시 시�
 msgstr "Couldn't load usage information. Please try again in a moment."
 
 #: components/studio/blank-fill-messages.ts:19
-#: components/studio/prompt-composer.tsx:439
+#: components/studio/prompt-composer.tsx:440
 #: components/studio/quota-exhausted-banner.tsx:30
 msgid "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
 msgstr "You've used all of this week's allowance. It resets on {resetsAt}."
@@ -153,6 +158,10 @@ msgstr "Start writing"
 msgid "연결을 해제할까요?"
 msgstr "Disconnect this repository?"
 
+#: components/studio/repository-settings-panel.tsx:59
+msgid "브랜치를 바꿨습니다. 커밋 내역을 다시 불러옵니다."
+msgstr "Branch changed. Reloading commit history."
+
 #: app/[lang]/dashboard/repositories/page.tsx:66
 msgid "연동"
 msgstr "Connect"
@@ -181,6 +190,10 @@ msgstr "Type"
 msgid "여기에 직접 작성해 주세요"
 msgstr "Write it here yourself"
 
+#: components/studio/repository-settings-panel.tsx:463
+msgid "저장소를 삭제하지 못했습니다. 다시 시도해주세요."
+msgstr "Couldn't delete the repository. Please try again."
+
 #: components/onboarding/draft-example.tsx:38
 msgid "작성 예시"
 msgstr "Example"
@@ -189,9 +202,13 @@ msgstr "Example"
 msgid "초안 목록"
 msgstr "Draft list"
 
-#: components/studio/prompt-composer.tsx:380
+#: components/studio/prompt-composer.tsx:381
 msgid "초안 목록 열기"
 msgstr "Open draft list"
+
+#: components/studio/repository-settings-panel.tsx:372
+msgid "브랜치가 없습니다."
+msgstr "No branches found."
 
 #: components/studio/draft-editor.tsx:58
 msgid "이미지 해상도가 너무 큽니다"
@@ -212,7 +229,8 @@ msgstr "You can delete this draft after the AI finishes writing it."
 msgid "연동된 저장소가 없습니다."
 msgstr "No connected repositories."
 
-#: components/studio/profile-menu.tsx:72
+#: components/studio/profile-menu.tsx:91
+#: components/studio/settings-dialog.tsx:18
 msgid "저장소 설정"
 msgstr "Repository settings"
 
@@ -233,6 +251,10 @@ msgstr "Select a repository<0/>and a branch."
 msgid "세션"
 msgstr "Sessions"
 
+#: components/studio/account-settings-panel.tsx:275
+msgid "계정 정보를 불러오지 못했습니다."
+msgstr "Couldn't load your account details."
+
 #: components/studio/draft-editor.tsx:451
 msgid "결과·수치"
 msgstr "Results & numbers"
@@ -252,6 +274,15 @@ msgstr "· {emptyBlankCount, plural, one {# blank} other {# blanks}}"
 #: components/studio/prompt-options.tsx:215
 msgid "{label} 제거"
 msgstr "Remove {label}"
+
+#: components/studio/account-settings-panel.tsx:89
+msgid "초기화까지 {hours}시간 {minutes}분"
+msgstr "Resets in {hours}h {minutes}m"
+
+#. placeholder {0}: label.value
+#: components/studio/repository-settings-panel.tsx:99
+msgid "주간 제공량의 {0}%"
+msgstr "{0}% of weekly usage"
 
 #: components/onboarding/complete-step.tsx:19
 msgid "첫 저장소 연동이<0/>완료되었습니다."
@@ -281,6 +312,10 @@ msgstr "Write & review"
 msgid "인용"
 msgstr "Quote"
 
+#: components/studio/repository-settings-panel.tsx:141
+msgid "실패"
+msgstr "Failed"
+
 #: components/studio/blank-fill-messages.ts:15
 msgid "빈칸을 다듬지 못했습니다. 다시 시도해 주세요."
 msgstr "Couldn't refine this blank. Please try again."
@@ -288,6 +323,11 @@ msgstr "Couldn't refine this blank. Please try again."
 #: components/dashboard/status-message.tsx:37
 msgid "접근 권한이 없는 GitHub App 설치입니다."
 msgstr "You don't have access to this GitHub App installation."
+
+#: components/studio/repository-settings-panel.tsx:432
+#: components/studio/repository-settings-panel.tsx:445
+msgid "저장소 삭제"
+msgstr "Delete repository"
 
 #: components/main/sample-draft-editor.tsx:12
 msgid "어떻게 구현했나요?"
@@ -342,7 +382,7 @@ msgstr "Posts"
 msgid "언어 선택"
 msgstr "Choose language"
 
-#: components/studio/profile-menu.tsx:90
+#: components/studio/profile-menu.tsx:109
 msgid "회원 탈퇴"
 msgstr "Delete account"
 
@@ -361,6 +401,7 @@ msgstr "Select a repository"
 
 #: components/studio/draft-list-item.tsx:79
 #: components/studio/draft-list-item.tsx:153
+#: components/studio/repository-settings-panel.tsx:458
 msgid "삭제"
 msgstr "Delete"
 
@@ -408,7 +449,10 @@ msgstr "There are no commits on the tracked branch."
 #: components/dashboard/repository-list.tsx:108
 #: components/onboarding/repository-connect-form.tsx:247
 #: components/posts/post-feed.tsx:110
+#: components/studio/account-settings-panel.tsx:282
 #: components/studio/commit-sidebar.tsx:105
+#: components/studio/repository-settings-panel.tsx:280
+#: components/studio/repository-settings-panel.tsx:524
 msgid "다시 시도"
 msgstr "Try again"
 
@@ -425,6 +469,7 @@ msgstr "Sign out"
 #: components/studio/generation-progress.tsx:103
 #: components/studio/quota-exhausted-banner.tsx:35
 #: components/studio/reference-link-dialog.tsx:134
+#: components/studio/settings-dialog.tsx:84
 msgid "닫기"
 msgstr "Close"
 
@@ -511,6 +556,10 @@ msgstr "Turn your work <0>into drafts.</0>"
 msgid "이미 처리된 질문입니다. 화면을 새로 고쳐 주세요."
 msgstr "This question was already handled. Please refresh the page."
 
+#: components/studio/account-settings-panel.tsx:81
+msgid "초기화까지 {days}일 {hours}시간"
+msgstr "Resets in {days}d {hours}h"
+
 #: components/main/sample-draft-editor.tsx:117
 msgid "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게시하세요."
 msgstr "This draft was written by AI. Review the code and explanations before publishing."
@@ -522,6 +571,10 @@ msgstr "Couldn't publish. Please try again."
 #: components/main/sample-draft-editor.tsx:17
 msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 msgstr "Check that images appear correctly while scrolling and that observers are cleaned up once they leave the viewport. Actual performance gains need to be measured separately."
+
+#: components/studio/repository-settings-panel.tsx:536
+msgid "프롬프트 내역"
+msgstr "Prompt history"
 
 #: components/studio/draft-sidebar.tsx:72
 msgid "GitHub 에서 저장소 열기"
@@ -584,9 +637,13 @@ msgstr "{label} menu"
 msgid "주요 메뉴"
 msgstr "Main menu"
 
-#: components/studio/prompt-composer.tsx:227
+#: components/studio/prompt-composer.tsx:228
 msgid "+{pcRest}개"
 msgstr "+{pcRest}"
+
+#: components/studio/repository-settings-panel.tsx:450
+msgid "저장소를 삭제할까요?"
+msgstr "Delete this repository?"
 
 #: components/studio/reference-links.tsx:123
 msgid "링크를 삭제하지 못했습니다. 다시 시도해주세요."
@@ -630,8 +687,8 @@ msgstr "Motivation"
 msgid "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't send your request. Please try again."
 
-#: components/studio/prompt-composer.tsx:410
-#: components/studio/prompt-composer.tsx:422
+#: components/studio/prompt-composer.tsx:411
+#: components/studio/prompt-composer.tsx:423
 msgid "작성 요청"
 msgstr "Request"
 
@@ -642,6 +699,10 @@ msgstr "Only people with the link can view the post."
 #: components/studio/editor-toolbar.tsx:42
 msgid "제목 3"
 msgstr "Heading 3"
+
+#: components/studio/repository-settings-panel.tsx:57
+msgid "브랜치를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
+msgstr "Couldn't load branches. Please try again shortly."
 
 #: components/main/hero-section.tsx:29
 msgid "GitHub로 시작하기"
@@ -702,7 +763,7 @@ msgstr "Write why you started this work here"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:40
 #: components/main/profile-menu.tsx:99
-#: components/studio/profile-menu.tsx:58
+#: components/studio/profile-menu.tsx:71
 msgid "대시보드"
 msgstr "Dashboard"
 
@@ -746,6 +807,10 @@ msgstr "Deselect {sha}"
 msgid "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
 msgstr "We've asked the organization owner to approve the installation. You can choose repositories once it's approved."
 
+#: components/studio/repository-settings-panel.tsx:379
+msgid "브랜치를 바꾸면 커밋 목록이 바뀔 수 있습니다. 선택하는 즉시 적용되며, 커밋은 최근 30개부터 다시 불러옵니다."
+msgstr "Changing the branch may change your commit list. It applies as soon as you select it, and the latest 30 commits are loaded again."
+
 #: components/main/notice-section.tsx:7
 msgid "제 3자인 LLM API 에 코드가 보내집니다. 조직 및 비공개 저장소는 권하지 않습니다."
 msgstr "Your code is sent to a third-party LLM API. We do not recommend using organization or private repositories."
@@ -754,9 +819,13 @@ msgstr "Your code is sent to a third-party LLM API. We do not recommend using or
 msgid "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
 msgstr "Turn your work into tech blog drafts and publish them anywhere."
 
-#: components/studio/prompt-composer.tsx:476
+#: components/studio/prompt-composer.tsx:477
 msgid "AI 가 초안을 작성하는 중..."
 msgstr "AI is writing the draft..."
+
+#: components/studio/repository-settings-panel.tsx:270
+msgid "내역을 더 불러오는 중..."
+msgstr "Loading more history..."
 
 #: components/studio/editor-toolbar.tsx:39
 msgid "본문"
@@ -778,21 +847,30 @@ msgstr "Italic"
 msgid "AI 가 다듬는 중이에요"
 msgstr "AI is refining this"
 
-#: components/studio/profile-menu.tsx:65
+#: components/studio/account-settings-panel.tsx:95
+msgid "초기화까지 {minutes}분"
+msgstr "Resets in {minutes}m"
+
+#: components/studio/profile-menu.tsx:81
+#: components/studio/settings-dialog.tsx:17
 msgid "계정 설정"
 msgstr "Account settings"
 
-#: components/studio/prompt-composer.tsx:507
+#: components/studio/prompt-composer.tsx:508
 msgid "다시 작성"
 msgstr "Rewrite"
 
-#: components/studio/prompt-composer.tsx:478
+#: components/studio/prompt-composer.tsx:479
 msgid "작성 요청을 보내는 중..."
 msgstr "Sending request..."
 
 #: components/studio/generation-progress.tsx:32
 msgid "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
 msgstr "Couldn't access the repository or commits, so nothing was written."
+
+#: components/studio/account-settings-panel.tsx:300
+msgid "AI 사용량"
+msgstr "AI usage"
 
 #: components/studio/publish-dialog.tsx:41
 msgid "누구나 목록과 검색에서 글을 찾을 수 있습니다"
@@ -809,6 +887,10 @@ msgstr "Enter a request."
 #: lib/studio/options.ts:64
 msgid "길게"
 msgstr "Long"
+
+#: components/studio/repository-settings-panel.tsx:335
+msgid "{name} (기본 브랜치)"
+msgstr "{name} (default branch)"
 
 #: components/studio/draft-list-item.tsx:146
 msgid "게시글도 함께 삭제되고 공개 주소가 더 이상 열리지 않습니다"
@@ -846,7 +928,7 @@ msgstr "Public repository"
 msgid "AI 초안 작성 중"
 msgstr "AI is writing"
 
-#: components/studio/prompt-composer.tsx:501
+#: components/studio/prompt-composer.tsx:502
 msgid "새로 작성하면 지금 본문이 AI 결과로 바뀝니다. 직접 고친 내용도 사라집니다."
 msgstr "Rewriting replaces the current body with the AI result. Your own edits will be lost too."
 
@@ -858,7 +940,7 @@ msgstr "Turn this history into one post"
 msgid "기본"
 msgstr "Default"
 
-#: components/studio/prompt-composer.tsx:490
+#: components/studio/prompt-composer.tsx:491
 msgid "제출"
 msgstr "Submit"
 
@@ -871,7 +953,7 @@ msgid "연동 저장소"
 msgstr "Connected repositories"
 
 #: components/studio/clarification-card.tsx:274
-#: components/studio/prompt-composer.tsx:508
+#: components/studio/prompt-composer.tsx:509
 #: components/studio/publish-dialog.tsx:168
 #: components/studio/reference-link-dialog.tsx:189
 msgid "취소"
@@ -903,10 +985,18 @@ msgstr "Personal public repository · main"
 msgid "Pro 이상"
 msgstr "Pro and up"
 
+#: components/studio/account-settings-panel.tsx:222
+msgid "{resetTime} 초기화"
+msgstr "Resets {resetTime}"
+
 #: components/studio/draft-editor.tsx:460
 #: lib/generation/blank-questions.ts:16
 msgid "이 부분은 자세한 설명이 필요합니다"
 msgstr "This part needs a detailed explanation"
+
+#: components/studio/account-settings-panel.tsx:145
+msgid "GitHub 프로필"
+msgstr "GitHub profile"
 
 #: components/onboarding/install-step.tsx:100
 msgid "Github App 인증"
@@ -966,6 +1056,10 @@ msgstr "Awaiting answer"
 msgid "제목 1"
 msgstr "Heading 1"
 
+#: components/studio/repository-settings-panel.tsx:97
+msgid "주간 제공량의 1% 미만"
+msgstr "Less than 1% of weekly usage"
+
 #: components/dashboard/disconnect-repository-form.tsx:42
 #: components/dashboard/disconnect-repository-form.tsx:59
 msgid "제거"
@@ -1002,6 +1096,10 @@ msgstr "Heading 6"
 #: components/studio/editor-toolbar.tsx:71
 msgid "취소선"
 msgstr "Strikethrough"
+
+#: components/studio/repository-settings-panel.tsx:274
+msgid "내역을 더 불러오지 못했습니다."
+msgstr "Couldn't load more history."
 
 #: components/studio/commit-sidebar.tsx:122
 msgid "다시 로그인"
@@ -1048,6 +1146,10 @@ msgstr "Step {step} of {total}"
 #: components/main/sample-commits.ts:7
 msgid "feat: 이미지 지연 로딩 적용"
 msgstr "feat: apply lazy image loading"
+
+#: components/studio/repository-settings-panel.tsx:238
+msgid "아직 이 저장소로 보낸 작성 요청이 없습니다."
+msgstr "You haven't sent any writing requests for this repository yet."
 
 #: components/onboarding/install-step.tsx:90
 #: components/shared/github-sign-in-button.tsx:65
@@ -1097,9 +1199,17 @@ msgstr "Review, publish, and export"
 msgid "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 msgstr "Select at least one commit to use from the commit history."
 
+#: components/studio/repository-settings-panel.tsx:517
+msgid "저장소 정보를 불러오지 못했습니다."
+msgstr "Couldn't load repository details."
+
 #: components/studio/publish-dialog.tsx:27
 msgid "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 msgstr "This content can't be published. Please check it."
+
+#: components/studio/repository-settings-panel.tsx:436
+msgid "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
+msgstr "Disconnects the repository and deletes all of its drafts and posts."
 
 #: components/studio/draft-editor.tsx:613
 msgid "초안 편집"
@@ -1125,7 +1235,7 @@ msgstr "Required blocks"
 msgid "실제 데이터가 아닌 예시입니다"
 msgstr "Sample data, not your own"
 
-#: components/studio/prompt-composer.tsx:498
+#: components/studio/prompt-composer.tsx:499
 msgid "초안을 다시 작성할까요?"
 msgstr "Rewrite this draft?"
 
@@ -1178,9 +1288,17 @@ msgstr "Loading branches..."
 msgid "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
 msgstr "Publish it on the site, or export it to use anywhere else."
 
+#: components/studio/account-settings-panel.tsx:294
+msgid "연동 계정"
+msgstr "Linked account"
+
 #: components/dashboard/disconnect-repository-form.tsx:50
 msgid "{draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다"
 msgstr "{draftCount, plural, one {# draft} other {# drafts}} and {postCount, plural, one {# post} other {# posts}} will be deleted too."
+
+#: components/studio/account-settings-panel.tsx:184
+msgid "사용량을 확인할 수 없습니다."
+msgstr "Usage isn't available."
 
 #: components/posts/post-feed.tsx:104
 msgid "글 목록을 불러오지 못했습니다."
@@ -1240,6 +1358,10 @@ msgstr "No drafts yet. Select commits and send a request to create your first dr
 #: components/main/main-footer.tsx:34
 msgid "개인정보처리방침"
 msgstr "Privacy Policy"
+
+#: components/studio/repository-settings-panel.tsx:358
+msgid "연동 브랜치"
+msgstr "Linked branch"
 
 #: lib/studio/options.ts:50
 msgid "담백하게"
@@ -1303,6 +1425,10 @@ msgstr "Tell us a bit more to set the direction of the post"
 msgid "Github 계정으로 시작하세요."
 msgstr "Get started with your GitHub account."
 
+#: components/studio/repository-settings-panel.tsx:56
+msgid "저장소에 접근할 수 없어 브랜치를 불러오지 못했습니다."
+msgstr "Couldn't load branches because the repository isn't accessible."
+
 #: components/studio/draft-sidebar.tsx:123
 #: components/studio/studio-shell.tsx:58
 msgid "사이드바 닫기"
@@ -1312,13 +1438,21 @@ msgstr "Close sidebar"
 msgid "추가+"
 msgstr "Add+"
 
-#: components/studio/prompt-composer.tsx:423
+#: components/studio/repository-settings-panel.tsx:452
+msgid "이 저장소의 {draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다. 되돌릴 수 없습니다."
+msgstr "{draftCount, plural, one {# draft} other {# drafts}} and {postCount, plural, one {# post} other {# posts}} in this repository will be deleted too. This can't be undone."
+
+#: components/studio/prompt-composer.tsx:424
 msgid "선택한 커밋으로 어떤 글을 쓸지 요청해주세요."
 msgstr "Tell us what to write from the selected commits."
 
 #: components/onboarding/repository-connect-form.tsx:270
 msgid "저장소 연동 중..."
 msgstr "Connecting repository..."
+
+#: components/studio/repository-settings-panel.tsx:118
+msgid "빈칸"
+msgstr "Blank"
 
 #: components/onboarding/repository-step.tsx:29
 msgid "다음"
@@ -1335,6 +1469,10 @@ msgstr "Experience"
 #: components/studio/draft-editor.tsx:693
 msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 msgstr "Select commits from the commit history and send a request<0/>to create a draft here."
+
+#: components/studio/repository-settings-panel.tsx:58
+msgid "선택한 브랜치를 찾을 수 없습니다. 목록을 다시 열어 주세요."
+msgstr "Couldn't find the selected branch. Please reopen the list."
 
 #: components/studio/prompt-composer.tsx:164
 msgid "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
@@ -1354,7 +1492,7 @@ msgid "초안 편집기"
 msgstr "Draft editor"
 
 #: components/studio/prompt-composer.tsx:173
-#: components/studio/prompt-composer.tsx:388
+#: components/studio/prompt-composer.tsx:389
 msgid "커밋 내역 열기"
 msgstr "Open commit history"
 

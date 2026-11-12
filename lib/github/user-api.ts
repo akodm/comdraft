@@ -123,6 +123,17 @@ const githubUserFetch = async <T>(token: string, path: string) => {
   return (await response.json()) as T;
 };
 
+// 로그인한 GitHub 사용자의 공개 프로필 (계정 설정 화면 표시용)
+export interface GithubAuthenticatedUser {
+  login: string;
+  name: string | null;
+  avatar_url: string;
+  html_url: string;
+}
+
+export const getAuthenticatedGithubUser = (token: string) =>
+  githubUserFetch<GithubAuthenticatedUser>(token, '/user');
+
 // 현재 GitHub App 의 설치 중 사용자가 접근 가능한 목록
 export const listUserInstallations = async (token: string) => {
   const installations: GithubUserInstallation[] = [];

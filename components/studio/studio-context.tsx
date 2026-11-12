@@ -65,10 +65,17 @@ export const StudioProvider = ({
   children,
 }: StudioProviderProps) => {
   const pathname = usePathname();
-  const commitHistory = useCommitHistory(repository.id);
+  const commitHistory = useCommitHistory(repository.id, repository.branch);
   const [selectedShas, setSelectedShas] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
+  // 연동 브랜치가 바뀌면 고른 커밋을 비움 (다른 브랜치 커밋이 작성 요청에 섞이지 않게)
+  const [selectionBranch, setSelectionBranch] = useState(repository.branch);
+
+  if (selectionBranch !== repository.branch) {
+    setSelectionBranch(repository.branch);
+    setSelectedShas(new Set());
+  }
   // 연 시점의 경로를 함께 기억해 경로가 바뀌면 닫힌 상태가 되도록 함
   const [opened, setOpened] = useState<{
     panel: StudioPanel;
