@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  bigint,
   check,
   integer,
   numeric,
@@ -19,8 +20,12 @@ export const quotaPlan = comdraftSchema.table(
   {
     // 등급 이름 (basic, pro, max)
     role: text('role').primaryKey(),
-    // 주당 사용 가능한 토큰 수
+    // 주당 사용 가능한 토큰 수 (옛 한도, 배포 사이 호환을 위해 남겨 두고 사용량 계산에는 쓰지 않음)
     weeklyTokenLimit: integer('weekly_token_limit').notNull(),
+    // 주당 사용 가능한 비용 (마이크로달러, 주간 사용량 한도는 이 값을 씀)
+    weeklyCostLimit: bigint('weekly_cost_limit', { mode: 'number' })
+      .default(0)
+      .notNull(),
     // 남은 양 대비 한 번에 허용하는 초과 비율 (1.30 이면 남은 양의 130% 까지 허용)
     overrunRatio: numeric('overrun_ratio', {
       precision: 4,
@@ -40,6 +45,7 @@ export const quotaPlan = comdraftSchema.table(
   },
   (table) => [
     check('quota_plan_limit_check', sql`${table.weeklyTokenLimit} > 0`),
+    check('quota_plan_cost_limit_check', sql`${table.weeklyCostLimit} > 0`),
     check('quota_plan_ratio_check', sql`${table.overrunRatio} >= 1`),
     check(
       'quota_plan_weekday_check',

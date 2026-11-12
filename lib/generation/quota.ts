@@ -9,7 +9,7 @@ dayjs.extend(timezone);
 
 export interface QuotaPlan {
   role: string;
-  weeklyTokenLimit: number;
+  weeklyCostLimit: number;
   overrunRatio: number;
   resetTimezone: string;
   resetWeekday: number;
@@ -20,7 +20,7 @@ export interface QuotaPlan {
 export function toQuotaPlan(row: QuotaPlanRow): QuotaPlan {
   return {
     role: row.role,
-    weeklyTokenLimit: Number(row.weeklyTokenLimit),
+    weeklyCostLimit: Number(row.weeklyCostLimit),
     overrunRatio: Number(row.overrunRatio),
     resetTimezone: row.resetTimezone,
     resetWeekday: Number(row.resetWeekday),
@@ -30,8 +30,8 @@ export function toQuotaPlan(row: QuotaPlanRow): QuotaPlan {
 
 export interface QuotaJob {
   status: DraftPromptStatus;
-  estimatedTokens: number | null;
-  usedTokens: number;
+  estimatedCost: number | null;
+  usedCost: number;
   errorCode: string | null;
 }
 
@@ -72,15 +72,15 @@ export function isWithinAllowance(
   return remaining > 0 && estimate <= remaining * plan.overrunRatio;
 }
 
-/** 작업 하나가 이번 주 사용량에 더하는 토큰 수 */
+/** 작업 하나가 이번 주 사용량에 더하는 비용 (마이크로달러) */
 export function getJobUsage(job: QuotaJob): number {
   if (job.status === 'queued' || job.status === 'running') {
-    return Math.max(job.estimatedTokens ?? 0, job.usedTokens);
+    return Math.max(job.estimatedCost ?? 0, job.usedCost);
   }
   if (job.status === 'failed' && job.errorCode === 'quota_exceeded') {
     return 0;
   }
-  return job.usedTokens;
+  return job.usedCost;
 }
 
 /** 이번 주 사용량 요약 (remaining 은 음수 가능) */
@@ -92,9 +92,9 @@ export function summarizeQuota(
   const used = jobs.reduce((sum, job) => sum + getJobUsage(job), 0);
   return {
     role: plan.role,
-    limit: plan.weeklyTokenLimit,
+    limit: plan.weeklyCostLimit,
     used,
-    remaining: plan.weeklyTokenLimit - used,
+    remaining: plan.weeklyCostLimit - used,
     resetsAt: getQuotaWeek(now, plan).resetsAt,
   };
 }

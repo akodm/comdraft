@@ -35,8 +35,8 @@ export async function getUserQuota(
   const jobs = await db
     .select({
       status: draftPrompt.status,
-      estimatedTokens: draftPrompt.estimatedTokens,
-      usedTokens: draftPrompt.usedTokens,
+      estimatedCost: draftPrompt.estimatedCost,
+      usedCost: draftPrompt.usedCost,
       errorCode: draftPrompt.errorCode,
     })
     .from(draftPrompt)
