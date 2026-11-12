@@ -125,6 +125,12 @@ const DraftListItem = ({
         </span>
         <span className="text-[11px] leading-[1.5] text-ink-faint">
           {i18n._(getDraftStatusLabel(draft.status, draft.visibility))}
+          {draft.isAwaitingInput && (
+            <span className="text-brand">
+              {' · '}
+              <Trans>답변 대기</Trans>
+            </span>
+          )}
         </span>
       </LocalizedLink>
       <DraftItemMenu title={title} onDelete={() => setIsConfirming(true)} />
