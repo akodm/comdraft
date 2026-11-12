@@ -38,6 +38,7 @@ import {
   MAX_GENERATION_COMMITS,
   MAX_GENERATION_PROMPT_LENGTH,
 } from '@/lib/generation/limits';
+import { clampModel, isModelAllowed } from '@/lib/generation/models';
 import { getUserQuota } from '@/lib/generation/quota-queries';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { getRequestLocale } from '@/lib/i18n/request';
@@ -82,6 +83,8 @@ export type RequestDraftGenerationResult =
   // 등급의 할당량 정책이 없어 확인할 수 없음
   | { status: 'quota_unavailable' }
   | { status: 'invalid' }
+  // 지금 등급에서 쓸 수 없는 모델
+  | { status: 'model_locked' }
   | { status: 'not_found' }
   | { status: 'github_reauth' }
   // 작성기를 시작하지 못함 (작업은 실패 처리되어 잠금 해제)
@@ -186,6 +189,7 @@ const createJob = async (
         postType: request.options.postType,
         length: request.options.length,
         requiredBlocks: request.options.requiredBlocks,
+        model: request.options.model,
         commitShas: request.commitShas,
         referenceUrls,
         locale,
@@ -270,6 +274,11 @@ export async function requestDraftGeneration(
 
   if (!request) {
     return { status: 'invalid' };
+  }
+
+  // 작업이나 사용량 검사보다 먼저 등급의 허용 모델 확인
+  if (!isModelAllowed(user.role, request.options.model)) {
+    return { status: 'model_locked' };
   }
 
   const repository = await getStudioRepository(user.id, input.repositoryId);
@@ -449,10 +458,12 @@ interface FillJobValues {
  * 빈칸 채우기 작업에 넣을 값 (저장된 본문 기준, 빈칸이 없으면 null)
  * - 본문은 빈칸 id 를 정리한 뒤 찾음 (서버 반영도 같은 정리 후 바꿈)
  * - 옵션과 로케일은 그 초안의 최근 초안 작성 작업에서 복사 (없으면 기본 옵션, 요청 화면 로케일)
+ * - 모델은 지금 등급에서 쓸 수 있는 가장 높은 모델로 낮춰 복사
  */
 const prepareFillJob = async (
   request: BlankFillRequest,
   requestLocale: Locale,
+  role: string | null | undefined,
 ): Promise<FillJobValues | null> => {
   const [stored] = await db
     .select({ content: draft.content })
@@ -486,8 +497,10 @@ const prepareFillJob = async (
     return null;
   }
 
+  const options = parsePromptOptions(latest) ?? DEFAULT_PROMPT_OPTIONS;
+
   return {
-    options: parsePromptOptions(latest) ?? DEFAULT_PROMPT_OPTIONS,
+    options: { ...options, model: clampModel(role, options.model) },
     locale,
     question: getQuestion(target),
     context,
@@ -521,6 +534,7 @@ const createFillJob = async (
       postType: values.options.postType,
       length: values.options.length,
       requiredBlocks: values.options.requiredBlocks,
+      model: values.options.model,
       commitShas: [],
       referenceUrls: [],
       locale: values.locale,
@@ -572,7 +586,11 @@ export async function requestBlankFill(
   // 시간 초과된 작업을 먼저 정리해야 새 작업을 받을 수 있음
   await syncDraftJobs(request.draftId);
 
-  const values = await prepareFillJob(request, await getRequestLocale());
+  const values = await prepareFillJob(
+    request,
+    await getRequestLocale(),
+    user.role,
+  );
 
   if (!values) {
     return { status: 'blank_missing' };

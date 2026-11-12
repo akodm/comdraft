@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import StudioWorkspace from '@/components/studio/studio-workspace';
 import { requireSession } from '@/lib/auth/session';
+import { getAllowedModels } from '@/lib/generation/models';
 import { initLingui } from '@/lib/i18n/server';
 import { getStudioRepository } from '@/lib/studio/queries';
 
@@ -19,5 +20,7 @@ export default async function NewDraftPage({ params }: NewDraftPageProps) {
     notFound();
   }
 
-  return <StudioWorkspace draft={null} />;
+  return (
+    <StudioWorkspace draft={null} allowedModels={getAllowedModels(user.role)} />
+  );
 }

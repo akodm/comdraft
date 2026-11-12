@@ -1,5 +1,9 @@
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
+import {
+  isGenerationModel,
+  type GenerationModel,
+} from '@/lib/generation/contract';
 
 /**
  * 작성 요청 기본 옵션 (프롬프트 입력창 위의 프리셋)
@@ -65,6 +69,7 @@ export interface PromptOptions {
   postType: PostType;
   length: Length;
   requiredBlocks: RequiredBlock[];
+  model: GenerationModel;
 }
 
 export const DEFAULT_PROMPT_OPTIONS: PromptOptions = {
@@ -72,6 +77,7 @@ export const DEFAULT_PROMPT_OPTIONS: PromptOptions = {
   postType: 'experience',
   length: 'medium',
   requiredBlocks: ['h2', 'list', 'code'],
+  model: 'haiku',
 };
 
 const isOneOf = <T extends string>(
@@ -90,15 +96,18 @@ export const parsePromptOptions = (value: unknown): PromptOptions | null => {
     return null;
   }
 
-  const { tone, postType, length, requiredBlocks } = value as Record<
+  const { tone, postType, length, requiredBlocks, model } = value as Record<
     string,
     unknown
   >;
+  // 옛 화면이나 저장된 옛 작업에는 model 이 없으므로 기본 모델로 채움 (값이 있는데 목록 밖이면 거부)
+  const resolvedModel = model ?? DEFAULT_PROMPT_OPTIONS.model;
 
   if (
     !isOneOf(TONES, tone) ||
     !isOneOf(POST_TYPES, postType) ||
     !isOneOf(LENGTHS, length) ||
+    !isGenerationModel(resolvedModel) ||
     !Array.isArray(requiredBlocks) ||
     !requiredBlocks.every((block) => isOneOf(REQUIRED_BLOCKS, block))
   ) {
@@ -112,5 +121,6 @@ export const parsePromptOptions = (value: unknown): PromptOptions | null => {
     requiredBlocks: REQUIRED_BLOCKS.filter((block) =>
       requiredBlocks.includes(block),
     ),
+    model: resolvedModel,
   };
 };

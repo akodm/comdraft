@@ -17,11 +17,14 @@ import {
   DEFAULT_PROMPT_OPTIONS,
   type PromptOptions as PromptOptionsValue,
 } from '@/lib/studio/options';
+import type { GenerationModel } from '@/lib/generation/contract';
 import type { StudioDraft } from '@/lib/studio/queries';
 
 interface StudioWorkspaceProps {
   // null 이면 새 초안 화면
   draft: StudioDraft | null;
+  // 사용자 등급에서 고를 수 있는 모델 (모델 선택 화면에서 사용)
+  allowedModels: GenerationModel[];
 }
 
 /**

@@ -551,6 +551,7 @@ export const getLatestDraftJobOptions = async (draftId: string) => {
       postType: draftPrompt.postType,
       length: draftPrompt.length,
       requiredBlocks: draftPrompt.requiredBlocks,
+      model: draftPrompt.model,
       locale: draftPrompt.locale,
     })
     .from(draftPrompt)
@@ -631,6 +632,7 @@ export const completeJob = async (
   jobId: string,
   result: string,
   usedTokens?: number,
+  usedCost?: number,
 ) => {
   const [row] = await db
     .update(draftPrompt)
@@ -639,6 +641,7 @@ export const completeJob = async (
       step: 3,
       result,
       usedTokens,
+      usedCost,
       finishedAt: new Date(),
     })
     .where(and(eq(draftPrompt.id, jobId), eq(draftPrompt.status, 'running')))
@@ -743,6 +746,7 @@ export const pauseJobForInput = async (
         answers: null,
       },
       estimatedTokens: null,
+      estimatedCost: null,
     })
     .where(
       and(
