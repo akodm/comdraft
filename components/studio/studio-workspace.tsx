@@ -35,7 +35,7 @@ interface StudioWorkspaceProps {
  * - 기본 옵션은 작성 요청 바로 위에 겹쳐 띄움: 펼치고 접어도 편집기와 작성 요청이 움직이지 않고,
  *   대신 패널 높이만큼 편집기 아래에 여백을 둬 마지막 줄이 패널에 가리지 않게 함
  */
-const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
+const StudioWorkspace = ({ draft, allowedModels }: StudioWorkspaceProps) => {
   const { repository } = useStudio();
   const router = useLocalizedRouter();
   // AI 작업: 초안 작성이 진행 중(또는 결과 반영 전)이면 편집기/참고 링크/제출 잠금,
@@ -169,6 +169,7 @@ const StudioWorkspace = ({ draft }: StudioWorkspaceProps) => {
             ref={optionsRef}
             value={options}
             onChange={setOptions}
+            allowedModels={allowedModels}
             className="absolute inset-x-0 bottom-full z-10 mb-3"
           >
             <ReferenceLinks
