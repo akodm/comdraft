@@ -3,7 +3,9 @@ import {
   getFillResultAction,
   isFillPending,
   isJobLocking,
+  isJobAwaitingInput,
   isJobResumable,
+  isJobStale,
   RECENT_FAILURE_MS,
   shouldWatchJob,
   toEditorJobView,
@@ -43,6 +45,7 @@ describe('isJobResumable', () => {
     status: 'running' as const,
     applied: false,
     finishedAt: null,
+    errorCode: null,
     ...overrides,
   });
 
@@ -64,6 +67,90 @@ describe('isJobResumable', () => {
     expect(
       isJobResumable(job({ status: 'completed', applied: true }), now),
     ).toBe(false);
+  });
+});
+
+describe('답변 대기', () => {
+  it('답변 대기 중인 초안 작성 작업은 편집기를 잠그지만 따라가지 않는다', () => {
+    const job = {
+      kind: 'draft' as const,
+      status: 'awaiting_input' as const,
+      applied: false,
+    };
+
+    expect(isJobAwaitingInput('awaiting_input')).toBe(true);
+    expect(isJobAwaitingInput('running')).toBe(false);
+    expect(isJobLocking(job)).toBe(true);
+    expect(shouldWatchJob(job)).toBe(false);
+  });
+
+  it('답변 대기는 시간 초과가 아니다', () => {
+    const createdAt = new Date(now.getTime() - 60 * 60 * 1000);
+
+    expect(
+      isJobStale({ status: 'awaiting_input', createdAt, startedAt: null }, now),
+    ).toBe(false);
+  });
+
+  it('다시 대기열에 넣은 작업은 재대기 시각부터 잰다', () => {
+    const createdAt = new Date(now.getTime() - 10 * 60 * 1000);
+
+    expect(
+      isJobStale(
+        {
+          status: 'queued',
+          createdAt,
+          startedAt: new Date(now.getTime() - 10 * 1000),
+        },
+        now,
+      ),
+    ).toBe(false);
+    expect(
+      isJobStale(
+        {
+          status: 'queued',
+          createdAt,
+          startedAt: new Date(now.getTime() - 2 * 60 * 1000),
+        },
+        now,
+      ),
+    ).toBe(true);
+  });
+
+  it('답변 대기 작업은 이어 보고, 취소로 끝난 작업은 이어 보지 않는다', () => {
+    const recent = new Date(now.getTime() - 1000).toISOString();
+    const base = {
+      kind: 'draft' as const,
+      applied: false,
+      finishedAt: null,
+      errorCode: null,
+    };
+
+    expect(isJobResumable({ ...base, status: 'awaiting_input' }, now)).toBe(
+      true,
+    );
+    expect(
+      isJobResumable(
+        {
+          ...base,
+          status: 'failed',
+          finishedAt: recent,
+          errorCode: 'cancelled',
+        },
+        now,
+      ),
+    ).toBe(false);
+    expect(
+      isJobResumable(
+        {
+          ...base,
+          status: 'failed',
+          finishedAt: recent,
+          errorCode: 'internal',
+        },
+        now,
+      ),
+    ).toBe(true);
   });
 });
 

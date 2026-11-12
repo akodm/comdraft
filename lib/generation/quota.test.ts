@@ -108,6 +108,17 @@ describe('getJobUsage', () => {
       }),
     ).toBe(7_000);
   });
+
+  it('답변 대기 작업은 예상량이 남아 있어도 쓴 토큰만 센다', () => {
+    expect(
+      getJobUsage({
+        status: 'awaiting_input',
+        estimatedTokens: 50_000,
+        usedTokens: 9_000,
+        errorCode: null,
+      }),
+    ).toBe(9_000);
+  });
 });
 
 describe('summarizeQuota', () => {

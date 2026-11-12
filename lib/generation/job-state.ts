@@ -1,6 +1,7 @@
 import {
   GENERATION_QUEUED_TIMEOUT_MS,
   GENERATION_RUNNING_TIMEOUT_MS,
+  type GenerationErrorCode,
   type GenerationJobKind,
   type GenerationStatus,
 } from '@/lib/generation/contract';
@@ -24,7 +25,9 @@ export const getStaleCutoffs = (now: Date) => ({
 /**
  * 시간 제한을 넘긴 진행 중 작업인지
  * - running: 시작 시각(없으면 생성 시각) 기준
- * - queued: 생성 시각 기준 (Lambda 가 시작하지 못함)
+ * - queued: 재대기 시각(없으면 생성 시각) 기준 (Lambda 가 시작하지 못함)
+ *   답을 받아 다시 대기열에 넣은 작업은 그 시각부터 잼
+ * - awaiting_input: 작성자 답을 기다리는 것이므로 시간 초과가 아님
  */
 export const isJobStale = (job: JobTimingFields, now: Date) => {
   const { runningStartedBefore, queuedCreatedBefore } = getStaleCutoffs(now);
@@ -34,7 +37,7 @@ export const isJobStale = (job: JobTimingFields, now: Date) => {
   }
 
   if (job.status === 'queued') {
-    return job.createdAt < queuedCreatedBefore;
+    return (job.startedAt ?? job.createdAt) < queuedCreatedBefore;
   }
 
   return false;
@@ -44,9 +47,14 @@ export const isJobActive = (status: GenerationStatus) => {
   return status === 'queued' || status === 'running';
 };
 
+// 작성자의 답을 기다리며 멈춘 작업인지 (Lambda 는 돌지 않음)
+export const isJobAwaitingInput = (status: GenerationStatus) => {
+  return status === 'awaiting_input';
+};
+
 /**
  * 초안 편집을 잠가야 하는 작업인지 (초안 작성 작업만, 서버의 lockingJobExists 와 같은 조건)
- * - 진행 중이거나, 완료했지만 결과를 아직 초안에 반영하지 않은 작업
+ * - 진행 중이거나, 답변 대기 중이거나, 완료했지만 결과를 아직 초안에 반영하지 않은 작업
  * - 빈칸 채우기 작업은 그 빈칸만 막으므로 편집기 전체를 잠그지 않음
  */
 export const isJobLocking = (job: {
@@ -56,7 +64,9 @@ export const isJobLocking = (job: {
 }) => {
   return (
     job.kind === 'draft' &&
-    (isJobActive(job.status) || (job.status === 'completed' && !job.applied))
+    (isJobActive(job.status) ||
+      isJobAwaitingInput(job.status) ||
+      (job.status === 'completed' && !job.applied))
   );
 };
 
@@ -138,12 +148,17 @@ export const getFillResultAction = (
 /**
  * 화면이 Realtime 구독·주기 조회로 따라가야 하는 작업인지
  * - 초안 작성은 편집기를 잠그는 동안, 빈칸 채우기는 진행 중인 동안 (편집기는 잠그지 않음)
+ * - 답변 대기는 Lambda 가 돌지 않으므로 따라가지 않음 (답하면 새 작업 상태로 다시 감시)
  */
 export const shouldWatchJob = (job: {
   kind: GenerationJobKind;
   status: GenerationStatus;
   applied: boolean;
 }) => {
+  if (isJobAwaitingInput(job.status)) {
+    return false;
+  }
+
   return isJobLocking(job) || (job.kind === 'fill' && isJobActive(job.status));
 };
 
@@ -152,7 +167,8 @@ export const RECENT_FAILURE_MS = 10 * 60 * 1000;
 
 /**
  * 화면을 열 때 이어서 보여 줄 작업인지 (작업 종류와 무관)
- * - 진행 중이거나 잠금 중인 작업은 진행 상태를 이어서 받고, 최근에 실패한 작업은 실패 사유를 보여 줌
+ * - 진행 중이거나 잠금 중인 작업(답변 대기 포함)은 진행 상태를 이어서 받고, 최근에 실패한 작업은 실패 사유를 보여 줌
+ * - 작성자가 취소한 작업은 실패 안내로 다시 보여 주지 않음
  */
 export const isJobResumable = (
   job: {
@@ -160,6 +176,7 @@ export const isJobResumable = (
     status: GenerationStatus;
     applied: boolean;
     finishedAt: string | null;
+    errorCode: GenerationErrorCode | null;
   },
   now: Date,
 ) => {
@@ -169,6 +186,7 @@ export const isJobResumable = (
 
   return (
     job.status === 'failed' &&
+    job.errorCode !== 'cancelled' &&
     job.finishedAt !== null &&
     now.getTime() - new Date(job.finishedAt).getTime() < RECENT_FAILURE_MS
   );
