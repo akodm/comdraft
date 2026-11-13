@@ -41,23 +41,27 @@ describe('buildSitemapEntries', () => {
     { id: 'a1B2c3D4e5', slug: '한글 제목', locale: 'en', updatedAt },
   ]);
 
-  it('메인과 목록은 언어마다 한 줄씩, 서로를 hreflang 으로 가리킨다', () => {
+  it('메인·목록·개인정보처리방침·이용약관은 언어마다 한 줄씩, 서로를 hreflang 으로 가리킨다', () => {
     const home = entries.find((e) => e.url === 'https://comdraft.dev/ko');
 
     expect(home?.alternates?.languages).toEqual({
       ko: 'https://comdraft.dev/ko',
       en: 'https://comdraft.dev/en',
     });
-    expect(entries.map((e) => e.url).slice(0, 4)).toEqual([
+    expect(entries.map((e) => e.url).slice(0, 8)).toEqual([
       'https://comdraft.dev/ko',
       'https://comdraft.dev/en',
       'https://comdraft.dev/ko/posts',
       'https://comdraft.dev/en/posts',
+      'https://comdraft.dev/ko/privacy',
+      'https://comdraft.dev/en/privacy',
+      'https://comdraft.dev/ko/terms',
+      'https://comdraft.dev/en/terms',
     ]);
   });
 
   it('게시글은 게시 언어의 인코딩된 대표 주소와 수정 시각', () => {
-    expect(entries[4]).toEqual({
+    expect(entries[8]).toEqual({
       url: `https://comdraft.dev/en/posts/${encodeURIComponent('한글 제목-a1B2c3D4e5')}`,
       lastModified: updatedAt,
       changeFrequency: 'monthly',
