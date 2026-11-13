@@ -39,6 +39,8 @@ export const post = comdraftSchema.table(
     visibility: text('visibility').$type<PostVisibility>().notNull(),
     // 게시할 때의 화면 언어 (대표 주소 언어, lib/i18n/config.ts 의 LOCALES)
     locale: text('locale').$type<Locale>().notNull(),
+    // 기술 태그 (게시할 때 초안 태그를 복사, 나중 목록 필터와 SEO 용으로 지금은 수집만)
+    tags: text('tags').array().default([]).notNull(),
     // 처음 게시한 시각 (피드 정렬 기준, 다시 게시해도 바뀌지 않음)
     publishedAt: timestamp('published_at', { withTimezone: true, precision: 3 })
       .defaultNow()
@@ -53,6 +55,8 @@ export const post = comdraftSchema.table(
     index('post_public_published_idx')
       .on(table.publishedAt.desc(), table.id.desc())
       .where(sql`${table.visibility} = 'public'`),
+    // 나중 태그 필터용 (tags @> '{nextjs}')
+    index('post_tags_idx').using('gin', table.tags),
     check(
       'post_visibility_check',
       sql`${table.visibility} in ('public', 'unlisted')`,

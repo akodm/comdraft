@@ -71,6 +71,8 @@ export const draft = comdraftSchema.table(
     // Tiptap 문서(JSON). 아직 작성 요청을 보내지 않은 초안은 null
     content: jsonb('content'),
     status: text('status').$type<DraftStatus>().default('draft').notNull(),
+    // 기술 태그 (lib/posts/tags.ts 규칙으로 정규화, AI 결과 반영이나 편집기 입력으로 바뀜, 게시할 때 게시글로 복사)
+    tags: text('tags').array().default([]).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -127,6 +129,8 @@ export const draftPrompt = comdraftSchema.table(
     channel: uuid('channel').defaultRandom().notNull().unique(),
     // 작성 단계 결과 (Markdown, 에디터에 반영할 때 Tiptap 문서로 변환)
     result: text('result'),
+    // 분석 단계가 고른 기술 태그 (Lambda 가 결과와 함께 기록, 앱이 반영할 때 정규화해 초안 태그로 옮김)
+    tags: text('tags').array().default([]).notNull(),
     // 실패 사유 코드 (요청/코드 원문 없이)
     errorCode: text('error_code'),
     // 요청 시점의 예상 토큰 수 (Lambda 가 한도 검사 때 기록, 진행 중인 작업의 사용량 추정에 사용)
