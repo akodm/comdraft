@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 import { LOCALES, localizePath, type Locale } from '@/lib/i18n/config';
 import { getEncodedPostPath } from '@/lib/posts/post-path';
 
-// 사이트맵에 언어별로 넣는 고정 페이지 (메인, 게시글 목록)
-const LOCALIZED_PAGES = ['/', '/posts'] as const;
+// 사이트맵에 언어별로 넣는 고정 페이지 (메인, 게시글 목록, 개인정보처리방침, 이용약관)
+const LOCALIZED_PAGES = ['/', '/posts', '/privacy', '/terms'] as const;
 
 export interface SitemapPost {
   id: string;

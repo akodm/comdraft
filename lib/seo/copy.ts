@@ -24,3 +24,12 @@ export const SIGN_IN_TITLE = msg`로그인`;
 export const ONBOARDING_TITLE = msg`시작하기`;
 
 export const DASHBOARD_TITLE = msg`대시보드`;
+
+// 개인정보처리방침·이용약관 (본문은 lib/legal 의 언어별 원문)
+export const PRIVACY_TITLE = msg`개인정보처리방침`;
+
+export const PRIVACY_DESCRIPTION = msg`comdraft 가 처리하는 개인정보 항목과 이용 목적, AI 초안 작성을 위한 제3자 전송, 보유 기간과 이용자의 권리를 안내합니다.`;
+
+export const TERMS_TITLE = msg`이용약관`;
+
+export const TERMS_DESCRIPTION = msg`comdraft 서비스 이용 조건과 AI 생성 결과, 이용자 콘텐츠, 금지 행위 등 이용자와 운영자의 권리와 의무를 안내합니다.`;
