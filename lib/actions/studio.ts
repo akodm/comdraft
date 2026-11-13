@@ -21,6 +21,7 @@ import {
   scheduleDraftImageRemoval,
 } from '@/lib/images/cleanup';
 import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
+import { normalizeTags } from '@/lib/posts/tags';
 import {
   extractDraftTitle,
   getCommitSubject,
@@ -175,6 +176,49 @@ export async function saveDraftContent(
   scheduleDraftImageCleanup(draftId);
 
   return { status: 'saved', title, draftStatus: updated.status };
+}
+
+export type SaveDraftTagsResult =
+  | { status: 'saved'; tags: string[]; draftStatus: DraftStatus }
+  | { status: 'invalid' }
+  // AI 작성 중이라 편집 잠금 (결과가 태그를 바꾸므로)
+  | { status: 'locked' }
+  | { status: 'not_found' };
+
+/**
+ * 편집기 태그 저장 (추가·삭제할 때마다, 본문 자동 저장과 별개)
+ * - 서버 액션 인자는 신뢰할 수 없으므로 lib/posts/tags.ts 규칙으로 정규화한 값을 저장하고 돌려줌
+ * - 잠금 조건과 게시한 초안의 임시 저장 상태 전환은 본문 자동 저장과 같음
+ */
+export async function saveDraftTags(
+  repositoryId: string,
+  draftId: string,
+  tags: string[],
+): Promise<SaveDraftTagsResult> {
+  const { user } = await requireSession();
+
+  if (!Array.isArray(tags)) {
+    return { status: 'invalid' };
+  }
+
+  if (!(await isOwnedDraft(user.id, repositoryId, draftId))) {
+    return { status: 'not_found' };
+  }
+
+  await syncDraftJobs(draftId);
+
+  const normalized = normalizeTags(tags);
+  const [updated] = await db
+    .update(draft)
+    .set({ tags: normalized, status: draftStatusAfterContentChange() })
+    .where(and(eq(draft.id, draftId), not(lockingJobExists(draft.id))))
+    .returning({ status: draft.status });
+
+  if (!updated) {
+    return { status: 'locked' };
+  }
+
+  return { status: 'saved', tags: normalized, draftStatus: updated.status };
 }
 
 export type DeleteDraftResult =

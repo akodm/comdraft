@@ -17,6 +17,7 @@ import type { Transaction } from '@tiptap/pm/state';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import { assignBlankIds } from '@/components/studio/draft-blank-fill';
 import { getDraftStatusLabel } from '@/components/studio/draft-status';
+import DraftTags from '@/components/studio/draft-tags';
 import { createEditorExtensions } from '@/components/studio/editor-extensions';
 import EditorToolbar from '@/components/studio/editor-toolbar';
 import {
@@ -687,7 +688,20 @@ const DraftEditor = ({
         <div className="flex flex-1 flex-col pt-6.5 pb-8 pc:px-12 pc:pt-8.5 pc:pb-6">
           <div className="mx-auto flex w-full max-w-260 flex-1 flex-col">
             {draft ? (
-              <EditorContent editor={editor} className="flex flex-1 flex-col" />
+              <>
+                <EditorContent
+                  editor={editor}
+                  className="flex flex-1 flex-col"
+                />
+                {/* AI 결과가 반영되면(contentRevision 변경) 새 태그로 다시 시작 */}
+                <DraftTags
+                  key={`${draft.id}:${draft.contentRevision}`}
+                  repositoryId={repositoryId}
+                  draftId={draft.id}
+                  initialTags={draft.tags}
+                  isLocked={isLocked}
+                />
+              </>
             ) : (
               <p className="py-16 text-center text-[13px] leading-[1.8] break-keep text-ink-faint pc:py-24 pc:text-[14px]">
                 <Trans>
