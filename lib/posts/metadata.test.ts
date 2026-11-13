@@ -13,6 +13,7 @@ const post = (overrides: Partial<PublishedPost> = {}): PublishedPost => ({
   publishedAt: new Date('2026-11-01T00:00:00Z'),
   updatedAt: new Date('2026-11-02T00:00:00Z'),
   author: { name: '작성자', image: null, githubLogin: null },
+  tags: [],
   ...overrides,
 });
 
@@ -28,6 +29,21 @@ describe('buildPostMetadata', () => {
     );
     expect(meta.openGraph).toMatchObject({ type: 'article' });
     expect(meta.robots).toBeUndefined();
+  });
+
+  it('기술 태그는 키워드와 article:tag 로, 큰 이미지 트위터 카드', () => {
+    const meta = buildPostMetadata(
+      post({ tags: ['nextjs', 'react'] }),
+      'https://x',
+    );
+
+    expect(meta.keywords).toEqual(['nextjs', 'react']);
+    expect(meta.openGraph).toMatchObject({ tags: ['nextjs', 'react'] });
+    expect(meta.twitter).toMatchObject({ card: 'summary_large_image' });
+  });
+
+  it('태그가 없으면 키워드를 넣지 않는다', () => {
+    expect(buildPostMetadata(post(), 'https://x').keywords).toBeUndefined();
   });
 
   it('일부 공개는 noindex', () => {
