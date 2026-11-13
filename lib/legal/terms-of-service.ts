@@ -66,7 +66,7 @@ export const TERMS_OF_SERVICE: LocalizedLegalDocument = {
         heading: '7. 이용 제한과 탈퇴',
         items: [
           '이용자가 이 약관을 위반하면 서비스는 콘텐츠를 비공개 처리하거나 이용을 제한할 수 있습니다.',
-          '이용자는 언제든지 아래 문의처 이메일로 탈퇴를 요청할 수 있으며, 탈퇴하면 이용자의 정보와 콘텐츠는 개인정보처리방침에 따라 삭제됩니다.',
+          '이용자는 언제든지 프로필 메뉴의 회원탈퇴로 직접 탈퇴하거나 아래 문의처 이메일로 탈퇴를 요청할 수 있으며, 탈퇴하면 이용자의 정보와 콘텐츠는 개인정보처리방침에 따라 삭제됩니다.',
         ],
       },
       {
@@ -163,7 +163,7 @@ export const TERMS_OF_SERVICE: LocalizedLegalDocument = {
         heading: '7. Restrictions and leaving the Service',
         items: [
           'If you violate these terms, the Service may hide your content or restrict your use.',
-          'You may ask to leave the Service at any time by email to the contact below. When you leave, your information and content are deleted according to the Privacy Policy.',
+          'You may leave the Service at any time from Delete account in the profile menu or by email to the contact below. When you leave, your information and content are deleted according to the Privacy Policy.',
         ],
       },
       {

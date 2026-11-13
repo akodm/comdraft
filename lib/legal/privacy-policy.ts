@@ -71,7 +71,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         heading: '6. 보유 및 이용 기간',
         items: [
           '개인정보는 회원 탈퇴 시까지 보유하며, 탈퇴 또는 삭제 요청을 받으면 지체 없이 파기합니다.',
-          '회원 탈퇴는 아래 문의처 이메일로 요청할 수 있습니다.',
+          '회원 탈퇴는 로그인한 상태에서 프로필 메뉴의 회원탈퇴로 직접 할 수 있으며, 아래 문의처 이메일로도 요청할 수 있습니다. 탈퇴하면 계정, 초안·게시글, 업로드한 이미지, 조회 기록이 즉시 삭제되고 GitHub 에서 서비스의 로그인 권한이 철회됩니다.',
           '초안을 삭제하거나 게시를 취소하면 해당 콘텐츠와 게시글의 조회 기록이 함께 삭제되며, 사용하지 않는 업로드 이미지는 정리됩니다.',
           '로그인 세션은 마지막 이용 후 7일이 지나면 만료됩니다.',
         ],
@@ -190,7 +190,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         heading: '6. Retention',
         items: [
           'We keep personal information until you leave the Service and delete it without delay when you leave or ask us to delete it.',
-          'You can ask to leave the Service by email to the contact below.',
+          'You can leave the Service yourself from Delete account in the profile menu while signed in, or ask by email to the contact below. Leaving immediately deletes your account, drafts and posts, uploaded images, and view records, and revokes the Service’s sign-in authorization on GitHub.',
           'Deleting a draft or unpublishing a post deletes that content and the post’s view records, and unused uploaded images are cleaned up.',
           'Sign-in sessions expire 7 days after your last activity.',
         ],

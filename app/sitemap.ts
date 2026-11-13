@@ -5,7 +5,7 @@ import { buildSitemapEntries } from '@/lib/seo/sitemap';
 
 // 캐시해 둔 사이트맵을 일주일마다 다시 만듦 (안전망)
 // - 공개 글 목록이 바뀌면 lib/seo/revalidate-sitemap 이 바로 다시 만들게 하고,
-//   일요일 0시(한국 시간) Vercel Cron(/api/cron/sitemap)도 한 번 더 다시 만듦
+//   일요일 0시(한국 시간) Vercel Schedules(/api/cron/sitemap)도 한 번 더 다시 만듦
 export const revalidate = 604800;
 
 /**
