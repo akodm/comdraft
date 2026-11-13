@@ -9,7 +9,7 @@ interface PostPaginationProps {
 }
 
 const CELL_CLASS =
-  'flex size-9 items-center justify-center rounded text-[14px] leading-[normal]';
+  'flex size-8 shrink-0 items-center justify-center rounded text-[14px] leading-[normal] pc:size-9';
 
 // 현재 쪽 주변에 보여 줄 번호 수 (PC 앞뒤 2개, 모바일 앞뒤 1개)
 const PC_SIBLINGS = 2;
@@ -84,7 +84,7 @@ const PostPagination = ({ currentPage, totalPages }: PostPaginationProps) => {
   return (
     <nav
       aria-label={t`페이지 이동`}
-      className="flex items-center justify-center gap-1"
+      className="flex items-center justify-center gap-0.5 pc:gap-1"
     >
       {hasPrevious ? (
         <LocalizedLink
@@ -109,7 +109,7 @@ const PostPagination = ({ currentPage, totalPages }: PostPaginationProps) => {
         currentPage={currentPage}
         totalPages={totalPages}
         siblings={MOBILE_SIBLINGS}
-        className="flex items-center gap-1 pc:hidden"
+        className="flex items-center gap-0.5 pc:hidden"
       />
       {hasNext ? (
         <LocalizedLink

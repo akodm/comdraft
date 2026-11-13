@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getPaginationItems,
   getPostListHref,
+  MAX_PAGE,
   parsePageParam,
   POST_LIST_PAGE_SIZE,
 } from '@/lib/posts/post-list';
@@ -17,6 +18,12 @@ describe('parsePageParam', () => {
 
   it('같은 이름이 여러 번 오면 첫 값 기준', () => {
     expect(parsePageParam(['2', '5'])).toBe(2);
+  });
+
+  it('너무 큰 쪽 번호는 조회할 수 있는 최대 쪽으로 (DB offset 범위를 넘지 않게, 마지막 쪽보다 커서 404)', () => {
+    expect(parsePageParam('99999999999999999999')).toBe(MAX_PAGE);
+    expect(parsePageParam(String(MAX_PAGE + 1))).toBe(MAX_PAGE);
+    expect(parsePageParam(String(MAX_PAGE))).toBe(MAX_PAGE);
   });
 
   it.each(['0', '-1', '1.5', 'abc', '', '01'])(

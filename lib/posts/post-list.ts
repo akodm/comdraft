@@ -3,10 +3,13 @@
 // 한 쪽에 보여 주는 게시글 수
 export const POST_LIST_PAGE_SIZE = 30;
 
+// 주소로 받을 수 있는 가장 큰 쪽 (DB offset 이 bigint 범위·지수 표기로 넘어가지 않게, 실제 글 수보다 충분히 큼)
+export const MAX_PAGE = 1_000_000_000;
+
 const PAGE_PATTERN = /^[1-9]\d*$/;
 
 /**
- * 주소의 page 값을 쪽 번호로 (양의 정수가 아니면 1쪽, 여러 번 오면 첫 값 기준)
+ * 주소의 page 값을 쪽 번호로 (양의 정수가 아니면 1쪽, 여러 번 오면 첫 값 기준, MAX_PAGE 를 넘으면 MAX_PAGE)
  * @example parsePageParam('3') // 3
  * @example parsePageParam('abc') // 1
  */
@@ -15,7 +18,12 @@ export const parsePageParam = (
 ): number => {
   const first = Array.isArray(value) ? value[0] : value;
 
-  return first !== undefined && PAGE_PATTERN.test(first) ? Number(first) : 1;
+  if (first === undefined || !PAGE_PATTERN.test(first)) {
+    return 1;
+  }
+
+  // 너무 큰 값은 최대 쪽으로 (마지막 쪽보다 커서 404)
+  return Math.min(Number(first), MAX_PAGE);
 };
 
 /**
