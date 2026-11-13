@@ -1,29 +1,20 @@
 import type { MetadataRoute } from 'next';
-import { LOCALES, localizePath } from '@/lib/i18n/config';
 import { getSiteOrigin } from '@/lib/posts/metadata';
-import { getEncodedPostPath } from '@/lib/posts/post-path';
 import { listPublicPostPaths } from '@/lib/posts/queries';
+import { buildSitemapEntries } from '@/lib/seo/sitemap';
 
-// 글이 게시되거나 취소될 때마다 달라지므로 빌드 때 굳히지 않고 요청마다 만든다
-export const dynamic = 'force-dynamic';
+// 캐시해 둔 사이트맵을 일주일마다 다시 만듦 (안전망)
+// - 공개 글 목록이 바뀌면 lib/seo/revalidate-sitemap 이 바로 다시 만들게 하고,
+//   일요일 0시(한국 시간) Vercel Cron(/api/cron/sitemap)도 한 번 더 다시 만듦
+export const revalidate = 604800;
 
 /**
- * 사이트맵: 메인, 전체 피드, 공개 글의 대표 주소
- * - 대표 주소는 게시할 때의 언어 기준이며 slug 는 퍼센트 인코딩 (일부 공개 글은 넣지 않음)
+ * 사이트맵: 언어별 메인·게시글 목록, 공개 글의 대표 주소 (일부 공개 글은 넣지 않음)
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = getSiteOrigin();
 
   if (!origin) return [];
 
-  const pages = LOCALES.flatMap((locale) => [
-    { url: `${origin}${localizePath(locale, '/')}` },
-    { url: `${origin}${localizePath(locale, '/posts')}` },
-  ]);
-  const posts = (await listPublicPostPaths()).map((post) => ({
-    url: `${origin}${localizePath(post.locale, getEncodedPostPath(post))}`,
-    lastModified: post.updatedAt,
-  }));
-
-  return [...pages, ...posts];
+  return buildSitemapEntries(origin, await listPublicPostPaths());
 }

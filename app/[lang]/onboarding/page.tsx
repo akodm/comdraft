@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { eq } from 'drizzle-orm';
 import { getStatusMessage } from '@/components/dashboard/status-message';
 import PageLayout from '@/components/layout/page-layout';
@@ -11,6 +12,8 @@ import { toRepositoryOptions } from '@/lib/github/repository-selection';
 import { loadUserInstallations } from '@/lib/github/user-installations';
 import { localizedRedirect } from '@/lib/i18n/request';
 import { initLingui } from '@/lib/i18n/server';
+import { ONBOARDING_TITLE } from '@/lib/seo/copy';
+import { NOINDEX } from '@/lib/seo/site';
 
 interface OnboardingPageProps {
   // GitHub App 설치 후 돌아올 때 setup 라우트가 넘겨주는 결과
@@ -48,6 +51,13 @@ const loadOnboardingState = async (
 
   return { step: 2, repositories: toRepositoryOptions(installations) };
 };
+
+// 가입 마무리 화면: 검색에서 뺌
+export async function generateMetadata(): Promise<Metadata> {
+  const i18n = await initLingui();
+
+  return { title: i18n._(ONBOARDING_TITLE), robots: NOINDEX };
+}
 
 export default async function OnboardingPage({
   searchParams,

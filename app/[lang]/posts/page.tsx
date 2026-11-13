@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import PageLayout from '@/components/layout/page-layout';
 import MainFooter from '@/components/main/main-footer';
@@ -8,18 +7,51 @@ import MainHeader from '@/components/main/main-header';
 import PostListItem from '@/components/posts/post-list-item';
 import PostPagination from '@/components/posts/post-pagination';
 import { getSession } from '@/lib/auth/session';
-import { initLingui } from '@/lib/i18n/server';
+import { getLocale, initLingui } from '@/lib/i18n/server';
+import { getSiteOrigin } from '@/lib/posts/metadata';
+import { POSTS_DESCRIPTION, POSTS_TITLE } from '@/lib/seo/copy';
+import { buildWebsiteOpenGraph } from '@/lib/seo/open-graph';
+import { buildLocalizedAlternates } from '@/lib/seo/urls';
 import { parsePageParam } from '@/lib/posts/post-list';
 import { getPostListPage } from '@/lib/posts/queries';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const i18n = await initLingui();
-
-  return { title: i18n._(msg`게시글`) };
-}
-
 interface PostsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+/**
+ * 게시글 목록 메타데이터: 언어별 대표 주소와 hreflang (2쪽부터는 `?page=N` 이 대표 주소)
+ */
+export async function generateMetadata({
+  searchParams,
+}: PostsPageProps): Promise<Metadata> {
+  const i18n = await initLingui();
+  const locale = await getLocale();
+  const page = parsePageParam((await searchParams).page);
+  const origin = getSiteOrigin();
+  const title = i18n._(POSTS_TITLE);
+  const description = i18n._(POSTS_DESCRIPTION);
+  const alternates = origin
+    ? buildLocalizedAlternates(
+        origin,
+        '/posts',
+        locale,
+        page > 1 ? `?page=${page}` : '',
+      )
+    : undefined;
+
+  return {
+    title,
+    description,
+    alternates,
+    openGraph: buildWebsiteOpenGraph({
+      locale,
+      title,
+      description,
+      url: alternates?.canonical,
+    }),
+    twitter: { card: 'summary_large_image', title, description },
+  };
 }
 
 /**

@@ -7,7 +7,7 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: ko\n"
 
-#: app/[lang]/sign-in/page.tsx:87
+#: app/[lang]/sign-in/page.tsx:97
 msgid "Github 로 회원가입/로그인"
 msgstr "Github 로 회원가입/로그인"
 
@@ -111,7 +111,7 @@ msgstr "사용량 정보를 불러오지 못했습니다. 잠시 후 다시 시�
 msgid "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
 msgstr "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
 
-#: app/[lang]/sign-in/page.tsx:82
+#: app/[lang]/sign-in/page.tsx:92
 msgid "로그인 중 문제가 발생했습니다. ({error})"
 msgstr "로그인 중 문제가 발생했습니다. ({error})"
 
@@ -127,7 +127,7 @@ msgstr "회원탈퇴"
 msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 구현 과정과 관찰 로직을 정리하고, 게시 전 확인할 점을 살펴봅니다."
 msgstr "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 구현 과정과 관찰 로직을 정리하고, 게시 전 확인할 점을 살펴봅니다."
 
-#: app/[lang]/sign-in/page.tsx:28
+#: app/[lang]/sign-in/page.tsx:31
 msgid "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
 msgstr "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
 
@@ -272,7 +272,7 @@ msgstr "계정 정보를 불러오지 못했습니다."
 msgid "결과·수치"
 msgstr "결과·수치"
 
-#: app/[lang]/sign-in/page.tsx:20
+#: app/[lang]/sign-in/page.tsx:23
 msgid "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
 msgstr "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
 
@@ -388,8 +388,7 @@ msgstr "올리지 못한 이미지가 있습니다"
 msgid "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 msgstr "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 
-#: app/[lang]/posts/page.tsx:18
-#: app/[lang]/posts/page.tsx:50
+#: app/[lang]/posts/page.tsx:82
 #: components/main/mobile-menu.tsx:165
 #: components/main/posts-nav-link.tsx:22
 msgid "게시글"
@@ -528,7 +527,7 @@ msgstr "{count, plural, other {커밋 #개}}"
 msgid "게시를 취소하지 못했습니다. 다시 시도해주세요."
 msgstr "게시를 취소하지 못했습니다. 다시 시도해주세요."
 
-#: app/[lang]/sign-in/page.tsx:70
+#: app/[lang]/sign-in/page.tsx:80
 msgid "회원가입 / 로그인"
 msgstr "회원가입 / 로그인"
 
@@ -612,11 +611,16 @@ msgstr "실험"
 msgid "AI 작성이 끝난 뒤에 링크를 추가할 수 있습니다."
 msgstr "AI 작성이 끝난 뒤에 링크를 추가할 수 있습니다."
 
+#: lib/seo/copy.ts:14
+msgid "comdraft 로 작성한 기술 개발 블로그 글을 최신순으로 모았습니다. 실제 커밋과 코드 변경을 바탕으로 쓴 개발 경험을 읽어 보세요."
+msgstr "comdraft 로 작성한 기술 개발 블로그 글을 최신순으로 모았습니다. 실제 커밋과 코드 변경을 바탕으로 쓴 개발 경험을 읽어 보세요."
+
 #: components/studio/draft-list-item.tsx:142
 msgid "삭제한 초안은 되돌릴 수 없습니다"
 msgstr "삭제한 초안은 되돌릴 수 없습니다"
 
 #: components/main/profile-menu.tsx:72
+#: lib/seo/copy.ts:22
 msgid "로그인"
 msgstr "로그인"
 
@@ -707,6 +711,10 @@ msgstr "계기"
 msgid "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgstr "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 
+#: lib/seo/copy.ts:24
+msgid "시작하기"
+msgstr "시작하기"
+
 #: components/studio/prompt-composer.tsx:411
 #: components/studio/prompt-composer.tsx:423
 msgid "작성 요청"
@@ -768,7 +776,7 @@ msgstr "설치 요청이 만료되었거나 유효하지 않습니다. 다시 �
 msgid "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
 msgstr "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
 
-#: app/[lang]/sign-in/page.tsx:24
+#: app/[lang]/sign-in/page.tsx:27
 msgid "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 기본 이메일의 인증 여부를 확인한 뒤 다시 시도해주세요."
 msgstr "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 기본 이메일의 인증 여부를 확인한 뒤 다시 시도해주세요."
 
@@ -784,6 +792,7 @@ msgstr "이 부분에 작업 계기를 작성해 주세요"
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:40
 #: components/main/profile-menu.tsx:110
 #: components/studio/profile-menu.tsx:71
+#: lib/seo/copy.ts:26
 msgid "대시보드"
 msgstr "대시보드"
 
@@ -803,7 +812,7 @@ msgstr "GitHub 에서 커밋 {sha} 열기"
 msgid "나중에 할게요"
 msgstr "나중에 할게요"
 
-#: app/[lang]/sign-in/page.tsx:91
+#: app/[lang]/sign-in/page.tsx:101
 msgid "계속하시면 <0>이용약관</0> 및 <1>개인정보처리방침</1>에 동의하게 됩니다."
 msgstr "계속하시면 <0>이용약관</0> 및 <1>개인정보처리방침</1>에 동의하게 됩니다."
 
@@ -880,6 +889,10 @@ msgstr "계정 설정"
 msgid "다시 작성"
 msgstr "다시 작성"
 
+#: lib/seo/copy.ts:8
+msgid "comdraft — 커밋으로 쓰는 AI 기술 블로그 초안"
+msgstr "comdraft — 커밋으로 쓰는 AI 기술 블로그 초안"
+
 #: components/studio/prompt-composer.tsx:479
 msgid "작성 요청을 보내는 중..."
 msgstr "작성 요청을 보내는 중..."
@@ -932,7 +945,7 @@ msgstr "조직 저장소"
 msgid "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
 msgstr "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
 
-#: app/[lang]/posts/[postPath]/page.tsx:115
+#: app/[lang]/posts/[postPath]/page.tsx:135
 msgid "수정"
 msgstr "수정"
 
@@ -1009,6 +1022,10 @@ msgstr "개인 공개 저장소 · main"
 msgid "Pro 이상"
 msgstr "Pro 이상"
 
+#: lib/seo/copy.ts:10
+msgid "GitHub 커밋과 PR 을 골라 AI 가 기술 개발 블로그 초안을 빠르게 작성합니다. 에디터에서 바로 다듬어 게시하고, HTML·Markdown 으로 내보내 여러 블로그에 공유하세요. AI 와 함께 커밋과 PR 을 올리는 개발 환경일수록 더 자세한 초안이 만들어집니다."
+msgstr "GitHub 커밋과 PR 을 골라 AI 가 기술 개발 블로그 초안을 빠르게 작성합니다. 에디터에서 바로 다듬어 게시하고, HTML·Markdown 으로 내보내 여러 블로그에 공유하세요. AI 와 함께 커밋과 PR 을 올리는 개발 환경일수록 더 자세한 초안이 만들어집니다."
+
 #: components/studio/account-settings-panel.tsx:222
 msgid "{resetTime} 초기화"
 msgstr "{resetTime} 초기화"
@@ -1025,6 +1042,10 @@ msgstr "GitHub 프로필"
 #: components/onboarding/install-step.tsx:100
 msgid "Github App 인증"
 msgstr "Github App 인증"
+
+#: lib/seo/copy.ts:19
+msgid "커밋 선택 · AI 초안 작성 · 에디터 수정 · 게시와 공유"
+msgstr "커밋 선택 · AI 초안 작성 · 에디터 수정 · 게시와 공유"
 
 #: lib/studio/options.ts:52
 msgid "전문적으로"
@@ -1138,7 +1159,7 @@ msgstr "선택한 커밋"
 msgid "브랜치를 선택하세요"
 msgstr "브랜치를 선택하세요"
 
-#: app/[lang]/sign-in/page.tsx:105
+#: app/[lang]/sign-in/page.tsx:115
 msgid "대시보드로 돌아가기"
 msgstr "대시보드로 돌아가기"
 
@@ -1244,6 +1265,10 @@ msgstr "초안 편집"
 msgid "그대로 넣기"
 msgstr "그대로 넣기"
 
+#: lib/seo/copy.ts:12
+msgid "개발 블로그 게시글"
+msgstr "개발 블로그 게시글"
+
 #: components/main/sample-commits.ts:19
 msgid "fix: 언마운트 시 observer 해제"
 msgstr "fix: 언마운트 시 observer 해제"
@@ -1288,7 +1313,7 @@ msgstr "저장소/커밋 내역"
 msgid "저장소 목록을 불러오지 못했습니다."
 msgstr "저장소 목록을 불러오지 못했습니다."
 
-#: app/[lang]/sign-in/page.tsx:55
+#: app/[lang]/sign-in/page.tsx:65
 msgid "홈으로 이동"
 msgstr "홈으로 이동"
 
@@ -1422,6 +1447,10 @@ msgstr "초안을 만들기 전 반드시 확인해주세요."
 msgid "AI 작성 중에는 게시할 수 없습니다"
 msgstr "AI 작성 중에는 게시할 수 없습니다"
 
+#: lib/seo/copy.ts:17
+msgid "커밋으로 쓰는 AI 기술 블로그 초안"
+msgstr "커밋으로 쓰는 AI 기술 블로그 초안"
+
 #: components/studio/draft-editor.tsx:466
 msgid "지우기"
 msgstr "지우기"
@@ -1446,7 +1475,7 @@ msgstr "임시"
 msgid "글의 방향을 정하려면 조금 더 알려 주세요"
 msgstr "글의 방향을 정하려면 조금 더 알려 주세요"
 
-#: app/[lang]/sign-in/page.tsx:73
+#: app/[lang]/sign-in/page.tsx:83
 msgid "Github 계정으로 시작하세요."
 msgstr "Github 계정으로 시작하세요."
 
@@ -1507,7 +1536,7 @@ msgstr "선택한 브랜치를 찾을 수 없습니다. 목록을 다시 열어 
 msgid "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
 msgstr "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
 
-#: app/[lang]/sign-in/page.tsx:30
+#: app/[lang]/sign-in/page.tsx:33
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
 msgstr "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
 
@@ -1566,7 +1595,7 @@ msgstr "초안 하나에 이미지는 10장까지 넣을 수 있습니다"
 msgid "저장소를 먼저 선택하세요"
 msgstr "저장소를 먼저 선택하세요"
 
-#: app/[lang]/posts/page.tsx:65
+#: app/[lang]/posts/page.tsx:97
 msgid "아직 게시된 글이 없습니다"
 msgstr "아직 게시된 글이 없습니다"
 

@@ -7,7 +7,7 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
-#: app/[lang]/sign-in/page.tsx:87
+#: app/[lang]/sign-in/page.tsx:97
 msgid "Github 로 회원가입/로그인"
 msgstr "Sign up / Sign in with GitHub"
 
@@ -111,7 +111,7 @@ msgstr "Couldn't load usage information. Please try again in a moment."
 msgid "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
 msgstr "You've used all of this week's allowance. It resets on {resetsAt}."
 
-#: app/[lang]/sign-in/page.tsx:82
+#: app/[lang]/sign-in/page.tsx:92
 msgid "로그인 중 문제가 발생했습니다. ({error})"
 msgstr "Something went wrong while signing in. ({error})"
 
@@ -127,7 +127,7 @@ msgstr "Delete account"
 msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 구현 과정과 관찰 로직을 정리하고, 게시 전 확인할 점을 살펴봅니다."
 msgstr "Images now load as they enter the viewport. This post covers the implementation and observer logic, and what to check before publishing."
 
-#: app/[lang]/sign-in/page.tsx:28
+#: app/[lang]/sign-in/page.tsx:31
 msgid "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요."
 msgstr "The GitHub sign-in request has expired or is invalid. Please try again."
 
@@ -272,7 +272,7 @@ msgstr "Couldn't load your account details."
 msgid "결과·수치"
 msgstr "Results & numbers"
 
-#: app/[lang]/sign-in/page.tsx:20
+#: app/[lang]/sign-in/page.tsx:23
 msgid "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메일 접근 권한을 승인했는지 확인한 뒤 다시 시도해주세요."
 msgstr "We didn't receive your email address from GitHub. Make sure you granted the GitHub app access to your email, then try again."
 
@@ -388,8 +388,7 @@ msgstr "Some images haven't been uploaded."
 msgid "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 msgstr "You can select up to {MAX_GENERATION_COMMITS} commits at a time."
 
-#: app/[lang]/posts/page.tsx:18
-#: app/[lang]/posts/page.tsx:50
+#: app/[lang]/posts/page.tsx:82
 #: components/main/mobile-menu.tsx:165
 #: components/main/posts-nav-link.tsx:22
 msgid "게시글"
@@ -528,7 +527,7 @@ msgstr "{count, plural, one {# commit} other {# commits}}"
 msgid "게시를 취소하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't unpublish. Please try again."
 
-#: app/[lang]/sign-in/page.tsx:70
+#: app/[lang]/sign-in/page.tsx:80
 msgid "회원가입 / 로그인"
 msgstr "Sign up / Sign in"
 
@@ -612,11 +611,16 @@ msgstr "Experiment"
 msgid "AI 작성이 끝난 뒤에 링크를 추가할 수 있습니다."
 msgstr "You can add links after the AI finishes writing."
 
+#: lib/seo/copy.ts:14
+msgid "comdraft 로 작성한 기술 개발 블로그 글을 최신순으로 모았습니다. 실제 커밋과 코드 변경을 바탕으로 쓴 개발 경험을 읽어 보세요."
+msgstr "The latest tech blog posts written with comdraft. Read real development stories drafted from actual commits and code changes."
+
 #: components/studio/draft-list-item.tsx:142
 msgid "삭제한 초안은 되돌릴 수 없습니다"
 msgstr "A deleted draft cannot be restored."
 
 #: components/main/profile-menu.tsx:72
+#: lib/seo/copy.ts:22
 msgid "로그인"
 msgstr "Sign in"
 
@@ -707,6 +711,10 @@ msgstr "Motivation"
 msgid "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't send your request. Please try again."
 
+#: lib/seo/copy.ts:24
+msgid "시작하기"
+msgstr "Get started"
+
 #: components/studio/prompt-composer.tsx:411
 #: components/studio/prompt-composer.tsx:423
 msgid "작성 요청"
@@ -768,7 +776,7 @@ msgstr "The installation request has expired or is invalid. Please try again."
 msgid "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
 msgstr "The GitHub App has been installed. Choose the repositories to add to your dashboard."
 
-#: app/[lang]/sign-in/page.tsx:24
+#: app/[lang]/sign-in/page.tsx:27
 msgid "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 기본 이메일의 인증 여부를 확인한 뒤 다시 시도해주세요."
 msgstr "We couldn't find a verified email on GitHub. Make sure your primary GitHub email is verified, then try again."
 
@@ -784,6 +792,7 @@ msgstr "Write why you started this work here"
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:40
 #: components/main/profile-menu.tsx:110
 #: components/studio/profile-menu.tsx:71
+#: lib/seo/copy.ts:26
 msgid "대시보드"
 msgstr "Dashboard"
 
@@ -803,7 +812,7 @@ msgstr "Open commit {sha} on GitHub"
 msgid "나중에 할게요"
 msgstr "Maybe later"
 
-#: app/[lang]/sign-in/page.tsx:91
+#: app/[lang]/sign-in/page.tsx:101
 msgid "계속하시면 <0>이용약관</0> 및 <1>개인정보처리방침</1>에 동의하게 됩니다."
 msgstr "By continuing, you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
 
@@ -880,6 +889,10 @@ msgstr "Account settings"
 msgid "다시 작성"
 msgstr "Rewrite"
 
+#: lib/seo/copy.ts:8
+msgid "comdraft — 커밋으로 쓰는 AI 기술 블로그 초안"
+msgstr "comdraft — AI tech blog drafts from your commits"
+
 #: components/studio/prompt-composer.tsx:479
 msgid "작성 요청을 보내는 중..."
 msgstr "Sending request..."
@@ -932,7 +945,7 @@ msgstr "Organization repository"
 msgid "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
 msgstr "The AI is already writing this draft. Try again when it finishes."
 
-#: app/[lang]/posts/[postPath]/page.tsx:115
+#: app/[lang]/posts/[postPath]/page.tsx:135
 msgid "수정"
 msgstr "Updated"
 
@@ -1009,6 +1022,10 @@ msgstr "Personal public repository · main"
 msgid "Pro 이상"
 msgstr "Pro and up"
 
+#: lib/seo/copy.ts:10
+msgid "GitHub 커밋과 PR 을 골라 AI 가 기술 개발 블로그 초안을 빠르게 작성합니다. 에디터에서 바로 다듬어 게시하고, HTML·Markdown 으로 내보내 여러 블로그에 공유하세요. AI 와 함께 커밋과 PR 을 올리는 개발 환경일수록 더 자세한 초안이 만들어집니다."
+msgstr "Pick GitHub commits and PRs, and AI quickly drafts your tech blog post. Polish it in the editor, publish it, or export it as HTML or Markdown to share on any blog. The more you build with AI-assisted commits and PRs, the richer your drafts get."
+
 #: components/studio/account-settings-panel.tsx:222
 msgid "{resetTime} 초기화"
 msgstr "Resets {resetTime}"
@@ -1025,6 +1042,10 @@ msgstr "GitHub profile"
 #: components/onboarding/install-step.tsx:100
 msgid "Github App 인증"
 msgstr "Authorize GitHub App"
+
+#: lib/seo/copy.ts:19
+msgid "커밋 선택 · AI 초안 작성 · 에디터 수정 · 게시와 공유"
+msgstr "Pick commits · AI drafts · Edit · Publish & share"
 
 #: lib/studio/options.ts:52
 msgid "전문적으로"
@@ -1138,7 +1159,7 @@ msgstr "Selected commits"
 msgid "브랜치를 선택하세요"
 msgstr "Select a branch"
 
-#: app/[lang]/sign-in/page.tsx:105
+#: app/[lang]/sign-in/page.tsx:115
 msgid "대시보드로 돌아가기"
 msgstr "Back to dashboard"
 
@@ -1244,6 +1265,10 @@ msgstr "Draft editor"
 msgid "그대로 넣기"
 msgstr "Insert as is"
 
+#: lib/seo/copy.ts:12
+msgid "개발 블로그 게시글"
+msgstr "Developer blog posts"
+
 #: components/main/sample-commits.ts:19
 msgid "fix: 언마운트 시 observer 해제"
 msgstr "fix: disconnect observer on unmount"
@@ -1288,7 +1313,7 @@ msgstr "Repositories & commits"
 msgid "저장소 목록을 불러오지 못했습니다."
 msgstr "Couldn't load repositories."
 
-#: app/[lang]/sign-in/page.tsx:55
+#: app/[lang]/sign-in/page.tsx:65
 msgid "홈으로 이동"
 msgstr "Go to home"
 
@@ -1422,6 +1447,10 @@ msgstr "Please check these before creating a draft."
 msgid "AI 작성 중에는 게시할 수 없습니다"
 msgstr "You can't publish while AI is writing."
 
+#: lib/seo/copy.ts:17
+msgid "커밋으로 쓰는 AI 기술 블로그 초안"
+msgstr "AI tech blog drafts from your commits"
+
 #: components/studio/draft-editor.tsx:466
 msgid "지우기"
 msgstr "Remove"
@@ -1446,7 +1475,7 @@ msgstr "Temporary"
 msgid "글의 방향을 정하려면 조금 더 알려 주세요"
 msgstr "Tell us a bit more to set the direction of the post"
 
-#: app/[lang]/sign-in/page.tsx:73
+#: app/[lang]/sign-in/page.tsx:83
 msgid "Github 계정으로 시작하세요."
 msgstr "Get started with your GitHub account."
 
@@ -1507,7 +1536,7 @@ msgstr "Couldn't find the selected branch. Please reopen the list."
 msgid "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
 msgstr "Select the commits to use from the commit history."
 
-#: app/[lang]/sign-in/page.tsx:30
+#: app/[lang]/sign-in/page.tsx:33
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인해주세요."
 msgstr "Your GitHub authorization has expired. Please sign in again."
 
@@ -1566,7 +1595,7 @@ msgstr "A draft can have up to 10 images."
 msgid "저장소를 먼저 선택하세요"
 msgstr "Select a repository first"
 
-#: app/[lang]/posts/page.tsx:65
+#: app/[lang]/posts/page.tsx:97
 msgid "아직 게시된 글이 없습니다"
 msgstr "No posts have been published yet"
 

@@ -13,7 +13,9 @@ import { localizedPermanentRedirect } from '@/lib/i18n/request';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 import { isGithubAvatar } from '@/lib/posts/avatar';
 import { getGithubProfileUrl } from '@/lib/posts/github-profile';
-import { buildPostMetadata } from '@/lib/posts/metadata';
+import { buildPostMetadata, getSiteOrigin } from '@/lib/posts/metadata';
+import { buildBlogPostingJsonLd, serializeJsonLd } from '@/lib/seo/json-ld';
+import { localizePath } from '@/lib/i18n/config';
 import { removeLeadingTitle } from '@/lib/posts/post-content';
 import { getEncodedPostPath, parsePostPath } from '@/lib/posts/post-path';
 import { getPublishedPost } from '@/lib/posts/queries';
@@ -37,7 +39,7 @@ export async function generateMetadata({
 }: PostPageProps): Promise<Metadata> {
   const parsed = parseSegment((await params).postPath);
   const post = parsed ? await getPublishedPost(parsed.id) : null;
-  const origin = process.env.BETTER_AUTH_URL;
+  const origin = getSiteOrigin();
 
   if (!post || !origin) return {};
 
@@ -64,6 +66,24 @@ export default async function PostPage({ params }: PostPageProps) {
   const isRepublished = post.updatedAt.getTime() > post.publishedAt.getTime();
   // 작성자 GitHub 아이디가 있으면 아바타·이름을 GitHub 프로필 새 탭 링크로
   const authorProfileUrl = getGithubProfileUrl(post.author.githubLogin);
+  // 검색 결과의 글 정보 (schema.org BlogPosting, 대표 주소는 게시할 때의 언어 기준)
+  const origin = getSiteOrigin();
+  const canonicalUrl =
+    origin && `${origin}${localizePath(post.locale, getEncodedPostPath(post))}`;
+  const jsonLd =
+    canonicalUrl &&
+    buildBlogPostingJsonLd({
+      url: canonicalUrl,
+      title: post.title,
+      description: post.excerpt,
+      image: `${canonicalUrl}/opengraph-image`,
+      publishedAt: post.publishedAt,
+      updatedAt: post.updatedAt,
+      authorName: post.author.name,
+      authorUrl: authorProfileUrl,
+      tags: post.tags,
+      locale: post.locale,
+    });
   const author = (
     <>
       {isGithubAvatar(post.author.image) && (
@@ -124,6 +144,12 @@ export default async function PostPage({ params }: PostPageProps) {
         {/* 머리에 제목을 보여 주므로 본문 맨 앞의 같은 제목은 빼고 그림 */}
         <PostContent content={removeLeadingTitle(post.content, post.title)} />
         <PostViewRecorder postId={post.id} />
+        {jsonLd && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+          />
+        )}
       </article>
     </PageLayout>
   );

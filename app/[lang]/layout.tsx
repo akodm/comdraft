@@ -5,7 +5,11 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import LinguiClientProvider from '@/components/providers/lingui-client-provider';
 import FloatingLocaleSwitcher from '@/components/shared/floating-locale-switcher';
 import { LOCALES } from '@/lib/i18n/config';
-import { initLingui } from '@/lib/i18n/server';
+import { getLocale, initLingui } from '@/lib/i18n/server';
+import { getSiteOrigin } from '@/lib/posts/metadata';
+import { SITE_DESCRIPTION, SITE_TITLE } from '@/lib/seo/copy';
+import { SITE_KEYWORDS, SITE_NAME } from '@/lib/seo/site';
+import { buildWebsiteOpenGraph } from '@/lib/seo/open-graph';
 import '@/css/globals.css';
 
 // 본문 글꼴 (한글 글리프는 unicode-range 로 나뉜 파일을 필요할 때만 내려받음)
@@ -29,10 +33,29 @@ export const generateStaticParams = () => {
   return LOCALES.map((lang) => ({ lang }));
 };
 
-export const metadata: Metadata = {
-  title: 'Next App Boilerplate',
-  description: 'Next App Boilerplate',
-};
+/**
+ * 모든 페이지의 기본 메타데이터 (언어별)
+ * - 제목은 `{페이지 제목} | comdraft`, 제목을 정하지 않은 페이지(메인)는 전체 제목
+ * - 절대 주소 기준(metadataBase)은 운영 주소(BETTER_AUTH_URL)
+ * - 오픈그래프 이미지는 같은 세그먼트의 opengraph-image 가 채움
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const i18n = await initLingui();
+  const locale = await getLocale();
+  const origin = getSiteOrigin();
+  const title = i18n._(SITE_TITLE);
+  const description = i18n._(SITE_DESCRIPTION);
+
+  return {
+    ...(origin ? { metadataBase: new URL(origin) } : {}),
+    applicationName: SITE_NAME,
+    title: { default: title, template: `%s | ${SITE_NAME}` },
+    description,
+    keywords: SITE_KEYWORDS[locale],
+    openGraph: buildWebsiteOpenGraph({ locale, title, description }),
+    twitter: { card: 'summary_large_image', title, description },
+  };
+}
 
 export default async function RootLayout({
   children,

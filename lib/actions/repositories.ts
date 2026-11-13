@@ -16,6 +16,7 @@ import {
   type RepositoryBranchesResult,
 } from '@/lib/github/repository-selection';
 import { localizedRedirect, revalidateLocalizedPath } from '@/lib/i18n/request';
+import { revalidateSitemap } from '@/lib/seo/revalidate-sitemap';
 
 // 대시보드 무한 스크롤: 커서 다음의 등록 저장소
 export async function loadDashboardRepositories(
@@ -106,5 +107,7 @@ export async function disconnectRepository(formData: FormData) {
   });
 
   revalidateLocalizedPath('/dashboard');
+  // 저장소의 초안과 게시글도 함께 지워지므로 사이트맵에서 빼도록
+  revalidateSitemap();
   await localizedRedirect('/dashboard');
 }

@@ -22,6 +22,7 @@ import {
 } from '@/lib/images/cleanup';
 import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
 import { normalizeTags } from '@/lib/posts/tags';
+import { revalidateSitemap } from '@/lib/seo/revalidate-sitemap';
 import {
   extractDraftTitle,
   getCommitSubject,
@@ -268,6 +269,8 @@ export async function deleteDraft(
   }
 
   scheduleDraftImageRemoval(user.id, images);
+  // 게시한 초안이었다면 게시글도 함께 지워지므로 사이트맵에서 빼도록
+  revalidateSitemap();
 
   return { status: 'deleted' };
 }

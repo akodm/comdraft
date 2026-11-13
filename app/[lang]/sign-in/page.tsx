@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
@@ -10,6 +11,8 @@ import LocalizedLink from '@/components/shared/localized-link';
 import { getSession } from '@/lib/auth/session';
 import { localizedRedirect } from '@/lib/i18n/request';
 import { initLingui } from '@/lib/i18n/server';
+import { SIGN_IN_TITLE } from '@/lib/seo/copy';
+import { NOINDEX } from '@/lib/seo/site';
 
 // Better Auth OAuth 콜백이 ?error= 로 넘겨주는 코드별 안내 문구
 // 쿼리 값으로 조회하므로 프로토타입 키(constructor 등)에 걸리지 않도록 Map 사용
@@ -32,6 +35,13 @@ const ERROR_MESSAGES = new Map([
 
 interface SignInPageProps {
   searchParams: Promise<{ error?: string }>;
+}
+
+// 로그인 화면: 검색에서 뺌
+export async function generateMetadata(): Promise<Metadata> {
+  const i18n = await initLingui();
+
+  return { title: i18n._(SIGN_IN_TITLE), robots: NOINDEX };
 }
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {

@@ -19,6 +19,8 @@ export interface PublishedPost {
   updatedAt: Date;
   // githubLogin: 작성자 GitHub 프로필 링크용 (기존 사용자는 채우기 전까지 null)
   author: { name: string; image: string | null; githubLogin: string | null };
+  // 기술 태그 (키워드, article:tag, 구조화 데이터용)
+  tags: string[];
 }
 
 /**
@@ -38,6 +40,7 @@ export const getPublishedPost = cache(
         locale: post.locale,
         publishedAt: post.publishedAt,
         updatedAt: post.updatedAt,
+        tags: post.tags,
         authorName: user.name,
         authorImage: user.image,
         authorGithubLogin: user.githubLogin,
