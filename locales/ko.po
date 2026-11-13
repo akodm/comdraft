@@ -15,7 +15,7 @@ msgstr "Github 로 회원가입/로그인"
 msgid "중간"
 msgstr "중간"
 
-#: components/main/mobile-menu.tsx:105
+#: components/main/mobile-menu.tsx:106
 msgid "메뉴 열기"
 msgstr "메뉴 열기"
 
@@ -190,7 +190,7 @@ msgstr "유형"
 msgid "여기에 직접 작성해 주세요"
 msgstr "여기에 직접 작성해 주세요"
 
-#: components/studio/repository-settings-panel.tsx:463
+#: components/studio/repository-settings-panel.tsx:461
 msgid "저장소를 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "저장소를 삭제하지 못했습니다. 다시 시도해주세요."
 
@@ -206,7 +206,7 @@ msgstr "초안 목록"
 msgid "초안 목록 열기"
 msgstr "초안 목록 열기"
 
-#: components/studio/repository-settings-panel.tsx:372
+#: components/studio/repository-settings-panel.tsx:370
 msgid "브랜치가 없습니다."
 msgstr "브랜치가 없습니다."
 
@@ -284,6 +284,10 @@ msgstr "초기화까지 {hours}시간 {minutes}분"
 msgid "주간 제공량의 {0}%"
 msgstr "주간 제공량의 {0}%"
 
+#: components/posts/post-pagination.tsx:128
+msgid "전체 {totalPages}쪽 중 {currentPage}쪽"
+msgstr "전체 {totalPages}쪽 중 {currentPage}쪽"
+
 #: components/onboarding/complete-step.tsx:19
 msgid "첫 저장소 연동이<0/>완료되었습니다."
 msgstr "첫 저장소 연동이<0/>완료되었습니다."
@@ -324,8 +328,8 @@ msgstr "빈칸을 다듬지 못했습니다. 다시 시도해 주세요."
 msgid "접근 권한이 없는 GitHub App 설치입니다."
 msgstr "접근 권한이 없는 GitHub App 설치입니다."
 
-#: components/studio/repository-settings-panel.tsx:432
-#: components/studio/repository-settings-panel.tsx:445
+#: components/studio/repository-settings-panel.tsx:430
+#: components/studio/repository-settings-panel.tsx:443
 msgid "저장소 삭제"
 msgstr "저장소 삭제"
 
@@ -350,7 +354,7 @@ msgstr "개발자 이메일 · 예시 주소"
 msgid "제목 없는 초안"
 msgstr "제목 없는 초안"
 
-#: components/main/mobile-menu.tsx:132
+#: components/main/mobile-menu.tsx:133
 msgid "메뉴"
 msgstr "메뉴"
 
@@ -371,10 +375,10 @@ msgstr "올리지 못한 이미지가 있습니다"
 msgid "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 msgstr "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 
-#: app/[lang]/posts/page.tsx:15
-#: app/[lang]/posts/page.tsx:34
-#: components/main/main-header.tsx:32
-#: components/main/mobile-menu.tsx:162
+#: app/[lang]/posts/page.tsx:18
+#: app/[lang]/posts/page.tsx:50
+#: components/main/mobile-menu.tsx:163
+#: components/main/posts-nav-link.tsx:22
 msgid "게시글"
 msgstr "게시글"
 
@@ -401,7 +405,7 @@ msgstr "저장소를 선택하세요"
 
 #: components/studio/draft-list-item.tsx:79
 #: components/studio/draft-list-item.tsx:153
-#: components/studio/repository-settings-panel.tsx:458
+#: components/studio/repository-settings-panel.tsx:456
 msgid "삭제"
 msgstr "삭제"
 
@@ -420,10 +424,6 @@ msgstr "비공개 저장소의 코드가 본문에 그대로 공개됩니다"
 #: components/studio/clarification-card.tsx:213
 msgid "작성 전 질문"
 msgstr "작성 전 질문"
-
-#: components/posts/post-feed.tsx:100
-msgid "글을 더 불러오는 중..."
-msgstr "글을 더 불러오는 중..."
 
 #: components/studio/clarification-card.tsx:40
 msgid "답을 확인해 주세요."
@@ -448,11 +448,10 @@ msgstr "추적 브랜치에 커밋이 없습니다."
 #: app/[lang]/error.tsx:23
 #: components/dashboard/repository-list.tsx:108
 #: components/onboarding/repository-connect-form.tsx:247
-#: components/posts/post-feed.tsx:110
 #: components/studio/account-settings-panel.tsx:282
 #: components/studio/commit-sidebar.tsx:105
-#: components/studio/repository-settings-panel.tsx:280
-#: components/studio/repository-settings-panel.tsx:524
+#: components/studio/repository-settings-panel.tsx:278
+#: components/studio/repository-settings-panel.tsx:522
 msgid "다시 시도"
 msgstr "다시 시도"
 
@@ -492,7 +491,7 @@ msgstr "제목 5"
 msgid "지금 바로 AI 초안을 작성해보세요."
 msgstr "지금 바로 AI 초안을 작성해보세요."
 
-#: components/main/mobile-menu.tsx:138
+#: components/main/mobile-menu.tsx:139
 msgid "메뉴 닫기"
 msgstr "메뉴 닫기"
 
@@ -572,13 +571,17 @@ msgstr "게시하지 못했습니다. 다시 시도해주세요."
 msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 msgstr "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 
-#: components/studio/repository-settings-panel.tsx:536
+#: components/studio/repository-settings-panel.tsx:534
 msgid "프롬프트 내역"
 msgstr "프롬프트 내역"
 
 #: components/studio/draft-sidebar.tsx:72
 msgid "GitHub 에서 저장소 열기"
 msgstr "GitHub 에서 저장소 열기"
+
+#: components/posts/post-pagination.tsx:92
+msgid "이전 쪽"
+msgstr "이전 쪽"
 
 #: components/studio/editor-toolbar.tsx:41
 msgid "제목 2"
@@ -632,8 +635,8 @@ msgstr "저장소 연결 해제"
 msgid "{label} 메뉴"
 msgstr "{label} 메뉴"
 
-#: components/main/main-header.tsx:27
-#: components/main/mobile-menu.tsx:152
+#: components/main/main-header.tsx:28
+#: components/main/mobile-menu.tsx:153
 msgid "주요 메뉴"
 msgstr "주요 메뉴"
 
@@ -641,9 +644,13 @@ msgstr "주요 메뉴"
 msgid "+{pcRest}개"
 msgstr "+{pcRest}개"
 
-#: components/studio/repository-settings-panel.tsx:450
+#: components/studio/repository-settings-panel.tsx:448
 msgid "저장소를 삭제할까요?"
 msgstr "저장소를 삭제할까요?"
+
+#: components/posts/post-pagination.tsx:117
+msgid "다음 쪽"
+msgstr "다음 쪽"
 
 #: components/studio/reference-links.tsx:123
 msgid "링크를 삭제하지 못했습니다. 다시 시도해주세요."
@@ -807,7 +814,7 @@ msgstr "{sha} 선택 해제"
 msgid "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
 msgstr "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
 
-#: components/studio/repository-settings-panel.tsx:379
+#: components/studio/repository-settings-panel.tsx:377
 msgid "브랜치를 바꾸면 커밋 목록이 바뀔 수 있습니다. 선택하는 즉시 적용되며, 커밋은 최근 30개부터 다시 불러옵니다."
 msgstr "브랜치를 바꾸면 커밋 목록이 바뀔 수 있습니다. 선택하는 즉시 적용되며, 커밋은 최근 30개부터 다시 불러옵니다."
 
@@ -823,7 +830,7 @@ msgstr "작업 과정을 기술 블로그의 초안으로 활용하고, 어디�
 msgid "AI 가 초안을 작성하는 중..."
 msgstr "AI 가 초안을 작성하는 중..."
 
-#: components/studio/repository-settings-panel.tsx:270
+#: components/studio/repository-settings-panel.tsx:268
 msgid "내역을 더 불러오는 중..."
 msgstr "내역을 더 불러오는 중..."
 
@@ -888,7 +895,7 @@ msgstr "작성 요청을 입력해주세요."
 msgid "길게"
 msgstr "길게"
 
-#: components/studio/repository-settings-panel.tsx:335
+#: components/studio/repository-settings-panel.tsx:333
 msgid "{name} (기본 브랜치)"
 msgstr "{name} (기본 브랜치)"
 
@@ -1097,7 +1104,7 @@ msgstr "제목 6"
 msgid "취소선"
 msgstr "취소선"
 
-#: components/studio/repository-settings-panel.tsx:274
+#: components/studio/repository-settings-panel.tsx:272
 msgid "내역을 더 불러오지 못했습니다."
 msgstr "내역을 더 불러오지 못했습니다."
 
@@ -1147,7 +1154,7 @@ msgstr "{total}단계 중 {step}단계"
 msgid "feat: 이미지 지연 로딩 적용"
 msgstr "feat: 이미지 지연 로딩 적용"
 
-#: components/studio/repository-settings-panel.tsx:238
+#: components/studio/repository-settings-panel.tsx:236
 msgid "아직 이 저장소로 보낸 작성 요청이 없습니다."
 msgstr "아직 이 저장소로 보낸 작성 요청이 없습니다."
 
@@ -1199,7 +1206,7 @@ msgstr "검토 후 게시 및 내보내기"
 msgid "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 msgstr "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 
-#: components/studio/repository-settings-panel.tsx:517
+#: components/studio/repository-settings-panel.tsx:515
 msgid "저장소 정보를 불러오지 못했습니다."
 msgstr "저장소 정보를 불러오지 못했습니다."
 
@@ -1207,7 +1214,7 @@ msgstr "저장소 정보를 불러오지 못했습니다."
 msgid "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 msgstr "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 
-#: components/studio/repository-settings-panel.tsx:436
+#: components/studio/repository-settings-panel.tsx:434
 msgid "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 msgstr "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 
@@ -1300,10 +1307,6 @@ msgstr "{draftCount, plural, other {초안 #개}}와 {postCount, plural, other {
 msgid "사용량을 확인할 수 없습니다."
 msgstr "사용량을 확인할 수 없습니다."
 
-#: components/posts/post-feed.tsx:104
-msgid "글 목록을 불러오지 못했습니다."
-msgstr "글 목록을 불러오지 못했습니다."
-
 #: components/main/sample-draft-editor.tsx:8
 msgid "왜 바꿨나요?"
 msgstr "왜 바꿨나요?"
@@ -1336,6 +1339,10 @@ msgstr "참고 링크는 최대 {MAX_REFERENCE_LINKS}개까지 추가할 수 있
 msgid "게시하기"
 msgstr "게시하기"
 
+#: components/posts/post-pagination.tsx:86
+msgid "페이지 이동"
+msgstr "페이지 이동"
+
 #: components/dashboard/repository-list.tsx:98
 msgid "저장소를 더 불러오는 중..."
 msgstr "저장소를 더 불러오는 중..."
@@ -1359,7 +1366,7 @@ msgstr "아직 초안이 없습니다. 커밋을 선택하고 작성 요청을 �
 msgid "개인정보처리방침"
 msgstr "개인정보처리방침"
 
-#: components/studio/repository-settings-panel.tsx:358
+#: components/studio/repository-settings-panel.tsx:356
 msgid "연동 브랜치"
 msgstr "연동 브랜치"
 
@@ -1434,11 +1441,15 @@ msgstr "저장소에 접근할 수 없어 브랜치를 불러오지 못했습니
 msgid "사이드바 닫기"
 msgstr "사이드바 닫기"
 
+#: components/posts/post-pagination.tsx:52
+msgid "{item}쪽"
+msgstr "{item}쪽"
+
 #: components/dashboard/add-repository-link.tsx:22
 msgid "추가+"
 msgstr "추가+"
 
-#: components/studio/repository-settings-panel.tsx:452
+#: components/studio/repository-settings-panel.tsx:450
 msgid "이 저장소의 {draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다. 되돌릴 수 없습니다."
 msgstr "이 저장소의 {draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다. 되돌릴 수 없습니다."
 
@@ -1537,7 +1548,7 @@ msgstr "초안 하나에 이미지는 10장까지 넣을 수 있습니다"
 msgid "저장소를 먼저 선택하세요"
 msgstr "저장소를 먼저 선택하세요"
 
-#: app/[lang]/posts/page.tsx:45
+#: app/[lang]/posts/page.tsx:65
 msgid "아직 게시된 글이 없습니다"
 msgstr "아직 게시된 글이 없습니다"
 

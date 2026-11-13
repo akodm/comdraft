@@ -15,7 +15,7 @@ msgstr "Sign up / Sign in with GitHub"
 msgid "중간"
 msgstr "Medium"
 
-#: components/main/mobile-menu.tsx:105
+#: components/main/mobile-menu.tsx:106
 msgid "메뉴 열기"
 msgstr "Open menu"
 
@@ -190,7 +190,7 @@ msgstr "Type"
 msgid "여기에 직접 작성해 주세요"
 msgstr "Write it here yourself"
 
-#: components/studio/repository-settings-panel.tsx:463
+#: components/studio/repository-settings-panel.tsx:461
 msgid "저장소를 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't delete the repository. Please try again."
 
@@ -206,7 +206,7 @@ msgstr "Draft list"
 msgid "초안 목록 열기"
 msgstr "Open draft list"
 
-#: components/studio/repository-settings-panel.tsx:372
+#: components/studio/repository-settings-panel.tsx:370
 msgid "브랜치가 없습니다."
 msgstr "No branches found."
 
@@ -284,6 +284,10 @@ msgstr "Resets in {hours}h {minutes}m"
 msgid "주간 제공량의 {0}%"
 msgstr "{0}% of weekly usage"
 
+#: components/posts/post-pagination.tsx:128
+msgid "전체 {totalPages}쪽 중 {currentPage}쪽"
+msgstr "Page {currentPage} of {totalPages}"
+
 #: components/onboarding/complete-step.tsx:19
 msgid "첫 저장소 연동이<0/>완료되었습니다."
 msgstr "Your first repository<0/>is connected."
@@ -324,8 +328,8 @@ msgstr "Couldn't refine this blank. Please try again."
 msgid "접근 권한이 없는 GitHub App 설치입니다."
 msgstr "You don't have access to this GitHub App installation."
 
-#: components/studio/repository-settings-panel.tsx:432
-#: components/studio/repository-settings-panel.tsx:445
+#: components/studio/repository-settings-panel.tsx:430
+#: components/studio/repository-settings-panel.tsx:443
 msgid "저장소 삭제"
 msgstr "Delete repository"
 
@@ -350,7 +354,7 @@ msgstr "Developer email · Example address"
 msgid "제목 없는 초안"
 msgstr "Untitled draft"
 
-#: components/main/mobile-menu.tsx:132
+#: components/main/mobile-menu.tsx:133
 msgid "메뉴"
 msgstr "Menu"
 
@@ -371,10 +375,10 @@ msgstr "Some images haven't been uploaded."
 msgid "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 msgstr "You can select up to {MAX_GENERATION_COMMITS} commits at a time."
 
-#: app/[lang]/posts/page.tsx:15
-#: app/[lang]/posts/page.tsx:34
-#: components/main/main-header.tsx:32
-#: components/main/mobile-menu.tsx:162
+#: app/[lang]/posts/page.tsx:18
+#: app/[lang]/posts/page.tsx:50
+#: components/main/mobile-menu.tsx:163
+#: components/main/posts-nav-link.tsx:22
 msgid "게시글"
 msgstr "Posts"
 
@@ -401,7 +405,7 @@ msgstr "Select a repository"
 
 #: components/studio/draft-list-item.tsx:79
 #: components/studio/draft-list-item.tsx:153
-#: components/studio/repository-settings-panel.tsx:458
+#: components/studio/repository-settings-panel.tsx:456
 msgid "삭제"
 msgstr "Delete"
 
@@ -420,10 +424,6 @@ msgstr "Code from this private repository will be published as-is in the post."
 #: components/studio/clarification-card.tsx:213
 msgid "작성 전 질문"
 msgstr "Questions before writing"
-
-#: components/posts/post-feed.tsx:100
-msgid "글을 더 불러오는 중..."
-msgstr "Loading more posts..."
 
 #: components/studio/clarification-card.tsx:40
 msgid "답을 확인해 주세요."
@@ -448,11 +448,10 @@ msgstr "There are no commits on the tracked branch."
 #: app/[lang]/error.tsx:23
 #: components/dashboard/repository-list.tsx:108
 #: components/onboarding/repository-connect-form.tsx:247
-#: components/posts/post-feed.tsx:110
 #: components/studio/account-settings-panel.tsx:282
 #: components/studio/commit-sidebar.tsx:105
-#: components/studio/repository-settings-panel.tsx:280
-#: components/studio/repository-settings-panel.tsx:524
+#: components/studio/repository-settings-panel.tsx:278
+#: components/studio/repository-settings-panel.tsx:522
 msgid "다시 시도"
 msgstr "Try again"
 
@@ -492,7 +491,7 @@ msgstr "Heading 5"
 msgid "지금 바로 AI 초안을 작성해보세요."
 msgstr "Write your first AI draft now."
 
-#: components/main/mobile-menu.tsx:138
+#: components/main/mobile-menu.tsx:139
 msgid "메뉴 닫기"
 msgstr "Close menu"
 
@@ -572,13 +571,17 @@ msgstr "Couldn't publish. Please try again."
 msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 msgstr "Check that images appear correctly while scrolling and that observers are cleaned up once they leave the viewport. Actual performance gains need to be measured separately."
 
-#: components/studio/repository-settings-panel.tsx:536
+#: components/studio/repository-settings-panel.tsx:534
 msgid "프롬프트 내역"
 msgstr "Prompt history"
 
 #: components/studio/draft-sidebar.tsx:72
 msgid "GitHub 에서 저장소 열기"
 msgstr "Open repository on GitHub"
+
+#: components/posts/post-pagination.tsx:92
+msgid "이전 쪽"
+msgstr "Previous page"
 
 #: components/studio/editor-toolbar.tsx:41
 msgid "제목 2"
@@ -632,8 +635,8 @@ msgstr "Disconnect repository"
 msgid "{label} 메뉴"
 msgstr "{label} menu"
 
-#: components/main/main-header.tsx:27
-#: components/main/mobile-menu.tsx:152
+#: components/main/main-header.tsx:28
+#: components/main/mobile-menu.tsx:153
 msgid "주요 메뉴"
 msgstr "Main menu"
 
@@ -641,9 +644,13 @@ msgstr "Main menu"
 msgid "+{pcRest}개"
 msgstr "+{pcRest}"
 
-#: components/studio/repository-settings-panel.tsx:450
+#: components/studio/repository-settings-panel.tsx:448
 msgid "저장소를 삭제할까요?"
 msgstr "Delete this repository?"
+
+#: components/posts/post-pagination.tsx:117
+msgid "다음 쪽"
+msgstr "Next page"
 
 #: components/studio/reference-links.tsx:123
 msgid "링크를 삭제하지 못했습니다. 다시 시도해주세요."
@@ -807,7 +814,7 @@ msgstr "Deselect {sha}"
 msgid "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
 msgstr "We've asked the organization owner to approve the installation. You can choose repositories once it's approved."
 
-#: components/studio/repository-settings-panel.tsx:379
+#: components/studio/repository-settings-panel.tsx:377
 msgid "브랜치를 바꾸면 커밋 목록이 바뀔 수 있습니다. 선택하는 즉시 적용되며, 커밋은 최근 30개부터 다시 불러옵니다."
 msgstr "Changing the branch may change your commit list. It applies as soon as you select it, and the latest 30 commits are loaded again."
 
@@ -823,7 +830,7 @@ msgstr "Turn your work into tech blog drafts and publish them anywhere."
 msgid "AI 가 초안을 작성하는 중..."
 msgstr "AI is writing the draft..."
 
-#: components/studio/repository-settings-panel.tsx:270
+#: components/studio/repository-settings-panel.tsx:268
 msgid "내역을 더 불러오는 중..."
 msgstr "Loading more history..."
 
@@ -888,7 +895,7 @@ msgstr "Enter a request."
 msgid "길게"
 msgstr "Long"
 
-#: components/studio/repository-settings-panel.tsx:335
+#: components/studio/repository-settings-panel.tsx:333
 msgid "{name} (기본 브랜치)"
 msgstr "{name} (default branch)"
 
@@ -1097,7 +1104,7 @@ msgstr "Heading 6"
 msgid "취소선"
 msgstr "Strikethrough"
 
-#: components/studio/repository-settings-panel.tsx:274
+#: components/studio/repository-settings-panel.tsx:272
 msgid "내역을 더 불러오지 못했습니다."
 msgstr "Couldn't load more history."
 
@@ -1147,7 +1154,7 @@ msgstr "Step {step} of {total}"
 msgid "feat: 이미지 지연 로딩 적용"
 msgstr "feat: apply lazy image loading"
 
-#: components/studio/repository-settings-panel.tsx:238
+#: components/studio/repository-settings-panel.tsx:236
 msgid "아직 이 저장소로 보낸 작성 요청이 없습니다."
 msgstr "You haven't sent any writing requests for this repository yet."
 
@@ -1199,7 +1206,7 @@ msgstr "Review, publish, and export"
 msgid "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
 msgstr "Select at least one commit to use from the commit history."
 
-#: components/studio/repository-settings-panel.tsx:517
+#: components/studio/repository-settings-panel.tsx:515
 msgid "저장소 정보를 불러오지 못했습니다."
 msgstr "Couldn't load repository details."
 
@@ -1207,7 +1214,7 @@ msgstr "Couldn't load repository details."
 msgid "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 msgstr "This content can't be published. Please check it."
 
-#: components/studio/repository-settings-panel.tsx:436
+#: components/studio/repository-settings-panel.tsx:434
 msgid "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 msgstr "Disconnects the repository and deletes all of its drafts and posts."
 
@@ -1300,10 +1307,6 @@ msgstr "{draftCount, plural, one {# draft} other {# drafts}} and {postCount, plu
 msgid "사용량을 확인할 수 없습니다."
 msgstr "Usage isn't available."
 
-#: components/posts/post-feed.tsx:104
-msgid "글 목록을 불러오지 못했습니다."
-msgstr "Couldn't load the posts."
-
 #: components/main/sample-draft-editor.tsx:8
 msgid "왜 바꿨나요?"
 msgstr "Why the change?"
@@ -1336,6 +1339,10 @@ msgstr "You can add up to {MAX_REFERENCE_LINKS} reference links."
 msgid "게시하기"
 msgstr "Publish"
 
+#: components/posts/post-pagination.tsx:86
+msgid "페이지 이동"
+msgstr "Pagination"
+
 #: components/dashboard/repository-list.tsx:98
 msgid "저장소를 더 불러오는 중..."
 msgstr "Loading more repositories..."
@@ -1359,7 +1366,7 @@ msgstr "No drafts yet. Select commits and send a request to create your first dr
 msgid "개인정보처리방침"
 msgstr "Privacy Policy"
 
-#: components/studio/repository-settings-panel.tsx:358
+#: components/studio/repository-settings-panel.tsx:356
 msgid "연동 브랜치"
 msgstr "Linked branch"
 
@@ -1434,11 +1441,15 @@ msgstr "Couldn't load branches because the repository isn't accessible."
 msgid "사이드바 닫기"
 msgstr "Close sidebar"
 
+#: components/posts/post-pagination.tsx:52
+msgid "{item}쪽"
+msgstr "Page {item}"
+
 #: components/dashboard/add-repository-link.tsx:22
 msgid "추가+"
 msgstr "Add+"
 
-#: components/studio/repository-settings-panel.tsx:452
+#: components/studio/repository-settings-panel.tsx:450
 msgid "이 저장소의 {draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다. 되돌릴 수 없습니다."
 msgstr "{draftCount, plural, one {# draft} other {# drafts}} and {postCount, plural, one {# post} other {# posts}} in this repository will be deleted too. This can't be undone."
 
@@ -1537,7 +1548,7 @@ msgstr "A draft can have up to 10 images."
 msgid "저장소를 먼저 선택하세요"
 msgstr "Select a repository first"
 
-#: app/[lang]/posts/page.tsx:45
+#: app/[lang]/posts/page.tsx:65
 msgid "아직 게시된 글이 없습니다"
 msgstr "No posts have been published yet"
 
