@@ -2,7 +2,7 @@
 
 **GitHub 커밋으로 기술 블로그 초안을 만드는 서비스**
 
-배포: **[comdraft.vercel.app](https://comdraft.vercel.app)** · AI 작성 Lambda: [akodm/comdraft-lambda](https://github.com/akodm/comdraft-lambda)
+배포: **[comdraft.dev](https://comdraft.dev)** · AI 작성 Lambda: [akodm/comdraft-lambda](https://github.com/akodm/comdraft-lambda)
 
 작업한 커밋을 고르고 "어떤 글을 쓰고 싶은지" 한 줄만 적으면, AI 가 커밋 내용과 코드 변경을 읽고 기술 블로그 초안을 써 줍니다. 초안은 편집기에서 다듬어 그대로 게시하거나 HTML·Markdown 으로 내보낼 수 있습니다.
 
