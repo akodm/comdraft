@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Trans, useLingui } from '@lingui/react/macro';
 import BrandLogo from '@/components/main/brand-logo';
+import LocalizedLink from '@/components/shared/localized-link';
 
 // PC 레이아웃 기준 (css/globals.css 의 --breakpoint-pc 와 같은 값)
 const PC_MEDIA_QUERY = '(min-width: 1320px)';
@@ -16,7 +17,7 @@ const FOCUSABLE_SELECTOR =
  * 모바일 헤더의 메뉴 버튼과 사이드 메뉴 (PC 레이아웃에서는 렌더링하지 않음)
  * - 배경 클릭, Escape, 페이지 이동, PC 폭으로 넓어지면 닫힘
  * - 열려 있는 동안 본문 스크롤을 막고 포커스를 메뉴 안에 가둠, 닫으면 메뉴 버튼으로 포커스 복귀
- * - 메뉴 항목 동작은 아직 정해지지 않아 디자인만 구현
+ * - 게시글: 게시글 목록으로 이동하며 메뉴를 닫음
  */
 const MobileMenu = () => {
   const { t } = useLingui();
@@ -154,8 +155,10 @@ const MobileMenu = () => {
             >
               <ul className="flex flex-col">
                 <li>
-                  <button
-                    type="button"
+                  <LocalizedLink
+                    href="/posts"
+                    // 이미 게시글 목록이면 경로가 그대로라 자동으로 닫히지 않으므로 직접 닫음
+                    onClick={() => setOpenedPath(null)}
                     className="flex h-16 w-full items-center justify-between border-b border-line text-left"
                   >
                     <span className="text-[18px] leading-[1.2] font-medium whitespace-nowrap text-ink">
@@ -168,7 +171,7 @@ const MobileMenu = () => {
                       height={18}
                       loading="eager"
                     />
-                  </button>
+                  </LocalizedLink>
                 </li>
               </ul>
             </nav>
