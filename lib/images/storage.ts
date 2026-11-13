@@ -66,3 +66,48 @@ export async function removeImages(paths: string[]): Promise<boolean> {
     .remove(paths);
   return !error;
 }
+
+// 한 번에 나열·삭제하는 파일 수 (Supabase Storage list 의 최대 개수)
+const LIST_PAGE_SIZE = 1000;
+
+/**
+ * 회원의 이미지 폴더({userId}/) 비우기: 공개 버킷의 변환본과 임시 버킷의 원본 모두
+ * - 탈퇴할 때 사용, 실패하면 false (회원 데이터 삭제와 별개로 다시 시도할 수 있음)
+ */
+export async function removeUserImageFolders(userId: string): Promise<boolean> {
+  const storage = getServerSupabase().storage;
+  let ok = true;
+
+  for (const bucket of [IMAGE_BUCKET, IMAGE_UPLOAD_BUCKET]) {
+    // 지운 만큼 목록이 줄어들므로 매번 처음부터 다시 나열
+    for (;;) {
+      const { data, error } = await storage
+        .from(bucket)
+        .list(userId, { limit: LIST_PAGE_SIZE });
+
+      if (error) {
+        ok = false;
+        break;
+      }
+
+      if (!data || data.length === 0) {
+        break;
+      }
+
+      const { error: removeError } = await storage
+        .from(bucket)
+        .remove(data.map(({ name }) => `${userId}/${name}`));
+
+      if (removeError) {
+        ok = false;
+        break;
+      }
+
+      if (data.length < LIST_PAGE_SIZE) {
+        break;
+      }
+    }
+  }
+
+  return ok;
+}

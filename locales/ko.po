@@ -123,7 +123,8 @@ msgstr "로그인 중 문제가 발생했습니다. ({error})"
 msgid "IntersectionObserver로 화면 진입 감지"
 msgstr "IntersectionObserver로 화면 진입 감지"
 
-#: components/main/profile-menu.tsx:129
+#: components/main/profile-menu.tsx:175
+#: components/main/profile-menu.tsx:189
 msgid "회원탈퇴"
 msgstr "회원탈퇴"
 
@@ -402,8 +403,8 @@ msgstr "언어 선택"
 msgid "회원 탈퇴"
 msgstr "회원 탈퇴"
 
-#: components/main/profile-menu.tsx:86
-#: components/main/profile-menu.tsx:100
+#: components/main/profile-menu.tsx:129
+#: components/main/profile-menu.tsx:143
 msgid "프로필 메뉴"
 msgstr "프로필 메뉴"
 
@@ -441,6 +442,10 @@ msgstr "작성 전 질문"
 msgid "답을 확인해 주세요."
 msgstr "답을 확인해 주세요."
 
+#: components/main/profile-menu.tsx:198
+msgid "탈퇴하기"
+msgstr "탈퇴하기"
+
 #: components/studio/draft-editor.tsx:468
 msgid "답은 1,000자까지 적을 수 있습니다"
 msgstr "답은 1,000자까지 적을 수 있습니다"
@@ -475,7 +480,7 @@ msgstr "Max"
 msgid "로그아웃"
 msgstr "로그아웃"
 
-#: components/shared/confirm-dialog.tsx:61
+#: components/shared/confirm-dialog.tsx:94
 #: components/shared/dialog-frame.tsx:82
 #: components/studio/generation-progress.tsx:103
 #: components/studio/quota-exhausted-banner.tsx:35
@@ -628,7 +633,7 @@ msgstr "comdraft 로 작성한 기술 개발 블로그 글을 최신순으로 �
 msgid "삭제한 초안은 되돌릴 수 없습니다"
 msgstr "삭제한 초안은 되돌릴 수 없습니다"
 
-#: components/main/profile-menu.tsx:72
+#: components/main/profile-menu.tsx:115
 #: lib/seo/copy.ts:22
 msgid "로그인"
 msgstr "로그인"
@@ -695,6 +700,10 @@ msgstr "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한�
 #: components/studio/draft-list-item.tsx:139
 msgid "이 초안을 삭제할까요?"
 msgstr "이 초안을 삭제할까요?"
+
+#: components/main/profile-menu.tsx:205
+msgid "탈퇴하지 못했습니다. 다시 시도해주세요."
+msgstr "탈퇴하지 못했습니다. 다시 시도해주세요."
 
 #: components/main/main-footer.tsx:33
 msgid "푸터 메뉴"
@@ -800,7 +809,7 @@ msgid "이 부분에 작업 계기를 작성해 주세요"
 msgstr "이 부분에 작업 계기를 작성해 주세요"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:40
-#: components/main/profile-menu.tsx:110
+#: components/main/profile-menu.tsx:153
 #: components/studio/profile-menu.tsx:71
 #: lib/seo/copy.ts:26
 msgid "대시보드"
@@ -1011,6 +1020,7 @@ msgstr "코드 블록"
 msgid "연동 저장소"
 msgstr "연동 저장소"
 
+#: components/main/profile-menu.tsx:199
 #: components/studio/clarification-card.tsx:274
 #: components/studio/prompt-composer.tsx:509
 #: components/studio/publish-dialog.tsx:168
@@ -1103,7 +1113,7 @@ msgstr "알 수 없는 오류로 작성하지 못했습니다. 다시 시도해�
 msgid "기본 옵션 접기"
 msgstr "기본 옵션 접기"
 
-#: components/main/profile-menu.tsx:119
+#: components/main/profile-menu.tsx:162
 msgid "계정"
 msgstr "계정"
 
@@ -1546,6 +1556,10 @@ msgstr "이미지를 올리지 못했습니다. 다시 시도합니다"
 #: lib/studio/options.ts:56
 msgid "경험"
 msgstr "경험"
+
+#: components/main/profile-menu.tsx:191
+msgid "탈퇴하면 계정과 작성한 초안, 게시한 글, 업로드한 이미지가 모두 삭제되며 되돌릴 수 없습니다. GitHub 에서 이 서비스의 로그인 권한도 철회됩니다. 저장소에 설치한 GitHub App 은 GitHub 설정에서 따로 제거할 수 있습니다."
+msgstr "탈퇴하면 계정과 작성한 초안, 게시한 글, 업로드한 이미지가 모두 삭제되며 되돌릴 수 없습니다. GitHub 에서 이 서비스의 로그인 권한도 철회됩니다. 저장소에 설치한 GitHub App 은 GitHub 설정에서 따로 제거할 수 있습니다."
 
 #: components/studio/draft-editor.tsx:707
 msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."

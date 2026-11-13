@@ -9,9 +9,13 @@ import {
   DROPDOWN_PANEL_CLASS,
 } from '@/components/shared/dropdown-styles';
 import LocalizedLink from '@/components/shared/localized-link';
+import ConfirmDialog from '@/components/shared/confirm-dialog';
 import SignOutButton from '@/components/shared/sign-out-button';
 import SettingsDialog from '@/components/studio/settings-dialog';
 import { useDropdown } from '@/hooks/use-dropdown';
+import { useLocalizedRouter } from '@/hooks/use-localized-router';
+import { DELETE_CONFIRM_DELAY_MS } from '@/lib/account/delete-account-rules';
+import { deleteAccount } from '@/lib/actions/account';
 
 interface ProfileMenuProps {
   isSignedIn: boolean;
@@ -50,19 +54,58 @@ const ProfileIcon = () => {
  * - 로그아웃 상태: 로그인/회원가입 페이지로 이동
  * - 로그인 상태: 프로필 드롭다운 (바깥 클릭, Escape, 페이지 이동 시 닫힘)
  * - 계정: 스튜디오와 같은 설정 모달을 계정 설정 탭만으로 띄움 (스튜디오 밖이라 저장소 설정은 없음)
+ * - 회원탈퇴: 확인 창을 띄우고 2초 뒤에 탈퇴 버튼을 누를 수 있게 함, 탈퇴하면 메인으로 이동
  */
 const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
   const { t } = useLingui();
   const menuId = useId();
   const { isOpen, toggle, containerRef, triggerRef, firstItemRef, handleBlur } =
     useDropdown<HTMLAnchorElement>();
-  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const router = useLocalizedRouter();
+  const [openDialog, setOpenDialog] = useState<'account' | 'delete' | null>(
+    null,
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [hasDeleteError, setHasDeleteError] = useState(false);
 
-  const openAccount = () => {
+  const open = (dialog: 'account' | 'delete') => {
     // 메뉴 버튼으로 포커스를 먼저 옮겨 두면 모달을 닫을 때 그 버튼으로 돌아옴
     triggerRef.current?.focus();
     toggle();
-    setIsAccountOpen(true);
+    setHasDeleteError(false);
+    setOpenDialog(dialog);
+  };
+
+  const closeDialog = () => {
+    if (!isDeleting) {
+      setOpenDialog(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (isDeleting) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setHasDeleteError(false);
+
+    try {
+      const result = await deleteAccount();
+
+      if (result.status === 'deleted') {
+        // 로그인 정보가 사라졌으므로 메인으로 보내고 서버 화면을 다시 받음
+        router.replace('/');
+        router.refresh();
+        return;
+      }
+
+      setHasDeleteError(true);
+    } catch {
+      setHasDeleteError(true);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (!isSignedIn) {
@@ -113,7 +156,7 @@ const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
               <li>
                 <button
                   type="button"
-                  onClick={openAccount}
+                  onClick={() => open('account')}
                   className={MENU_ITEM_CLASS}
                 >
                   <Trans>계정</Trans>
@@ -124,18 +167,46 @@ const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
               </li>
             </ul>
             <div aria-hidden="true" className="h-px bg-line" />
-            {/* 회원탈퇴 기능이 아직 없어 디자인만 구현 */}
-            <button type="button" className={DANGER_MENU_ITEM_CLASS}>
+            <button
+              type="button"
+              onClick={() => open('delete')}
+              className={DANGER_MENU_ITEM_CLASS}
+            >
               <Trans>회원탈퇴</Trans>
             </button>
           </div>
         )}
       </div>
-      {isAccountOpen && (
+      {openDialog === 'account' && (
         <SettingsDialog
           initialTab="account"
           tabs={['account']}
-          onClose={() => setIsAccountOpen(false)}
+          onClose={closeDialog}
+        />
+      )}
+      {openDialog === 'delete' && (
+        <ConfirmDialog
+          title={t`회원탈퇴`}
+          description={
+            <Trans>
+              탈퇴하면 계정과 작성한 초안, 게시한 글, 업로드한 이미지가 모두
+              삭제되며 되돌릴 수 없습니다. GitHub 에서 이 서비스의 로그인 권한도
+              철회됩니다. 저장소에 설치한 GitHub App 은 GitHub 설정에서 따로
+              제거할 수 있습니다.
+            </Trans>
+          }
+          confirmLabel={t`탈퇴하기`}
+          cancelLabel={<Trans>취소</Trans>}
+          tone="danger"
+          isPending={isDeleting}
+          confirmDelayMs={DELETE_CONFIRM_DELAY_MS}
+          error={
+            hasDeleteError ? (
+              <Trans>탈퇴하지 못했습니다. 다시 시도해주세요.</Trans>
+            ) : undefined
+          }
+          onConfirm={() => void handleDelete()}
+          onClose={closeDialog}
         />
       )}
     </>

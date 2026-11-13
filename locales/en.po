@@ -123,7 +123,8 @@ msgstr "Something went wrong while signing in. ({error})"
 msgid "IntersectionObserver로 화면 진입 감지"
 msgstr "Detect viewport entry with IntersectionObserver"
 
-#: components/main/profile-menu.tsx:129
+#: components/main/profile-menu.tsx:175
+#: components/main/profile-menu.tsx:189
 msgid "회원탈퇴"
 msgstr "Delete account"
 
@@ -402,8 +403,8 @@ msgstr "Choose language"
 msgid "회원 탈퇴"
 msgstr "Delete account"
 
-#: components/main/profile-menu.tsx:86
-#: components/main/profile-menu.tsx:100
+#: components/main/profile-menu.tsx:129
+#: components/main/profile-menu.tsx:143
 msgid "프로필 메뉴"
 msgstr "Profile menu"
 
@@ -441,6 +442,10 @@ msgstr "Questions before writing"
 msgid "답을 확인해 주세요."
 msgstr "Please check your answers."
 
+#: components/main/profile-menu.tsx:198
+msgid "탈퇴하기"
+msgstr "Delete account"
+
 #: components/studio/draft-editor.tsx:468
 msgid "답은 1,000자까지 적을 수 있습니다"
 msgstr "Answers can be up to 1,000 characters."
@@ -475,7 +480,7 @@ msgstr "Max"
 msgid "로그아웃"
 msgstr "Sign out"
 
-#: components/shared/confirm-dialog.tsx:61
+#: components/shared/confirm-dialog.tsx:94
 #: components/shared/dialog-frame.tsx:82
 #: components/studio/generation-progress.tsx:103
 #: components/studio/quota-exhausted-banner.tsx:35
@@ -628,7 +633,7 @@ msgstr "The latest tech blog posts written with comdraft. Read real development 
 msgid "삭제한 초안은 되돌릴 수 없습니다"
 msgstr "A deleted draft cannot be restored."
 
-#: components/main/profile-menu.tsx:72
+#: components/main/profile-menu.tsx:115
 #: lib/seo/copy.ts:22
 msgid "로그인"
 msgstr "Sign in"
@@ -695,6 +700,10 @@ msgstr "Can't access this repository. Check the GitHub App's repository access a
 #: components/studio/draft-list-item.tsx:139
 msgid "이 초안을 삭제할까요?"
 msgstr "Delete this draft?"
+
+#: components/main/profile-menu.tsx:205
+msgid "탈퇴하지 못했습니다. 다시 시도해주세요."
+msgstr "Couldn't delete your account. Please try again."
 
 #: components/main/main-footer.tsx:33
 msgid "푸터 메뉴"
@@ -800,7 +809,7 @@ msgid "이 부분에 작업 계기를 작성해 주세요"
 msgstr "Write why you started this work here"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:40
-#: components/main/profile-menu.tsx:110
+#: components/main/profile-menu.tsx:153
 #: components/studio/profile-menu.tsx:71
 #: lib/seo/copy.ts:26
 msgid "대시보드"
@@ -1011,6 +1020,7 @@ msgstr "Code block"
 msgid "연동 저장소"
 msgstr "Connected repositories"
 
+#: components/main/profile-menu.tsx:199
 #: components/studio/clarification-card.tsx:274
 #: components/studio/prompt-composer.tsx:509
 #: components/studio/publish-dialog.tsx:168
@@ -1103,7 +1113,7 @@ msgstr "An unknown error stopped the writing. Please try again."
 msgid "기본 옵션 접기"
 msgstr "Collapse default options"
 
-#: components/main/profile-menu.tsx:119
+#: components/main/profile-menu.tsx:162
 msgid "계정"
 msgstr "Account"
 
@@ -1546,6 +1556,10 @@ msgstr "Couldn't upload the image. Retrying."
 #: lib/studio/options.ts:56
 msgid "경험"
 msgstr "Experience"
+
+#: components/main/profile-menu.tsx:191
+msgid "탈퇴하면 계정과 작성한 초안, 게시한 글, 업로드한 이미지가 모두 삭제되며 되돌릴 수 없습니다. GitHub 에서 이 서비스의 로그인 권한도 철회됩니다. 저장소에 설치한 GitHub App 은 GitHub 설정에서 따로 제거할 수 있습니다."
+msgstr "Deleting your account permanently removes your account, drafts, published posts, and uploaded images. This can't be undone. The Service's sign-in authorization on GitHub is also revoked. You can remove the GitHub App installed on your repositories separately in your GitHub settings."
 
 #: components/studio/draft-editor.tsx:707
 msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."

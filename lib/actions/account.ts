@@ -1,6 +1,12 @@
 'use server';
 
-import { headers } from 'next/headers';
+import { after } from 'next/server';
+import { cookies, headers } from 'next/headers';
+import { deleteUserData, removeUserFiles } from '@/lib/account/delete-account';
+import {
+  buildGithubGrantRevokeRequest,
+  isSessionCookieName,
+} from '@/lib/account/delete-account-rules';
 import { getRemainingRatio } from '@/lib/account/settings';
 import { requireSession } from '@/lib/auth/session';
 import { expireStaleJobs } from '@/lib/generation/jobs';
@@ -9,6 +15,7 @@ import {
   getAuthenticatedGithubUser,
   getGithubUserToken,
 } from '@/lib/github/user-api';
+import { revalidateSitemap } from '@/lib/seo/revalidate-sitemap';
 
 // 연동한 GitHub 계정 (GitHub 조회에 실패하면 null)
 export interface AccountGithubProfile {
@@ -82,4 +89,64 @@ export async function getAccountSettings(): Promise<AccountSettings> {
       : null,
     serverNow: new Date().toISOString(),
   };
+}
+
+export type DeleteAccountResult = { status: 'deleted' } | { status: 'error' };
+
+// GitHub 에서 이 앱에 대한 권한을 철회 (실패해도 탈퇴는 진행, 사용자가 GitHub 설정에서 직접 철회할 수 있음)
+const revokeGithubGrant = async (accessToken: string | null) => {
+  const clientId = process.env.GITHUB_CLIENT_ID;
+  const clientSecret = process.env.GITHUB_SECRET_KEY;
+
+  if (!accessToken || !clientId || !clientSecret) {
+    return;
+  }
+
+  const { url, init } = buildGithubGrantRevokeRequest(
+    clientId,
+    clientSecret,
+    accessToken,
+  );
+
+  await fetch(url, init).catch(() => undefined);
+};
+
+/**
+ * 회원 탈퇴
+ * - GitHub 토큰을 먼저 받아 둔 뒤(계정 행이 지워지므로) 회원 데이터를 삭제하고, 그 토큰으로 GitHub 앱 권한을 철회
+ * - 이미지 파일 삭제는 응답 뒤에, 공개 글이 빠지므로 사이트맵도 다시 만들게 함
+ * - 로그인 세션 쿠키를 지워 브라우저에도 로그아웃 상태가 되게 함 (언어·방문자 쿠키는 남김)
+ */
+export async function deleteAccount(): Promise<DeleteAccountResult> {
+  const { user } = await requireSession();
+  const accessToken = await getGithubUserToken(user.id, await headers()).catch(
+    () => null,
+  );
+
+  try {
+    await deleteUserData(user.id);
+  } catch {
+    return { status: 'error' };
+  }
+
+  after(async () => {
+    await revokeGithubGrant(accessToken);
+    await removeUserFiles(user.id);
+  });
+  revalidateSitemap();
+
+  const cookieStore = await cookies();
+
+  for (const { name } of cookieStore.getAll()) {
+    // __Secure- 쿠키는 Secure 속성이 있어야 브라우저가 삭제를 받아들임 (세션 행은 이미 지워져 쿠키가 남아도 로그인되지 않음)
+    if (isSessionCookieName(name)) {
+      cookieStore.delete({
+        name,
+        path: '/',
+        secure: name.startsWith('__Secure-'),
+      });
+    }
+  }
+
+  return { status: 'deleted' };
 }
