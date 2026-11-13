@@ -1,7 +1,8 @@
-import { Trans, useLingui } from '@lingui/react/macro';
+import { useLingui } from '@lingui/react/macro';
 import BrandLogo from '@/components/main/brand-logo';
 import LanguageMenu from '@/components/main/language-menu';
 import MobileMenu from '@/components/main/mobile-menu';
+import PostsNavLink from '@/components/main/posts-nav-link';
 import ProfileMenu from '@/components/main/profile-menu';
 
 interface MainHeaderProps {
@@ -14,7 +15,7 @@ interface MainHeaderProps {
  * - 프로필: 로그인 상태면 드롭다운, 아니면 로그인 페이지로 이동
  * - 모바일 메뉴: 사이드 메뉴 열기
  * - 언어 변경: 언어 선택 드롭다운
- * - 게시글 버튼은 동작이 아직 정해지지 않아 디자인만 구현
+ * - 게시글: 게시글 목록으로 이동
  */
 const MainHeader = ({ isSignedIn }: MainHeaderProps) => {
   const { t } = useLingui();
@@ -25,12 +26,7 @@ const MainHeader = ({ isSignedIn }: MainHeaderProps) => {
         <div className="flex items-center gap-18">
           <BrandLogo />
           <nav aria-label={t`주요 메뉴`} className="hidden pc:flex">
-            <button
-              type="button"
-              className="text-[15px] leading-[1.2] font-medium whitespace-nowrap text-ink-muted"
-            >
-              <Trans>게시글</Trans>
-            </button>
+            <PostsNavLink />
           </nav>
         </div>
         <div className="flex items-center gap-1 pc:gap-6">
