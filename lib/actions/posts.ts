@@ -21,6 +21,7 @@ import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
 import { checkPublishable } from '@/lib/posts/post-content';
 import { createPostId } from '@/lib/posts/post-id';
 import { buildPostValues, parsePostVisibility } from '@/lib/posts/post-values';
+import { normalizeTags } from '@/lib/posts/tags';
 import { parseDraftDocument } from '@/lib/studio/draft-content';
 import { isOwnedDraft } from '@/lib/studio/queries';
 import { getSupabaseUrl } from '@/lib/supabase/server';
@@ -52,6 +53,7 @@ export type PublishDraftResult =
  * - 이미지는 초안 본문과 게시글 모두 그 사용자의 공개 버킷 주소만 남김
  * - 바뀌기 전 초안 본문, 새 초안·게시글 본문에 든 이미지는 같은 트랜잭션에서 마지막 사용 시각을 갱신
  * - 게시 후 응답 뒤에 쓰지 않는 이미지를 정리 (게시글 본문의 이미지도 쓰는 것으로 셈)
+ * - 초안 태그를 정규화해 게시글로 복사
  */
 export async function publishDraft(
   repositoryId: string,
@@ -116,16 +118,24 @@ export async function publishDraft(
         .update(draft)
         .set({ content, title, status: 'published' })
         .where(and(eq(draft.id, draftId), not(lockingJobExists(draft.id))))
-        .returning({ id: draft.id });
+        .returning({ id: draft.id, tags: draft.tags });
 
       // AI 작성 작업이 잠근 초안: 게시글을 쓰지 않고 끝냄
       if (!updated) {
         return { status: 'locked' };
       }
 
+      // 초안 태그를 게시글로 복사 (다시 게시하면 그때의 초안 태그로 바꿈)
+      const tags = normalizeTags(updated.tags);
       const [published] = await tx
         .insert(post)
-        .values({ id: createPostId(), draftId, userId: user.id, ...values })
+        .values({
+          id: createPostId(),
+          draftId,
+          userId: user.id,
+          ...values,
+          tags,
+        })
         .onConflictDoUpdate({
           target: post.draftId,
           set: {
@@ -135,6 +145,7 @@ export async function publishDraft(
             content: values.content,
             visibility: values.visibility,
             locale: values.locale,
+            tags,
             updatedAt: sql`now()`,
           },
         })

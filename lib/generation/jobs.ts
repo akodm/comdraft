@@ -35,6 +35,7 @@ import {
   scheduleDraftImageCleanup,
 } from '@/lib/images/cleanup';
 import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
+import { normalizeTags } from '@/lib/posts/tags';
 import { ensureBlankIds, replaceBlank } from '@/lib/studio/draft-blank';
 import { extractDraftTitle, isDraftDocument } from '@/lib/studio/draft-content';
 import { getSupabaseUrl } from '@/lib/supabase/server';
@@ -223,7 +224,11 @@ export const applyCompletedJob = async (jobId: string) => {
           isNull(draftPrompt.appliedAt),
         ),
       )
-      .returning({ draftId: draftPrompt.draftId, result: draftPrompt.result });
+      .returning({
+        draftId: draftPrompt.draftId,
+        result: draftPrompt.result,
+        tags: draftPrompt.tags,
+      });
 
     // 그 사이 초안이 삭제됐으면 반영할 곳이 없음 (작업 행은 사용량 기록으로만 남음)
     if (!claimed?.draftId) {
@@ -264,12 +269,16 @@ export const applyCompletedJob = async (jobId: string) => {
       return null;
     }
 
+    // AI 가 고른 태그로 초안 태그를 바꿈 (결과에 태그가 없으면 기존 태그 유지)
+    const aiTags = normalizeTags(claimed.tags);
+
     await tx
       .update(draft)
       .set({
         content,
         title: extractDraftTitle(content),
         status: draftStatusAfterContentChange(),
+        ...(aiTags.length > 0 ? { tags: aiTags } : {}),
         updatedAt: now,
       })
       .where(eq(draft.id, claimed.draftId));

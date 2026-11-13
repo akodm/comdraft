@@ -71,6 +71,8 @@ export interface StudioDraft extends Omit<
   // 마지막으로 본문 전체를 바꾼 초안 작성 작업 id (바뀌면 편집기가 새 본문을 다시 불러옴)
   // - 빈칸 채우기는 편집기가 그 빈칸만 직접 바꾸므로 넣지 않음 (다시 불러오면 저장 전 편집이 사라짐)
   contentRevision: string | null;
+  // 기술 태그 (편집기 맨 아래에서 수정, AI 결과 반영 때 바뀔 수 있음)
+  tags: string[];
 }
 
 /**
@@ -194,6 +196,7 @@ export const getStudioDraft = async (
       postId: post.id,
       postSlug: post.slug,
       content: draft.content,
+      tags: draft.tags,
     })
     .from(draft)
     .leftJoin(post, eq(post.draftId, draft.id))

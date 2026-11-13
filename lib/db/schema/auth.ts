@@ -27,6 +27,8 @@ export const user = comdraftSchema.table(
     email: text('email').notNull().unique(),
     emailVerified: boolean('email_verified').default(false).notNull(),
     image: text('image'),
+    // GitHub 아이디 (게시글 작성자 프로필 링크용, 가입 때 저장하고 기존 사용자는 채우기 스크립트로)
+    githubLogin: text('github_login'),
     // 사용량 등급 (quota_plan.role 참조, 한도는 정책 테이블에서 조회)
     role: text('role').default('basic').notNull(),
     // 온보딩 완료 시각 (null 이면 GitHub 인증만 끝난 가입 미완료 상태 → /onboarding 으로 유도)

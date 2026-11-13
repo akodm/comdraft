@@ -7,6 +7,8 @@
  *   Lambda 는 단계(구분 → 분석 → 작성)를 마칠 때마다 draft_prompt.step/status 를 갱신하고
  *   작업의 channel 로 Supabase Realtime Broadcast 를 보냄 (내용 없이 신호만)
  *   기획이 묻기로 하면 awaiting_input 으로 멈추고, 답을 받으면 같은 작업을 queued 로 되돌려 다시 실행
+ *   초안 작성(draft) 작업을 마치면 draft_prompt.result 와 함께 분석 단계가 고른 기술 태그 배열을
+ *   draft_prompt.tags 에 기록 (느슨하게만 정리, 앱이 반영할 때 lib/posts/tags.ts 규칙으로 정규화)
  */
 
 // 작업 상태 (lib/db/schema/draft.ts 의 draft_prompt.status 와 같은 값)

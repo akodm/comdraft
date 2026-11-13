@@ -57,6 +57,11 @@ msgstr "Github 연결"
 msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
 msgstr "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
 
+#: components/studio/draft-tags.tsx:142
+#: components/studio/draft-tags.tsx:150
+msgid "태그 입력"
+msgstr "태그 입력"
+
 #: app/[lang]/dashboard/repositories/page.tsx:47
 #: components/onboarding/onboarding-flow.tsx:40
 msgid "대시보드로 이동"
@@ -66,15 +71,19 @@ msgstr "대시보드로 이동"
 msgid "저장소를 추가하고 초안을 만들어보세요"
 msgstr "저장소를 추가하고 초안을 만들어보세요"
 
-#: components/studio/draft-editor.tsx:500
+#: components/studio/draft-editor.tsx:501
 msgid "초안 본문"
 msgstr "초안 본문"
+
+#: components/studio/draft-tags.tsx:124
+msgid "태그 {tag} 삭제"
+msgstr "태그 {tag} 삭제"
 
 #: components/main/draft-example-section.tsx:12
 msgid "기술 개발 블로그 습관"
 msgstr "기술 개발 블로그 습관"
 
-#: components/studio/draft-editor.tsx:459
+#: components/studio/draft-editor.tsx:460
 msgid "설명 필요"
 msgstr "설명 필요"
 
@@ -126,11 +135,11 @@ msgstr "GitHub 인증 요청이 만료되었거나 유효하지 않습니다. �
 msgid "게시 · 일부 공개"
 msgstr "게시 · 일부 공개"
 
-#: components/studio/publish-actions.tsx:297
+#: components/studio/publish-actions.tsx:301
 msgid "게시를 취소하면 공개 주소가 더 이상 열리지 않습니다"
 msgstr "게시를 취소하면 공개 주소가 더 이상 열리지 않습니다"
 
-#: components/studio/draft-editor.tsx:652
+#: components/studio/draft-editor.tsx:653
 msgid "마크다운 파일로 내보내기"
 msgstr "마크다운 파일로 내보내기"
 
@@ -166,7 +175,7 @@ msgstr "브랜치를 바꿨습니다. 커밋 내역을 다시 불러옵니다."
 msgid "연동"
 msgstr "연동"
 
-#: components/studio/draft-editor.tsx:54
+#: components/studio/draft-editor.tsx:55
 msgid "HEIC 형식은 지원하지 않습니다"
 msgstr "HEIC 형식은 지원하지 않습니다"
 
@@ -186,7 +195,7 @@ msgstr "제목 4"
 msgid "유형"
 msgstr "유형"
 
-#: components/studio/draft-editor.tsx:469
+#: components/studio/draft-editor.tsx:470
 msgid "여기에 직접 작성해 주세요"
 msgstr "여기에 직접 작성해 주세요"
 
@@ -202,6 +211,10 @@ msgstr "작성 예시"
 msgid "초안 목록"
 msgstr "초안 목록"
 
+#: components/studio/draft-tags.tsx:168
+msgid "태그는 10개까지 넣을 수 있습니다"
+msgstr "태그는 10개까지 넣을 수 있습니다"
+
 #: components/studio/prompt-composer.tsx:381
 msgid "초안 목록 열기"
 msgstr "초안 목록 열기"
@@ -210,7 +223,7 @@ msgstr "초안 목록 열기"
 msgid "브랜치가 없습니다."
 msgstr "브랜치가 없습니다."
 
-#: components/studio/draft-editor.tsx:58
+#: components/studio/draft-editor.tsx:59
 msgid "이미지 해상도가 너무 큽니다"
 msgstr "이미지 해상도가 너무 큽니다"
 
@@ -255,7 +268,7 @@ msgstr "세션"
 msgid "계정 정보를 불러오지 못했습니다."
 msgstr "계정 정보를 불러오지 못했습니다."
 
-#: components/studio/draft-editor.tsx:451
+#: components/studio/draft-editor.tsx:452
 msgid "결과·수치"
 msgstr "결과·수치"
 
@@ -267,7 +280,7 @@ msgstr "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메�
 msgid "분석"
 msgstr "분석"
 
-#: components/studio/draft-editor.tsx:625
+#: components/studio/draft-editor.tsx:626
 msgid "· 빈칸 {emptyBlankCount}개"
 msgstr "· 빈칸 {emptyBlankCount}개"
 
@@ -296,7 +309,7 @@ msgstr "첫 저장소 연동이<0/>완료되었습니다."
 msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 msgstr "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 
-#: components/studio/draft-editor.tsx:455
+#: components/studio/draft-editor.tsx:456
 msgid "배운 점"
 msgstr "배운 점"
 
@@ -362,11 +375,11 @@ msgstr "메뉴"
 msgid "링크 주소"
 msgstr "링크 주소"
 
-#: components/studio/draft-editor.tsx:55
+#: components/studio/draft-editor.tsx:56
 msgid "JPEG, PNG, WebP, GIF, AVIF 이미지만 넣을 수 있습니다"
 msgstr "JPEG, PNG, WebP, GIF, AVIF 이미지만 넣을 수 있습니다"
 
-#: components/studio/draft-editor.tsx:60
+#: components/studio/draft-editor.tsx:61
 #: components/studio/publish-dialog.tsx:29
 msgid "올리지 못한 이미지가 있습니다"
 msgstr "올리지 못한 이미지가 있습니다"
@@ -377,7 +390,7 @@ msgstr "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있
 
 #: app/[lang]/posts/page.tsx:18
 #: app/[lang]/posts/page.tsx:50
-#: components/main/mobile-menu.tsx:163
+#: components/main/mobile-menu.tsx:165
 #: components/main/posts-nav-link.tsx:22
 msgid "게시글"
 msgstr "게시글"
@@ -395,7 +408,7 @@ msgstr "회원 탈퇴"
 msgid "프로필 메뉴"
 msgstr "프로필 메뉴"
 
-#: components/studio/draft-editor.tsx:643
+#: components/studio/draft-editor.tsx:644
 msgid "HTML 파일로 내보내기"
 msgstr "HTML 파일로 내보내기"
 
@@ -429,7 +442,7 @@ msgstr "작성 전 질문"
 msgid "답을 확인해 주세요."
 msgstr "답을 확인해 주세요."
 
-#: components/studio/draft-editor.tsx:467
+#: components/studio/draft-editor.tsx:468
 msgid "답은 1,000자까지 적을 수 있습니다"
 msgstr "답은 1,000자까지 적을 수 있습니다"
 
@@ -511,7 +524,7 @@ msgstr "추적 브랜치 {branch}"
 msgid "{count, plural, other {커밋 #개}}"
 msgstr "{count, plural, other {커밋 #개}}"
 
-#: components/studio/publish-actions.tsx:304
+#: components/studio/publish-actions.tsx:308
 msgid "게시를 취소하지 못했습니다. 다시 시도해주세요."
 msgstr "게시를 취소하지 못했습니다. 다시 시도해주세요."
 
@@ -536,7 +549,7 @@ msgstr "작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해�
 msgid "개인 저장소"
 msgstr "개인 저장소"
 
-#: components/studio/draft-editor.tsx:456
+#: components/studio/draft-editor.tsx:457
 #: lib/generation/blank-questions.ts:15
 msgid "이 부분에 배운 점을 작성해 주세요"
 msgstr "이 부분에 배운 점을 작성해 주세요"
@@ -615,7 +628,7 @@ msgstr "{selectedCount}개 선택"
 msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgstr "서비스 이해를 위한 샘플 저장소와 초안입니다."
 
-#: components/studio/draft-editor.tsx:568
+#: components/studio/draft-editor.tsx:569
 msgid "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 msgstr "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 
@@ -686,7 +699,7 @@ msgstr "더 보기"
 msgid "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
 msgstr "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
 
-#: components/studio/draft-editor.tsx:447
+#: components/studio/draft-editor.tsx:448
 msgid "계기"
 msgstr "계기"
 
@@ -763,7 +776,7 @@ msgstr "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 
 msgid "Github 계정으로 로그인합니다"
 msgstr "Github 계정으로 로그인합니다"
 
-#: components/studio/draft-editor.tsx:448
+#: components/studio/draft-editor.tsx:449
 #: lib/generation/blank-questions.ts:13
 msgid "이 부분에 작업 계기를 작성해 주세요"
 msgstr "이 부분에 작업 계기를 작성해 주세요"
@@ -850,7 +863,7 @@ msgstr "링크 제거"
 msgid "기울임"
 msgstr "기울임"
 
-#: components/studio/draft-editor.tsx:466
+#: components/studio/draft-editor.tsx:467
 msgid "AI 가 다듬는 중이에요"
 msgstr "AI 가 다듬는 중이에요"
 
@@ -895,6 +908,10 @@ msgstr "작성 요청을 입력해주세요."
 msgid "길게"
 msgstr "길게"
 
+#: components/studio/draft-tags.tsx:169
+msgid "태그를 저장하지 못했습니다"
+msgstr "태그를 저장하지 못했습니다"
+
 #: components/studio/repository-settings-panel.tsx:333
 msgid "{name} (기본 브랜치)"
 msgstr "{name} (기본 브랜치)"
@@ -915,7 +932,7 @@ msgstr "조직 저장소"
 msgid "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
 msgstr "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
 
-#: app/[lang]/posts/[postPath]/page.tsx:93
+#: app/[lang]/posts/[postPath]/page.tsx:115
 msgid "수정"
 msgstr "수정"
 
@@ -978,7 +995,7 @@ msgstr "관찰 로직을 재사용 가능한 훅으로 분리"
 msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 msgstr "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 
-#: components/studio/draft-editor.tsx:442
+#: components/studio/draft-editor.tsx:443
 msgid "내용을 입력하세요"
 msgstr "내용을 입력하세요"
 
@@ -996,7 +1013,7 @@ msgstr "Pro 이상"
 msgid "{resetTime} 초기화"
 msgstr "{resetTime} 초기화"
 
-#: components/studio/draft-editor.tsx:460
+#: components/studio/draft-editor.tsx:461
 #: lib/generation/blank-questions.ts:16
 msgid "이 부분은 자세한 설명이 필요합니다"
 msgstr "이 부분은 자세한 설명이 필요합니다"
@@ -1051,7 +1068,7 @@ msgstr "계정"
 msgid "강의"
 msgstr "강의"
 
-#: components/studio/draft-editor.tsx:441
+#: components/studio/draft-editor.tsx:442
 msgid "제목"
 msgstr "제목"
 
@@ -1084,7 +1101,7 @@ msgstr "초안 보기"
 msgid "그냥 작성"
 msgstr "그냥 작성"
 
-#: components/studio/publish-actions.tsx:219
+#: components/studio/publish-actions.tsx:223
 msgid "게시 메뉴"
 msgstr "게시 메뉴"
 
@@ -1133,7 +1150,7 @@ msgstr "이동 중..."
 msgid "이 모델은 현재 등급에서 쓸 수 없습니다."
 msgstr "이 모델은 현재 등급에서 쓸 수 없습니다."
 
-#: components/studio/draft-editor.tsx:630
+#: components/studio/draft-editor.tsx:631
 msgid "· 저장 중..."
 msgstr "· 저장 중..."
 
@@ -1163,7 +1180,7 @@ msgstr "아직 이 저장소로 보낸 작성 요청이 없습니다."
 msgid "GitHub 로 이동 중..."
 msgstr "GitHub 로 이동 중..."
 
-#: components/studio/draft-editor.tsx:443
+#: components/studio/draft-editor.tsx:444
 msgid "복사했습니다"
 msgstr "복사했습니다"
 
@@ -1171,9 +1188,9 @@ msgstr "복사했습니다"
 msgid "{commitCount}개 선택"
 msgstr "{commitCount}개 선택"
 
-#: components/studio/publish-actions.tsx:271
-#: components/studio/publish-actions.tsx:295
+#: components/studio/publish-actions.tsx:275
 #: components/studio/publish-actions.tsx:299
+#: components/studio/publish-actions.tsx:303
 msgid "게시 취소"
 msgstr "게시 취소"
 
@@ -1181,10 +1198,11 @@ msgstr "게시 취소"
 msgid "사용량 약 {ratio}배"
 msgstr "사용량 약 {ratio}배"
 
-#: components/studio/draft-editor.tsx:633
+#: components/studio/draft-editor.tsx:634
 msgid "· 저장하지 못했습니다"
 msgstr "· 저장하지 못했습니다"
 
+#: components/studio/draft-tags.tsx:161
 #: components/studio/reference-link-dialog.tsx:197
 msgid "추가"
 msgstr "추가"
@@ -1193,7 +1211,7 @@ msgstr "추가"
 msgid "기본 옵션 펼치기"
 msgstr "기본 옵션 펼치기"
 
-#: components/studio/draft-editor.tsx:452
+#: components/studio/draft-editor.tsx:453
 #: lib/generation/blank-questions.ts:14
 msgid "이 부분에 결과나 수치를 작성해 주세요"
 msgstr "이 부분에 결과나 수치를 작성해 주세요"
@@ -1218,11 +1236,11 @@ msgstr "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 msgid "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 msgstr "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 
-#: components/studio/draft-editor.tsx:613
+#: components/studio/draft-editor.tsx:614
 msgid "초안 편집"
 msgstr "초안 편집"
 
-#: components/studio/draft-editor.tsx:464
+#: components/studio/draft-editor.tsx:465
 msgid "그대로 넣기"
 msgstr "그대로 넣기"
 
@@ -1254,7 +1272,7 @@ msgstr "요청을 처리하지 못했습니다. 잠시 후 다시 시도해주�
 msgid "예시"
 msgstr "예시"
 
-#: components/studio/draft-editor.tsx:463
+#: components/studio/draft-editor.tsx:464
 msgid "AI 로 다듬기"
 msgstr "AI 로 다듬기"
 
@@ -1278,7 +1296,7 @@ msgstr "홈으로 이동"
 msgid "길이"
 msgstr "길이"
 
-#: components/studio/draft-editor.tsx:443
+#: components/studio/draft-editor.tsx:444
 msgid "코드 복사"
 msgstr "코드 복사"
 
@@ -1311,7 +1329,7 @@ msgstr "사용량을 확인할 수 없습니다."
 msgid "왜 바꿨나요?"
 msgstr "왜 바꿨나요?"
 
-#: components/studio/draft-editor.tsx:56
+#: components/studio/draft-editor.tsx:57
 msgid "이미지는 한 장에 5MB 까지 넣을 수 있습니다"
 msgstr "이미지는 한 장에 5MB 까지 넣을 수 있습니다"
 
@@ -1333,7 +1351,7 @@ msgstr "참고 링크는 최대 {MAX_REFERENCE_LINKS}개까지 추가할 수 있
 
 #: components/auth/commit-to-draft-motion.tsx:141
 #: components/main/sample-draft-editor.tsx:81
-#: components/studio/publish-actions.tsx:210
+#: components/studio/publish-actions.tsx:214
 #: components/studio/publish-dialog.tsx:90
 #: components/studio/publish-dialog.tsx:176
 msgid "게시하기"
@@ -1352,7 +1370,7 @@ msgstr "저장소를 더 불러오는 중..."
 msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 msgstr "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 
-#: components/studio/publish-actions.tsx:208
+#: components/studio/publish-actions.tsx:212
 #: components/studio/publish-dialog.tsx:90
 #: components/studio/publish-dialog.tsx:176
 msgid "다시 게시"
@@ -1404,7 +1422,7 @@ msgstr "초안을 만들기 전 반드시 확인해주세요."
 msgid "AI 작성 중에는 게시할 수 없습니다"
 msgstr "AI 작성 중에는 게시할 수 없습니다"
 
-#: components/studio/draft-editor.tsx:465
+#: components/studio/draft-editor.tsx:466
 msgid "지우기"
 msgstr "지우기"
 
@@ -1416,7 +1434,7 @@ msgstr "글머리 기호 목록"
 msgid "본문에 제목을 넣어 주세요"
 msgstr "본문에 제목을 넣어 주세요"
 
-#: components/studio/publish-actions.tsx:252
+#: components/studio/publish-actions.tsx:256
 msgid "글 보기"
 msgstr "글 보기"
 
@@ -1469,7 +1487,7 @@ msgstr "빈칸"
 msgid "다음"
 msgstr "다음"
 
-#: components/studio/draft-editor.tsx:59
+#: components/studio/draft-editor.tsx:60
 msgid "이미지를 올리지 못했습니다. 다시 시도합니다"
 msgstr "이미지를 올리지 못했습니다. 다시 시도합니다"
 
@@ -1477,7 +1495,7 @@ msgstr "이미지를 올리지 못했습니다. 다시 시도합니다"
 msgid "경험"
 msgstr "경험"
 
-#: components/studio/draft-editor.tsx:693
+#: components/studio/draft-editor.tsx:707
 msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 msgstr "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 
@@ -1540,7 +1558,7 @@ msgstr "게시 · 공개"
 msgid "커밋 선택"
 msgstr "커밋 선택"
 
-#: components/studio/draft-editor.tsx:57
+#: components/studio/draft-editor.tsx:58
 msgid "초안 하나에 이미지는 10장까지 넣을 수 있습니다"
 msgstr "초안 하나에 이미지는 10장까지 넣을 수 있습니다"
 
