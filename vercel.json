@@ -1,9 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "crons": [
-    {
+  "schedules": {
+    "sitemap-weekly": {
+      "schedule": "0 0 * * 0",
+      "timezone": "Asia/Seoul",
       "path": "/api/cron/sitemap",
-      "schedule": "0 15 * * 6"
+      "requestMethod": "GET"
     }
-  ]
+  }
 }
