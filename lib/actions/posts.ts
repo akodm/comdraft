@@ -1,6 +1,7 @@
 'use server';
 
 import type { JSONContent } from '@tiptap/core';
+import { refresh } from 'next/cache';
 import { and, eq, not, sql } from 'drizzle-orm';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
@@ -157,6 +158,9 @@ export async function publishDraft(
 
   if (result.status === 'published') {
     scheduleDraftImageCleanup(draftId);
+    // 게시 후 화면이 게시글로 이동하므로, 뒤로 가기로 돌아온 편집기가 게시 전 본문을 띄우지 않도록
+    // 현재 화면(편집기)의 캐시를 게시한 본문으로 새로 고침
+    refresh();
   }
 
   return result;

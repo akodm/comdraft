@@ -6,6 +6,7 @@ import PageLayout from '@/components/layout/page-layout';
 import MainFooter from '@/components/main/main-footer';
 import MainHeader from '@/components/main/main-header';
 import PostContent from '@/components/posts/post-content';
+import PostViewRecorder from '@/components/posts/post-view-recorder';
 import { getSession } from '@/lib/auth/session';
 import { formatDate } from '@/lib/dashboard/format';
 import { localizedPermanentRedirect } from '@/lib/i18n/request';
@@ -101,6 +102,7 @@ export default async function PostPage({ params }: PostPageProps) {
         </header>
         {/* 머리에 제목을 보여 주므로 본문 맨 앞의 같은 제목은 빼고 그림 */}
         <PostContent content={removeLeadingTitle(post.content, post.title)} />
+        <PostViewRecorder postId={post.id} />
       </article>
     </PageLayout>
   );
