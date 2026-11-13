@@ -20,6 +20,7 @@ import {
 } from '@/components/studio/studio-styles';
 import { useDropdown } from '@/hooks/use-dropdown';
 import { useLocale } from '@/hooks/use-locale';
+import { useLocalizedRouter } from '@/hooks/use-localized-router';
 import { publishDraft, unpublishDraft } from '@/lib/actions/posts';
 import type { PostVisibility } from '@/lib/db/schema';
 import { checkPublishable } from '@/lib/posts/post-content';
@@ -75,6 +76,7 @@ const PublishActions = ({
 }: PublishActionsProps) => {
   const { t } = useLingui();
   const locale = useLocale();
+  const router = useLocalizedRouter();
   const menuId = useId();
   const {
     repository,
@@ -151,6 +153,8 @@ const PublishActions = ({
           },
         });
         setOpenDialog(null);
+        // 게시가 끝났음을 결과로 보여 주도록 게시된 글로 이동 (본문은 게시가 저장함)
+        router.push(getPostPath({ id: result.id, slug: result.slug }));
         return;
       }
 
