@@ -51,6 +51,8 @@ export const auth = betterAuth({
         email:
           profile.email ??
           `${profile.id}+${profile.login}${NOREPLY_EMAIL_SUFFIX}`,
+        // 게시글 작성자 프로필 링크용 (가입 때 저장, 기존 사용자는 scripts/backfill-github-login.mjs)
+        githubLogin: profile.login,
       }),
     },
   },
@@ -66,6 +68,12 @@ export const auth = betterAuth({
       // input: false → 클라이언트(updateUser 등)에서 임의로 설정 불가, 온보딩 서버 액션에서만 기록
       onboardedAt: {
         type: 'date',
+        required: false,
+        input: false,
+      },
+      // GitHub 아이디 (클라이언트에서 변경 불가, GitHub 프로필에서만 받음)
+      githubLogin: {
+        type: 'string',
         required: false,
         input: false,
       },

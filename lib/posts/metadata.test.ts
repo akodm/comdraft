@@ -12,7 +12,7 @@ const post = (overrides: Partial<PublishedPost> = {}): PublishedPost => ({
   locale: 'ko',
   publishedAt: new Date('2026-11-01T00:00:00Z'),
   updatedAt: new Date('2026-11-02T00:00:00Z'),
-  author: { name: '작성자', image: null },
+  author: { name: '작성자', image: null, githubLogin: null },
   ...overrides,
 });
 

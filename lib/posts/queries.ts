@@ -17,7 +17,8 @@ export interface PublishedPost {
   locale: Locale;
   publishedAt: Date;
   updatedAt: Date;
-  author: { name: string; image: string | null };
+  // githubLogin: 작성자 GitHub 프로필 링크용 (기존 사용자는 채우기 전까지 null)
+  author: { name: string; image: string | null; githubLogin: string | null };
 }
 
 /**
@@ -39,6 +40,7 @@ export const getPublishedPost = cache(
         updatedAt: post.updatedAt,
         authorName: user.name,
         authorImage: user.image,
+        authorGithubLogin: user.githubLogin,
       })
       .from(post)
       .innerJoin(user, eq(post.userId, user.id))
@@ -47,12 +49,17 @@ export const getPublishedPost = cache(
 
     if (!row) return null;
 
-    const { authorName, authorImage, content, ...rest } = row;
+    const { authorName, authorImage, authorGithubLogin, content, ...rest } =
+      row;
 
     return {
       ...rest,
       content: content as JSONContent,
-      author: { name: authorName, image: authorImage },
+      author: {
+        name: authorName,
+        image: authorImage,
+        githubLogin: authorGithubLogin,
+      },
     };
   },
 );

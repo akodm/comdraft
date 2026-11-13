@@ -12,6 +12,7 @@ import { formatDate } from '@/lib/dashboard/format';
 import { localizedPermanentRedirect } from '@/lib/i18n/request';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 import { isGithubAvatar } from '@/lib/posts/avatar';
+import { getGithubProfileUrl } from '@/lib/posts/github-profile';
 import { buildPostMetadata } from '@/lib/posts/metadata';
 import { removeLeadingTitle } from '@/lib/posts/post-content';
 import { getEncodedPostPath, parsePostPath } from '@/lib/posts/post-path';
@@ -61,6 +62,24 @@ export default async function PostPage({ params }: PostPageProps) {
 
   const session = await getSession();
   const isRepublished = post.updatedAt.getTime() > post.publishedAt.getTime();
+  // 작성자 GitHub 아이디가 있으면 아바타·이름을 GitHub 프로필 새 탭 링크로
+  const authorProfileUrl = getGithubProfileUrl(post.author.githubLogin);
+  const author = (
+    <>
+      {isGithubAvatar(post.author.image) && (
+        <Image
+          src={post.author.image}
+          alt=""
+          width={32}
+          height={32}
+          className="size-8 rounded-full"
+        />
+      )}
+      <span className="font-medium text-ink group-hover:underline">
+        {post.author.name}
+      </span>
+    </>
+  );
 
   return (
     <PageLayout
@@ -73,16 +92,18 @@ export default async function PostPage({ params }: PostPageProps) {
             {post.title}
           </h1>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-ink-muted pc:text-[14px]">
-            {isGithubAvatar(post.author.image) && (
-              <Image
-                src={post.author.image}
-                alt=""
-                width={32}
-                height={32}
-                className="size-8 rounded-full"
-              />
+            {authorProfileUrl ? (
+              <a
+                href={authorProfileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-x-3"
+              >
+                {author}
+              </a>
+            ) : (
+              author
             )}
-            <span className="font-medium text-ink">{post.author.name}</span>
             <span aria-hidden="true">·</span>
             <time dateTime={post.publishedAt.toISOString()}>
               {formatDate(post.publishedAt, locale)}
