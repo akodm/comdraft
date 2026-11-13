@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import Image from 'next/image';
 import { Trans, useLingui } from '@lingui/react/macro';
 import {
@@ -10,6 +10,7 @@ import {
 } from '@/components/shared/dropdown-styles';
 import LocalizedLink from '@/components/shared/localized-link';
 import SignOutButton from '@/components/shared/sign-out-button';
+import SettingsDialog from '@/components/studio/settings-dialog';
 import { useDropdown } from '@/hooks/use-dropdown';
 
 interface ProfileMenuProps {
@@ -48,12 +49,21 @@ const ProfileIcon = () => {
  * 헤더 프로필 버튼
  * - 로그아웃 상태: 로그인/회원가입 페이지로 이동
  * - 로그인 상태: 프로필 드롭다운 (바깥 클릭, Escape, 페이지 이동 시 닫힘)
+ * - 계정: 스튜디오와 같은 설정 모달을 계정 설정 탭만으로 띄움 (스튜디오 밖이라 저장소 설정은 없음)
  */
 const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
   const { t } = useLingui();
   const menuId = useId();
   const { isOpen, toggle, containerRef, triggerRef, firstItemRef, handleBlur } =
     useDropdown<HTMLAnchorElement>();
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+
+  const openAccount = () => {
+    // 메뉴 버튼으로 포커스를 먼저 옮겨 두면 모달을 닫을 때 그 버튼으로 돌아옴
+    triggerRef.current?.focus();
+    toggle();
+    setIsAccountOpen(true);
+  };
 
   if (!isSignedIn) {
     return (
@@ -68,55 +78,67 @@ const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
   }
 
   return (
-    <div ref={containerRef} className="relative" onBlur={handleBlur}>
-      <button
-        ref={triggerRef}
-        type="button"
-        aria-label={t`프로필 메뉴`}
-        aria-expanded={isOpen}
-        aria-controls={menuId}
-        onClick={toggle}
-        className={PROFILE_BUTTON_CLASS}
-      >
-        <ProfileIcon />
-      </button>
-      {isOpen && (
-        <div
-          id={menuId}
-          className={`absolute top-[calc(100%+8px)] right-0 w-60 ${DROPDOWN_PANEL_CLASS}`}
+    <>
+      <div ref={containerRef} className="relative" onBlur={handleBlur}>
+        <button
+          ref={triggerRef}
+          type="button"
+          aria-label={t`프로필 메뉴`}
+          aria-expanded={isOpen}
+          aria-controls={menuId}
+          onClick={toggle}
+          className={PROFILE_BUTTON_CLASS}
         >
-          <p className="text-[12px] leading-[1.2] font-bold whitespace-nowrap text-ink">
-            <Trans>프로필 메뉴</Trans>
-          </p>
-          <div aria-hidden="true" className="h-px bg-line" />
-          <ul className="flex flex-col gap-1">
-            <li>
-              <LocalizedLink
-                ref={firstItemRef}
-                href="/dashboard"
-                className={MENU_ITEM_CLASS}
-              >
-                <Trans>대시보드</Trans>
-              </LocalizedLink>
-            </li>
-            <li>
-              {/* 계정 페이지가 아직 없어 디자인만 구현 */}
-              <button type="button" className={MENU_ITEM_CLASS}>
-                <Trans>계정</Trans>
-              </button>
-            </li>
-            <li>
-              <SignOutButton className={MENU_ITEM_CLASS} />
-            </li>
-          </ul>
-          <div aria-hidden="true" className="h-px bg-line" />
-          {/* 회원탈퇴 기능이 아직 없어 디자인만 구현 */}
-          <button type="button" className={DANGER_MENU_ITEM_CLASS}>
-            <Trans>회원탈퇴</Trans>
-          </button>
-        </div>
+          <ProfileIcon />
+        </button>
+        {isOpen && (
+          <div
+            id={menuId}
+            className={`absolute top-[calc(100%+8px)] right-0 w-60 ${DROPDOWN_PANEL_CLASS}`}
+          >
+            <p className="text-[12px] leading-[1.2] font-bold whitespace-nowrap text-ink">
+              <Trans>프로필 메뉴</Trans>
+            </p>
+            <div aria-hidden="true" className="h-px bg-line" />
+            <ul className="flex flex-col gap-1">
+              <li>
+                <LocalizedLink
+                  ref={firstItemRef}
+                  href="/dashboard"
+                  className={MENU_ITEM_CLASS}
+                >
+                  <Trans>대시보드</Trans>
+                </LocalizedLink>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={openAccount}
+                  className={MENU_ITEM_CLASS}
+                >
+                  <Trans>계정</Trans>
+                </button>
+              </li>
+              <li>
+                <SignOutButton className={MENU_ITEM_CLASS} />
+              </li>
+            </ul>
+            <div aria-hidden="true" className="h-px bg-line" />
+            {/* 회원탈퇴 기능이 아직 없어 디자인만 구현 */}
+            <button type="button" className={DANGER_MENU_ITEM_CLASS}>
+              <Trans>회원탈퇴</Trans>
+            </button>
+          </div>
+        )}
+      </div>
+      {isAccountOpen && (
+        <SettingsDialog
+          initialTab="account"
+          tabs={['account']}
+          onClose={() => setIsAccountOpen(false)}
+        />
       )}
-    </div>
+    </>
   );
 };
 

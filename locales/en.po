@@ -119,7 +119,7 @@ msgstr "Something went wrong while signing in. ({error})"
 msgid "IntersectionObserver로 화면 진입 감지"
 msgstr "Detect viewport entry with IntersectionObserver"
 
-#: components/main/profile-menu.tsx:115
+#: components/main/profile-menu.tsx:129
 msgid "회원탈퇴"
 msgstr "Delete account"
 
@@ -403,8 +403,8 @@ msgstr "Choose language"
 msgid "회원 탈퇴"
 msgstr "Delete account"
 
-#: components/main/profile-menu.tsx:75
-#: components/main/profile-menu.tsx:89
+#: components/main/profile-menu.tsx:86
+#: components/main/profile-menu.tsx:100
 msgid "프로필 메뉴"
 msgstr "Profile menu"
 
@@ -481,7 +481,7 @@ msgstr "Sign out"
 #: components/studio/generation-progress.tsx:103
 #: components/studio/quota-exhausted-banner.tsx:35
 #: components/studio/reference-link-dialog.tsx:134
-#: components/studio/settings-dialog.tsx:84
+#: components/studio/settings-dialog.tsx:87
 msgid "닫기"
 msgstr "Close"
 
@@ -616,7 +616,7 @@ msgstr "You can add links after the AI finishes writing."
 msgid "삭제한 초안은 되돌릴 수 없습니다"
 msgstr "A deleted draft cannot be restored."
 
-#: components/main/profile-menu.tsx:62
+#: components/main/profile-menu.tsx:72
 msgid "로그인"
 msgstr "Sign in"
 
@@ -648,7 +648,7 @@ msgstr "Disconnect repository"
 msgid "{label} 메뉴"
 msgstr "{label} menu"
 
-#: components/main/main-header.tsx:28
+#: components/main/main-header.tsx:33
 #: components/main/mobile-menu.tsx:153
 msgid "주요 메뉴"
 msgstr "Main menu"
@@ -782,7 +782,7 @@ msgid "이 부분에 작업 계기를 작성해 주세요"
 msgstr "Write why you started this work here"
 
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:40
-#: components/main/profile-menu.tsx:99
+#: components/main/profile-menu.tsx:110
 #: components/studio/profile-menu.tsx:71
 msgid "대시보드"
 msgstr "Dashboard"
@@ -1060,7 +1060,7 @@ msgstr "An unknown error stopped the writing. Please try again."
 msgid "기본 옵션 접기"
 msgstr "Collapse default options"
 
-#: components/main/profile-menu.tsx:105
+#: components/main/profile-menu.tsx:119
 msgid "계정"
 msgstr "Account"
 
