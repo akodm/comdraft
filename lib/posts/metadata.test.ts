@@ -27,7 +27,11 @@ describe('buildPostMetadata', () => {
     expect(meta.alternates?.canonical).toBe(
       'https://comdraft.vercel.app/en/posts/s-a1B2c3D4e5',
     );
-    expect(meta.openGraph).toMatchObject({ type: 'article' });
+    expect(meta.openGraph).toMatchObject({
+      type: 'article',
+      siteName: 'comdraft',
+      locale: 'en_US',
+    });
     expect(meta.robots).toBeUndefined();
   });
 

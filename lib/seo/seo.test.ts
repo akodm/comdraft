@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isAuthorizedCronRequest } from '@/lib/seo/cron';
 import { buildBlogPostingJsonLd, serializeJsonLd } from '@/lib/seo/json-ld';
+import { buildWebsiteOpenGraph } from '@/lib/seo/open-graph';
 import { buildRobots } from '@/lib/seo/robots';
 import { buildSitemapEntries } from '@/lib/seo/sitemap';
 import { buildLocalizedAlternates } from '@/lib/seo/urls';
@@ -148,5 +149,26 @@ describe('JSON-LD', () => {
 
     expect(text).not.toContain('</script>');
     expect(JSON.parse(text)).toEqual({ headline: '</script><script>alert(1)' });
+  });
+});
+
+describe('buildWebsiteOpenGraph', () => {
+  it('사이트 이름과 언어, 다른 언어를 함께 담는다', () => {
+    expect(
+      buildWebsiteOpenGraph({
+        locale: 'en',
+        title: 't',
+        description: 'd',
+        url: 'https://comdraft.dev/en',
+      }),
+    ).toEqual({
+      type: 'website',
+      siteName: 'comdraft',
+      locale: 'en_US',
+      alternateLocale: ['ko_KR'],
+      title: 't',
+      description: 'd',
+      url: 'https://comdraft.dev/en',
+    });
   });
 });

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { localizePath } from '@/lib/i18n/config';
 import { getEncodedPostPath } from '@/lib/posts/post-path';
 import type { PublishedPost } from '@/lib/posts/queries';
+import { OG_LOCALES, SITE_NAME } from '@/lib/seo/site';
 
 /** 절대 주소에 쓸 사이트 origin (끝의 `/` 제거, 설정이 없으면 undefined) */
 export const getSiteOrigin = (): string | undefined =>
@@ -26,6 +27,8 @@ export const buildPostMetadata = (
     alternates: { canonical: url },
     openGraph: {
       type: 'article',
+      siteName: SITE_NAME,
+      locale: OG_LOCALES[post.locale],
       title: post.title,
       description: post.excerpt,
       url,
