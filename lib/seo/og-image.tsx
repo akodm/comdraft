@@ -100,10 +100,18 @@ const Frame = ({
   </div>
 );
 
-const render = async (element: ReactNode, text: string) =>
+// 게시글 이미지는 요청마다 만드는 경로라 CDN 과 브라우저가 1시간 동안 재사용하도록 (다시 게시 반영은 길어야 1시간)
+const POST_IMAGE_CACHE_CONTROL = 'public, max-age=3600, s-maxage=3600';
+
+const render = async (
+  element: ReactNode,
+  text: string,
+  headers?: Record<string, string>,
+) =>
   new ImageResponse(element as React.ReactElement, {
     ...OG_IMAGE_SIZE,
     fonts: await loadOgFonts(`${text}comdraft>_${DOMAIN}`),
+    headers,
   });
 
 /** 사이트 기본 오픈그래프 이미지 (언어별 소개 문구) */
@@ -182,5 +190,6 @@ export const renderPostOgImage = ({
       )}
     </Frame>,
     `${shownTitle}${shownTags.join('')}#${authorName}`,
+    { 'Cache-Control': POST_IMAGE_CACHE_CONTROL },
   );
 };

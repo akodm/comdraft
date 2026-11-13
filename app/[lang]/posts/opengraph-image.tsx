@@ -8,6 +8,8 @@ import { OG_IMAGE_SIZE, renderSiteOgImage } from '@/lib/seo/og-image';
 export const alt = 'comdraft';
 export const size = OG_IMAGE_SIZE;
 export const contentType = 'image/png';
+// 언어별 문구만 쓰는 고정 이미지라 한 번 만들어 둠 (요청마다 글꼴을 받지 않도록)
+export const dynamic = 'force-static';
 
 export default async function Image({
   params,
