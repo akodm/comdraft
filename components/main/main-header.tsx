@@ -4,6 +4,7 @@ import LanguageMenu from '@/components/main/language-menu';
 import MobileMenu from '@/components/main/mobile-menu';
 import PostsNavLink from '@/components/main/posts-nav-link';
 import ProfileMenu from '@/components/main/profile-menu';
+import LocalizedLink from '@/components/shared/localized-link';
 
 interface MainHeaderProps {
   // 서버에서 확인한 로그인 여부 (프로필 버튼 동작이 달라짐)
@@ -12,6 +13,8 @@ interface MainHeaderProps {
 
 /**
  * 메인 헤더
+ * - 로고: 로그인 상태면 대시보드, 아니면 메인으로 이동
+ *   (메인은 로그인 사용자를 대시보드로 보내므로 리다이렉트 없이 바로 연결)
  * - 프로필: 로그인 상태면 드롭다운, 아니면 로그인 페이지로 이동
  * - 모바일 메뉴: 사이드 메뉴 열기
  * - 언어 변경: 언어 선택 드롭다운
@@ -24,7 +27,9 @@ const MainHeader = ({ isSignedIn }: MainHeaderProps) => {
     <header className="h-16 border-b border-line px-4 pc:h-24 pc:px-5">
       <div className="flex h-full items-center justify-between pc:mx-auto pc:max-w-7xl">
         <div className="flex items-center gap-18">
-          <BrandLogo />
+          <LocalizedLink href={isSignedIn ? '/dashboard' : '/'}>
+            <BrandLogo />
+          </LocalizedLink>
           <nav aria-label={t`주요 메뉴`} className="hidden pc:flex">
             <PostsNavLink />
           </nav>
