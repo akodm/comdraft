@@ -5,6 +5,10 @@ import { nextCookies } from 'better-auth/next-js';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { db } from '@/lib/db';
 import * as schema from '@/lib/db/schema';
+import {
+  changesProviderOnlyField,
+  USER_ADDITIONAL_FIELDS,
+} from '@/lib/auth/user-fields';
 
 const NOREPLY_EMAIL_SUFFIX = '@users.noreply.github.com';
 
@@ -57,30 +61,19 @@ export const auth = betterAuth({
     },
   },
   user: {
-    additionalFields: {
-      // 사용량 등급 (quota_plan.role), 클라이언트에서 변경 불가
-      role: {
-        type: 'string',
-        required: false,
-        input: false,
-      },
-      // 세션 user 객체에 포함시키기 위해 등록
-      // input: false → 클라이언트(updateUser 등)에서 임의로 설정 불가, 온보딩 서버 액션에서만 기록
-      onboardedAt: {
-        type: 'date',
-        required: false,
-        input: false,
-      },
-      // GitHub 아이디 (클라이언트에서 변경 불가, GitHub 프로필에서만 받음)
-      githubLogin: {
-        type: 'string',
-        required: false,
-        input: false,
-      },
-    },
+    additionalFields: USER_ADDITIONAL_FIELDS,
   },
   databaseHooks: {
     user: {
+      update: {
+        // GitHub 프로필에서만 받는 필드를 사용자 정보 수정 요청으로 바꾸려 하면 수정 자체를 거절
+        // (훅이 돌려준 data 는 원래 data 에 합쳐질 뿐이라 필드를 빼낼 수 없음)
+        before: async (data) => {
+          if (changesProviderOnlyField(data)) {
+            return false;
+          }
+        },
+      },
       create: {
         // GitHub 에서 검증된 실제 이메일을 받은 경우에만 회원가입 허용
         before: async (user) => {
