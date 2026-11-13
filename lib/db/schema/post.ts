@@ -61,6 +61,40 @@ export const post = comdraftSchema.table(
   ],
 );
 
+/**
+ * 게시글 조회 기록
+ *
+ * - post_view: 센 조회만 한 줄씩 (같은 글 같은 사람은 30일에 한 번, 글쓴이 본인 제외)
+ *   → 화면에 표시하지 않고 인기·핫 게시글 집계용 (예: 최근 7일 줄 수)
+ *   → viewer_key: 로그인 `user:{userId}`, 비로그인 `anon:{쿠키 uuid}`
+ *   → 게시글이 삭제되면 함께 삭제됨
+ */
+export const postView = comdraftSchema.table(
+  'post_view',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    postId: text('post_id')
+      .notNull()
+      .references(() => post.id, { onDelete: 'cascade' }),
+    viewerKey: text('viewer_key').notNull(),
+    viewedAt: timestamp('viewed_at', { withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    // 같은 사람의 최근 기록 확인 (30일 규칙)
+    index('post_view_post_viewer_idx').on(
+      table.postId,
+      table.viewerKey,
+      table.viewedAt.desc(),
+    ),
+    // 글별 기간 집계
+    index('post_view_post_viewed_idx').on(table.postId, table.viewedAt),
+  ],
+);
+
 export const postRelations = relations(post, ({ one }) => ({
   draft: one(draft, {
     fields: [post.draftId],
