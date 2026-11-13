@@ -57,10 +57,6 @@ msgstr "Connect GitHub"
 msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
 msgstr "Images now load starting with the ones on screen. This post covers how it was implemented and what to check."
 
-#: lib/seo/copy.ts:21
-msgid "comdraft — GitHub 커밋으로 AI 기술 블로그 초안을 작성하는 서비스"
-msgstr "comdraft — write AI tech blog drafts from your GitHub commits"
-
 #: components/studio/draft-tags.tsx:142
 #: components/studio/draft-tags.tsx:150
 msgid "태그 입력"
@@ -624,7 +620,7 @@ msgid "삭제한 초안은 되돌릴 수 없습니다"
 msgstr "A deleted draft cannot be restored."
 
 #: components/main/profile-menu.tsx:72
-#: lib/seo/copy.ts:24
+#: lib/seo/copy.ts:22
 msgid "로그인"
 msgstr "Sign in"
 
@@ -715,7 +711,7 @@ msgstr "Motivation"
 msgid "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't send your request. Please try again."
 
-#: lib/seo/copy.ts:26
+#: lib/seo/copy.ts:24
 msgid "시작하기"
 msgstr "Get started"
 
@@ -796,7 +792,7 @@ msgstr "Write why you started this work here"
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:40
 #: components/main/profile-menu.tsx:110
 #: components/studio/profile-menu.tsx:71
-#: lib/seo/copy.ts:28
+#: lib/seo/copy.ts:26
 msgid "대시보드"
 msgstr "Dashboard"
 

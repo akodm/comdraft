@@ -18,8 +18,6 @@ export const OG_TAGLINE = msg`커밋으로 쓰는 AI 기술 블로그 초안`;
 
 export const OG_FEATURES = msg`커밋 선택 · AI 초안 작성 · 에디터 수정 · 게시와 공유`;
 
-export const OG_IMAGE_ALT = msg`comdraft — GitHub 커밋으로 AI 기술 블로그 초안을 작성하는 서비스`;
-
 // 검색에서 빼는 화면의 짧은 제목
 export const SIGN_IN_TITLE = msg`로그인`;
 

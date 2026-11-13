@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { isAuthorizedCronRequest } from '@/lib/seo/cron';
 import { buildBlogPostingJsonLd, serializeJsonLd } from '@/lib/seo/json-ld';
 import { buildWebsiteOpenGraph } from '@/lib/seo/open-graph';
+import { truncateOgText } from '@/lib/seo/og-text';
 import { buildRobots } from '@/lib/seo/robots';
 import { buildSitemapEntries } from '@/lib/seo/sitemap';
 import { buildLocalizedAlternates } from '@/lib/seo/urls';
@@ -170,5 +171,16 @@ describe('buildWebsiteOpenGraph', () => {
       description: 'd',
       url: 'https://comdraft.dev/en',
     });
+  });
+});
+
+describe('truncateOgText', () => {
+  it('길이 안이면 그대로', () => {
+    expect(truncateOgText('짧은 제목', 10)).toBe('짧은 제목');
+  });
+
+  it('넘으면 코드 포인트 기준으로 자르고 말줄임표', () => {
+    expect(truncateOgText('가'.repeat(12), 10)).toBe(`${'가'.repeat(9)}…`);
+    expect(Array.from(truncateOgText('😀'.repeat(12), 10))).toHaveLength(10);
   });
 });
