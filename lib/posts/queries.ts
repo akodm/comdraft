@@ -1,15 +1,11 @@
 import 'server-only';
 import { cache } from 'react';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, count, desc, eq, sql } from 'drizzle-orm';
 import type { JSONContent } from '@tiptap/core';
 import { db } from '@/lib/db';
 import { draft, post, user, type PostVisibility } from '@/lib/db/schema';
 import type { Locale } from '@/lib/i18n/config';
-import {
-  decodeFeedCursor,
-  encodeFeedCursor,
-  POST_FEED_PAGE_SIZE,
-} from '@/lib/posts/feed-cursor';
+import { POST_LIST_PAGE_SIZE } from '@/lib/posts/post-list';
 
 export interface PublishedPost {
   id: string;
@@ -61,73 +57,51 @@ export const getPublishedPost = cache(
   },
 );
 
-export interface PostFeedItem {
+export interface PostListItem {
   id: string;
   slug: string;
   title: string;
   excerpt: string;
-  publishedAt: Date;
-  author: { name: string; image: string | null };
+  // 본문의 첫 번째 이미지 주소 (게시 때 공개 버킷 주소로 정리됨, 없으면 null)
+  thumbnailUrl: string | null;
 }
 
-export interface PostFeedPage {
-  posts: PostFeedItem[];
-  // 다음 페이지가 없으면 null
-  nextCursor: string | null;
+export interface PostListPage {
+  posts: PostListItem[];
+  // 전체 쪽 수 (공개 글이 없으면 0)
+  totalPages: number;
 }
 
 /**
- * 전체 피드 한 페이지 (공개 글만, 처음 게시한 시각 최신순, 커서 기반)
- * - 같은 시각이면 ID 역순으로 정렬해 순서가 항상 같고, 페이지 사이에 빠지거나 겹치는 글이 없음
- * - post_public_published_idx (published_at desc, id desc, 공개 글만) 를 그대로 탈 수 있는 조건과 정렬
- * - published_at 은 밀리초 정밀도라 JS Date 로 만든 커서와 그대로 비교 가능
- * - 커서가 올바르지 않으면 빈 페이지
+ * 게시글 목록 한 쪽 (공개 글만, 처음 게시한 시각 최신순, 쪽 번호 기반)
+ * - 같은 시각이면 ID 역순으로 정렬해 쪽 사이에 빠지거나 겹치는 글이 없음
+ * - 썸네일은 본문 전체를 가져오지 않고 DB 에서 첫 이미지 주소만 뽑음 (인용구 등 안쪽 이미지도 본문 순서대로)
  */
-export const getPostFeedPage = async (
-  cursor: string | null = null,
-): Promise<PostFeedPage> => {
-  const after = cursor === null ? null : decodeFeedCursor(cursor);
+export const getPostListPage = async (page: number): Promise<PostListPage> => {
+  const isPublic = eq(post.visibility, 'public');
 
-  if (cursor !== null && !after) {
-    return { posts: [], nextCursor: null };
-  }
-
-  const rows = await db
-    .select({
-      id: post.id,
-      slug: post.slug,
-      title: post.title,
-      excerpt: post.excerpt,
-      publishedAt: post.publishedAt,
-      authorName: user.name,
-      authorImage: user.image,
-    })
-    .from(post)
-    .innerJoin(user, eq(post.userId, user.id))
-    .where(
-      and(
-        eq(post.visibility, 'public'),
-        after
-          ? sql`(${post.publishedAt}, ${post.id}) < (${after.publishedAt.toISOString()}::timestamptz, ${after.id})`
-          : undefined,
-      ),
-    )
-    .orderBy(desc(post.publishedAt), desc(post.id))
-    // 한 개 더 조회해 다음 페이지 존재 여부 확인
-    .limit(POST_FEED_PAGE_SIZE + 1);
-
-  const page = rows.slice(0, POST_FEED_PAGE_SIZE);
-  const last = page.at(-1);
+  const [rows, [{ total }]] = await Promise.all([
+    db
+      .select({
+        id: post.id,
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt,
+        thumbnailUrl: sql<
+          string | null
+        >`nullif(jsonb_path_query_first(${post.content}, 'strict $.**?(@.type == "image").attrs.src') #>> '{}', '')`,
+      })
+      .from(post)
+      .where(isPublic)
+      .orderBy(desc(post.publishedAt), desc(post.id))
+      .limit(POST_LIST_PAGE_SIZE)
+      .offset((page - 1) * POST_LIST_PAGE_SIZE),
+    db.select({ total: count() }).from(post).where(isPublic),
+  ]);
 
   return {
-    posts: page.map(({ authorName, authorImage, ...rest }) => ({
-      ...rest,
-      author: { name: authorName, image: authorImage },
-    })),
-    nextCursor:
-      rows.length > POST_FEED_PAGE_SIZE && last
-        ? encodeFeedCursor({ publishedAt: last.publishedAt, id: last.id })
-        : null,
+    posts: rows,
+    totalPages: Math.ceil(total / POST_LIST_PAGE_SIZE),
   };
 };
 

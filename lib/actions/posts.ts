@@ -20,7 +20,6 @@ import { parseImagePath, removeDisallowedImages } from '@/lib/images/rules';
 import { checkPublishable } from '@/lib/posts/post-content';
 import { createPostId } from '@/lib/posts/post-id';
 import { buildPostValues, parsePostVisibility } from '@/lib/posts/post-values';
-import { getPostFeedPage, type PostFeedPage } from '@/lib/posts/queries';
 import { parseDraftDocument } from '@/lib/studio/draft-content';
 import { isOwnedDraft } from '@/lib/studio/queries';
 import { getSupabaseUrl } from '@/lib/supabase/server';
@@ -215,12 +214,4 @@ export async function unpublishDraft(
   }
 
   return result;
-}
-
-/**
- * 전체 피드 무한 스크롤: 커서 다음의 공개 글 (로그인 불필요한 공개 조회)
- * - 서버 액션 인자는 신뢰할 수 없으므로 커서 형식은 조회 쪽에서 확인하고, 올바르지 않으면 빈 페이지
- */
-export async function loadPostFeed(cursor: string): Promise<PostFeedPage> {
-  return getPostFeedPage(String(cursor));
 }
