@@ -31,16 +31,22 @@ const DIALOG_CLASS =
 
 interface SettingsDialogProps {
   initialTab: SettingsTab;
+  // 보여 줄 탭 (스튜디오 밖에는 연동 저장소가 없어 계정 설정만 넘김)
+  tabs?: readonly SettingsTab[];
   onClose: () => void;
 }
 
 /**
- * 스튜디오 프로필 메뉴의 계정 설정 / 저장소 설정 모달
+ * 계정 설정 / 저장소 설정 모달 (스튜디오 프로필 메뉴, 헤더 프로필 메뉴의 계정)
  * - 닫기 줄과 탭 줄은 내용을 스크롤해도 위에 고정
  * - 탭은 좌우 방향키로 옮김 (WAI-ARIA 탭 패턴)
  * - 저장소 설정 탭 내용은 디자인을 받은 뒤 구현
  */
-const SettingsDialog = ({ initialTab, onClose }: SettingsDialogProps) => {
+const SettingsDialog = ({
+  initialTab,
+  tabs = SETTINGS_TABS,
+  onClose,
+}: SettingsDialogProps) => {
   const { t, i18n } = useLingui();
   const baseId = useId();
   const dialogRef = useModalDialog();
@@ -58,11 +64,8 @@ const SettingsDialog = ({ initialTab, onClose }: SettingsDialogProps) => {
     }
 
     event.preventDefault();
-    const index = SETTINGS_TABS.indexOf(tab);
-    const next =
-      SETTINGS_TABS[
-        (index + step + SETTINGS_TABS.length) % SETTINGS_TABS.length
-      ];
+    const index = tabs.indexOf(tab);
+    const next = tabs[(index + step + tabs.length) % tabs.length];
     setTab(next);
     tabRefs.current[next]?.focus();
   };
@@ -97,7 +100,7 @@ const SettingsDialog = ({ initialTab, onClose }: SettingsDialogProps) => {
           role="tablist"
           className="flex gap-6 border-b border-line px-5 pc:px-7"
         >
-          {SETTINGS_TABS.map((value) => {
+          {tabs.map((value) => {
             const isActive = value === tab;
 
             return (
