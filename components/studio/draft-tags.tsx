@@ -113,7 +113,9 @@ const DraftTags = ({
   };
 
   return (
-    <div className="mt-10 border-t border-line pt-5">
+    // relative: 화면에 보이지 않는 입력칸 라벨(sr-only, absolute)의 위치 기준을 이 안에 둠
+    // → 기준이 body 가 되면 편집기 스크롤 영역에 잘리지 않고, 본문이 길 때 페이지 전체 높이를 늘림
+    <div className="relative mt-10 border-t border-line pt-5">
       {tags.length > 0 && (
         <ul className="mb-3 flex flex-wrap gap-2">
           {tags.map((tag) => (
