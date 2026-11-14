@@ -41,6 +41,18 @@ describe('개인정보처리방침 내용', () => {
   });
 });
 
+describe('개인정보처리방침 Google Analytics 안내', () => {
+  it('두 언어 모두 Google Analytics 위탁과 쿠키, 거부 방법을 알린다', () => {
+    for (const locale of ['ko', 'en'] as const) {
+      const text = JSON.stringify(PRIVACY_POLICY[locale]);
+
+      expect(text).toContain('Google Analytics');
+      expect(text).toContain('_ga');
+      expect(text).toContain('https://tools.google.com/dlpage/gaoptout');
+    }
+  });
+});
+
 describe('getContactMailto', () => {
   it('운영자 이메일로 제목을 인코딩해 연결', () => {
     expect(getContactMailto('[comdraft] 문의')).toBe(

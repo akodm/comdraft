@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import LinguiClientProvider from '@/components/providers/lingui-client-provider';
 import FloatingLocaleSwitcher from '@/components/shared/floating-locale-switcher';
+import GoogleTag from '@/components/shared/google-tag';
 import { LOCALES } from '@/lib/i18n/config';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 import { getSiteOrigin } from '@/lib/posts/metadata';
@@ -80,6 +81,7 @@ export default async function RootLayout({
         </LinguiClientProvider>
         <Analytics />
         <SpeedInsights />
+        <GoogleTag />
       </body>
     </html>
   );
