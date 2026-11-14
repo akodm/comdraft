@@ -21,6 +21,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
           '저장소 연동: GitHub App 설치 정보, 연동한 저장소의 이름·소유자·공개 여부·브랜치',
           '서비스 이용 중 작성한 내용: 초안 작성 요청 내용, 선택한 커밋의 식별자(SHA), 참고 링크, 초안·게시글 본문과 기술 태그, 업로드한 이미지, AI 사용량 기록',
           '자동으로 생성되는 정보: 로그인 세션의 IP 주소와 브라우저 정보(User-Agent), 게시글 조회 기록(로그인 사용자 식별자 또는 무작위 방문자 식별자), 쿠키',
+          '방문 분석(Google Analytics): 방문한 페이지, 방문 경로와 머문 시간, 대략적인 위치(국가·도시), 기기·브라우저 정보 (Google Analytics 쿠키의 무작위 식별자 기준)',
         ],
       },
       {
@@ -38,7 +39,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
           '저장소 연동과 커밋 내역 조회',
           'AI 를 이용한 기술 블로그 초안 작성과 사용량 관리',
           '게시글 게시와 작성자 표시(이름, 프로필 이미지, GitHub 프로필 링크)',
-          '조회 수 집계 등 서비스 운영과 개선, 부정 이용 방지',
+          '조회 수 집계와 방문 통계 분석 등 서비스 운영과 개선, 부정 이용 방지',
         ],
       },
       {
@@ -65,6 +66,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
           'Supabase Inc. (미국, 데이터는 서울 리전): 데이터베이스와 업로드 이미지 저장',
           'Amazon Web Services, Inc. (미국, 서울 리전): AI 초안 작성 서버 실행',
           'GitHub, Inc. (미국): 로그인 인증, 저장소와 커밋 정보 조회',
+          'Google LLC (미국): Google Analytics 방문 분석 (이름·이메일 등 계정 정보는 보내지 않음)',
         ],
       },
       {
@@ -94,12 +96,14 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         heading: '9. 쿠키 사용',
         paragraphs: [
           '서비스는 다음 목적의 쿠키만 사용하며, 광고 목적의 쿠키는 사용하지 않습니다. 브라우저 설정으로 쿠키를 거부할 수 있으나, 이 경우 로그인 등 일부 기능을 이용할 수 없습니다.',
+          'Google Analytics 수집은 Google 애널리틱스 차단 브라우저 부가 기능(https://tools.google.com/dlpage/gaoptout)으로도 거부할 수 있으며, 거부해도 서비스 이용에는 영향이 없습니다.',
         ],
         items: [
           '로그인 세션 쿠키: 로그인 상태 유지',
           '언어 설정 쿠키: 마지막으로 방문한 언어 기억',
           '방문자 식별 쿠키: 게시글 조회 수를 중복 없이 세기 위한 무작위 값 (1년 보관, 개인을 식별하는 정보 없음)',
           'GitHub 연동 확인 쿠키: 저장소 연동 과정의 위조 요청 방지 (연동이 끝나면 삭제)',
+          'Google Analytics 쿠키(_ga, _ga_로 시작하는 쿠키): 방문을 구분해 방문 통계를 내는 무작위 식별자 (최대 2년 보관)',
         ],
       },
       {
@@ -139,6 +143,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
           'Repository connection: GitHub App installation details and the name, owner, visibility, and branch of connected repositories',
           'Content you create: draft requests, selected commit identifiers (SHAs), reference links, draft and post bodies and technology tags, uploaded images, and AI usage records',
           'Automatically generated information: IP address and browser information (User-Agent) of sign-in sessions, post view records (a signed-in user identifier or a random visitor identifier), and cookies',
+          'Visit analytics (Google Analytics): pages visited, navigation paths and time spent, approximate location (country and city), and device and browser information (keyed to a random identifier in Google Analytics cookies)',
         ],
       },
       {
@@ -156,7 +161,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
           'Connecting repositories and looking up commit history',
           'Writing tech blog drafts with AI and managing usage',
           'Publishing posts and showing their author (name, profile image, GitHub profile link)',
-          'Operating and improving the Service, including view counts, and preventing abuse',
+          'Operating and improving the Service, including view counts and visit analytics, and preventing abuse',
         ],
       },
       {
@@ -184,6 +189,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
           'Supabase Inc. (United States, data in the Seoul region): database and uploaded image storage',
           'Amazon Web Services, Inc. (United States, Seoul region): running the AI draft server',
           'GitHub, Inc. (United States): sign-in authentication and repository and commit lookups',
+          'Google LLC (United States): Google Analytics visit analytics (account information such as your name or email is not sent)',
         ],
       },
       {
@@ -213,12 +219,14 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         heading: '9. Cookies',
         paragraphs: [
           'The Service uses only the cookies below and no advertising cookies. You can refuse cookies in your browser settings, but some features such as sign-in will not work.',
+          'You can also opt out of Google Analytics with the Google Analytics opt-out browser add-on (https://tools.google.com/dlpage/gaoptout). Opting out does not affect your use of the Service.',
         ],
         items: [
           'Session cookie: keeps you signed in',
           'Language cookie: remembers the language you last visited',
           'Visitor cookie: a random value used to count post views without duplicates (kept for 1 year, contains no personally identifying information)',
           'GitHub connection cookie: prevents forged requests while connecting a repository (deleted when the connection finishes)',
+          'Google Analytics cookies (_ga and cookies starting with _ga_): a random identifier used to tell visits apart for visit statistics (kept for up to 2 years)',
         ],
       },
       {
