@@ -6,6 +6,12 @@
       "timezone": "Asia/Seoul",
       "path": "/api/cron/sitemap",
       "requestMethod": "GET"
+    },
+    "daily-report": {
+      "schedule": "0 8 * * *",
+      "timezone": "Asia/Seoul",
+      "path": "/api/cron/daily-report",
+      "requestMethod": "GET"
     }
   }
 }
