@@ -1,11 +1,17 @@
 import Image from 'next/image';
 import { Trans, useLingui } from '@lingui/react/macro';
 import LocalizedLink from '@/components/shared/localized-link';
-import { getPaginationItems, getPostListHref } from '@/lib/posts/post-list';
+import {
+  getPaginationItems,
+  getPostListHref,
+  type PostListFilters,
+} from '@/lib/posts/post-list';
 
 interface PostPaginationProps {
   currentPage: number;
   totalPages: number;
+  // 쪽을 옮겨도 유지할 목록 필터
+  filters: PostListFilters;
 }
 
 const CELL_CLASS =
@@ -27,6 +33,7 @@ const ArrowIcon = ({ direction }: { direction: 'left' | 'right' }) => (
 const PageNumbers = ({
   currentPage,
   totalPages,
+  filters,
   siblings,
   className,
 }: PostPaginationProps & { siblings: number; className: string }) => {
@@ -48,7 +55,7 @@ const PageNumbers = ({
         ) : (
           <li key={item}>
             <LocalizedLink
-              href={getPostListHref(item)}
+              href={getPostListHref(item, filters)}
               aria-label={t`${item}쪽`}
               aria-current={item === currentPage ? 'page' : undefined}
               className={`${CELL_CLASS} ${
@@ -71,7 +78,11 @@ const PageNumbers = ({
  * - 이전·다음 화살표와 첫·마지막 쪽, 현재 쪽 주변 번호 (사이는 …)
  * - PC 는 현재 쪽 앞뒤 2개, 모바일은 1개 (두 벌을 그리고 폭에 따라 전환)
  */
-const PostPagination = ({ currentPage, totalPages }: PostPaginationProps) => {
+const PostPagination = ({
+  currentPage,
+  totalPages,
+  filters,
+}: PostPaginationProps) => {
   const { t } = useLingui();
 
   if (totalPages <= 1) {
@@ -88,7 +99,7 @@ const PostPagination = ({ currentPage, totalPages }: PostPaginationProps) => {
     >
       {hasPrevious ? (
         <LocalizedLink
-          href={getPostListHref(currentPage - 1)}
+          href={getPostListHref(currentPage - 1, filters)}
           aria-label={t`이전 쪽`}
           className={`${CELL_CLASS} hover:bg-surface`}
         >
@@ -102,18 +113,20 @@ const PostPagination = ({ currentPage, totalPages }: PostPaginationProps) => {
       <PageNumbers
         currentPage={currentPage}
         totalPages={totalPages}
+        filters={filters}
         siblings={PC_SIBLINGS}
         className="hidden items-center gap-1 pc:flex"
       />
       <PageNumbers
         currentPage={currentPage}
         totalPages={totalPages}
+        filters={filters}
         siblings={MOBILE_SIBLINGS}
         className="flex items-center gap-0.5 pc:hidden"
       />
       {hasNext ? (
         <LocalizedLink
-          href={getPostListHref(currentPage + 1)}
+          href={getPostListHref(currentPage + 1, filters)}
           aria-label={t`다음 쪽`}
           className={`${CELL_CLASS} hover:bg-surface`}
         >

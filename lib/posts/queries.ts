@@ -5,7 +5,10 @@ import type { JSONContent } from '@tiptap/core';
 import { db } from '@/lib/db';
 import { draft, post, user, type PostVisibility } from '@/lib/db/schema';
 import type { Locale } from '@/lib/i18n/config';
-import { POST_LIST_PAGE_SIZE } from '@/lib/posts/post-list';
+import {
+  POST_LIST_PAGE_SIZE,
+  type PostListFilters,
+} from '@/lib/posts/post-list';
 
 export interface PublishedPost {
   id: string;
@@ -84,11 +87,18 @@ export interface PostListPage {
 
 /**
  * 게시글 목록 한 쪽 (공개 글만, 처음 게시한 시각 최신순, 쪽 번호 기반)
+ * - 언어 필터가 걸리면 그 언어로 게시한 글만 (post.locale)
  * - 같은 시각이면 ID 역순으로 정렬해 쪽 사이에 빠지거나 겹치는 글이 없음
  * - 썸네일은 본문 전체를 가져오지 않고 DB 에서 첫 이미지 주소만 뽑음 (인용구 등 안쪽 이미지도 본문 순서대로)
  */
-export const getPostListPage = async (page: number): Promise<PostListPage> => {
-  const isPublic = eq(post.visibility, 'public');
+export const getPostListPage = async (
+  page: number,
+  filters: PostListFilters,
+): Promise<PostListPage> => {
+  const where = and(
+    eq(post.visibility, 'public'),
+    filters.language ? eq(post.locale, filters.language) : undefined,
+  );
 
   const [rows, [{ total }]] = await Promise.all([
     db
@@ -102,11 +112,11 @@ export const getPostListPage = async (page: number): Promise<PostListPage> => {
         >`nullif(jsonb_path_query_first(${post.content}, 'strict $.**?(@.type == "image").attrs.src') #>> '{}', '')`,
       })
       .from(post)
-      .where(isPublic)
+      .where(where)
       .orderBy(desc(post.publishedAt), desc(post.id))
       .limit(POST_LIST_PAGE_SIZE)
       .offset((page - 1) * POST_LIST_PAGE_SIZE),
-    db.select({ total: count() }).from(post).where(isPublic),
+    db.select({ total: count() }).from(post).where(where),
   ]);
 
   return {

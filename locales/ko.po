@@ -61,8 +61,8 @@ msgstr "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바
 msgid "comdraft 서비스 이용 조건과 AI 생성 결과, 이용자 콘텐츠, 금지 행위 등 이용자와 운영자의 권리와 의무를 안내합니다."
 msgstr "comdraft 서비스 이용 조건과 AI 생성 결과, 이용자 콘텐츠, 금지 행위 등 이용자와 운영자의 권리와 의무를 안내합니다."
 
-#: components/studio/draft-tags.tsx:142
-#: components/studio/draft-tags.tsx:150
+#: components/studio/draft-tags.tsx:144
+#: components/studio/draft-tags.tsx:152
 msgid "태그 입력"
 msgstr "태그 입력"
 
@@ -79,7 +79,7 @@ msgstr "저장소를 추가하고 초안을 만들어보세요"
 msgid "초안 본문"
 msgstr "초안 본문"
 
-#: components/studio/draft-tags.tsx:124
+#: components/studio/draft-tags.tsx:126
 msgid "태그 {tag} 삭제"
 msgstr "태그 {tag} 삭제"
 
@@ -216,7 +216,7 @@ msgstr "작성 예시"
 msgid "초안 목록"
 msgstr "초안 목록"
 
-#: components/studio/draft-tags.tsx:168
+#: components/studio/draft-tags.tsx:170
 msgid "태그는 10개까지 넣을 수 있습니다"
 msgstr "태그는 10개까지 넣을 수 있습니다"
 
@@ -302,7 +302,7 @@ msgstr "초기화까지 {hours}시간 {minutes}분"
 msgid "주간 제공량의 {0}%"
 msgstr "주간 제공량의 {0}%"
 
-#: components/posts/post-pagination.tsx:128
+#: components/posts/post-pagination.tsx:141
 msgid "전체 {totalPages}쪽 중 {currentPage}쪽"
 msgstr "전체 {totalPages}쪽 중 {currentPage}쪽"
 
@@ -313,6 +313,10 @@ msgstr "첫 저장소 연동이<0/>완료되었습니다."
 #: components/main/draft-example-section.tsx:15
 msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 msgstr "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
+
+#: components/posts/filters/language-filter.tsx:54
+msgid "언어"
+msgstr "언어"
 
 #: components/studio/draft-editor.tsx:456
 msgid "배운 점"
@@ -341,6 +345,10 @@ msgstr "실패"
 #: components/studio/blank-fill-messages.ts:15
 msgid "빈칸을 다듬지 못했습니다. 다시 시도해 주세요."
 msgstr "빈칸을 다듬지 못했습니다. 다시 시도해 주세요."
+
+#: components/posts/filters/language-filter.tsx:60
+msgid "전체"
+msgstr "전체"
 
 #: components/dashboard/status-message.tsx:37
 msgid "접근 권한이 없는 GitHub App 설치입니다."
@@ -389,7 +397,7 @@ msgstr "올리지 못한 이미지가 있습니다"
 msgid "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 msgstr "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 
-#: app/[lang]/posts/page.tsx:82
+#: app/[lang]/posts/page.tsx:101
 #: components/main/mobile-menu.tsx:165
 #: components/main/posts-nav-link.tsx:22
 msgid "게시글"
@@ -601,7 +609,7 @@ msgstr "프롬프트 내역"
 msgid "GitHub 에서 저장소 열기"
 msgstr "GitHub 에서 저장소 열기"
 
-#: components/posts/post-pagination.tsx:92
+#: components/posts/post-pagination.tsx:103
 msgid "이전 쪽"
 msgstr "이전 쪽"
 
@@ -679,7 +687,7 @@ msgstr "+{pcRest}개"
 msgid "저장소를 삭제할까요?"
 msgstr "저장소를 삭제할까요?"
 
-#: components/posts/post-pagination.tsx:117
+#: components/posts/post-pagination.tsx:130
 msgid "다음 쪽"
 msgstr "다음 쪽"
 
@@ -795,6 +803,10 @@ msgstr "설치 요청이 만료되었거나 유효하지 않습니다. 다시 �
 msgid "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
 msgstr "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
 
+#: components/posts/filters/mobile-filter-sidebar.tsx:64
+msgid "필터 열기"
+msgstr "필터 열기"
+
 #: app/[lang]/sign-in/page.tsx:27
 msgid "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 기본 이메일의 인증 여부를 확인한 뒤 다시 시도해주세요."
 msgstr "GitHub 에서 인증된 이메일을 확인할 수 없습니다. GitHub 기본 이메일의 인증 여부를 확인한 뒤 다시 시도해주세요."
@@ -854,6 +866,10 @@ msgstr "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다
 #: components/studio/prompt-composer.tsx:147
 msgid "{sha} 선택 해제"
 msgstr "{sha} 선택 해제"
+
+#: app/[lang]/posts/page.tsx:121
+msgid "선택한 언어로 게시된 글이 없습니다"
+msgstr "선택한 언어로 게시된 글이 없습니다"
 
 #: components/dashboard/status-message.tsx:23
 msgid "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
@@ -948,7 +964,7 @@ msgstr "작성 요청을 입력해주세요."
 msgid "길게"
 msgstr "길게"
 
-#: components/studio/draft-tags.tsx:169
+#: components/studio/draft-tags.tsx:171
 msgid "태그를 저장하지 못했습니다"
 msgstr "태그를 저장하지 못했습니다"
 
@@ -1195,6 +1211,10 @@ msgstr "브랜치를 선택하세요"
 msgid "대시보드로 돌아가기"
 msgstr "대시보드로 돌아가기"
 
+#: components/posts/filters/mobile-filter-sidebar.tsx:97
+msgid "필터 닫기"
+msgstr "필터 닫기"
+
 #: components/onboarding/complete-step.tsx:46
 msgid "이동 중..."
 msgstr "이동 중..."
@@ -1255,7 +1275,7 @@ msgstr "사용량 약 {ratio}배"
 msgid "· 저장하지 못했습니다"
 msgstr "· 저장하지 못했습니다"
 
-#: components/studio/draft-tags.tsx:161
+#: components/studio/draft-tags.tsx:163
 #: components/studio/reference-link-dialog.tsx:197
 msgid "추가"
 msgstr "추가"
@@ -1378,6 +1398,10 @@ msgstr "연동 계정"
 msgid "{draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다"
 msgstr "{draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다"
 
+#: components/posts/filters/post-filter-title.tsx:22
+msgid "필터"
+msgstr "필터"
+
 #: components/studio/account-settings-panel.tsx:184
 msgid "사용량을 확인할 수 없습니다."
 msgstr "사용량을 확인할 수 없습니다."
@@ -1414,7 +1438,7 @@ msgstr "참고 링크는 최대 {MAX_REFERENCE_LINKS}개까지 추가할 수 있
 msgid "게시하기"
 msgstr "게시하기"
 
-#: components/posts/post-pagination.tsx:86
+#: components/posts/post-pagination.tsx:97
 msgid "페이지 이동"
 msgstr "페이지 이동"
 
@@ -1453,6 +1477,10 @@ msgstr "담백하게"
 #: components/dashboard/repository-card.tsx:49
 msgid "비공개 저장소"
 msgstr "비공개 저장소"
+
+#: components/posts/filters/language-filter.tsx:55
+msgid "게시글 언어"
+msgstr "게시글 언어"
 
 #: components/onboarding/repository-connect-form.tsx:185
 msgid "저장소"
@@ -1521,7 +1549,7 @@ msgstr "저장소에 접근할 수 없어 브랜치를 불러오지 못했습니
 msgid "사이드바 닫기"
 msgstr "사이드바 닫기"
 
-#: components/posts/post-pagination.tsx:52
+#: components/posts/post-pagination.tsx:59
 msgid "{item}쪽"
 msgstr "{item}쪽"
 
@@ -1632,7 +1660,7 @@ msgstr "초안 하나에 이미지는 10장까지 넣을 수 있습니다"
 msgid "저장소를 먼저 선택하세요"
 msgstr "저장소를 먼저 선택하세요"
 
-#: app/[lang]/posts/page.tsx:97
+#: app/[lang]/posts/page.tsx:123
 msgid "아직 게시된 글이 없습니다"
 msgstr "아직 게시된 글이 없습니다"
 
