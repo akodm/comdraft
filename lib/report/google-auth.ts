@@ -19,6 +19,30 @@ export interface ServiceAccountCredentials {
 export const normalizePrivateKey = (key: string) =>
   key.replace(/\\n/g, '\n').trim();
 
+// 환경 변수에 서비스 계정 JSON 전체를 넣어도, private_key 값만 넣어도 비밀 키를 꺼냄
+export const readServiceAccountPrivateKey = (value: string) => {
+  if (!value.trim().startsWith('{')) {
+    return value;
+  }
+
+  let parsed: { private_key?: unknown };
+
+  try {
+    parsed = JSON.parse(value) as { private_key?: unknown };
+  } catch {
+    // JSON.parse 오류 메시지에는 입력값 일부가 담기므로 그대로 던지지 않음
+    throw new Error('서비스 계정 JSON 을 읽을 수 없습니다.');
+  }
+
+  const privateKey = parsed.private_key;
+
+  if (typeof privateKey !== 'string' || !privateKey) {
+    throw new Error('서비스 계정 JSON 에 private_key 가 없습니다.');
+  }
+
+  return privateKey;
+};
+
 const encode = (value: unknown) =>
   Buffer.from(JSON.stringify(value)).toString('base64url');
 

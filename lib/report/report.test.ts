@@ -9,6 +9,7 @@ import {
 import {
   buildServiceAccountAssertion,
   normalizePrivateKey,
+  readServiceAccountPrivateKey,
 } from '@/lib/report/google-auth';
 import { getReportPeriod } from '@/lib/report/period';
 import { summarizeSearchDays } from '@/lib/report/search-console';
@@ -201,6 +202,36 @@ describe('google-auth', () => {
         '-----BEGIN PRIVATE KEY-----\\nABC\\n-----END PRIVATE KEY-----\\n',
       ),
     ).toBe('-----BEGIN PRIVATE KEY-----\nABC\n-----END PRIVATE KEY-----');
+  });
+
+  it('서비스 계정 JSON 전체가 들어오면 private_key 값을 꺼낸다', () => {
+    expect(
+      readServiceAccountPrivateKey(
+        JSON.stringify({
+          type: 'service_account',
+          private_key:
+            '-----BEGIN PRIVATE KEY-----\nABC\n-----END PRIVATE KEY-----\n',
+        }),
+      ),
+    ).toBe('-----BEGIN PRIVATE KEY-----\nABC\n-----END PRIVATE KEY-----\n');
+  });
+
+  it('private_key 값만 들어오면 그대로 쓴다', () => {
+    expect(
+      readServiceAccountPrivateKey('  -----BEGIN PRIVATE KEY-----\\nABC'),
+    ).toBe('  -----BEGIN PRIVATE KEY-----\\nABC');
+  });
+
+  it('JSON 이 깨져 있으면 입력값을 담지 않은 오류를 던진다 (로그에 키가 남지 않게)', () => {
+    expect(() =>
+      readServiceAccountPrivateKey('{"private_key": "SECRET'),
+    ).toThrow(/^서비스 계정 JSON 을 읽을 수 없습니다\.$/);
+  });
+
+  it('JSON 인데 private_key 가 없으면 오류', () => {
+    expect(() =>
+      readServiceAccountPrivateKey('{"type":"service_account"}'),
+    ).toThrow();
   });
 
   it('서비스 계정 JWT 를 RS256 으로 서명하고 1시간짜리 토큰을 요청한다', () => {
