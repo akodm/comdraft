@@ -46,3 +46,6 @@ next-env.d.ts
 
 # claude
 .claude
+
+# understand-anything (코드 분석 플러그인 작업 폴더)
+.ua
