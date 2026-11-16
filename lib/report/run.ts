@@ -1,7 +1,10 @@
 import 'server-only';
 import { buildDailyReport } from '@/lib/report/format';
 import { fetchTrafficSummary } from '@/lib/report/ga4';
-import { fetchGoogleAccessToken } from '@/lib/report/google-auth';
+import {
+  fetchGoogleAccessToken,
+  readServiceAccountPrivateKey,
+} from '@/lib/report/google-auth';
 import { getReportPeriod } from '@/lib/report/period';
 import { fetchSearchSummary } from '@/lib/report/search-console';
 import { fetchServiceStats } from '@/lib/report/service-stats';
@@ -29,22 +32,28 @@ export interface DailyReportConfig {
   secretAccessKey: string;
 }
 
-// SNS 발행은 작성 Lambda 호출과 같은 invoker 키를 씀 (GENERATION_AWS_*)
+// - GOOGLE_REPORT_CREDENTIALS: 서비스 계정 JSON 전체 또는 private_key 값
+// - SNS 발행은 작성 Lambda 호출과 같은 invoker 키를 씀 (GENERATION_AWS_*)
 export const readDailyReportConfig = (
   env: NodeJS.ProcessEnv = process.env,
 ): DailyReportConfig => {
-  const googlePrivateKey = env.GOOGLE_REPORT_PRIVATE_KEY;
+  const credentials = env.GOOGLE_REPORT_CREDENTIALS;
   const topicArn = env.DAILY_REPORT_TOPIC_ARN;
   const accessKeyId = env.GENERATION_AWS_ACCESS_KEY_ID;
   const secretAccessKey = env.GENERATION_AWS_SECRET_ACCESS_KEY;
 
-  if (!googlePrivateKey || !topicArn || !accessKeyId || !secretAccessKey) {
+  if (!credentials || !topicArn || !accessKeyId || !secretAccessKey) {
     throw new Error(
-      '일일 현황 보고 설정(GOOGLE_REPORT_PRIVATE_KEY, DAILY_REPORT_TOPIC_ARN, GENERATION_AWS_ACCESS_KEY_ID, GENERATION_AWS_SECRET_ACCESS_KEY)이 없습니다.',
+      '일일 현황 보고 설정(GOOGLE_REPORT_CREDENTIALS, DAILY_REPORT_TOPIC_ARN, GENERATION_AWS_ACCESS_KEY_ID, GENERATION_AWS_SECRET_ACCESS_KEY)이 없습니다.',
     );
   }
 
-  return { googlePrivateKey, topicArn, accessKeyId, secretAccessKey };
+  return {
+    googlePrivateKey: readServiceAccountPrivateKey(credentials),
+    topicArn,
+    accessKeyId,
+    secretAccessKey,
+  };
 };
 
 const settled = <T>(label: string, result: PromiseSettledResult<T>) => {
