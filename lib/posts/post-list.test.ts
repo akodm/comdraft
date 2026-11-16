@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  EMPTY_POST_LIST_FILTERS,
   getPaginationItems,
   getPostListHref,
+  hasActivePostListFilters,
   MAX_PAGE,
   parsePageParam,
+  parsePostListFilters,
   POST_LIST_PAGE_SIZE,
 } from '@/lib/posts/post-list';
 
@@ -73,6 +76,48 @@ describe('getPostListHref', () => {
 
   it('그 밖은 page 쿼리', () => {
     expect(getPostListHref(4)).toBe('/posts?page=4');
+  });
+
+  it('언어 필터를 유지', () => {
+    expect(getPostListHref(1, { language: 'en' })).toBe('/posts?language=en');
+    expect(getPostListHref(3, { language: 'ko' })).toBe(
+      '/posts?language=ko&page=3',
+    );
+  });
+
+  it('필터가 없으면 쪽 번호만', () => {
+    expect(getPostListHref(2, EMPTY_POST_LIST_FILTERS)).toBe('/posts?page=2');
+  });
+});
+
+describe('parsePostListFilters', () => {
+  it('없으면 전체', () => {
+    expect(parsePostListFilters({})).toEqual({ language: null });
+  });
+
+  it('지원하는 언어는 그 언어', () => {
+    expect(parsePostListFilters({ language: 'en' })).toEqual({
+      language: 'en',
+    });
+  });
+
+  it('같은 이름이 여러 번 오면 첫 값 기준', () => {
+    expect(parsePostListFilters({ language: ['ko', 'en'] })).toEqual({
+      language: 'ko',
+    });
+  });
+
+  it.each(['fr', '', 'KO', 'all'])('지원하지 않는 값은 전체 (%s)', (value) => {
+    expect(parsePostListFilters({ language: value })).toEqual({
+      language: null,
+    });
+  });
+});
+
+describe('hasActivePostListFilters', () => {
+  it('언어 필터가 걸리면 true', () => {
+    expect(hasActivePostListFilters({ language: 'en' })).toBe(true);
+    expect(hasActivePostListFilters(EMPTY_POST_LIST_FILTERS)).toBe(false);
   });
 });
 

@@ -1,4 +1,6 @@
-// 게시글 목록 쪽 번호 계산 (서버/클라이언트 어디서든 테스트할 수 있도록 server-only, DB, Lingui 를 import 하지 않는다)
+// 게시글 목록 쪽 번호·필터 계산 (서버/클라이언트 어디서든 테스트할 수 있도록 server-only, DB, Lingui 를 import 하지 않는다)
+
+import { isLocale, type Locale } from '@/lib/i18n/config';
 
 // 한 쪽에 보여 주는 게시글 수
 export const POST_LIST_PAGE_SIZE = 30;
@@ -67,8 +69,60 @@ export const getPaginationItems = (
 };
 
 /**
- * 목록 쪽 주소 (1쪽은 쿼리 없이)
- * @example getPostListHref(4) // '/posts?page=4'
+ * 게시글 목록 필터 (주소의 검색 파라미터로 표현, 값이 null 이면 걸지 않음)
+ * - 필터를 늘릴 때는 여기에 항목을 더하고 parsePostListFilters·getPostListHref 에 파라미터를 추가
  */
-export const getPostListHref = (page: number) =>
-  page <= 1 ? '/posts' : `/posts?page=${page}`;
+export interface PostListFilters {
+  // 게시할 때의 언어 (post.locale), null 이면 전체
+  language: Locale | null;
+}
+
+// 필터를 걸지 않은 상태 (기본값)
+export const EMPTY_POST_LIST_FILTERS: PostListFilters = { language: null };
+
+// 언어 필터 검색 파라미터 이름 (화면 언어인 경로의 [lang] 과 구분)
+export const LANGUAGE_PARAM = 'language';
+
+type SearchParamValue = string | string[] | undefined;
+
+/**
+ * 주소의 검색 파라미터를 목록 필터로 (지원하지 않는 값은 걸지 않은 것으로, 여러 번 오면 첫 값 기준)
+ * @example parsePostListFilters({ language: 'en' }) // { language: 'en' }
+ * @example parsePostListFilters({ language: 'fr' }) // { language: null }
+ */
+export const parsePostListFilters = (
+  searchParams: Record<string, SearchParamValue>,
+): PostListFilters => {
+  const value = searchParams[LANGUAGE_PARAM];
+  const language = Array.isArray(value) ? value[0] : value;
+
+  return { language: isLocale(language) ? language : null };
+};
+
+/** 걸린 필터가 하나라도 있는지 (검색 노출, 빈 목록 문구 판단용) */
+export const hasActivePostListFilters = (filters: PostListFilters) =>
+  filters.language !== null;
+
+/**
+ * 목록 쪽 주소 (걸린 필터를 유지, 1쪽은 page 쿼리 없이)
+ * @example getPostListHref(4) // '/posts?page=4'
+ * @example getPostListHref(2, { language: 'en' }) // '/posts?language=en&page=2'
+ */
+export const getPostListHref = (
+  page: number,
+  filters: PostListFilters = EMPTY_POST_LIST_FILTERS,
+) => {
+  const params = new URLSearchParams();
+
+  if (filters.language) {
+    params.set(LANGUAGE_PARAM, filters.language);
+  }
+
+  if (page > 1) {
+    params.set('page', String(page));
+  }
+
+  const query = params.toString();
+
+  return query ? `/posts?${query}` : '/posts';
+};
