@@ -27,11 +27,26 @@ export type GenerationJobKind = (typeof GENERATION_JOB_KINDS)[number];
 export const GENERATION_STEPS = [1, 2, 3] as const;
 export type GenerationStep = 0 | (typeof GENERATION_STEPS)[number];
 
+// 작성자가 커밋과 별도로 직접 넣은 코드 (요청 본문으로만 보내고 저장하거나 로그에 남기지 않음)
+export interface GenerationCodeInput {
+  // 표시·파일 이름 (비어 있으면 화면이 "코드 N" 을 넣어 보냄)
+  name: string;
+  code: string;
+}
+
+// draft_prompt.code_inputs: 직접 입력 코드마다 이름과 줄 수만 (코드 원문은 저장하지 않음)
+export interface CodeInputMeta {
+  name: string;
+  lines: number;
+}
+
 // Lambda 호출 요청 본문 (API Gateway → Lambda). 나머지 값은 Lambda 가 jobId 로 DB 에서 읽음
 export interface GenerationRequest {
   jobId: string;
   // 사용자 GitHub 토큰 (커밋 상세 조회용, 저장하거나 로그에 남기지 않음)
   githubToken: string;
+  // 직접 입력 코드 (요청 순서, 초안 작성과 되묻기 재실행에만, Lambda 가 저장된 이름·줄 수와 맞춰 봄)
+  codeInputs?: GenerationCodeInput[];
 }
 
 // Realtime Broadcast: 채널 이름은 draft_prompt.channel, 이벤트 이름은 고정

@@ -17,3 +17,14 @@ export const MAX_BLANK_ANSWER_LENGTH = 1000;
 
 // 빈칸 채우기 결과로 빈칸 자리에 넣는 문단 최대 개수
 export const MAX_FILL_PARAGRAPHS = 3;
+
+// 직접 입력 코드 제한 (comdraft-lambda src/generation/code-input.ts, API Gateway 요청 모델과 같은 값)
+// 요청 하나에 넣을 수 있는 코드 수
+export const MAX_CODE_INPUTS = 5;
+// 코드 하나의 최대 줄 수와 글자 수 (줄바꿈을 LF 로 맞춘 뒤)
+export const MAX_CODE_INPUT_LINES = 300;
+export const MAX_CODE_INPUT_CHARS = 20_000;
+// 요청 하나의 코드 글자 수 합계 (Lambda 비동기 호출 본문 한도 안에 들도록)
+export const MAX_CODE_INPUT_TOTAL_CHARS = 50_000;
+// 코드 이름(파일 이름) 최대 글자 수
+export const MAX_CODE_INPUT_NAME_CHARS = 100;
