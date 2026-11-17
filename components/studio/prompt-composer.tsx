@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  useId,
-  useState,
-  useTransition,
-  type FormEvent,
-  type KeyboardEvent,
-} from 'react';
+import { useId, useRef, useState, useTransition, type FormEvent } from 'react';
 import Image from 'next/image';
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
@@ -16,6 +10,9 @@ import { DROPDOWN_PANEL_CLASS } from '@/components/shared/dropdown-styles';
 import Spinner from '@/components/shared/spinner';
 import ClarificationCard from '@/components/studio/clarification-card';
 import GenerationProgress from '@/components/studio/generation-progress';
+import PromptEditor, {
+  type PromptEditorHandle,
+} from '@/components/studio/prompt-editor';
 import { useStudio } from '@/components/studio/studio-context';
 import {
   BRAND_BUTTON_CLASS,
@@ -48,6 +45,7 @@ interface QuotaExhaustedNotice {
 
 type Notice =
   | 'no_prompt'
+  | 'too_long'
   | 'no_commits'
   | 'too_many_commits'
   | 'invalid'
@@ -63,6 +61,7 @@ type Notice =
 // 작성 요청 결과 안내 (빈칸 다듬기 요청도 시간당 제한·인증·서버 연결 안내는 같은 문구를 씀)
 export const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
   no_prompt: msg`작성 요청을 입력해주세요.`,
+  too_long: msg`작성 요청은 ${MAX_GENERATION_PROMPT_LENGTH}자까지 보낼 수 있습니다.`,
   no_commits: msg`커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요.`,
   too_many_commits: msg`커밋은 한 번에 ${MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다.`,
   invalid: msg`작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해주세요.`,
@@ -281,7 +280,7 @@ const PromptComposer = ({
   const [isPending, startTransition] = useTransition();
   // 다시 작성 확인 창
   const [isConfirming, setIsConfirming] = useState(false);
-  const promptId = useId();
+  const editorRef = useRef<PromptEditorHandle>(null);
   // 질문에 답하기 전에는 아무것도 작성하지 않으므로 제출 버튼에 작성 중 표시를 하지 않음
   const isAwaitingInput = job?.status === 'awaiting_input';
 
@@ -313,6 +312,7 @@ const PromptComposer = ({
         }
 
         setPrompt('');
+        editorRef.current?.clear();
 
         if (result.isNewDraft) {
           // 새 초안 화면이 열리면 진행 중인 작업을 이어서 받음
@@ -334,6 +334,12 @@ const PromptComposer = ({
 
     if (!prompt.trim()) {
       setNotice('no_prompt');
+      return;
+    }
+
+    // 서식 기호까지 센 Markdown 글 길이 (서버 검증과 같은 기준)
+    if (prompt.trim().length > MAX_GENERATION_PROMPT_LENGTH) {
+      setNotice('too_long');
       return;
     }
 
@@ -359,17 +365,6 @@ const PromptComposer = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     submit();
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (
-      event.key === 'Enter' &&
-      (event.metaKey || event.ctrlKey) &&
-      !event.nativeEvent.isComposing
-    ) {
-      event.preventDefault();
-      submit();
-    }
   };
 
   return (
@@ -404,25 +399,21 @@ const PromptComposer = ({
         className="flex min-w-0 flex-1 flex-col gap-3 rounded-md border border-line bg-white p-3 pc:gap-3.5 pc:p-4.5"
       >
         <div className="flex flex-col items-start gap-3 pc:flex-row pc:items-center">
-          <label
-            htmlFor={promptId}
+          <span
+            aria-hidden="true"
             className="hidden text-[12px] leading-[normal] font-medium whitespace-nowrap text-ink pc:block"
           >
             <Trans>작성 요청</Trans>
-          </label>
+          </span>
           <SelectedCommitsMenu />
           <SelectedCommitsSummary />
         </div>
-        <textarea
-          id={promptId}
-          value={prompt}
-          onChange={(event) => setPrompt(event.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={2}
-          maxLength={MAX_GENERATION_PROMPT_LENGTH}
-          aria-label={t`작성 요청`}
+        <PromptEditor
+          ref={editorRef}
+          label={t`작성 요청`}
           placeholder={t`선택한 커밋으로 어떤 글을 쓸지 요청해주세요.`}
-          className="max-h-48 min-h-[3.6em] w-full resize-none text-[12px] leading-[1.8] text-ink outline-none field-sizing-content placeholder:text-ink-subtle pc:text-[14px]"
+          onChange={setPrompt}
+          onSubmit={submit}
         />
         {notice && (
           <p
