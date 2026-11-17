@@ -1,4 +1,5 @@
 import type {
+  CodeInputMeta,
   GenerationJobKind,
   GenerationStatus,
 } from '@/lib/generation/contract';
@@ -7,7 +8,7 @@ import type {
  * 저장소 설정의 프롬프트 내역 (순수 함수, 서버/클라이언트 공용)
  */
 
-// 내역 한 줄 (요청 문구, 사용한 커밋, 주간 제공량 대비 사용 비율)
+// 내역 한 줄 (요청 문구, 사용한 커밋과 직접 입력 코드, 주간 제공량 대비 사용 비율)
 export interface PromptHistoryItem {
   id: string;
   draftId: string;
@@ -15,6 +16,8 @@ export interface PromptHistoryItem {
   // 초안 작성은 요청 문구, 빈칸 채우기는 작성자가 적은 답
   prompt: string;
   commitShas: string[];
+  // 직접 입력 코드의 이름·줄 수 (코드 원문은 저장하지 않음)
+  codeInputs: CodeInputMeta[];
   status: GenerationStatus;
   // ISO
   createdAt: string;
