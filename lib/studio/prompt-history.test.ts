@@ -17,6 +17,7 @@ const item = (
   kind,
   prompt: id,
   commitShas: [],
+  codeInputs: [],
   status: 'completed',
   createdAt,
   usageRatio: 0,
@@ -126,5 +127,21 @@ describe('pickPageEntries', () => {
 
   it('페이지가 비어 있으면 빈 목록', () => {
     expect(pickPageEntries([], [])).toEqual([]);
+  });
+});
+
+describe('직접 입력 코드 표시 정보', () => {
+  it('묶고 나눠도 요청의 직접 입력 코드 이름·줄 수를 그대로 둔다', () => {
+    const withCode: PromptHistoryItem = {
+      ...item('draft-1', 'd1', 'draft', '2026-11-12T04:00:00Z'),
+      codeInputs: [{ name: 'a.ts', lines: 12 }],
+    };
+
+    expect(groupPromptHistory([withCode])[0].item.codeInputs).toEqual([
+      { name: 'a.ts', lines: 12 },
+    ]);
+    expect(pickPageEntries([withCode], [])[0].item.codeInputs).toEqual([
+      { name: 'a.ts', lines: 12 },
+    ]);
   });
 });

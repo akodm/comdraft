@@ -14,6 +14,13 @@ import {
   type BlankFillRequest,
 } from '@/lib/generation/blank-fill';
 import { parseClarificationAnswers } from '@/lib/generation/clarification';
+import {
+  checkResumeCodeInputs,
+  codeInputsField,
+  parseCodeInputs,
+  toCodeInputMeta,
+} from '@/lib/generation/code-input';
+import type { GenerationCodeInput } from '@/lib/generation/contract';
 import { getDefaultBlankQuestions } from '@/lib/generation/blank-questions';
 import { getGenerationRunner } from '@/lib/generation/get-runner';
 import {
@@ -62,8 +69,10 @@ export interface RequestDraftGenerationInput {
   draftId: string | null;
   prompt: string;
   options: unknown;
-  // 선택한 커밋 SHA (최신순)
+  // 선택한 커밋 SHA (최신순, 직접 입력 코드가 있으면 비어도 됨)
   commitShas: string[];
+  // 직접 입력 코드 (저장하지 않고 작성기에만 넘김)
+  codeInputs?: unknown;
   // 새 초안에 함께 저장할 참고 링크 (저장된 초안은 링크를 바로 저장하므로 보내지 않음)
   referenceLinks?: string[];
 }
@@ -96,6 +105,7 @@ interface ParsedRequest {
   prompt: string;
   options: PromptOptions;
   commitShas: string[];
+  codeInputs: GenerationCodeInput[];
   referenceUrls: string[];
   draftId: string | null;
 }
@@ -109,6 +119,7 @@ const parseRequest = (
   const referenceUrls = parseReferenceUrls(input.referenceLinks);
   const draftId = typeof input.draftId === 'string' ? input.draftId : null;
   const commitShas = Array.isArray(input.commitShas) ? input.commitShas : null;
+  const codeInputs = parseCodeInputs(input.codeInputs);
 
   if (
     !prompt ||
@@ -116,7 +127,9 @@ const parseRequest = (
     !options ||
     !referenceUrls ||
     !commitShas ||
-    commitShas.length === 0 ||
+    !codeInputs ||
+    // 커밋이나 직접 입력 코드 중 하나는 있어야 함
+    commitShas.length + codeInputs.length === 0 ||
     commitShas.length > MAX_GENERATION_COMMITS ||
     !commitShas.every((sha) => typeof sha === 'string' && SHA_PATTERN.test(sha))
   ) {
@@ -127,6 +140,7 @@ const parseRequest = (
     prompt,
     options,
     commitShas: [...new Set(commitShas)],
+    codeInputs,
     referenceUrls,
     draftId,
   };
@@ -191,6 +205,8 @@ const createJob = async (
         requiredBlocks: request.options.requiredBlocks,
         model: request.options.model,
         commitShas: request.commitShas,
+        // 이름·줄 수만 저장 (코드 원문은 작성기 요청 본문으로만 보냄)
+        codeInputs: toCodeInputMeta(request.codeInputs),
         referenceUrls,
         locale,
       });
@@ -318,6 +334,7 @@ export async function requestDraftGeneration(
     await getGenerationRunner().start({
       jobId: created.jobId,
       githubToken: gate.githubToken,
+      ...codeInputsField(request.codeInputs),
     });
   } catch {
     await failJob(created.jobId, 'runner_unavailable');
@@ -646,11 +663,15 @@ export interface ResumeClarifiedJobInput {
   jobId: string;
   // 'skipped'(그냥 작성) 이거나 질문 id 별 답 배열
   answers: unknown;
+  // 처음 요청에 넣은 직접 입력 코드 (화면이 들고 있던 사본이나 다시 넣은 코드)
+  codeInputs?: unknown;
 }
 
 export type ResumeClarifiedJobResult =
   | { status: 'started'; job: GenerationJobView }
   | { status: 'invalid' | 'github_reauth' }
+  // 처음 넣은 직접 입력 코드가 없거나 달라 다시 넣어야 함 (작업은 답변 대기 그대로)
+  | { status: 'code_required'; job: GenerationJobView }
   // job: 지금 서버가 아는 작업 (화면이 낡은 답변 대기 상태에서 벗어나도록, 없거나 내 것이 아니면 null)
   | {
       status: 'not_found' | 'runner_unavailable';
@@ -700,6 +721,13 @@ export async function resumeClarifiedJob(
     return { status: 'invalid' };
   }
 
+  // 코드는 저장하지 않으므로 재실행에 쓸 코드를 화면이 다시 보내야 함 (그냥 작성도 같음)
+  const code = checkResumeCodeInputs(owned.codeInputs, input.codeInputs);
+
+  if (code.status === 'code_required') {
+    return { status: 'code_required', job: owned };
+  }
+
   let githubToken: string;
 
   try {
@@ -720,7 +748,11 @@ export async function resumeClarifiedJob(
   }
 
   try {
-    await getGenerationRunner().start({ jobId, githubToken });
+    await getGenerationRunner().start({
+      jobId,
+      githubToken,
+      ...codeInputsField(code.inputs),
+    });
   } catch {
     await failJob(jobId, 'runner_unavailable');
     refresh();

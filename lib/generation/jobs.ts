@@ -19,6 +19,7 @@ import { db } from '@/lib/db';
 import { draft, draftPrompt } from '@/lib/db/schema';
 import { fillResultToParagraphs } from '@/lib/generation/blank-fill';
 import type {
+  CodeInputMeta,
   GenerationClarificationAnswer,
   GenerationClarificationQuestion,
   GenerationErrorCode,
@@ -28,6 +29,7 @@ import type {
 } from '@/lib/generation/contract';
 import { isGenerationErrorCode } from '@/lib/generation/contract';
 import { parseStoredClarification } from '@/lib/generation/clarification';
+import { parseCodeInputMeta } from '@/lib/generation/code-input';
 import { getStaleCutoffs } from '@/lib/generation/job-state';
 import { markdownToDraftDocument } from '@/lib/generation/markdown';
 import {
@@ -71,6 +73,8 @@ export interface GenerationJobView {
     reason: string;
     questions: GenerationClarificationQuestion[];
   } | null;
+  // 직접 입력 코드의 이름·줄 수 (초안 작성 작업만, 되묻기 재실행 때 다시 넣을 코드 안내)
+  codeInputs: CodeInputMeta[];
 }
 
 // Lambda 가 도는 상태 (실패 처리와 시간 초과 대상)
@@ -93,6 +97,7 @@ const jobViewColumns = {
   appliedAt: draftPrompt.appliedAt,
   finishedAt: draftPrompt.finishedAt,
   clarification: draftPrompt.clarification,
+  codeInputs: draftPrompt.codeInputs,
 };
 
 interface JobViewRow {
@@ -106,6 +111,7 @@ interface JobViewRow {
   appliedAt: Date | null;
   finishedAt: Date | null;
   clarification: unknown;
+  codeInputs: unknown;
 }
 
 // 답변 대기 중인 작업의 질문 (저장된 값이 형식에 맞지 않으면 null)
@@ -130,6 +136,7 @@ const toJobView = (row: JobViewRow): GenerationJobView => ({
   applied: row.appliedAt !== null,
   finishedAt: row.finishedAt?.toISOString() ?? null,
   clarification: toViewClarification(row),
+  codeInputs: row.kind === 'draft' ? parseCodeInputMeta(row.codeInputs) : [],
 });
 
 /**

@@ -9,6 +9,10 @@ import ConfirmDialog from '@/components/shared/confirm-dialog';
 import { DROPDOWN_PANEL_CLASS } from '@/components/shared/dropdown-styles';
 import Spinner from '@/components/shared/spinner';
 import ClarificationCard from '@/components/studio/clarification-card';
+import {
+  CodeInputButton,
+  CodeInputChips,
+} from '@/components/studio/code-input-chips';
 import GenerationProgress from '@/components/studio/generation-progress';
 import PromptEditor, {
   type PromptEditorHandle,
@@ -26,7 +30,9 @@ import {
   type GenerationQuota,
 } from '@/lib/actions/generation';
 import type { GenerationJobView } from '@/lib/generation/jobs';
+import { parseCodeInputs } from '@/lib/generation/code-input';
 import {
+  MAX_CODE_INPUT_TOTAL_CHARS,
   MAX_GENERATION_COMMITS,
   MAX_GENERATION_PROMPT_LENGTH,
 } from '@/lib/generation/limits';
@@ -48,6 +54,7 @@ type Notice =
   | 'too_long'
   | 'no_commits'
   | 'too_many_commits'
+  | 'too_much_code'
   | 'invalid'
   | 'model_locked'
   | 'busy'
@@ -62,8 +69,9 @@ type Notice =
 export const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
   no_prompt: msg`작성 요청을 입력해주세요.`,
   too_long: msg`작성 요청은 ${MAX_GENERATION_PROMPT_LENGTH}자까지 보낼 수 있습니다.`,
-  no_commits: msg`커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요.`,
+  no_commits: msg`커밋을 하나 이상 선택하거나 코드를 직접 넣어주세요.`,
   too_many_commits: msg`커밋은 한 번에 ${MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다.`,
+  too_much_code: msg`직접 입력한 코드는 모두 합쳐 ${MAX_CODE_INPUT_TOTAL_CHARS}자까지 보낼 수 있습니다.`,
   invalid: msg`작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해주세요.`,
   model_locked: msg`이 모델은 현재 등급에서 쓸 수 없습니다.`,
   busy: msg`이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요.`,
@@ -270,7 +278,14 @@ const PromptComposer = ({
   const { t, i18n } = useLingui();
   const locale = useLocale();
   const router = useLocalizedRouter();
-  const { repository, basePath, selectedCommits, setOpenPanel } = useStudio();
+  const {
+    repository,
+    basePath,
+    selectedCommits,
+    setOpenPanel,
+    codeInputs,
+    rememberSentCodeInputs,
+  } = useStudio();
   const [prompt, setPrompt] = useState('');
   const [notice, setNotice] = useState<Notice | null>(null);
   const [exhausted, setExhausted] = useState<QuotaExhaustedNotice | null>(null);
@@ -290,6 +305,8 @@ const PromptComposer = ({
     setNotice(null);
     setExhausted(null);
     onJobDismiss();
+    // 보낸 코드 사본 (되묻기에 답할 때 다시 보냄)
+    const sentCodeInputs = [...codeInputs];
     startTransition(async () => {
       try {
         const result = await requestDraftGeneration({
@@ -298,6 +315,7 @@ const PromptComposer = ({
           prompt,
           options,
           commitShas: selectedCommits.map(({ sha }) => sha),
+          codeInputs: sentCodeInputs,
           referenceLinks: pendingReferenceUrls,
         });
 
@@ -309,6 +327,10 @@ const PromptComposer = ({
 
           setNotice(result.status);
           return;
+        }
+
+        if (sentCodeInputs.length > 0) {
+          rememberSentCodeInputs(result.job.id, sentCodeInputs);
         }
 
         setPrompt('');
@@ -343,8 +365,14 @@ const PromptComposer = ({
       return;
     }
 
-    if (selectedCommits.length === 0) {
+    if (selectedCommits.length === 0 && codeInputs.length === 0) {
       setNotice('no_commits');
+      return;
+    }
+
+    // 하나씩은 모달에서 확인했으므로 여기서는 합계와 개수 (서버와 같은 기준)
+    if (!parseCodeInputs(codeInputs)) {
+      setNotice('too_much_code');
       return;
     }
 
@@ -405,13 +433,17 @@ const PromptComposer = ({
           >
             <Trans>작성 요청</Trans>
           </span>
-          <SelectedCommitsMenu />
+          <div className="flex items-center gap-2">
+            <SelectedCommitsMenu />
+            <CodeInputButton />
+          </div>
           <SelectedCommitsSummary />
         </div>
+        <CodeInputChips />
         <PromptEditor
           ref={editorRef}
           label={t`작성 요청`}
-          placeholder={t`선택한 커밋으로 어떤 글을 쓸지 요청해주세요.`}
+          placeholder={t`선택한 커밋이나 코드로 어떤 글을 쓸지 요청해주세요.`}
           onChange={setPrompt}
           onSubmit={submit}
         />

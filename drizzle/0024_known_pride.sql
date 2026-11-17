@@ -1,0 +1,1 @@
+ALTER TABLE "comdraft"."draft_prompt" ADD COLUMN "code_inputs" jsonb DEFAULT '[]'::jsonb NOT NULL;

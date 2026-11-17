@@ -5,7 +5,9 @@ import Image from 'next/image';
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 import { Trans, useLingui } from '@lingui/react/macro';
+import CodeInputReentry from '@/components/studio/code-input-reentry';
 import { GENERATION_ERROR_MESSAGES } from '@/components/studio/generation-progress';
+import { useStudio } from '@/components/studio/studio-context';
 import {
   BRAND_BUTTON_CLASS,
   OUTLINE_BUTTON_CLASS,
@@ -20,6 +22,7 @@ import {
   type GenerationClarificationQuestion,
 } from '@/lib/generation/contract';
 import type { GenerationJobView } from '@/lib/generation/jobs';
+import { matchesCodeInputMeta } from '@/lib/generation/code-input';
 import {
   canSubmitAnswers,
   toClarificationAnswers,
@@ -34,6 +37,7 @@ type CardError =
   | 'not_found'
   | 'github_reauth'
   | 'runner_unavailable'
+  | 'code_required'
   | 'error';
 
 const CARD_ERROR_MESSAGES: Record<CardError, MessageDescriptor> = {
@@ -41,6 +45,7 @@ const CARD_ERROR_MESSAGES: Record<CardError, MessageDescriptor> = {
   not_found: msg`이미 처리된 질문입니다. 화면을 새로 고쳐 주세요.`,
   github_reauth: GENERATION_ERROR_MESSAGES.github_reauth,
   runner_unavailable: GENERATION_ERROR_MESSAGES.runner_unavailable,
+  code_required: msg`넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요.`,
   error: GENERATION_ERROR_MESSAGES.internal,
 };
 
@@ -152,6 +157,19 @@ const ClarificationCard = ({
   >({});
   const [error, setError] = useState<CardError | null>(null);
   const [isPending, startTransition] = useTransition();
+  const { sentCodeInputs, rememberSentCodeInputs } = useStudio();
+  // 서버가 코드가 다르다고 했으면 들고 있던 사본 대신 다시 넣게 함 (key 를 바꿔 입력을 비움)
+  const [reentryRound, setReentryRound] = useState(0);
+  const [needsReentry, setNeedsReentry] = useState(false);
+  const storedCode = sentCodeInputs.get(job.id);
+  const hasStoredCode =
+    !needsReentry &&
+    storedCode !== undefined &&
+    matchesCodeInputMeta(storedCode, job.codeInputs);
+  // 직접 입력 코드가 있는 작업인데 보낼 코드가 없으면 다시 넣어야 함
+  const isCodeMissing = job.codeInputs.length > 0 && !hasStoredCode;
+  // 재실행에 보낼 직접 입력 코드 (코드가 없는 작업은 빈 목록)
+  const codeInputs = hasStoredCode ? storedCode : [];
   const clarification = job.clarification;
   const questions = clarification?.questions ?? [];
   const answers = toClarificationAnswers(questions, choices);
@@ -163,6 +181,7 @@ const ClarificationCard = ({
         const result = await resumeClarifiedJob({
           jobId: job.id,
           answers: payload,
+          codeInputs,
         });
 
         if (result.status === 'started') {
@@ -181,6 +200,11 @@ const ClarificationCard = ({
             onResumed(current);
             return;
           }
+        }
+
+        if (result.status === 'code_required') {
+          setNeedsReentry(true);
+          setReentryRound((round) => round + 1);
         }
 
         setError(result.status);
@@ -241,6 +265,18 @@ const ClarificationCard = ({
           }
         />
       ))}
+      {isCodeMissing && (
+        <CodeInputReentry
+          key={reentryRound}
+          meta={job.codeInputs}
+          disabled={isPending}
+          onComplete={(inputs) => {
+            rememberSentCodeInputs(job.id, inputs);
+            setNeedsReentry(false);
+            setError(null);
+          }}
+        />
+      )}
       {error && (
         <p role="alert" className="break-keep text-danger">
           {i18n._(CARD_ERROR_MESSAGES[error])}
@@ -250,7 +286,7 @@ const ClarificationCard = ({
         {questions.length > 0 && (
           <button
             type="button"
-            disabled={isPending || !canSubmitAnswers(answers)}
+            disabled={isPending || isCodeMissing || !canSubmitAnswers(answers)}
             onClick={() => resume(answers)}
             className={`h-8 ${BRAND_BUTTON_CLASS}`}
           >
@@ -259,7 +295,7 @@ const ClarificationCard = ({
         )}
         <button
           type="button"
-          disabled={isPending}
+          disabled={isPending || isCodeMissing}
           onClick={() => resume('skipped')}
           className={`h-8 ${OUTLINE_BUTTON_CLASS} text-[12px]`}
         >

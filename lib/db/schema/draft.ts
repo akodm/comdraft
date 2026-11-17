@@ -14,6 +14,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import type {
+  CodeInputMeta,
   GenerationClarification,
   GenerationJobKind,
   GenerationModel,
@@ -118,6 +119,11 @@ export const draftPrompt = comdraftSchema.table(
     requiredBlocks: text('required_blocks').array().default([]).notNull(),
     // 요청에 사용한 커밋 SHA (최신순)
     commitShas: text('commit_shas').array().default([]).notNull(),
+    // 직접 입력 코드의 이름과 줄 수 (요청 순서). 코드 원문은 어디에도 저장하지 않음
+    codeInputs: jsonb('code_inputs')
+      .$type<CodeInputMeta[]>()
+      .default([])
+      .notNull(),
     // 요청한 화면의 로케일 (작성 프롬프트 언어와 결과 글 언어, lib/i18n/config.ts 의 LOCALES)
     locale: text('locale').$type<Locale>().default('ko').notNull(),
     status: text('status')

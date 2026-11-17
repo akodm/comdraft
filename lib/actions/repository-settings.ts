@@ -20,6 +20,7 @@ import {
   type PromptHistoryEntry,
   type PromptHistoryItem,
 } from '@/lib/studio/prompt-history';
+import { parseCodeInputMeta } from '@/lib/generation/code-input';
 import { getStudioRepository } from '@/lib/studio/queries';
 
 export interface PromptHistoryPage {
@@ -47,6 +48,7 @@ const historyColumns = {
   kind: draftPrompt.kind,
   prompt: draftPrompt.prompt,
   commitShas: draftPrompt.commitShas,
+  codeInputs: draftPrompt.codeInputs,
   status: draftPrompt.status,
   errorCode: draftPrompt.errorCode,
   createdAt: draftPrompt.createdAt,
@@ -116,6 +118,7 @@ const loadPromptHistoryPage = async (
     kind: row.kind,
     prompt: row.prompt,
     commitShas: row.commitShas,
+    codeInputs: parseCodeInputMeta(row.codeInputs),
     // 사용자가 취소한 작업은 실패가 아니라 그냥 끝난 요청으로 봄
     status:
       row.status === 'failed' &&

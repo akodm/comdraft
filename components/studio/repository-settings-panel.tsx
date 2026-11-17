@@ -9,6 +9,7 @@ import {
   useTransition,
   type ReactNode,
 } from 'react';
+import Image from 'next/image';
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 import { Plural, Trans, useLingui } from '@lingui/react/macro';
@@ -100,7 +101,7 @@ const UsageLabel = ({ ratio }: { ratio: number | null }) => {
   );
 };
 
-// 내역 한 줄: 요청 문구(최대 4줄), 사용한 커밋 해시, 사용 비율, 날짜
+// 내역 한 줄: 요청 문구(최대 4줄), 사용한 커밋 해시와 직접 입력 코드(이름 · 줄 수), 사용 비율, 날짜
 const HistoryItem = ({
   item,
   htmlUrl,
@@ -131,6 +132,23 @@ const HistoryItem = ({
           >
             {sha.slice(0, SHORT_SHA_LENGTH)}
           </a>
+        ))}
+        {item.codeInputs.map(({ name, lines }, index) => (
+          <span
+            key={`${index}-${name}`}
+            className="flex max-w-full min-w-0 items-center gap-1 text-ink-muted"
+          >
+            <Image
+              src="/images/studio/code-xml.svg"
+              alt=""
+              width={11}
+              height={11}
+            />
+            <span className="truncate font-mono">{name}</span>
+            <span className="shrink-0">
+              · <Plural value={lines} other="#줄" />
+            </span>
+          </span>
         ))}
         <span>
           <UsageLabel ratio={item.usageRatio} />

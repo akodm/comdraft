@@ -20,6 +20,7 @@ import {
 import type { DraftPublishState } from '@/components/studio/publish-state';
 import type { DraftStatus } from '@/lib/db/schema';
 import type { StudioCommit } from '@/lib/actions/studio';
+import type { GenerationCodeInput } from '@/lib/generation/contract';
 import type { StudioRepository } from '@/lib/studio/queries';
 
 // 모바일에서 여는 사이드바 (PC 는 두 사이드바가 항상 보임)
@@ -35,6 +36,17 @@ interface StudioContextValue extends RemovedDrafts {
   selectedCommits: StudioCommit[];
   toggleCommit: (sha: string) => void;
   clearCommits: () => void;
+  // 작성 요청에 넣을 직접 입력 코드 (브라우저 메모리에만, 새로고침하면 사라짐)
+  codeInputs: GenerationCodeInput[];
+  // index 가 null 이면 추가, 아니면 그 자리의 코드를 바꿈
+  saveCodeInput: (index: number | null, input: GenerationCodeInput) => void;
+  removeCodeInput: (index: number) => void;
+  // 작업별로 보낸 코드 사본 (되묻기에 답할 때 다시 보냄, 새로고침하면 사라짐)
+  sentCodeInputs: ReadonlyMap<string, GenerationCodeInput[]>;
+  rememberSentCodeInputs: (
+    jobId: string,
+    inputs: GenerationCodeInput[],
+  ) => void;
   openPanel: StudioPanel | null;
   setOpenPanel: (panel: StudioPanel | null) => void;
   // 자동 저장으로 바뀐 초안 제목 (화면을 다시 렌더링하지 않고 목록에 반영)
@@ -89,6 +101,33 @@ export const StudioProvider = ({
     Record<string, DraftStatus>
   >({});
   const removedDrafts = useRemovedDrafts();
+  // 직접 입력 코드는 서버나 브라우저 저장소에 두지 않고 이 상태로만 들고 있음
+  const [codeInputs, setCodeInputs] = useState<GenerationCodeInput[]>([]);
+  const [sentCodeInputs, setSentCodeInputs] = useState<
+    ReadonlyMap<string, GenerationCodeInput[]>
+  >(() => new Map());
+
+  const saveCodeInput = useCallback(
+    (index: number | null, input: GenerationCodeInput) => {
+      setCodeInputs((previous) =>
+        index === null
+          ? [...previous, input]
+          : previous.map((item, i) => (i === index ? input : item)),
+      );
+    },
+    [],
+  );
+
+  const removeCodeInput = useCallback((index: number) => {
+    setCodeInputs((previous) => previous.filter((_, i) => i !== index));
+  }, []);
+
+  const rememberSentCodeInputs = useCallback(
+    (jobId: string, inputs: GenerationCodeInput[]) => {
+      setSentCodeInputs((previous) => new Map(previous).set(jobId, inputs));
+    },
+    [],
+  );
 
   const toggleCommit = useCallback((sha: string) => {
     setSelectedShas((previous) => {
@@ -163,6 +202,11 @@ export const StudioProvider = ({
       selectedCommits,
       toggleCommit,
       clearCommits,
+      codeInputs,
+      saveCodeInput,
+      removeCodeInput,
+      sentCodeInputs,
+      rememberSentCodeInputs,
       openPanel: opened?.path === pathname ? opened.panel : null,
       setOpenPanel,
       draftTitles,
@@ -180,6 +224,11 @@ export const StudioProvider = ({
       selectedCommits,
       toggleCommit,
       clearCommits,
+      codeInputs,
+      saveCodeInput,
+      removeCodeInput,
+      sentCodeInputs,
+      rememberSentCodeInputs,
       opened,
       pathname,
       setOpenPanel,

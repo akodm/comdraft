@@ -6,7 +6,7 @@ import type { LocalizedLegalDocument } from '@/lib/legal/types';
 export const TERMS_OF_SERVICE: LocalizedLegalDocument = {
   ko: {
     title: '이용약관',
-    effectiveDate: '2026-11-14',
+    effectiveDate: '2026-11-17',
     intro:
       '이 약관은 comdraft(이하 "서비스")를 이용하는 데 필요한 조건과 이용자와 서비스 운영자의 권리·의무를 정합니다. 서비스를 이용하면 이 약관에 동의한 것으로 봅니다.',
     sections: [
@@ -15,7 +15,7 @@ export const TERMS_OF_SERVICE: LocalizedLegalDocument = {
         paragraphs: ['서비스는 다음 기능을 제공합니다.'],
         items: [
           'GitHub 계정으로 로그인하고 저장소를 연동하여 커밋 내역을 조회하고 선택하는 기능',
-          '선택한 커밋을 바탕으로 AI 가 기술 블로그 초안을 작성하는 기능',
+          '선택한 커밋이나 직접 입력한 코드를 바탕으로 AI 가 기술 블로그 초안을 작성하는 기능',
           '초안을 수정하는 에디터와 서비스 내 게시 기능',
           '초안을 HTML·Markdown 파일로 내보내 다른 블로그에 공유하는 기능',
         ],
@@ -103,7 +103,7 @@ export const TERMS_OF_SERVICE: LocalizedLegalDocument = {
   },
   en: {
     title: 'Terms of Service',
-    effectiveDate: '2026-11-14',
+    effectiveDate: '2026-11-17',
     intro:
       'These terms set out the conditions for using comdraft (the "Service") and the rights and obligations of users and the Service operator. By using the Service, you agree to these terms.',
     sections: [
@@ -112,7 +112,7 @@ export const TERMS_OF_SERVICE: LocalizedLegalDocument = {
         paragraphs: ['The Service provides the following features.'],
         items: [
           'Signing in with a GitHub account and connecting repositories to view and select commit history',
-          'AI-written tech blog drafts based on the selected commits',
+          'AI-written tech blog drafts based on the selected commits or code you enter directly',
           'An editor for revising drafts and publishing them on the Service',
           'Exporting drafts as HTML or Markdown files to share on other blogs',
         ],
