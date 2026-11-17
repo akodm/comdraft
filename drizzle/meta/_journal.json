@@ -169,6 +169,13 @@
       "when": 1794571433591,
       "tag": "0023_lyrical_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794895856314,
+      "tag": "0024_known_pride",
+      "breakpoints": true
     }
   ]
 }
