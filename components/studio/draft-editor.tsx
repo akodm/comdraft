@@ -705,7 +705,7 @@ const DraftEditor = ({
             ) : (
               <p className="py-16 text-center text-[13px] leading-[1.8] break-keep text-ink-faint pc:py-24 pc:text-[14px]">
                 <Trans>
-                  커밋 내역에서 커밋을 선택하고 작성 요청을 보내면
+                  커밋을 선택하거나 코드를 직접 넣고 작성 요청을 보내면
                   <br />
                   이곳에 초안이 만들어집니다.
                 </Trans>

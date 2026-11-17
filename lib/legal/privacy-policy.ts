@@ -4,12 +4,12 @@ import type { LocalizedLegalDocument } from '@/lib/legal/types';
  * 개인정보처리방침
  * - 실제 수집·저장·전송 항목과 맞춰 둠: 코드를 바꾸면 이 문서도 함께 확인
  *   (GitHub 로그인 정보, 저장소 연동 정보, 작성 콘텐츠, 세션의 IP·브라우저 정보, 조회 기록, 쿠키,
- *    AI 작성 때 Anthropic 으로 보내는 내용, 인프라 위탁)
+ *    AI 작성 때 Anthropic 으로 보내는 내용, 직접 입력 코드(저장하지 않고 이름·줄 수만 저장), 인프라 위탁)
  */
 export const PRIVACY_POLICY: LocalizedLegalDocument = {
   ko: {
     title: '개인정보처리방침',
-    effectiveDate: '2026-11-14',
+    effectiveDate: '2026-11-17',
     intro:
       'comdraft(이하 "서비스")는 이용자의 개인정보를 소중히 다루며, 서비스 제공에 필요한 최소한의 정보만 처리합니다. 이 방침은 서비스가 어떤 정보를 어떤 목적으로 처리하고, 누구에게 전달하며, 어떻게 보호하는지 설명합니다.',
     sections: [
@@ -19,7 +19,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         items: [
           'GitHub 로그인: GitHub 계정 식별 번호, GitHub 아이디, 이름, 이메일 주소, 프로필 이미지 주소, GitHub 인증 토큰(암호화하여 저장)',
           '저장소 연동: GitHub App 설치 정보, 연동한 저장소의 이름·소유자·공개 여부·브랜치',
-          '서비스 이용 중 작성한 내용: 초안 작성 요청 내용, 선택한 커밋의 식별자(SHA), 참고 링크, 초안·게시글 본문과 기술 태그, 업로드한 이미지, AI 사용량 기록',
+          '서비스 이용 중 작성한 내용: 초안 작성 요청 내용, 선택한 커밋의 식별자(SHA), 직접 입력한 코드의 이름과 줄 수, 참고 링크, 초안·게시글 본문과 기술 태그, 업로드한 이미지, AI 사용량 기록',
           '자동으로 생성되는 정보: 로그인 세션의 IP 주소와 브라우저 정보(User-Agent), 게시글 조회 기록(로그인 사용자 식별자 또는 무작위 방문자 식별자), 쿠키',
           '방문 분석(Google Analytics): 방문한 페이지, 방문 경로와 머문 시간, 대략적인 위치(국가·도시), 기기·브라우저 정보 (Google Analytics 쿠키의 무작위 식별자 기준)',
         ],
@@ -29,7 +29,9 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         items: [
           'GitHub 비밀번호는 받지 않습니다. 로그인은 GitHub 인증으로만 이루어집니다.',
           '저장소의 코드 원문은 서비스에 저장하지 않습니다. AI 초안을 작성할 때에만 GitHub 에서 조회하여 AI 에 전달합니다.',
-          '다만 이용자가 작성하거나 게시한 초안·게시글에 포함된 코드 조각은 그 초안·게시글의 내용으로 저장됩니다.',
+          "'코드 직접 입력'으로 넣은 코드는 서비스에 저장하지 않습니다. AI 초안을 작성할 때에만 AI 에 전달하며, 이름과 줄 수만 프롬프트 내역 표시를 위해 저장합니다.",
+          '다만 초안 작성 요청 내용(요청 문구)은 저장되므로, 요청 문구에 붙여 넣은 코드는 요청 내용으로 저장됩니다. 비공개 코드는 요청 문구가 아니라 커밋 선택이나 코드 직접 입력으로 넣어 주세요.',
+          '이용자가 작성하거나 게시한 초안·게시글에 포함된 코드 조각은 그 초안·게시글의 내용으로 저장됩니다.',
         ],
       },
       {
@@ -38,6 +40,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
           '회원 식별과 로그인 유지',
           '저장소 연동과 커밋 내역 조회',
           'AI 를 이용한 기술 블로그 초안 작성과 사용량 관리',
+          '저장한 초안 작성 요청 내용을 바탕으로 한 AI 작성 품질 개선',
           '게시글 게시와 작성자 표시(이름, 프로필 이미지, GitHub 프로필 링크)',
           '조회 수 집계와 방문 통계 분석 등 서비스 운영과 개선, 부정 이용 방지',
         ],
@@ -49,7 +52,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         ],
         items: [
           '받는 자: Anthropic, PBC (미국) — Claude API',
-          '전송 항목: 초안 작성 요청 내용, 선택한 커밋의 메시지와 코드 변경 내용, 참고 링크의 본문, 빈칸 채우기 답변과 작성 중인 초안 내용',
+          '전송 항목: 초안 작성 요청 내용, 선택한 커밋의 메시지와 코드 변경 내용, 직접 입력한 코드, 참고 링크의 본문, 빈칸 채우기 답변과 작성 중인 초안 내용',
           '전송 목적: AI 초안 작성과 다듬기',
           '보유 기간: Anthropic 의 데이터 처리 정책에 따름',
           '이름·이메일 등 계정 정보는 AI 에 전송하지 않습니다.',
@@ -131,7 +134,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
   },
   en: {
     title: 'Privacy Policy',
-    effectiveDate: '2026-11-14',
+    effectiveDate: '2026-11-17',
     intro:
       'comdraft (the "Service") values your privacy and processes only the minimum information needed to provide the Service. This policy explains what information we process, why, who we share it with, and how we protect it.',
     sections: [
@@ -141,7 +144,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         items: [
           'GitHub sign-in: GitHub account ID number, GitHub username, name, email address, profile image URL, and GitHub authentication tokens (stored encrypted)',
           'Repository connection: GitHub App installation details and the name, owner, visibility, and branch of connected repositories',
-          'Content you create: draft requests, selected commit identifiers (SHAs), reference links, draft and post bodies and technology tags, uploaded images, and AI usage records',
+          'Content you create: draft requests, selected commit identifiers (SHAs), the names and line counts of code you enter directly, reference links, draft and post bodies and technology tags, uploaded images, and AI usage records',
           'Automatically generated information: IP address and browser information (User-Agent) of sign-in sessions, post view records (a signed-in user identifier or a random visitor identifier), and cookies',
           'Visit analytics (Google Analytics): pages visited, navigation paths and time spent, approximate location (country and city), and device and browser information (keyed to a random identifier in Google Analytics cookies)',
         ],
@@ -151,7 +154,9 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         items: [
           'We never receive your GitHub password. Sign-in happens only through GitHub authentication.',
           'We do not store the source code of your repositories. It is fetched from GitHub only when an AI draft is written and passed to the AI.',
-          'However, code snippets included in drafts or posts you write or publish are stored as part of that content.',
+          "We do not store code you add with 'Enter code directly'. It is passed to the AI only when an AI draft is written; only its names and line counts are stored to show your prompt history.",
+          'Your draft request text is stored, however, so code pasted into the request text is stored as part of the request. Add private code through commit selection or direct code entry, not in the request text.',
+          'Code snippets included in drafts or posts you write or publish are stored as part of that content.',
         ],
       },
       {
@@ -160,6 +165,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
           'Identifying members and keeping you signed in',
           'Connecting repositories and looking up commit history',
           'Writing tech blog drafts with AI and managing usage',
+          'Improving the quality of AI writing based on stored draft requests',
           'Publishing posts and showing their author (name, profile image, GitHub profile link)',
           'Operating and improving the Service, including view counts and visit analytics, and preventing abuse',
         ],
@@ -172,7 +178,7 @@ export const PRIVACY_POLICY: LocalizedLegalDocument = {
         ],
         items: [
           'Recipient: Anthropic, PBC (United States) — Claude API',
-          'Items sent: your draft request, the messages and code changes of the selected commits, the body of reference links, and your answers for blanks together with the draft being written',
+          'Items sent: your draft request, the messages and code changes of the selected commits, code you enter directly, the body of reference links, and your answers for blanks together with the draft being written',
           'Purpose: writing and refining AI drafts',
           "Retention: according to Anthropic's data processing policy",
           'Account information such as your name or email is not sent to the AI.',

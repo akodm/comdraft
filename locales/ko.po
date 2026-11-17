@@ -15,6 +15,10 @@ msgstr "Github 로 회원가입/로그인"
 msgid "중간"
 msgstr "중간"
 
+#: components/studio/clarification-card.tsx:48
+msgid "넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요."
+msgstr "넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요."
+
 #: components/main/mobile-menu.tsx:106
 msgid "메뉴 열기"
 msgstr "메뉴 열기"
@@ -23,6 +27,10 @@ msgstr "메뉴 열기"
 msgid "브랜치 목록을 불러오지 못했습니다."
 msgstr "브랜치 목록을 불러오지 못했습니다."
 
+#: components/main/notice-section.tsx:10
+msgid "작성 요청(프롬프트)은 서비스 품질 개선을 위해 저장됩니다. 요청 문구에는 비공개 코드를 넣지 마세요."
+msgstr "작성 요청(프롬프트)은 서비스 품질 개선을 위해 저장됩니다. 요청 문구에는 비공개 코드를 넣지 마세요."
+
 #: components/studio/publish-dialog.tsx:106
 msgid "공개 범위"
 msgstr "공개 범위"
@@ -30,10 +38,6 @@ msgstr "공개 범위"
 #: components/main/sample-commits.ts:21
 msgid "cleanup에서 disconnect() 호출"
 msgstr "cleanup에서 disconnect() 호출"
-
-#: components/main/notice-section.tsx:9
-msgid "커밋 내 코드를 사이트 어디에도 저장하지 않습니다."
-msgstr "커밋 내 코드를 사이트 어디에도 저장하지 않습니다."
 
 #: components/studio/draft-sidebar.tsx:178
 msgid "초안을 삭제하지 못했습니다. 다시 시도해주세요."
@@ -44,7 +48,7 @@ msgid "현재 사용량"
 msgstr "현재 사용량"
 
 #: components/studio/generation-progress.tsx:35
-#: components/studio/prompt-composer.tsx:72
+#: components/studio/prompt-composer.tsx:80
 msgid "AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요."
 msgstr "AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요."
 
@@ -92,8 +96,8 @@ msgid "설명 필요"
 msgstr "설명 필요"
 
 #: components/studio/generation-progress.tsx:31
-#: components/studio/prompt-composer.tsx:71
-#: components/studio/repository-settings-panel.tsx:55
+#: components/studio/prompt-composer.tsx:79
+#: components/studio/repository-settings-panel.tsx:56
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요."
 msgstr "GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요."
 
@@ -105,12 +109,12 @@ msgstr "높은 모델일수록 이번 주 사용량이 빨리 줄어듭니다."
 msgid "언어 변경"
 msgstr "언어 변경"
 
-#: components/studio/prompt-composer.tsx:74
+#: components/studio/prompt-composer.tsx:82
 msgid "사용량 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
 msgstr "사용량 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
 
 #: components/studio/blank-fill-messages.ts:19
-#: components/studio/prompt-composer.tsx:431
+#: components/studio/prompt-composer.tsx:463
 #: components/studio/quota-exhausted-banner.tsx:30
 msgid "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
 msgstr "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
@@ -164,6 +168,11 @@ msgstr "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저
 msgid "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를 선택해주세요."
 msgstr "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를 선택해주세요."
 
+#: components/studio/code-input-dialog.tsx:233
+#: components/studio/code-input-reentry.tsx:85
+msgid "넣기"
+msgstr "넣기"
+
 #: components/onboarding/complete-step.tsx:48
 msgid "작성 하러 가기"
 msgstr "작성 하러 가기"
@@ -172,7 +181,7 @@ msgstr "작성 하러 가기"
 msgid "연결을 해제할까요?"
 msgstr "연결을 해제할까요?"
 
-#: components/studio/repository-settings-panel.tsx:59
+#: components/studio/repository-settings-panel.tsx:60
 msgid "브랜치를 바꿨습니다. 커밋 내역을 다시 불러옵니다."
 msgstr "브랜치를 바꿨습니다. 커밋 내역을 다시 불러옵니다."
 
@@ -204,9 +213,13 @@ msgstr "유형"
 msgid "여기에 직접 작성해 주세요"
 msgstr "여기에 직접 작성해 주세요"
 
-#: components/studio/repository-settings-panel.tsx:461
+#: components/studio/repository-settings-panel.tsx:479
 msgid "저장소를 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "저장소를 삭제하지 못했습니다. 다시 시도해주세요."
+
+#: components/studio/code-input-reentry.tsx:52
+msgid "직접 입력한 코드는 저장하지 않아서, 답하기 전에 같은 코드를 다시 넣어주세요."
+msgstr "직접 입력한 코드는 저장하지 않아서, 답하기 전에 같은 코드를 다시 넣어주세요."
 
 #: components/onboarding/draft-example.tsx:38
 msgid "작성 예시"
@@ -220,11 +233,11 @@ msgstr "초안 목록"
 msgid "태그는 10개까지 넣을 수 있습니다"
 msgstr "태그는 10개까지 넣을 수 있습니다"
 
-#: components/studio/prompt-composer.tsx:376
+#: components/studio/prompt-composer.tsx:404
 msgid "초안 목록 열기"
 msgstr "초안 목록 열기"
 
-#: components/studio/repository-settings-panel.tsx:370
+#: components/studio/repository-settings-panel.tsx:388
 msgid "브랜치가 없습니다."
 msgstr "브랜치가 없습니다."
 
@@ -256,9 +269,14 @@ msgstr "저장소 설정"
 msgid "라이선스"
 msgstr "라이선스"
 
-#: components/main/notice-section.tsx:8
-msgid "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
-msgstr "민감한 코드가 포함된 커밋을 보내지 않도록 하세요."
+#. placeholder {0}: input.name
+#: components/studio/code-input-chips.tsx:79
+msgid "{0} 코드 편집"
+msgstr "{0} 코드 편집"
+
+#: components/main/notice-section.tsx:7
+msgid "제 3자인 LLM API 에 커밋 코드와 직접 입력한 코드가 보내집니다. 조직 및 비공개 저장소는 권하지 않습니다."
+msgstr "제 3자인 LLM API 에 커밋 코드와 직접 입력한 코드가 보내집니다. 조직 및 비공개 저장소는 권하지 않습니다."
 
 #: app/[lang]/dashboard/repositories/page.tsx:60
 #: components/onboarding/repository-step.tsx:23
@@ -285,6 +303,10 @@ msgstr "GitHub 이메일 정보를 받지 못했습니다. GitHub 앱의 이메�
 msgid "분석"
 msgstr "분석"
 
+#: components/studio/code-input-dialog.tsx:163
+msgid "파일 이름 (예: useAuth.ts, 비우면 \"코드 N\")"
+msgstr "파일 이름 (예: useAuth.ts, 비우면 \"코드 N\")"
+
 #: components/studio/draft-editor.tsx:626
 msgid "· 빈칸 {emptyBlankCount}개"
 msgstr "· 빈칸 {emptyBlankCount}개"
@@ -298,13 +320,18 @@ msgid "초기화까지 {hours}시간 {minutes}분"
 msgstr "초기화까지 {hours}시간 {minutes}분"
 
 #. placeholder {0}: label.value
-#: components/studio/repository-settings-panel.tsx:99
+#: components/studio/repository-settings-panel.tsx:100
 msgid "주간 제공량의 {0}%"
 msgstr "주간 제공량의 {0}%"
 
 #: components/posts/post-pagination.tsx:141
 msgid "전체 {totalPages}쪽 중 {currentPage}쪽"
 msgstr "전체 {totalPages}쪽 중 {currentPage}쪽"
+
+#. placeholder {0}: input.name
+#: components/studio/code-input-chips.tsx:97
+msgid "{0} 코드 빼기"
+msgstr "{0} 코드 빼기"
 
 #: components/onboarding/complete-step.tsx:19
 msgid "첫 저장소 연동이<0/>완료되었습니다."
@@ -338,7 +365,11 @@ msgstr "작성·검토"
 msgid "인용"
 msgstr "인용"
 
-#: components/studio/repository-settings-panel.tsx:141
+#: components/main/notice-section.tsx:8
+msgid "민감한 코드가 포함된 커밋이나 코드를 보내지 않도록 하세요."
+msgstr "민감한 코드가 포함된 커밋이나 코드를 보내지 않도록 하세요."
+
+#: components/studio/repository-settings-panel.tsx:159
 msgid "실패"
 msgstr "실패"
 
@@ -354,8 +385,8 @@ msgstr "전체"
 msgid "접근 권한이 없는 GitHub App 설치입니다."
 msgstr "접근 권한이 없는 GitHub App 설치입니다."
 
-#: components/studio/repository-settings-panel.tsx:430
-#: components/studio/repository-settings-panel.tsx:443
+#: components/studio/repository-settings-panel.tsx:448
+#: components/studio/repository-settings-panel.tsx:461
 msgid "저장소 삭제"
 msgstr "저장소 삭제"
 
@@ -388,12 +419,16 @@ msgstr "링크 주소"
 msgid "JPEG, PNG, WebP, GIF, AVIF 이미지만 넣을 수 있습니다"
 msgstr "JPEG, PNG, WebP, GIF, AVIF 이미지만 넣을 수 있습니다"
 
+#: components/studio/code-input-dialog.tsx:212
+msgid "넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 요청 문구에 붙인 코드는 저장됩니다."
+msgstr "넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 요청 문구에 붙인 코드는 저장됩니다."
+
 #: components/studio/draft-editor.tsx:61
 #: components/studio/publish-dialog.tsx:29
 msgid "올리지 못한 이미지가 있습니다"
 msgstr "올리지 못한 이미지가 있습니다"
 
-#: components/studio/prompt-composer.tsx:66
+#: components/studio/prompt-composer.tsx:73
 msgid "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 msgstr "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 
@@ -406,6 +441,10 @@ msgstr "게시글"
 #: components/shared/locale-switcher.tsx:19
 msgid "언어 선택"
 msgstr "언어 선택"
+
+#: components/studio/draft-editor.tsx:707
+msgid "커밋을 선택하거나 코드를 직접 넣고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
+msgstr "커밋을 선택하거나 코드를 직접 넣고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 
 #: components/studio/profile-menu.tsx:109
 msgid "회원 탈퇴"
@@ -424,9 +463,18 @@ msgstr "HTML 파일로 내보내기"
 msgid "저장소를 선택하세요"
 msgstr "저장소를 선택하세요"
 
+#: components/studio/code-input-chips.tsx:37
+#: components/studio/code-input-dialog.tsx:125
+msgid "코드 직접 입력"
+msgstr "코드 직접 입력"
+
+#: components/studio/code-input-dialog.tsx:147
+msgid "이름"
+msgstr "이름"
+
 #: components/studio/draft-list-item.tsx:79
 #: components/studio/draft-list-item.tsx:153
-#: components/studio/repository-settings-panel.tsx:456
+#: components/studio/repository-settings-panel.tsx:474
 msgid "삭제"
 msgstr "삭제"
 
@@ -442,11 +490,11 @@ msgstr "커밋 내역을 불러오는 중..."
 msgid "비공개 저장소의 코드가 본문에 그대로 공개됩니다"
 msgstr "비공개 저장소의 코드가 본문에 그대로 공개됩니다"
 
-#: components/studio/clarification-card.tsx:213
+#: components/studio/clarification-card.tsx:237
 msgid "작성 전 질문"
 msgstr "작성 전 질문"
 
-#: components/studio/clarification-card.tsx:40
+#: components/studio/clarification-card.tsx:44
 msgid "답을 확인해 주세요."
 msgstr "답을 확인해 주세요."
 
@@ -475,8 +523,8 @@ msgstr "추적 브랜치에 커밋이 없습니다."
 #: components/onboarding/repository-connect-form.tsx:247
 #: components/studio/account-settings-panel.tsx:282
 #: components/studio/commit-sidebar.tsx:105
-#: components/studio/repository-settings-panel.tsx:278
-#: components/studio/repository-settings-panel.tsx:522
+#: components/studio/repository-settings-panel.tsx:296
+#: components/studio/repository-settings-panel.tsx:540
 msgid "다시 시도"
 msgstr "다시 시도"
 
@@ -490,6 +538,7 @@ msgstr "로그아웃"
 
 #: components/shared/confirm-dialog.tsx:94
 #: components/shared/dialog-frame.tsx:82
+#: components/studio/code-input-dialog.tsx:130
 #: components/studio/generation-progress.tsx:103
 #: components/studio/quota-exhausted-banner.tsx:35
 #: components/studio/reference-link-dialog.tsx:134
@@ -532,7 +581,7 @@ msgstr "이번 요청은 남은 사용량보다 커서 진행하지 않았습니
 msgid "추적 브랜치 {branch}"
 msgstr "추적 브랜치 {branch}"
 
-#: components/studio/prompt-composer.tsx:105
+#: components/studio/prompt-composer.tsx:113
 msgid "{count, plural, other {커밋 #개}}"
 msgstr "{count, plural, other {커밋 #개}}"
 
@@ -558,7 +607,11 @@ msgstr "이미지 넣기"
 msgid "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 
-#: components/studio/prompt-composer.tsx:67
+#: components/studio/code-input-reentry.tsx:83
+msgid "넣음 · 고치기"
+msgstr "넣음 · 고치기"
+
+#: components/studio/prompt-composer.tsx:75
 msgid "작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해주세요."
 msgstr "작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해주세요."
 
@@ -566,13 +619,17 @@ msgstr "작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해�
 msgid "개인 저장소"
 msgstr "개인 저장소"
 
+#: components/studio/code-input-reentry.tsx:79
+msgid "{name} 코드 다시 넣기"
+msgstr "{name} 코드 다시 넣기"
+
 #: components/studio/draft-editor.tsx:457
 #: lib/generation/blank-questions.ts:15
 msgid "이 부분에 배운 점을 작성해 주세요"
 msgstr "이 부분에 배운 점을 작성해 주세요"
 
 #. placeholder {0}: question.id
-#: components/studio/clarification-card.tsx:112
+#: components/studio/clarification-card.tsx:117
 msgid "{0} 답 직접 입력"
 msgstr "{0} 답 직접 입력"
 
@@ -581,7 +638,7 @@ msgstr "{0} 답 직접 입력"
 msgid "작업 과정을 <0>글 초안으로.</0>"
 msgstr "작업 과정을 <0>글 초안으로.</0>"
 
-#: components/studio/clarification-card.tsx:41
+#: components/studio/clarification-card.tsx:45
 msgid "이미 처리된 질문입니다. 화면을 새로 고쳐 주세요."
 msgstr "이미 처리된 질문입니다. 화면을 새로 고쳐 주세요."
 
@@ -601,13 +658,18 @@ msgstr "게시하지 못했습니다. 다시 시도해주세요."
 msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 msgstr "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 
-#: components/studio/repository-settings-panel.tsx:534
+#: components/studio/repository-settings-panel.tsx:552
 msgid "프롬프트 내역"
 msgstr "프롬프트 내역"
 
 #: components/studio/draft-sidebar.tsx:72
 msgid "GitHub 에서 저장소 열기"
 msgstr "GitHub 에서 저장소 열기"
+
+#. placeholder {0}: countLines(input.code)
+#: components/studio/code-input-chips.tsx:92
+msgid "{0, plural, other {#줄}}"
+msgstr "{0, plural, other {#줄}}"
 
 #: components/posts/post-pagination.tsx:103
 msgid "이전 쪽"
@@ -621,7 +683,7 @@ msgstr "제목 2"
 msgid "이메일"
 msgstr "이메일"
 
-#: components/studio/prompt-composer.tsx:180
+#: components/studio/prompt-composer.tsx:188
 msgid "모두 해제"
 msgstr "모두 해제"
 
@@ -679,11 +741,11 @@ msgstr "{label} 메뉴"
 msgid "주요 메뉴"
 msgstr "주요 메뉴"
 
-#: components/studio/prompt-composer.tsx:227
+#: components/studio/prompt-composer.tsx:235
 msgid "+{pcRest}개"
 msgstr "+{pcRest}개"
 
-#: components/studio/repository-settings-panel.tsx:448
+#: components/studio/repository-settings-panel.tsx:466
 msgid "저장소를 삭제할까요?"
 msgstr "저장소를 삭제할까요?"
 
@@ -694,6 +756,11 @@ msgstr "다음 쪽"
 #: components/studio/reference-links.tsx:123
 msgid "링크를 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "링크를 삭제하지 못했습니다. 다시 시도해주세요."
+
+#. placeholder {0}: fixed.lines
+#: components/studio/code-input-dialog.tsx:205
+msgid "{0, plural, other {처음 넣은 코드는 #줄입니다. 같은 코드를 넣어주세요.}}"
+msgstr "{0, plural, other {처음 넣은 코드는 #줄입니다. 같은 코드를 넣어주세요.}}"
 
 #: components/auth/commit-to-draft-motion.tsx:111
 #: components/main/hero-preview.tsx:80
@@ -708,6 +775,10 @@ msgstr "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한�
 #: components/studio/draft-list-item.tsx:139
 msgid "이 초안을 삭제할까요?"
 msgstr "이 초안을 삭제할까요?"
+
+#: components/studio/code-input-dialog.tsx:186
+msgid "{charCount} / {maxChars}자"
+msgstr "{charCount} / {maxChars}자"
 
 #: components/main/profile-menu.tsx:205
 msgid "탈퇴하지 못했습니다. 다시 시도해주세요."
@@ -725,7 +796,7 @@ msgstr "친근하게"
 msgid "더 보기"
 msgstr "더 보기"
 
-#: components/studio/prompt-composer.tsx:70
+#: components/studio/prompt-composer.tsx:78
 msgid "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
 msgstr "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
 
@@ -733,7 +804,11 @@ msgstr "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세�
 msgid "계기"
 msgstr "계기"
 
-#: components/studio/prompt-composer.tsx:75
+#: components/studio/prompt-composer.tsx:446
+msgid "선택한 커밋이나 코드로 어떤 글을 쓸지 요청해주세요."
+msgstr "선택한 커밋이나 코드로 어떤 글을 쓸지 요청해주세요."
+
+#: components/studio/prompt-composer.tsx:83
 msgid "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgstr "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 
@@ -741,8 +816,8 @@ msgstr "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgid "시작하기"
 msgstr "시작하기"
 
-#: components/studio/prompt-composer.tsx:406
-#: components/studio/prompt-composer.tsx:413
+#: components/studio/prompt-composer.tsx:434
+#: components/studio/prompt-composer.tsx:445
 msgid "작성 요청"
 msgstr "작성 요청"
 
@@ -754,7 +829,7 @@ msgstr "주소를 아는 사람만 글을 볼 수 있습니다"
 msgid "제목 3"
 msgstr "제목 3"
 
-#: components/studio/repository-settings-panel.tsx:57
+#: components/studio/repository-settings-panel.tsx:58
 msgid "브랜치를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
 msgstr "브랜치를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
 
@@ -770,7 +845,7 @@ msgstr "GitHub 로그인에 실패했습니다."
 msgid "AI 초안 작성"
 msgstr "AI 초안 작성"
 
-#: components/studio/prompt-composer.tsx:73
+#: components/studio/prompt-composer.tsx:81
 msgid "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 
@@ -863,7 +938,7 @@ msgstr "(완료)"
 msgid "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
 msgstr "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
 
-#: components/studio/prompt-composer.tsx:146
+#: components/studio/prompt-composer.tsx:154
 msgid "{sha} 선택 해제"
 msgstr "{sha} 선택 해제"
 
@@ -875,23 +950,19 @@ msgstr "선택한 언어로 게시된 글이 없습니다"
 msgid "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
 msgstr "조직 소유자에게 설치 승인을 요청했습니다. 승인 후 저장소를 선택할 수 있습니다."
 
-#: components/studio/repository-settings-panel.tsx:377
+#: components/studio/repository-settings-panel.tsx:395
 msgid "브랜치를 바꾸면 커밋 목록이 바뀔 수 있습니다. 선택하는 즉시 적용되며, 커밋은 최근 30개부터 다시 불러옵니다."
 msgstr "브랜치를 바꾸면 커밋 목록이 바뀔 수 있습니다. 선택하는 즉시 적용되며, 커밋은 최근 30개부터 다시 불러옵니다."
-
-#: components/main/notice-section.tsx:7
-msgid "제 3자인 LLM API 에 코드가 보내집니다. 조직 및 비공개 저장소는 권하지 않습니다."
-msgstr "제 3자인 LLM API 에 코드가 보내집니다. 조직 및 비공개 저장소는 권하지 않습니다."
 
 #: components/auth/auth-intro.tsx:16
 msgid "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
 msgstr "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
 
-#: components/studio/prompt-composer.tsx:468
+#: components/studio/prompt-composer.tsx:500
 msgid "AI 가 초안을 작성하는 중..."
 msgstr "AI 가 초안을 작성하는 중..."
 
-#: components/studio/repository-settings-panel.tsx:268
+#: components/studio/repository-settings-panel.tsx:286
 msgid "내역을 더 불러오는 중..."
 msgstr "내역을 더 불러오는 중..."
 
@@ -899,13 +970,17 @@ msgstr "내역을 더 불러오는 중..."
 msgid "본문"
 msgstr "본문"
 
-#: components/main/notice-section.tsx:26
+#: components/main/notice-section.tsx:27
 msgid "꼭 확인하세요"
 msgstr "꼭 확인하세요"
 
 #: components/studio/editor-toolbar.tsx:317
 msgid "링크 제거"
 msgstr "링크 제거"
+
+#: components/studio/code-input-dialog.tsx:175
+msgid "코드를 붙여 넣거나 입력해주세요."
+msgstr "코드를 붙여 넣거나 입력해주세요."
 
 #: components/studio/editor-toolbar.tsx:70
 msgid "기울임"
@@ -928,7 +1003,12 @@ msgstr "초기화까지 {minutes}분"
 msgid "계정 설정"
 msgstr "계정 설정"
 
-#: components/studio/prompt-composer.tsx:499
+#: components/studio/code-input-dialog.tsx:95
+#: components/studio/code-input-dialog.tsx:174
+msgid "코드"
+msgstr "코드"
+
+#: components/studio/prompt-composer.tsx:531
 msgid "다시 작성"
 msgstr "다시 작성"
 
@@ -936,7 +1016,7 @@ msgstr "다시 작성"
 msgid "comdraft — 커밋으로 쓰는 AI 기술 블로그 초안"
 msgstr "comdraft — 커밋으로 쓰는 AI 기술 블로그 초안"
 
-#: components/studio/prompt-composer.tsx:470
+#: components/studio/prompt-composer.tsx:502
 msgid "작성 요청을 보내는 중..."
 msgstr "작성 요청을 보내는 중..."
 
@@ -956,7 +1036,7 @@ msgstr "누구나 목록과 검색에서 글을 찾을 수 있습니다"
 msgid "필수 항목 더 보기"
 msgstr "필수 항목 더 보기"
 
-#: components/studio/prompt-composer.tsx:63
+#: components/studio/prompt-composer.tsx:70
 msgid "작성 요청을 입력해주세요."
 msgstr "작성 요청을 입력해주세요."
 
@@ -968,7 +1048,7 @@ msgstr "길게"
 msgid "태그를 저장하지 못했습니다"
 msgstr "태그를 저장하지 못했습니다"
 
-#: components/studio/repository-settings-panel.tsx:333
+#: components/studio/repository-settings-panel.tsx:351
 msgid "{name} (기본 브랜치)"
 msgstr "{name} (기본 브랜치)"
 
@@ -988,7 +1068,7 @@ msgstr "참고 링크"
 msgid "조직 저장소"
 msgstr "조직 저장소"
 
-#: components/studio/prompt-composer.tsx:69
+#: components/studio/prompt-composer.tsx:77
 msgid "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
 msgstr "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
 
@@ -1000,7 +1080,7 @@ msgstr "수정"
 msgid "구분"
 msgstr "구분"
 
-#: components/studio/clarification-card.tsx:105
+#: components/studio/clarification-card.tsx:110
 msgid "직접 입력"
 msgstr "직접 입력"
 
@@ -1012,7 +1092,7 @@ msgstr "공개 저장소"
 msgid "AI 초안 작성 중"
 msgstr "AI 초안 작성 중"
 
-#: components/studio/prompt-composer.tsx:493
+#: components/studio/prompt-composer.tsx:525
 msgid "새로 작성하면 지금 본문이 AI 결과로 바뀝니다. 직접 고친 내용도 사라집니다."
 msgstr "새로 작성하면 지금 본문이 AI 결과로 바뀝니다. 직접 고친 내용도 사라집니다."
 
@@ -1024,7 +1104,7 @@ msgstr "이 기록을 하나의 글로 정리"
 msgid "기본"
 msgstr "기본"
 
-#: components/studio/prompt-composer.tsx:482
+#: components/studio/prompt-composer.tsx:514
 msgid "제출"
 msgstr "제출"
 
@@ -1037,8 +1117,9 @@ msgid "연동 저장소"
 msgstr "연동 저장소"
 
 #: components/main/profile-menu.tsx:199
-#: components/studio/clarification-card.tsx:274
-#: components/studio/prompt-composer.tsx:500
+#: components/studio/clarification-card.tsx:310
+#: components/studio/code-input-dialog.tsx:224
+#: components/studio/prompt-composer.tsx:532
 #: components/studio/publish-dialog.tsx:168
 #: components/studio/reference-link-dialog.tsx:189
 msgid "취소"
@@ -1149,7 +1230,17 @@ msgstr "답변 대기"
 msgid "제목 1"
 msgstr "제목 1"
 
-#: components/studio/repository-settings-panel.tsx:97
+#: components/studio/code-input-dialog.tsx:192
+msgid "코드 하나는 {MAX_CODE_INPUT_LINES}줄, {maxChars}자까지 넣을 수 있습니다."
+msgstr "코드 하나는 {MAX_CODE_INPUT_LINES}줄, {maxChars}자까지 넣을 수 있습니다."
+
+#: components/studio/code-input-dialog.tsx:184
+#: components/studio/code-input-reentry.tsx:72
+#: components/studio/repository-settings-panel.tsx:149
+msgid "{lines, plural, other {#줄}}"
+msgstr "{lines, plural, other {#줄}}"
+
+#: components/studio/repository-settings-panel.tsx:98
 msgid "주간 제공량의 1% 미만"
 msgstr "주간 제공량의 1% 미만"
 
@@ -1166,7 +1257,7 @@ msgstr "무엇을 확인할까요?"
 msgid "초안 보기"
 msgstr "초안 보기"
 
-#: components/studio/clarification-card.tsx:266
+#: components/studio/clarification-card.tsx:302
 msgid "그냥 작성"
 msgstr "그냥 작성"
 
@@ -1178,7 +1269,7 @@ msgstr "게시 메뉴"
 msgid "저장소의 커밋 내역을 불러오고 선택합니다."
 msgstr "저장소의 커밋 내역을 불러오고 선택합니다."
 
-#: components/studio/prompt-composer.tsx:64
+#: components/studio/prompt-composer.tsx:71
 msgid "작성 요청은 {MAX_GENERATION_PROMPT_LENGTH}자까지 보낼 수 있습니다."
 msgstr "작성 요청은 {MAX_GENERATION_PROMPT_LENGTH}자까지 보낼 수 있습니다."
 
@@ -1194,7 +1285,7 @@ msgstr "제목 6"
 msgid "취소선"
 msgstr "취소선"
 
-#: components/studio/repository-settings-panel.tsx:272
+#: components/studio/repository-settings-panel.tsx:290
 msgid "내역을 더 불러오지 못했습니다."
 msgstr "내역을 더 불러오지 못했습니다."
 
@@ -1203,7 +1294,7 @@ msgid "다시 로그인"
 msgstr "다시 로그인"
 
 #: components/main/sample-commit-panel.tsx:14
-#: components/studio/prompt-composer.tsx:124
+#: components/studio/prompt-composer.tsx:132
 msgid "선택한 커밋"
 msgstr "선택한 커밋"
 
@@ -1223,7 +1314,7 @@ msgstr "필터 닫기"
 msgid "이동 중..."
 msgstr "이동 중..."
 
-#: components/studio/prompt-composer.tsx:68
+#: components/studio/prompt-composer.tsx:76
 msgid "이 모델은 현재 등급에서 쓸 수 없습니다."
 msgstr "이 모델은 현재 등급에서 쓸 수 없습니다."
 
@@ -1248,7 +1339,7 @@ msgstr "{total}단계 중 {step}단계"
 msgid "feat: 이미지 지연 로딩 적용"
 msgstr "feat: 이미지 지연 로딩 적용"
 
-#: components/studio/repository-settings-panel.tsx:236
+#: components/studio/repository-settings-panel.tsx:254
 msgid "아직 이 저장소로 보낸 작성 요청이 없습니다."
 msgstr "아직 이 저장소로 보낸 작성 요청이 없습니다."
 
@@ -1297,11 +1388,7 @@ msgstr "이 부분에 결과나 수치를 작성해 주세요"
 msgid "검토 후 게시 및 내보내기"
 msgstr "검토 후 게시 및 내보내기"
 
-#: components/studio/prompt-composer.tsx:65
-msgid "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
-msgstr "커밋 내역에서 초안에 쓸 커밋을 하나 이상 선택해주세요."
-
-#: components/studio/repository-settings-panel.tsx:515
+#: components/studio/repository-settings-panel.tsx:533
 msgid "저장소 정보를 불러오지 못했습니다."
 msgstr "저장소 정보를 불러오지 못했습니다."
 
@@ -1309,7 +1396,7 @@ msgstr "저장소 정보를 불러오지 못했습니다."
 msgid "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 msgstr "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 
-#: components/studio/repository-settings-panel.tsx:434
+#: components/studio/repository-settings-panel.tsx:452
 msgid "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 msgstr "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 
@@ -1329,9 +1416,13 @@ msgstr "개발 블로그 게시글"
 msgid "fix: 언마운트 시 observer 해제"
 msgstr "fix: 언마운트 시 observer 해제"
 
-#: components/studio/clarification-card.tsx:257
+#: components/studio/clarification-card.tsx:293
 msgid "답하고 작성"
 msgstr "답하고 작성"
+
+#: components/studio/prompt-composer.tsx:72
+msgid "커밋을 하나 이상 선택하거나 코드를 직접 넣어주세요."
+msgstr "커밋을 하나 이상 선택하거나 코드를 직접 넣어주세요."
 
 #: components/studio/prompt-options.tsx:200
 msgid "필수 항목"
@@ -1341,9 +1432,13 @@ msgstr "필수 항목"
 msgid "실제 데이터가 아닌 예시입니다"
 msgstr "실제 데이터가 아닌 예시입니다"
 
-#: components/studio/prompt-composer.tsx:490
+#: components/studio/prompt-composer.tsx:522
 msgid "초안을 다시 작성할까요?"
 msgstr "초안을 다시 작성할까요?"
+
+#: components/studio/code-input-dialog.tsx:123
+msgid "코드 다시 넣기"
+msgstr "코드 다시 넣기"
 
 #: app/[lang]/error.tsx:16
 msgid "요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요."
@@ -1470,7 +1565,7 @@ msgstr "아직 초안이 없습니다. 커밋을 선택하고 작성 요청을 �
 msgid "개인정보처리방침"
 msgstr "개인정보처리방침"
 
-#: components/studio/repository-settings-panel.tsx:356
+#: components/studio/repository-settings-panel.tsx:374
 msgid "연동 브랜치"
 msgstr "연동 브랜치"
 
@@ -1504,7 +1599,7 @@ msgstr "올바른 URL을 입력해주세요."
 msgid "커밋 내역"
 msgstr "커밋 내역"
 
-#: components/main/notice-section.tsx:29
+#: components/main/notice-section.tsx:30
 msgid "초안을 만들기 전 반드시 확인해주세요."
 msgstr "초안을 만들기 전 반드시 확인해주세요."
 
@@ -1520,6 +1615,10 @@ msgstr "커밋으로 쓰는 AI 기술 블로그 초안"
 msgid "지우기"
 msgstr "지우기"
 
+#: components/studio/code-input-dialog.tsx:35
+msgid "편집기를 불러오는 중..."
+msgstr "편집기를 불러오는 중..."
+
 #: components/studio/editor-toolbar.tsx:72
 msgid "글머리 기호 목록"
 msgstr "글머리 기호 목록"
@@ -1527,6 +1626,10 @@ msgstr "글머리 기호 목록"
 #: components/studio/publish-dialog.tsx:25
 msgid "본문에 제목을 넣어 주세요"
 msgstr "본문에 제목을 넣어 주세요"
+
+#: components/studio/code-input-dialog.tsx:200
+msgid "이름에는 탭이나 줄바꿈을 넣을 수 없습니다."
+msgstr "이름에는 탭이나 줄바꿈을 넣을 수 없습니다."
 
 #: components/studio/publish-actions.tsx:256
 msgid "글 보기"
@@ -1536,7 +1639,7 @@ msgstr "글 보기"
 msgid "임시"
 msgstr "임시"
 
-#: components/studio/clarification-card.tsx:225
+#: components/studio/clarification-card.tsx:249
 msgid "글의 방향을 정하려면 조금 더 알려 주세요"
 msgstr "글의 방향을 정하려면 조금 더 알려 주세요"
 
@@ -1544,7 +1647,7 @@ msgstr "글의 방향을 정하려면 조금 더 알려 주세요"
 msgid "Github 계정으로 시작하세요."
 msgstr "Github 계정으로 시작하세요."
 
-#: components/studio/repository-settings-panel.tsx:56
+#: components/studio/repository-settings-panel.tsx:57
 msgid "저장소에 접근할 수 없어 브랜치를 불러오지 못했습니다."
 msgstr "저장소에 접근할 수 없어 브랜치를 불러오지 못했습니다."
 
@@ -1561,19 +1664,15 @@ msgstr "{item}쪽"
 msgid "추가+"
 msgstr "추가+"
 
-#: components/studio/repository-settings-panel.tsx:450
+#: components/studio/repository-settings-panel.tsx:468
 msgid "이 저장소의 {draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다. 되돌릴 수 없습니다."
 msgstr "이 저장소의 {draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다. 되돌릴 수 없습니다."
-
-#: components/studio/prompt-composer.tsx:414
-msgid "선택한 커밋으로 어떤 글을 쓸지 요청해주세요."
-msgstr "선택한 커밋으로 어떤 글을 쓸지 요청해주세요."
 
 #: components/onboarding/repository-connect-form.tsx:270
 msgid "저장소 연동 중..."
 msgstr "저장소 연동 중..."
 
-#: components/studio/repository-settings-panel.tsx:118
+#: components/studio/repository-settings-panel.tsx:119
 msgid "빈칸"
 msgstr "빈칸"
 
@@ -1593,15 +1692,11 @@ msgstr "경험"
 msgid "탈퇴하면 계정과 작성한 초안, 게시한 글, 업로드한 이미지가 모두 삭제되며 되돌릴 수 없습니다. GitHub 에서 이 서비스의 로그인 권한도 철회됩니다. 저장소에 설치한 GitHub App 은 GitHub 설정에서 따로 제거할 수 있습니다."
 msgstr "탈퇴하면 계정과 작성한 초안, 게시한 글, 업로드한 이미지가 모두 삭제되며 되돌릴 수 없습니다. GitHub 에서 이 서비스의 로그인 권한도 철회됩니다. 저장소에 설치한 GitHub App 은 GitHub 설정에서 따로 제거할 수 있습니다."
 
-#: components/studio/draft-editor.tsx:707
-msgid "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
-msgstr "커밋 내역에서 커밋을 선택하고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
-
-#: components/studio/repository-settings-panel.tsx:58
+#: components/studio/repository-settings-panel.tsx:59
 msgid "선택한 브랜치를 찾을 수 없습니다. 목록을 다시 열어 주세요."
 msgstr "선택한 브랜치를 찾을 수 없습니다. 목록을 다시 열어 주세요."
 
-#: components/studio/prompt-composer.tsx:163
+#: components/studio/prompt-composer.tsx:171
 msgid "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
 msgstr "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
 
@@ -1618,8 +1713,8 @@ msgstr "기본 옵션"
 msgid "초안 편집기"
 msgstr "초안 편집기"
 
-#: components/studio/prompt-composer.tsx:172
-#: components/studio/prompt-composer.tsx:384
+#: components/studio/prompt-composer.tsx:180
+#: components/studio/prompt-composer.tsx:412
 msgid "커밋 내역 열기"
 msgstr "커밋 내역 열기"
 
@@ -1652,13 +1747,17 @@ msgstr "문단 스타일"
 msgid "게시 · 공개"
 msgstr "게시 · 공개"
 
-#: components/studio/prompt-composer.tsx:107
+#: components/studio/prompt-composer.tsx:115
 msgid "커밋 선택"
 msgstr "커밋 선택"
 
 #: components/studio/draft-editor.tsx:58
 msgid "초안 하나에 이미지는 10장까지 넣을 수 있습니다"
 msgstr "초안 하나에 이미지는 10장까지 넣을 수 있습니다"
+
+#: components/main/notice-section.tsx:9
+msgid "커밋 코드와 '코드 직접 입력'으로 넣은 코드는 사이트 어디에도 저장하지 않습니다."
+msgstr "커밋 코드와 '코드 직접 입력'으로 넣은 코드는 사이트 어디에도 저장하지 않습니다."
 
 #: components/onboarding/repository-connect-form.tsx:161
 msgid "저장소를 먼저 선택하세요"
@@ -1683,3 +1782,7 @@ msgstr "번호 목록"
 #: components/studio/commit-sidebar.tsx:117
 msgid "GitHub 인증이 만료되었습니다."
 msgstr "GitHub 인증이 만료되었습니다."
+
+#: components/studio/prompt-composer.tsx:74
+msgid "직접 입력한 코드는 모두 합쳐 {MAX_CODE_INPUT_TOTAL_CHARS}자까지 보낼 수 있습니다."
+msgstr "직접 입력한 코드는 모두 합쳐 {MAX_CODE_INPUT_TOTAL_CHARS}자까지 보낼 수 있습니다."

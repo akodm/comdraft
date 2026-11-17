@@ -77,6 +77,8 @@ const CodeInputDialog = ({
   const tooManyLines = lines > MAX_CODE_INPUT_LINES;
   const tooManyChars = normalized.length > MAX_CODE_INPUT_CHARS;
   const invalidName = trimmedName !== '' && !isValidCodeInputName(trimmedName);
+  const charCount = normalized.length.toLocaleString();
+  const maxChars = MAX_CODE_INPUT_CHARS.toLocaleString();
   const linesMismatch = Boolean(fixed) && !isEmpty && lines !== fixed?.lines;
   const canSave =
     !isEmpty &&
@@ -181,15 +183,15 @@ const CodeInputDialog = ({
           >
             <Plural value={lines} other="#줄" />
             {' · '}
-            {normalized.length.toLocaleString()} /{' '}
-            {MAX_CODE_INPUT_CHARS.toLocaleString()}
-            <Trans>자</Trans>
+            <Trans>
+              {charCount} / {maxChars}자
+            </Trans>
           </p>
           {(tooManyLines || tooManyChars) && (
             <p role="alert" className="text-danger">
               <Trans>
-                코드 하나는 {MAX_CODE_INPUT_LINES}줄,{' '}
-                {MAX_CODE_INPUT_CHARS.toLocaleString()}자까지 넣을 수 있습니다.
+                코드 하나는 {MAX_CODE_INPUT_LINES}줄, {maxChars}자까지 넣을 수
+                있습니다.
               </Trans>
             </p>
           )}
