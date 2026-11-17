@@ -16,6 +16,7 @@ import {
 import { parseClarificationAnswers } from '@/lib/generation/clarification';
 import {
   checkResumeCodeInputs,
+  codeInputsField,
   parseCodeInputs,
   toCodeInputMeta,
 } from '@/lib/generation/code-input';
@@ -333,7 +334,7 @@ export async function requestDraftGeneration(
     await getGenerationRunner().start({
       jobId: created.jobId,
       githubToken: gate.githubToken,
-      codeInputs: request.codeInputs,
+      ...codeInputsField(request.codeInputs),
     });
   } catch {
     await failJob(created.jobId, 'runner_unavailable');
@@ -750,7 +751,7 @@ export async function resumeClarifiedJob(
     await getGenerationRunner().start({
       jobId,
       githubToken,
-      codeInputs: code.inputs,
+      ...codeInputsField(code.inputs),
     });
   } catch {
     await failJob(jobId, 'runner_unavailable');

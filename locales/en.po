@@ -168,7 +168,7 @@ msgstr "No repositories available. <0>Add repository access in the GitHub App</0
 msgid "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를 선택해주세요."
 msgstr "Branch not found in this repository. Please choose another branch."
 
-#: components/studio/code-input-dialog.tsx:233
+#: components/studio/code-input-dialog.tsx:249
 #: components/studio/code-input-reentry.tsx:85
 msgid "넣기"
 msgstr "Add"
@@ -303,7 +303,7 @@ msgstr "We didn't receive your email address from GitHub. Make sure you granted 
 msgid "분석"
 msgstr "Analyze"
 
-#: components/studio/code-input-dialog.tsx:163
+#: components/studio/code-input-dialog.tsx:175
 msgid "파일 이름 (예: useAuth.ts, 비우면 \"코드 N\")"
 msgstr "File name (e.g. useAuth.ts; leave empty for \"Code N\")"
 
@@ -419,10 +419,6 @@ msgstr "Link URL"
 msgid "JPEG, PNG, WebP, GIF, AVIF 이미지만 넣을 수 있습니다"
 msgstr "Only JPEG, PNG, WebP, GIF, and AVIF images can be added."
 
-#: components/studio/code-input-dialog.tsx:212
-msgid "넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 요청 문구에 붙인 코드는 저장됩니다."
-msgstr "Code added here is not stored and is used only for AI writing. Code pasted into the request text is stored."
-
 #: components/studio/draft-editor.tsx:61
 #: components/studio/publish-dialog.tsx:29
 msgid "올리지 못한 이미지가 있습니다"
@@ -464,11 +460,11 @@ msgid "저장소를 선택하세요"
 msgstr "Select a repository"
 
 #: components/studio/code-input-chips.tsx:37
-#: components/studio/code-input-dialog.tsx:125
+#: components/studio/code-input-dialog.tsx:137
 msgid "코드 직접 입력"
 msgstr "Enter code directly"
 
-#: components/studio/code-input-dialog.tsx:147
+#: components/studio/code-input-dialog.tsx:159
 msgid "이름"
 msgstr "Name"
 
@@ -481,6 +477,10 @@ msgstr "Delete"
 #: components/studio/reference-link-dialog.tsx:27
 msgid "링크를 추가하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't add the link. Please try again."
+
+#: components/studio/code-input-dialog.tsx:231
+msgid "편집기에서 나가려면 Esc 다음 Tab 을 누르세요."
+msgstr "To leave the editor, press Esc and then Tab."
 
 #: components/studio/commit-sidebar.tsx:88
 msgid "커밋 내역을 불러오는 중..."
@@ -538,7 +538,7 @@ msgstr "Sign out"
 
 #: components/shared/confirm-dialog.tsx:94
 #: components/shared/dialog-frame.tsx:82
-#: components/studio/code-input-dialog.tsx:130
+#: components/studio/code-input-dialog.tsx:142
 #: components/studio/generation-progress.tsx:103
 #: components/studio/quota-exhausted-banner.tsx:35
 #: components/studio/reference-link-dialog.tsx:134
@@ -654,6 +654,10 @@ msgstr "This draft was written by AI. Review the code and explanations before pu
 msgid "게시하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't publish. Please try again."
 
+#: components/main/notice-section.tsx:9
+msgid "커밋 코드와 '코드 직접 입력'으로 넣은 코드는 사이트 어디에도 저장하지 않습니다. 단, 작성된 초안에 인용된 코드는 초안 내용으로 저장됩니다."
+msgstr "Commit code and code added with 'Enter code directly' are never stored anywhere on the site. Code quoted in a written draft is stored as part of the draft."
+
 #: components/main/sample-draft-editor.tsx:17
 msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 msgstr "Check that images appear correctly while scrolling and that observers are cleaned up once they leave the viewport. Actual performance gains need to be measured separately."
@@ -758,7 +762,7 @@ msgid "링크를 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't delete the link. Please try again."
 
 #. placeholder {0}: fixed.lines
-#: components/studio/code-input-dialog.tsx:205
+#: components/studio/code-input-dialog.tsx:217
 msgid "{0, plural, other {처음 넣은 코드는 #줄입니다. 같은 코드를 넣어주세요.}}"
 msgstr "{0, plural, one {The code you first added had # line. Please add the same code.} other {The code you first added had # lines. Please add the same code.}}"
 
@@ -776,7 +780,7 @@ msgstr "Can't access this repository. Check the GitHub App's repository access a
 msgid "이 초안을 삭제할까요?"
 msgstr "Delete this draft?"
 
-#: components/studio/code-input-dialog.tsx:186
+#: components/studio/code-input-dialog.tsx:198
 msgid "{charCount} / {maxChars}자"
 msgstr "{charCount} / {maxChars} chars"
 
@@ -978,7 +982,7 @@ msgstr "Please read first"
 msgid "링크 제거"
 msgstr "Remove link"
 
-#: components/studio/code-input-dialog.tsx:175
+#: components/studio/code-input-dialog.tsx:187
 msgid "코드를 붙여 넣거나 입력해주세요."
 msgstr "Paste or type your code."
 
@@ -1004,7 +1008,7 @@ msgid "계정 설정"
 msgstr "Account settings"
 
 #: components/studio/code-input-dialog.tsx:95
-#: components/studio/code-input-dialog.tsx:174
+#: components/studio/code-input-dialog.tsx:186
 msgid "코드"
 msgstr "Code"
 
@@ -1118,7 +1122,7 @@ msgstr "Connected repositories"
 
 #: components/main/profile-menu.tsx:199
 #: components/studio/clarification-card.tsx:310
-#: components/studio/code-input-dialog.tsx:224
+#: components/studio/code-input-dialog.tsx:240
 #: components/studio/prompt-composer.tsx:532
 #: components/studio/publish-dialog.tsx:168
 #: components/studio/reference-link-dialog.tsx:189
@@ -1230,11 +1234,11 @@ msgstr "Awaiting answer"
 msgid "제목 1"
 msgstr "Heading 1"
 
-#: components/studio/code-input-dialog.tsx:192
+#: components/studio/code-input-dialog.tsx:204
 msgid "코드 하나는 {MAX_CODE_INPUT_LINES}줄, {maxChars}자까지 넣을 수 있습니다."
 msgstr "Each code entry can have up to {MAX_CODE_INPUT_LINES} lines and {maxChars} characters."
 
-#: components/studio/code-input-dialog.tsx:184
+#: components/studio/code-input-dialog.tsx:196
 #: components/studio/code-input-reentry.tsx:72
 #: components/studio/repository-settings-panel.tsx:149
 msgid "{lines, plural, other {#줄}}"
@@ -1313,6 +1317,10 @@ msgstr "Close filters"
 #: components/onboarding/complete-step.tsx:46
 msgid "이동 중..."
 msgstr "Redirecting..."
+
+#: components/studio/code-input-dialog.tsx:224
+msgid "넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 다만 작성된 초안에 인용된 부분은 초안 내용으로 저장되고, 요청 문구에 붙인 코드도 저장됩니다."
+msgstr "Code added here is not stored and is used only for AI writing. Parts quoted in the written draft are stored as draft content, and code pasted into the request text is stored too."
 
 #: components/studio/prompt-composer.tsx:76
 msgid "이 모델은 현재 등급에서 쓸 수 없습니다."
@@ -1436,7 +1444,7 @@ msgstr "Sample data, not your own"
 msgid "초안을 다시 작성할까요?"
 msgstr "Rewrite this draft?"
 
-#: components/studio/code-input-dialog.tsx:123
+#: components/studio/code-input-dialog.tsx:135
 msgid "코드 다시 넣기"
 msgstr "Add code again"
 
@@ -1627,7 +1635,7 @@ msgstr "Bulleted list"
 msgid "본문에 제목을 넣어 주세요"
 msgstr "Please add a title to the body."
 
-#: components/studio/code-input-dialog.tsx:200
+#: components/studio/code-input-dialog.tsx:212
 msgid "이름에는 탭이나 줄바꿈을 넣을 수 없습니다."
 msgstr "Names cannot contain tabs or line breaks."
 
@@ -1754,10 +1762,6 @@ msgstr "Select commits"
 #: components/studio/draft-editor.tsx:58
 msgid "초안 하나에 이미지는 10장까지 넣을 수 있습니다"
 msgstr "A draft can have up to 10 images."
-
-#: components/main/notice-section.tsx:9
-msgid "커밋 코드와 '코드 직접 입력'으로 넣은 코드는 사이트 어디에도 저장하지 않습니다."
-msgstr "Commit code and code added with 'Enter code directly' are never stored anywhere on the site."
 
 #: components/onboarding/repository-connect-form.tsx:161
 msgid "저장소를 먼저 선택하세요"

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   checkResumeCodeInputs,
+  codeInputsField,
   countLines,
   matchesCodeInputMeta,
   nextCodeInputNumber,
@@ -160,5 +161,20 @@ describe('nextCodeInputNumber', () => {
     expect(nextCodeInputNumber([], '코드')).toBe(1);
     expect(nextCodeInputNumber(['코드 1', '코드 3', 'a.ts'], '코드')).toBe(2);
     expect(nextCodeInputNumber(['Code 1'], 'Code')).toBe(2);
+  });
+});
+
+describe('codeInputsField', () => {
+  it('코드가 없으면 요청 본문에 codeInputs 를 넣지 않는다 (이전 요청 모델과도 호환)', () => {
+    expect(codeInputsField([])).toEqual({});
+    expect(
+      JSON.stringify({ jobId: 'j', githubToken: 't', ...codeInputsField([]) }),
+    ).not.toContain('codeInputs');
+  });
+
+  it('코드가 있으면 그대로 넣는다', () => {
+    const inputs = [{ name: 'a.ts', code: 'x' }];
+
+    expect(codeInputsField(inputs)).toEqual({ codeInputs: inputs });
   });
 });

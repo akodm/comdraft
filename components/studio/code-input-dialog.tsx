@@ -109,7 +109,19 @@ const CodeInputDialog = ({
         onClose();
       }}
       // 포털이어도 React 이벤트는 컴포넌트 트리를 따라 올라가므로 바깥 입력창으로 보내지 않음
-      onKeyDown={(event) => event.stopPropagation()}
+      onKeyDown={(event) => {
+        event.stopPropagation();
+
+        // 편집기 안 Esc 는 모달을 닫지 않고 CodeMirror 의 "Esc 다음 Tab 으로 빠져나가기" 에 씀
+        // (닫히면 붙여 넣은 코드가 사라지므로)
+        if (
+          event.key === 'Escape' &&
+          event.target instanceof Element &&
+          event.target.closest('.cm-editor')
+        ) {
+          event.preventDefault();
+        }
+      }}
       onSubmit={(event) => event.stopPropagation()}
       className="m-0 h-dvh max-h-none w-full max-w-none bg-white p-0 text-ink backdrop:bg-ink/33 pc:m-auto pc:h-[min(720px,calc(100dvh-64px))] pc:w-[calc(100%-64px)] pc:max-w-200 pc:rounded-md pc:border pc:border-line"
     >
@@ -210,9 +222,13 @@ const CodeInputDialog = ({
           )}
           <p id={hintId} className="text-ink-faint">
             <Trans>
-              넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 요청 문구에 붙인
-              코드는 저장됩니다.
+              넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 다만 작성된 초안에
+              인용된 부분은 초안 내용으로 저장되고, 요청 문구에 붙인 코드도
+              저장됩니다.
             </Trans>
+          </p>
+          <p className="text-ink-faint max-pc:hidden">
+            <Trans>편집기에서 나가려면 Esc 다음 Tab 을 누르세요.</Trans>
           </p>
         </div>
         <div className="flex justify-end gap-2">

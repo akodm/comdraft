@@ -172,3 +172,11 @@ export const nextCodeInputNumber = (names: string[], baseLabel: string) => {
 
   return number;
 };
+
+/**
+ * 작성기 요청 본문에 넣을 직접 입력 코드 (없으면 키를 빼서 코드를 쓰지 않는 요청은 이전 형식 그대로 보냄)
+ */
+export const codeInputsField = (
+  inputs: GenerationCodeInput[],
+): { codeInputs?: GenerationCodeInput[] } =>
+  inputs.length > 0 ? { codeInputs: inputs } : {};
