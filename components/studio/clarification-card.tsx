@@ -34,6 +34,7 @@ type CardError =
   | 'not_found'
   | 'github_reauth'
   | 'runner_unavailable'
+  | 'code_required'
   | 'error';
 
 const CARD_ERROR_MESSAGES: Record<CardError, MessageDescriptor> = {
@@ -41,6 +42,7 @@ const CARD_ERROR_MESSAGES: Record<CardError, MessageDescriptor> = {
   not_found: msg`이미 처리된 질문입니다. 화면을 새로 고쳐 주세요.`,
   github_reauth: GENERATION_ERROR_MESSAGES.github_reauth,
   runner_unavailable: GENERATION_ERROR_MESSAGES.runner_unavailable,
+  code_required: msg`넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요.`,
   error: GENERATION_ERROR_MESSAGES.internal,
 };
 

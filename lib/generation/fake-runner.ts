@@ -153,7 +153,7 @@ const defaultWait = (ms: number) =>
  * 가짜 작업 한 건 실행 (테스트에서 직접 호출할 수 있도록 실행기와 분리)
  */
 export const runFakeJob = async (
-  { jobId, githubToken }: GenerationRequest,
+  { jobId, githubToken, codeInputs = [] }: GenerationRequest,
   { wait, stepDelayMs }: FakeRunnerDependencies = {
     wait: defaultWait,
     stepDelayMs: FAKE_STEP_DELAY_MS,
@@ -249,7 +249,11 @@ export const runFakeJob = async (
     }
 
     await wait(stepDelayMs);
-    const result = buildFakeResultMarkdown({ prompt: context.prompt, commits });
+    const result = buildFakeResultMarkdown({
+      prompt: context.prompt,
+      commits,
+      codeInputNames: codeInputs.map(({ name }) => name),
+    });
 
     if (
       await completeJob(

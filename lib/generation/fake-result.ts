@@ -30,9 +30,12 @@ const BLANK_SAMPLE =
 export const buildFakeResultMarkdown = ({
   prompt,
   commits,
+  codeInputNames = [],
 }: {
   prompt: string;
   commits: FakeResultCommit[];
+  // 직접 입력한 코드의 이름 (코드 원문은 받지 않음)
+  codeInputNames?: string[];
 }) => {
   const ordered = [...commits].reverse();
   const title = stripCommitType(ordered[0]?.subject ?? '') || prompt;
@@ -53,11 +56,22 @@ export const buildFakeResultMarkdown = ({
     ].join('\n\n');
   });
 
+  const codeInputSection =
+    codeInputNames.length > 0
+      ? [
+          [
+            '## 직접 입력한 코드',
+            ['```text', ...codeInputNames, '```'].join('\n'),
+          ].join('\n\n'),
+        ]
+      : [];
+
   return [
     `# ${escapeMarkdown(title)}`,
     ...intro,
     BLANK_SAMPLE,
     ...sections,
+    ...codeInputSection,
   ].join('\n\n');
 };
 
