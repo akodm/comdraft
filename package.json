@@ -25,6 +25,10 @@
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.10",
+    "@codemirror/commands": "6.11.1",
+    "@codemirror/language": "6.13.1",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/view": "6.43.15",
     "@lingui/core": "6.12.0",
     "@lingui/react": "6.12.0",
     "@octokit/app": "16.1.4",

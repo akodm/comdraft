@@ -16,8 +16,13 @@ import {
  * - 되묻기 재실행 때 화면이 다시 보낸 코드가 처음 코드인지 이름·줄 수로 맞춰 봄
  */
 
-// 이름에 넣을 수 없는 줄바꿈·제어 문자
-const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
+// 이름에 넣을 수 없는 줄바꿈·탭 같은 제어 문자 (U+0000~U+001F, U+007F)
+const hasControlChar = (text: string) =>
+  [...text].some((ch) => {
+    const code = ch.charCodeAt(0);
+
+    return code <= 0x1f || code === 0x7f;
+  });
 
 // 줄바꿈을 LF 로 맞춤 (화면·서버·Lambda 가 같은 줄 수를 세도록)
 export const normalizeCode = (code: string) => code.replace(/\r\n?/g, '\n');
@@ -30,7 +35,7 @@ export const isValidCodeInputName = (name: unknown): name is string =>
   typeof name === 'string' &&
   name.length > 0 &&
   name.length <= MAX_CODE_INPUT_NAME_CHARS &&
-  !CONTROL_CHARS.test(name);
+  !hasControlChar(name);
 
 // 정규화한 코드 하나가 제한 안인지 (비어 있거나 공백만 있으면 false)
 export const isValidCode = (code: string) =>
