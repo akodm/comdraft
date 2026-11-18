@@ -13,11 +13,16 @@ export const getSiteOrigin = (): string | undefined =>
  * - 대표 주소는 게시할 때의 언어 기준
  * - 일부 공개 글은 검색에 노출되지 않도록 noindex
  * - 기술 태그는 키워드와 article:tag 로 (오픈그래프 이미지는 같은 경로의 opengraph-image 가 채움)
+ * - 임시 조치된 글은 내용이 새지 않도록 아무 정보도 넣지 않고 검색에서 뺌 (제목은 페이지가 안내 문구로 채움)
  */
 export const buildPostMetadata = (
   post: PublishedPost,
   origin: string,
 ): Metadata => {
+  if (post.isBanned) {
+    return { robots: { index: false, follow: false } };
+  }
+
   const url = `${origin.replace(/\/+$/, '')}${localizePath(post.locale, getEncodedPostPath(post))}`;
 
   return {

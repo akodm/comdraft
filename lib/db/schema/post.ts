@@ -11,6 +11,7 @@ import { draft } from '@/lib/db/schema/draft';
  * - post: 초안을 게시한 결과물 (게시할 때의 본문 스냅샷)
  *   → 초안마다 하나만 있고(draft_id unique), 다시 게시하면 같은 행을 갱신함
  *   → 초안이나 작성자가 삭제되면 함께 삭제됨
+ *   → 문제 있는 글은 검수가 임시 조치(banned_at)해 공개 화면에서 내용을 숨김
  */
 
 // 게시글 공개 범위 ('공개' | '일부 공개')
@@ -49,6 +50,11 @@ export const post = comdraftSchema.table(
     updatedAt: timestamp('updated_at', { withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
+    // 임시 조치한 시각 (null 이면 정상). 조치된 글은 목록·사이트맵에서 빠지고 상세에는 안내만 보임
+    // 다시 게시해도 유지되며, 검수 API(unban)로만 해제
+    bannedAt: timestamp('banned_at', { withTimezone: true, precision: 3 }),
+    // 조치 사유 (내부 기록용, 화면에 보이지 않음)
+    banReason: text('ban_reason'),
   },
   (table) => [
     // 공개 피드 커서 조회: 공개 글만 게시 최신순

@@ -32,8 +32,8 @@ export default async function Image({
   const id = parsePostId(postPath);
   const post = id ? await getPublishedPost(id) : null;
 
-  // 게시 취소된 글이나 잘못된 주소는 사이트 기본 이미지
-  if (!post) {
+  // 게시 취소·임시 조치된 글이나 잘못된 주소는 사이트 기본 이미지
+  if (!post || post.isBanned) {
     const i18n = getI18nInstance(isLocale(lang) ? lang : DEFAULT_LOCALE);
 
     return renderSiteOgImage({

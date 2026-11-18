@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import PageLayout from '@/components/layout/page-layout';
 import MainFooter from '@/components/main/main-footer';
@@ -43,8 +44,17 @@ export async function generateMetadata({
 
   if (!post || !origin) return {};
 
+  if (post.isBanned) {
+    const i18n = await initLingui();
+
+    return { ...buildPostMetadata(post, origin), title: i18n._(BANNED_TITLE) };
+  }
+
   return buildPostMetadata(post, origin);
 }
+
+// 임시 조치된 글의 페이지 제목 (내용 대신 안내)
+const BANNED_TITLE = msg`임시 조치된 게시글`;
 
 export default async function PostPage({ params }: PostPageProps) {
   await initLingui();
@@ -63,6 +73,23 @@ export default async function PostPage({ params }: PostPageProps) {
   }
 
   const session = await getSession();
+
+  // 임시 조치된 글은 제목·작성자·본문 없이 안내만 (조회도 세지 않음)
+  if (post.isBanned) {
+    return (
+      <PageLayout
+        header={<MainHeader isSignedIn={Boolean(session)} />}
+        footer={<MainFooter />}
+      >
+        <section className="mx-auto flex w-full max-w-3xl flex-1 items-center justify-center px-5 py-24 pc:px-0 pc:py-32">
+          <p className="text-center text-[15px] leading-[1.8] break-keep text-ink-muted pc:text-[16px]">
+            <Trans>해당 게시글은 임시 조치된 게시글입니다.</Trans>
+          </p>
+        </section>
+      </PageLayout>
+    );
+  }
+
   const isRepublished = post.updatedAt.getTime() > post.publishedAt.getTime();
   // 작성자 GitHub 아이디가 있으면 아바타·이름을 GitHub 프로필 새 탭 링크로
   const authorProfileUrl = getGithubProfileUrl(post.author.githubLogin);
