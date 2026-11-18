@@ -6,18 +6,25 @@
 
 작업한 커밋을 고르고 "어떤 글을 쓰고 싶은지" 한 줄만 적으면, AI 가 커밋 내용과 코드 변경을 읽고 기술 블로그 초안을 써 줍니다. 초안은 편집기에서 다듬어 그대로 게시하거나 HTML·Markdown 으로 내보낼 수 있습니다.
 
+> **comdraft** turns your GitHub commits into technical blog drafts. Pick commits (or paste code), describe the post you want, and Claude reads the diffs and commit messages to write a developer blog draft you can edit, publish, or export as HTML/Markdown. Available in Korean and English at [comdraft.dev](https://comdraft.dev).
+
 ## 주요 기능
 
 - **GitHub 저장소 연동**: GitHub App 으로 원하는 저장소만 연결하고, 커밋 내역을 스튜디오에서 바로 봅니다.
 - **AI 초안 작성**: 커밋(최대 20개)과 요청 문구, 말투·유형·길이·필수 항목 옵션, 참고 링크를 보내면 초안이 만들어집니다.
-  - 작성은 `구분 → 분석 → 작성` 세 단계로 진행되고, 진행 상황이 실시간으로 표시됩니다.
+  - 모델은 Claude Haiku·Sonnet·Opus 중에서 고릅니다.
+  - 작성은 `준비 → 예상량 검사 → 기획 → 분석 → 작성 → 검토·조립` 순서로 진행되고, 진행 상황이 실시간으로 표시됩니다.
+  - 요청 문구에는 목록·코드 블록·인용·강조 같은 Markdown 을 쓸 수 있습니다.
+  - 정보가 부족하면 AI 가 먼저 질문 카드로 되묻고, 답을 받은 뒤 이어서 씁니다.
   - AI 가 확신하지 못한 부분은 "빈칸"으로 남겨, 직접 채우도록 안내합니다.
   - 화면 언어(한국어·영어)에 맞춰 글을 씁니다.
+- **코드 직접 입력**: 커밋 외에 코드 조각(최대 5개, 각 300줄)을 CodeMirror 편집기에 붙여 넣어 함께 분석합니다. 코드는 DB 에 저장하지 않고 이름과 줄 수만 남깁니다.
 - **편집기 스튜디오**: Tiptap 기반 편집기에서 제목, 목록, 링크, 코드 블록, 이미지를 편집하고 자동 저장합니다.
   - 이미지는 넣을 때 바로 보이고, 저장할 때 WebP 로 최적화되어 Supabase Storage 에 올라갑니다.
-- **게시**: 초안을 전체 공개 또는 일부 공개(주소를 아는 사람만)로 게시합니다. 게시글 피드, 상세 페이지, sitemap 을 제공합니다.
-- **사용량 관리**: 사용자 등급별 주간 토큰 할당량(매주 일요일 0시 KST 초기화)과 시간당 요청 수 제한이 있습니다.
-- **다국어**: 한국어(기본)와 영어 화면을 제공합니다.
+- **게시**: 초안을 전체 공개 또는 일부 공개(주소를 아는 사람만)로 게시합니다. 게시글 피드(언어 필터), 상세 페이지, sitemap 을 제공합니다.
+- **게시글 검수**: 매일 새 게시글을 검수해, 문제가 있는 글은 지우지 않고 임시 조치합니다 (목록·sitemap 에서 빠지고 상세에는 안내만 표시).
+- **사용량 관리**: 사용자 등급별 주간 할당량(매주 일요일 0시 KST 초기화)과 시간당 요청 수 제한이 있습니다.
+- **다국어·SEO**: 한국어(기본)와 영어 화면, 언어별 메타데이터·hreflang, 게시글별 오픈그래프 이미지를 제공합니다.
 
 ## 어떻게 동작하나요
 
@@ -29,7 +36,7 @@ Next.js 서버 (Vercel) ── 사용량·권한 검사, 작업 기록 ──▶
    │ SigV4 서명 요청
    ▼
 API Gateway ──비동기──▶ AI 작성 Lambda (comdraft-lambda)
-                         커밋 조회 → 예상 토큰 검사 → 구분 → 분석 → 작성 (Claude)
+                         준비 → 예상량 검사 → 기획 → 분석 → 작성 → 검토·조립 (Claude)
                          단계마다 DB 갱신 + Supabase Realtime 신호
    ▲                                          │
    └──────── 진행 신호를 받아 상태 조회 ◀──────┘
@@ -43,12 +50,12 @@ API Gateway ──비동기──▶ AI 작성 Lambda (comdraft-lambda)
 | 영역 | 사용 기술 |
 | --- | --- |
 | 웹 | Next.js 16 (App Router, Server Actions), React 19, Tailwind CSS v4 |
-| 편집기 | Tiptap 3 (Markdown 변환, 정적 렌더러) |
+| 편집기 | Tiptap 3 (Markdown 변환, 정적 렌더러), CodeMirror 6 (코드 직접 입력) |
 | 인증 | Better Auth (GitHub OAuth) + GitHub App |
 | 데이터 | Supabase Postgres, Drizzle ORM, Supabase Realtime·Storage |
 | 이미지 | sharp (WebP 변환) |
 | 다국어 | Lingui |
-| AI 작성 | AWS API Gateway + Lambda (Terraform), Claude Haiku 5.5 |
+| AI 작성 | AWS API Gateway + Lambda (Terraform), Claude Haiku·Sonnet·Opus 5.5 |
 | 배포 | Vercel |
 | 테스트 | Vitest |
 
@@ -89,6 +96,9 @@ pnpm dev                # http://localhost:3003
 | `SUPABASE_SECRET_KEY` | 서버 전용 Supabase 키 (Storage 업로드·삭제) |
 | `GENERATION_RUNNER` | AI 작성 실행기: `fake`(로컬 기본, 고정 결과) 또는 `lambda` |
 | `GENERATION_API_URL`, `GENERATION_AWS_REGION`, `GENERATION_AWS_ACCESS_KEY_ID`, `GENERATION_AWS_SECRET_ACCESS_KEY` | `lambda` 실행기일 때 API Gateway 호출 정보 |
+| `CRON_SECRET` | Vercel Schedules(주간 sitemap 갱신, 일일 현황 보고) 요청 확인 |
+| `GOOGLE_REPORT_CREDENTIALS`, `DAILY_REPORT_TOPIC_ARN` | 일일 현황 보고 (GA4·Search Console 조회용 서비스 계정, SNS 토픽) |
+| `MODERATION_SECRET` | 게시글 검수 API(`POST /api/moderation/posts`) 인증 |
 
 로컬에서는 `GENERATION_RUNNER` 를 비워 두면 가짜 실행기가 고정된 초안을 만들어, Lambda 없이 전체 흐름을 확인할 수 있습니다.
 
@@ -117,3 +127,7 @@ pnpm dev                # http://localhost:3003
 - [게시 기능 설계](docs/superpowers/specs/2026-11-10-post-publishing-design.md)
 - [주간 토큰 할당량 설계](docs/superpowers/specs/2026-11-10-weekly-token-quota-design.md)
 - [이미지 업로드 설계](docs/superpowers/specs/2026-11-10-image-upload-design.md)
+- [되묻기 설계](docs/superpowers/specs/2026-11-12-clarifying-questions-design.md)
+- [모델 선택 설계](docs/superpowers/specs/2026-11-12-model-choice-design.md)
+- [SEO 메타데이터 설계](docs/superpowers/specs/2026-11-13-seo-metadata-design.md)
+- [코드 직접 입력 설계](docs/superpowers/specs/2026-11-17-direct-code-input-design.md)
