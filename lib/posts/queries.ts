@@ -1,6 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
-import { and, count, desc, eq, sql } from 'drizzle-orm';
+import { and, count, desc, eq, isNull, sql } from 'drizzle-orm';
 import type { JSONContent } from '@tiptap/core';
 import { db } from '@/lib/db';
 import { draft, post, user, type PostVisibility } from '@/lib/db/schema';
@@ -20,6 +20,8 @@ export interface PublishedPost {
   locale: Locale;
   publishedAt: Date;
   updatedAt: Date;
+  // 임시 조치된 글 (상세에서 내용 대신 안내만 보여 줌)
+  isBanned: boolean;
   // githubLogin: 작성자 GitHub 프로필 링크용 (기존 사용자는 채우기 전까지 null)
   author: { name: string; image: string | null; githubLogin: string | null };
   // 기술 태그 (키워드, article:tag, 구조화 데이터용)
@@ -44,6 +46,7 @@ export const getPublishedPost = cache(
         publishedAt: post.publishedAt,
         updatedAt: post.updatedAt,
         tags: post.tags,
+        bannedAt: post.bannedAt,
         authorName: user.name,
         authorImage: user.image,
         authorGithubLogin: user.githubLogin,
@@ -55,12 +58,19 @@ export const getPublishedPost = cache(
 
     if (!row) return null;
 
-    const { authorName, authorImage, authorGithubLogin, content, ...rest } =
-      row;
+    const {
+      authorName,
+      authorImage,
+      authorGithubLogin,
+      content,
+      bannedAt,
+      ...rest
+    } = row;
 
     return {
       ...rest,
       content: content as JSONContent,
+      isBanned: bannedAt !== null,
       author: {
         name: authorName,
         image: authorImage,
@@ -97,6 +107,8 @@ export const getPostListPage = async (
 ): Promise<PostListPage> => {
   const where = and(
     eq(post.visibility, 'public'),
+    // 임시 조치된 글은 목록에서 뺌
+    isNull(post.bannedAt),
     filters.language ? eq(post.locale, filters.language) : undefined,
   );
 
@@ -129,16 +141,19 @@ export const getPostListPage = async (
 export const listPublicPostPaths = async (): Promise<
   Array<{ id: string; slug: string; locale: Locale; updatedAt: Date }>
 > => {
-  return db
-    .select({
-      id: post.id,
-      slug: post.slug,
-      locale: post.locale,
-      updatedAt: post.updatedAt,
-    })
-    .from(post)
-    .where(eq(post.visibility, 'public'))
-    .orderBy(desc(post.publishedAt), desc(post.id));
+  return (
+    db
+      .select({
+        id: post.id,
+        slug: post.slug,
+        locale: post.locale,
+        updatedAt: post.updatedAt,
+      })
+      .from(post)
+      // 임시 조치된 글은 사이트맵에서 뺌
+      .where(and(eq(post.visibility, 'public'), isNull(post.bannedAt)))
+      .orderBy(desc(post.publishedAt), desc(post.id))
+  );
 };
 
 /**

@@ -12,6 +12,7 @@ const post = (overrides: Partial<PublishedPost> = {}): PublishedPost => ({
   locale: 'ko',
   publishedAt: new Date('2026-11-01T00:00:00Z'),
   updatedAt: new Date('2026-11-02T00:00:00Z'),
+  isBanned: false,
   author: { name: '작성자', image: null, githubLogin: null },
   tags: [],
   ...overrides,
@@ -70,5 +71,19 @@ describe('buildPostMetadata', () => {
     expect(meta.alternates?.canonical).toBe(
       'https://x/ko/posts/%ED%95%9C%EA%B8%80-a1B2c3D4e5',
     );
+  });
+
+  it('임시 조치된 글은 제목·요약·작성자·태그를 메타데이터에 넣지 않고 검색에서 뺀다', () => {
+    const meta = buildPostMetadata(
+      post({
+        isBanned: true,
+        tags: ['nextjs'],
+        title: '광고 글',
+        excerpt: '연락주세요',
+      }),
+      'https://comdraft.dev',
+    );
+
+    expect(meta).toEqual({ robots: { index: false, follow: false } });
   });
 });

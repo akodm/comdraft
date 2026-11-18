@@ -217,6 +217,10 @@ msgstr "Write it here yourself"
 msgid "저장소를 삭제하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't delete the repository. Please try again."
 
+#: app/[lang]/posts/[postPath]/page.tsx:57
+msgid "임시 조치된 게시글"
+msgstr "Temporarily restricted post"
+
 #: components/studio/code-input-reentry.tsx:52
 msgid "직접 입력한 코드는 저장하지 않아서, 답하기 전에 같은 코드를 다시 넣어주세요."
 msgstr "Code you enter directly is not stored, so please add the same code again before answering."
@@ -1076,7 +1080,7 @@ msgstr "Organization repository"
 msgid "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
 msgstr "The AI is already writing this draft. Try again when it finishes."
 
-#: app/[lang]/posts/[postPath]/page.tsx:135
+#: app/[lang]/posts/[postPath]/page.tsx:162
 msgid "수정"
 msgstr "Updated"
 
@@ -1150,6 +1154,10 @@ msgstr "Start writing"
 #: components/onboarding/draft-example.tsx:51
 msgid "개인 공개 저장소 · main"
 msgstr "Personal public repository · main"
+
+#: app/[lang]/posts/[postPath]/page.tsx:86
+msgid "해당 게시글은 임시 조치된 게시글입니다."
+msgstr "This post has been temporarily restricted."
 
 #: components/studio/prompt-options.tsx:52
 msgid "Pro 이상"

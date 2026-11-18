@@ -176,6 +176,13 @@
       "when": 1794895856314,
       "tag": "0024_known_pride",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794966704864,
+      "tag": "0025_lovely_phalanx",
+      "breakpoints": true
     }
   ]
 }

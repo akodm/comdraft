@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, eq, gt, sql } from 'drizzle-orm';
+import { and, eq, gt, isNull, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { post, postView } from '@/lib/db/schema';
 import { POST_VIEW_WINDOW_DAYS } from '@/lib/posts/post-view';
@@ -11,7 +11,8 @@ export const getPostAuthorId = async (
   const [row] = await db
     .select({ userId: post.userId })
     .from(post)
-    .where(eq(post.id, postId))
+    // 임시 조치된 글은 조회를 세지 않음
+    .where(and(eq(post.id, postId), isNull(post.bannedAt)))
     .limit(1);
 
   return row?.userId ?? null;
