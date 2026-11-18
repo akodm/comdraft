@@ -65,7 +65,7 @@ const MobileFilterSidebar = ({
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         onClick={() => setIsOpen(true)}
-        className="fixed top-1/2 right-0 z-40 flex h-14 w-6 -translate-y-1/2 items-center justify-center rounded-l-lg border border-r-0 border-line bg-white shadow-[0_2px_8px_rgba(17,18,20,0.08)] pc:hidden"
+        className="fixed top-1/2 right-0 z-40 flex h-14 w-6 -translate-y-1/2 items-center justify-center rounded-l-lg border border-r-0 border-line bg-white pc:hidden"
       >
         <Image
           src="/images/posts/chevron-left.svg"
@@ -76,7 +76,7 @@ const MobileFilterSidebar = ({
         {hasActiveFilters && (
           <span
             aria-hidden="true"
-            className="absolute top-1.5 left-1.5 size-1.5 rounded-full bg-brand"
+            className="absolute top-1.5 left-1.5 size-1.5 bg-brand"
           />
         )}
       </button>

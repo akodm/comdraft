@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Mono, Noto_Sans_KR } from 'next/font/google';
+import { IBM_Plex_Mono, IBM_Plex_Sans_KR } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import LinguiClientProvider from '@/components/providers/lingui-client-provider';
@@ -14,10 +14,10 @@ import { buildWebsiteOpenGraph } from '@/lib/seo/open-graph';
 import '@/css/globals.css';
 
 // 본문 글꼴 (한글 글리프는 unicode-range 로 나뉜 파일을 필요할 때만 내려받음)
-const notoSansKr = Noto_Sans_KR({
+const ibmPlexSansKr = IBM_Plex_Sans_KR({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-noto-sans-kr',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-ibm-plex-sans-kr',
 });
 
 // 코드, 커밋 해시, 로고 글꼴
@@ -68,9 +68,9 @@ export default async function RootLayout({
   return (
     <html
       lang={i18n.locale}
-      className={`${notoSansKr.variable} ${ibmPlexMono.variable}`}
+      className={`overflow-x-clip ${ibmPlexSansKr.variable} ${ibmPlexMono.variable}`}
     >
-      <body className="bg-white font-sans text-ink">
+      <body className="overflow-x-clip bg-white font-sans text-ink">
         {/* I18n 인스턴스는 직렬화할 수 없어 로케일과 메시지만 넘기고 클라이언트에서 다시 생성 */}
         <LinguiClientProvider
           initialLocale={i18n.locale}

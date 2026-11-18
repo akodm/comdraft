@@ -42,7 +42,7 @@ const StepDots = ({ step }: { step: OnboardingStep }) => {
         <span
           key={index}
           aria-hidden="true"
-          className={`rounded-full ${index + 1 === step ? 'size-3 bg-brand' : 'size-2 bg-line'}`}
+          className={`${index + 1 === step ? 'size-3 bg-brand' : 'size-2 bg-line'}`}
         />
       ))}
       <span className="sr-only">

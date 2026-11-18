@@ -26,7 +26,7 @@ const DraftExampleSection = () => {
               <Trans>서비스 이해를 위한 샘플 저장소와 초안입니다.</Trans>
             </p>
           </div>
-          <div className="flex flex-col border border-line pc:flex-row">
+          <div className="sheet-frame flex flex-col border border-line pc:flex-row">
             <SampleCommitPanel />
             <SampleDraftEditor />
           </div>

@@ -26,7 +26,7 @@ const renderCodeBlock = ({
     <div className="not-prose flex flex-col gap-3 rounded bg-surface p-3.5 pc:p-5">
       {typeof language === 'string' && language && (
         <div className="flex items-center justify-between gap-3 select-none">
-          <span className="font-mono text-[10px] leading-[normal] text-ink-faint">
+          <span className="font-mono text-[11px] leading-[normal] text-ink-faint">
             {getLanguageName(language)}
           </span>
         </div>

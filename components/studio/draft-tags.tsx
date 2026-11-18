@@ -125,7 +125,7 @@ const DraftTags = ({
                 disabled={isLocked}
                 aria-label={t`태그 ${tag} 삭제`}
                 onClick={() => void handleRemove(tag)}
-                className="flex h-7 items-center gap-1.5 rounded-full bg-surface px-3 text-[12px] leading-[normal] text-ink-muted hover:bg-line/60 disabled:opacity-50 disabled:hover:bg-surface"
+                className="flex h-7 items-center gap-1.5 border border-line bg-surface px-3 text-[12px] leading-[normal] text-ink-muted transition-colors hover:bg-line/60 active:bg-line disabled:opacity-50 disabled:hover:bg-surface"
               >
                 {tag}
                 <Image

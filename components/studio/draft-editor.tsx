@@ -519,6 +519,8 @@ const DraftEditor = ({
   );
 
   const emptyBlankCount = useEmptyBlankCount(editor);
+  // 저장 중이거나 저장에 실패해 상태 줄에 알릴 것이 있음
+  const hasSaveNotice = saveState === 'saving' || saveState === 'error';
 
   useEditorLock(editor, Boolean(draft) && !isLocked);
   useAppliedContent(editor, draft);
@@ -622,16 +624,23 @@ const DraftEditor = ({
               publishState.post?.visibility ?? null,
             ),
           )}
+          {/* 상태 이름 뒤에 덧붙일 정보가 있을 때만 중점 하나로 구분 */}
+          {(emptyBlankCount > 0 || hasSaveNotice) && (
+            <span aria-hidden="true">·</span>
+          )}
           <span aria-live="polite" className="truncate">
-            {emptyBlankCount > 0 && <Trans>· 빈칸 {emptyBlankCount}개</Trans>}
-            {/* 빈칸 개수와 저장 상태가 함께 보이면 사이를 띄움 */}
-            {emptyBlankCount > 0 &&
-              (saveState === 'saving' || saveState === 'error') &&
-              ' '}
-            {saveState === 'saving' && <Trans>· 저장 중...</Trans>}
+            {emptyBlankCount > 0 && <Trans>빈칸 {emptyBlankCount}개</Trans>}
+            {/* 빈칸 개수와 저장 상태가 함께 보이면 사이를 세로 선으로 나눔 */}
+            {emptyBlankCount > 0 && hasSaveNotice && (
+              <span
+                aria-hidden="true"
+                className="mx-1.5 inline-block h-2.5 w-px bg-line align-middle"
+              />
+            )}
+            {saveState === 'saving' && <Trans>저장 중...</Trans>}
             {saveState === 'error' && (
               <span className="text-danger">
-                <Trans>· 저장하지 못했습니다</Trans>
+                <Trans>저장하지 못했습니다</Trans>
               </span>
             )}
           </span>

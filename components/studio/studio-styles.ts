@@ -14,20 +14,20 @@ export const THIN_SCROLL_CLASS =
 
 // 테두리 있는 흰색 작업 버튼 (HTML, MD, 참고 링크 추가)
 export const OUTLINE_BUTTON_CLASS =
-  'flex items-center justify-center gap-2 rounded border border-line bg-white px-3.5 whitespace-nowrap text-ink disabled:text-ink-subtle';
+  'flex items-center justify-center gap-2 rounded border border-line bg-white px-3.5 whitespace-nowrap text-ink transition-colors hover:not-disabled:border-ink-faint hover:not-disabled:bg-surface active:not-disabled:bg-disabled disabled:text-ink-subtle';
 
 // 파란색 작업 버튼 (게시하기, 제출)
 export const BRAND_BUTTON_CLASS =
-  'flex items-center justify-center gap-2 rounded border border-brand bg-brand px-3.5 text-[12px] leading-[normal] font-medium whitespace-nowrap text-white disabled:opacity-50';
+  'flex items-center justify-center gap-2 rounded border border-brand bg-brand px-3.5 text-[12px] leading-[normal] font-medium whitespace-nowrap text-white transition-colors hover:not-disabled:border-brand-strong hover:not-disabled:bg-brand-strong active:not-disabled:translate-y-px disabled:opacity-50';
 
 // 빨간색 작업 버튼 (삭제처럼 되돌릴 수 없는 작업의 확인)
 // - Tailwind 가 소스에서 클래스 이름을 찾아 만들므로 문자열 치환으로 만들지 말고 그대로 적어 둠
 export const DANGER_BUTTON_CLASS =
-  'flex items-center justify-center gap-2 rounded border border-danger bg-danger px-3.5 text-[12px] leading-[normal] font-medium whitespace-nowrap text-white disabled:opacity-50';
+  'flex items-center justify-center gap-2 rounded border border-danger bg-danger px-3.5 text-[12px] leading-[normal] font-medium whitespace-nowrap text-white transition-[filter] hover:not-disabled:brightness-90 active:not-disabled:translate-y-px disabled:opacity-50';
 
 // 아이콘만 있는 투명 버튼 (편집 도구, 닫기, 외부 링크)
 export const ICON_BUTTON_CLASS =
-  'flex shrink-0 items-center justify-center rounded hover:bg-surface focus-visible:bg-surface disabled:opacity-40 disabled:hover:bg-transparent';
+  'flex shrink-0 items-center justify-center rounded transition-colors hover:bg-surface focus-visible:bg-surface active:not-disabled:bg-disabled disabled:opacity-40 disabled:hover:bg-transparent';
 
 // PC 레이아웃 미디어 쿼리 (css/globals.css 의 --breakpoint-pc: 1320px 과 같은 값)
 export const PC_MEDIA_QUERY = '(min-width: 1320px)';

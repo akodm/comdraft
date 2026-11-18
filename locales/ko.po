@@ -148,7 +148,7 @@ msgstr "게시 · 일부 공개"
 msgid "게시를 취소하면 공개 주소가 더 이상 열리지 않습니다"
 msgstr "게시를 취소하면 공개 주소가 더 이상 열리지 않습니다"
 
-#: components/studio/draft-editor.tsx:653
+#: components/studio/draft-editor.tsx:662
 msgid "마크다운 파일로 내보내기"
 msgstr "마크다운 파일로 내보내기"
 
@@ -291,7 +291,7 @@ msgstr "저장소와 브랜치를<0/>선택하세요."
 msgid "세션"
 msgstr "세션"
 
-#: components/studio/account-settings-panel.tsx:275
+#: components/studio/account-settings-panel.tsx:272
 msgid "계정 정보를 불러오지 못했습니다."
 msgstr "계정 정보를 불러오지 못했습니다."
 
@@ -310,10 +310,6 @@ msgstr "분석"
 #: components/studio/code-input-dialog.tsx:175
 msgid "파일 이름 (예: useAuth.ts, 비우면 \"코드 N\")"
 msgstr "파일 이름 (예: useAuth.ts, 비우면 \"코드 N\")"
-
-#: components/studio/draft-editor.tsx:626
-msgid "· 빈칸 {emptyBlankCount}개"
-msgstr "· 빈칸 {emptyBlankCount}개"
 
 #: components/studio/prompt-options.tsx:215
 msgid "{label} 제거"
@@ -442,7 +438,7 @@ msgstr "게시글"
 msgid "언어 선택"
 msgstr "언어 선택"
 
-#: components/studio/draft-editor.tsx:707
+#: components/studio/draft-editor.tsx:716
 msgid "커밋을 선택하거나 코드를 직접 넣고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 msgstr "커밋을 선택하거나 코드를 직접 넣고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 
@@ -455,7 +451,7 @@ msgstr "회원 탈퇴"
 msgid "프로필 메뉴"
 msgstr "프로필 메뉴"
 
-#: components/studio/draft-editor.tsx:644
+#: components/studio/draft-editor.tsx:653
 msgid "HTML 파일로 내보내기"
 msgstr "HTML 파일로 내보내기"
 
@@ -522,10 +518,14 @@ msgstr "이미 추가한 링크입니다."
 msgid "추적 브랜치에 커밋이 없습니다."
 msgstr "추적 브랜치에 커밋이 없습니다."
 
+#: components/studio/draft-editor.tsx:643
+msgid "저장하지 못했습니다"
+msgstr "저장하지 못했습니다"
+
 #: app/[lang]/error.tsx:23
 #: components/dashboard/repository-list.tsx:108
 #: components/onboarding/repository-connect-form.tsx:247
-#: components/studio/account-settings-panel.tsx:282
+#: components/studio/account-settings-panel.tsx:279
 #: components/studio/commit-sidebar.tsx:105
 #: components/studio/repository-settings-panel.tsx:296
 #: components/studio/repository-settings-panel.tsx:540
@@ -594,7 +594,7 @@ msgid "게시를 취소하지 못했습니다. 다시 시도해주세요."
 msgstr "게시를 취소하지 못했습니다. 다시 시도해주세요."
 
 #: components/legal/legal-document.tsx:59
-#: components/main/main-footer.tsx:24
+#: components/main/main-footer.tsx:25
 msgid "[comdraft] 문의"
 msgstr "[comdraft] 문의"
 
@@ -724,7 +724,7 @@ msgstr "{selectedCount}개 선택"
 msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgstr "서비스 이해를 위한 샘플 저장소와 초안입니다."
 
-#: components/studio/draft-editor.tsx:569
+#: components/studio/draft-editor.tsx:571
 msgid "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 msgstr "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 
@@ -792,7 +792,7 @@ msgstr "{charCount} / {maxChars}자"
 msgid "탈퇴하지 못했습니다. 다시 시도해주세요."
 msgstr "탈퇴하지 못했습니다. 다시 시도해주세요."
 
-#: components/main/main-footer.tsx:33
+#: components/main/main-footer.tsx:34
 msgid "푸터 메뉴"
 msgstr "푸터 메뉴"
 
@@ -865,7 +865,7 @@ msgstr "실행 취소"
 msgid "링크"
 msgstr "링크"
 
-#: components/main/main-footer.tsx:42
+#: components/main/main-footer.tsx:43
 #: lib/seo/copy.ts:33
 msgid "이용약관"
 msgstr "이용약관"
@@ -914,7 +914,7 @@ msgstr "대시보드"
 msgid "AI 작성 중 오류가 발생했습니다. 다시 시도해주세요."
 msgstr "AI 작성 중 오류가 발생했습니다. 다시 시도해주세요."
 
-#: components/main/main-footer.tsx:54
+#: components/main/main-footer.tsx:55
 msgid "개발자 이메일"
 msgstr "개발자 이메일"
 
@@ -1032,7 +1032,7 @@ msgstr "작성 요청을 보내는 중..."
 msgid "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
 msgstr "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
 
-#: components/studio/account-settings-panel.tsx:300
+#: components/studio/account-settings-panel.tsx:297
 msgid "AI 사용량"
 msgstr "AI 사용량"
 
@@ -1167,7 +1167,7 @@ msgstr "Pro 이상"
 msgid "GitHub 커밋과 PR 을 골라 AI 가 기술 개발 블로그 초안을 빠르게 작성합니다. 에디터에서 바로 다듬어 게시하고, HTML·Markdown 으로 내보내 여러 블로그에 공유하세요. AI 와 함께 커밋과 PR 을 올리는 개발 환경일수록 더 자세한 초안이 만들어집니다."
 msgstr "GitHub 커밋과 PR 을 골라 AI 가 기술 개발 블로그 초안을 빠르게 작성합니다. 에디터에서 바로 다듬어 게시하고, HTML·Markdown 으로 내보내 여러 블로그에 공유하세요. AI 와 함께 커밋과 PR 을 올리는 개발 환경일수록 더 자세한 초안이 만들어집니다."
 
-#: components/studio/account-settings-panel.tsx:222
+#: components/studio/account-settings-panel.tsx:219
 msgid "{resetTime} 초기화"
 msgstr "{resetTime} 초기화"
 
@@ -1192,7 +1192,7 @@ msgstr "커밋 선택 · AI 초안 작성 · 에디터 수정 · 게시와 공�
 msgid "전문적으로"
 msgstr "전문적으로"
 
-#: components/main/main-footer.tsx:47
+#: components/main/main-footer.tsx:48
 msgid "문의하기"
 msgstr "문의하기"
 
@@ -1229,6 +1229,10 @@ msgstr "계정"
 #: lib/studio/options.ts:57
 msgid "강의"
 msgstr "강의"
+
+#: components/studio/draft-editor.tsx:640
+msgid "저장 중..."
+msgstr "저장 중..."
 
 #: components/studio/draft-editor.tsx:442
 msgid "제목"
@@ -1285,7 +1289,7 @@ msgstr "저장소의 커밋 내역을 불러오고 선택합니다."
 msgid "작성 요청은 {MAX_GENERATION_PROMPT_LENGTH}자까지 보낼 수 있습니다."
 msgstr "작성 요청은 {MAX_GENERATION_PROMPT_LENGTH}자까지 보낼 수 있습니다."
 
-#: components/main/main-footer.tsx:65
+#: components/main/main-footer.tsx:66
 msgid "© 2026 comdraft. All rights reserved."
 msgstr "© 2026 comdraft. All rights reserved."
 
@@ -1304,6 +1308,10 @@ msgstr "내역을 더 불러오지 못했습니다."
 #: components/studio/commit-sidebar.tsx:122
 msgid "다시 로그인"
 msgstr "다시 로그인"
+
+#: components/studio/draft-editor.tsx:632
+msgid "빈칸 {emptyBlankCount}개"
+msgstr "빈칸 {emptyBlankCount}개"
 
 #: components/main/sample-commit-panel.tsx:14
 #: components/studio/prompt-composer.tsx:132
@@ -1333,10 +1341,6 @@ msgstr "넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 다만 �
 #: components/studio/prompt-composer.tsx:76
 msgid "이 모델은 현재 등급에서 쓸 수 없습니다."
 msgstr "이 모델은 현재 등급에서 쓸 수 없습니다."
-
-#: components/studio/draft-editor.tsx:631
-msgid "· 저장 중..."
-msgstr "· 저장 중..."
 
 #: components/main/sample-draft-editor.tsx:90
 msgid "이미지 최적화"
@@ -1382,10 +1386,6 @@ msgstr "게시 취소"
 msgid "사용량 약 {ratio}배"
 msgstr "사용량 약 {ratio}배"
 
-#: components/studio/draft-editor.tsx:634
-msgid "· 저장하지 못했습니다"
-msgstr "· 저장하지 못했습니다"
-
 #: components/studio/draft-tags.tsx:163
 #: components/studio/reference-link-dialog.tsx:197
 msgid "추가"
@@ -1416,7 +1416,7 @@ msgstr "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 msgid "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 msgstr "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 
-#: components/studio/draft-editor.tsx:614
+#: components/studio/draft-editor.tsx:616
 msgid "초안 편집"
 msgstr "초안 편집"
 
@@ -1505,7 +1505,7 @@ msgstr "브랜치 목록을 불러오는 중..."
 msgid "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
 msgstr "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
 
-#: components/studio/account-settings-panel.tsx:294
+#: components/studio/account-settings-panel.tsx:291
 msgid "연동 계정"
 msgstr "연동 계정"
 
@@ -1576,7 +1576,7 @@ msgstr "다시 게시"
 msgid "아직 초안이 없습니다. 커밋을 선택하고 작성 요청을 보내 첫 초안을 만들어 보세요."
 msgstr "아직 초안이 없습니다. 커밋을 선택하고 작성 요청을 보내 첫 초안을 만들어 보세요."
 
-#: components/main/main-footer.tsx:37
+#: components/main/main-footer.tsx:38
 #: lib/seo/copy.ts:29
 msgid "개인정보처리방침"
 msgstr "개인정보처리방침"

@@ -205,12 +205,9 @@ const UsageSection = ({
         aria-valuemax={100}
         aria-valuenow={percent}
         aria-label={`${percent}%`}
-        className="h-2 overflow-hidden rounded-full bg-surface"
+        className="h-2 overflow-hidden bg-surface"
       >
-        <div
-          className="h-full rounded-full bg-brand"
-          style={{ width: `${percent}%` }}
-        />
+        <div className="h-full bg-brand" style={{ width: `${percent}%` }} />
       </div>
       <div className="flex flex-col gap-1 text-[12px] leading-[1.6] pc:flex-row pc:justify-between">
         <span className="font-medium text-ink">

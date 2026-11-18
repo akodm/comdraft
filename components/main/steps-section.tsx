@@ -47,7 +47,7 @@ const StepsSection = () => {
                     className="absolute top-15 -bottom-5 left-[19.25px] w-[1.5px] bg-connector pc:top-[39.25px] pc:bottom-auto pc:left-10 pc:h-[1.5px] pc:w-[calc(100%-8px)]"
                   />
                 )}
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand font-mono text-[16px] leading-[normal] text-white">
+                <span className="flex size-10 shrink-0 items-center justify-center bg-brand font-mono text-[16px] leading-[normal] text-white">
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-2.5 pt-2.25 pc:pt-0">

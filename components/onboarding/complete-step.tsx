@@ -24,7 +24,7 @@ const CompleteStep = () => {
         }
       >
         <div className="flex items-center gap-3">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft">
+          <span className="flex size-8 shrink-0 items-center justify-center bg-brand-soft">
             <Image
               src="/images/onboarding/check.svg"
               alt=""

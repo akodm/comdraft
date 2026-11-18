@@ -12,13 +12,13 @@ interface ErrorPageProps {
 const ErrorPage = ({ retry }: ErrorPageProps) => {
   return (
     <PageLayout className="flex flex-col items-center justify-center gap-6 px-5">
-      <p role="alert" className="text-center text-sm break-keep text-red-600">
+      <p role="alert" className="text-center text-sm break-keep text-danger">
         <Trans>요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.</Trans>
       </p>
       <button
         type="button"
         onClick={() => retry()}
-        className="rounded-md border px-4 py-2"
+        className="rounded-md border border-line px-4 py-2 text-ink transition-colors hover:border-ink-faint hover:bg-surface active:bg-disabled"
       >
         <Trans>다시 시도</Trans>
       </button>

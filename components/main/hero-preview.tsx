@@ -12,7 +12,7 @@ const ADDED_CODE = [
 // 히어로 우측의 초안 작성 화면 예시 (커밋 → 초안 변환을 보여주는 정적 일러스트)
 const HeroPreview = () => {
   return (
-    <figure className="flex w-full flex-col border border-line pc:w-150 pc:shrink-0">
+    <figure className="sheet-frame flex w-full flex-col border border-line pc:w-150 pc:shrink-0">
       <div className="flex h-12 items-center justify-between bg-surface px-4 pc:px-6">
         <div className="flex items-center gap-2">
           <Image

@@ -97,7 +97,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
               <Trans>Github 로 회원가입/로그인</Trans>
             </GithubSignInButton>
             {/* 약관 페이지가 아직 없어 텍스트로만 표시 */}
-            <p className="text-[10px] leading-[1.6] text-ink-faint pc:text-[12px] pc:leading-[1.9]">
+            <p className="text-[11px] leading-[1.6] text-ink-faint pc:text-[12px] pc:leading-[1.9]">
               <Trans>
                 계속하시면{' '}
                 <span className="text-ink-muted underline">이용약관</span> 및{' '}

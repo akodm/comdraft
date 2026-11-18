@@ -3,6 +3,6 @@ export const DROPDOWN_PANEL_CLASS =
   'z-20 flex flex-col gap-1 border border-line bg-white p-3';
 
 export const DROPDOWN_ITEM_BASE_CLASS =
-  'block w-full px-3 py-2.5 text-left text-[13px] leading-4 outline-none hover:bg-surface focus:bg-surface';
+  'block w-full px-3 py-2.5 text-left text-[13px] leading-4 outline-none hover:bg-surface focus:bg-surface active:bg-disabled';
 
 export const DROPDOWN_ITEM_CLASS = `${DROPDOWN_ITEM_BASE_CLASS} text-ink-muted hover:font-medium hover:text-ink focus:font-medium focus:text-ink`;

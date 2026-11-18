@@ -3,7 +3,8 @@ import BrandLogo from '@/components/main/brand-logo';
 import LocalizedLink from '@/components/shared/localized-link';
 import { CONTACT_EMAIL, getContactMailto } from '@/lib/site/contact';
 
-const FOOTER_LINK_CLASS = 'hover:underline';
+// 어두운 푸터 위 포커스 선은 흰색 (브랜드 블루는 대비 3:1 미만)
+const FOOTER_LINK_CLASS = 'hover:underline focus-visible:outline-white';
 
 // PC 콘텐츠 최대 폭 (wide: 회원가입/로그인처럼 좌우로 나뉜 화면)
 const WIDTH_CLASS = {
@@ -61,7 +62,7 @@ const MainFooter = ({ width = 'default' }: MainFooterProps) => {
             </a>
           </div>
         </div>
-        <p className="font-mono text-[11px] leading-[normal] whitespace-nowrap text-ink-subtle">
+        <p className="text-[12px] leading-[normal] whitespace-nowrap text-ink-subtle">
           <Trans>© 2026 comdraft. All rights reserved.</Trans>
         </p>
       </div>

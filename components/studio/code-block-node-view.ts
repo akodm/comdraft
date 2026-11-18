@@ -81,12 +81,12 @@ export const createCodeBlockNodeView =
     );
     const language = createElement(
       'span',
-      'font-mono text-[10px] leading-[normal] text-ink-faint',
+      'font-mono text-[11px] leading-[normal] text-ink-faint',
     );
     const actions = createElement('span', 'flex items-center gap-1.5');
     const status = createElement(
       'span',
-      'font-sans text-[10px] leading-[normal] text-ink-faint',
+      'font-sans text-[11px] leading-[normal] text-ink-faint',
     );
     const copyButton = createElement(
       'button',
