@@ -45,7 +45,7 @@ const CommitToDraftMotion = () => {
   const animate = useSampleAnimate();
 
   return (
-    <div className="flex w-full flex-col overflow-hidden border border-line">
+    <div className="sheet-frame flex w-full flex-col overflow-hidden border border-line">
       <div className="flex flex-col gap-4 bg-code px-6 pt-5.5 pb-2">
         <div className="flex items-center justify-between leading-[normal] whitespace-nowrap">
           <p className="font-mono text-[13px] text-white">

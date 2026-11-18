@@ -97,10 +97,10 @@ const SampleDraftEditor = () => {
         <DraftParagraph paragraph={DRAFT_PARAGRAPHS.why} />
         <DraftParagraph paragraph={DRAFT_PARAGRAPHS.how} />
         <div className="flex flex-col gap-3 bg-surface p-3 font-mono pc:p-5">
-          <p className="text-[10px] leading-[normal] whitespace-nowrap text-ink-faint">
+          <p className="text-[11px] leading-[normal] whitespace-nowrap text-ink-faint">
             TypeScript · cleanup
           </p>
-          <pre className="font-mono text-[10px] leading-[1.8] whitespace-pre-wrap text-ink pc:text-[13px]">
+          <pre className="font-mono text-[11px] leading-[1.8] whitespace-pre-wrap text-ink pc:text-[13px]">
             {CLEANUP_CODE}
           </pre>
         </div>

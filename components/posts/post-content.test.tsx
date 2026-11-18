@@ -65,7 +65,9 @@ describe('PostContent', () => {
     expect(withLanguage).toContain('<pre');
     expect(withLanguage).toContain('const a = 1;');
     expect(withoutLanguage).toContain('plain');
-    expect(withoutLanguage).not.toContain('font-mono text-[10px]');
+    expect(withoutLanguage).not.toContain(
+      'font-mono text-[11px] leading-[normal]',
+    );
     expect(withoutLanguage).not.toContain('Code<');
   });
 });

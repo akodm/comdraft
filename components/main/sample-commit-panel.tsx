@@ -25,7 +25,7 @@ const SampleCommitPanel = () => {
             width={16}
             height={16}
           />
-          <p className="font-mono text-[10px] leading-[normal] whitespace-nowrap text-white pc:text-[12px]">
+          <p className="font-mono text-[11px] leading-[normal] whitespace-nowrap text-white pc:text-[12px]">
             dev-note / image-lab
           </p>
         </div>
@@ -55,7 +55,7 @@ const SampleCommitPanel = () => {
             <p className="text-[13px] leading-[1.65] font-medium text-white pc:text-[15px]">
               {i18n._(commit.message)}
             </p>
-            <p className="font-mono text-[9px] leading-[1.7] text-ink-subtle pc:text-[11px]">
+            <p className="font-mono text-[11px] leading-[1.7] text-ink-subtle">
               {commit.file}
             </p>
             <p className="text-[12px] leading-[1.8] text-ink-subtle">

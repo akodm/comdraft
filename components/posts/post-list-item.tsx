@@ -18,7 +18,7 @@ const PostListItem = ({ post }: PostListItemProps) => {
   const { title, excerpt, thumbnailUrl } = post;
 
   return (
-    <article className="relative flex items-start gap-4 py-5 pc:gap-6 pc:py-7">
+    <article className="group relative flex items-start gap-4 py-5 pc:gap-6 pc:py-7">
       {thumbnailUrl ? (
         // 게시 때 정리한 공개 저장소의 WebP 주소를 그대로 씀 (본문 이미지와 같은 파일)
         <img
@@ -47,13 +47,14 @@ const PostListItem = ({ post }: PostListItemProps) => {
           {/* 줄 전체를 덮는 링크 */}
           <LocalizedLink
             href={getPostPath(post)}
-            className="after:absolute after:inset-0"
+            className="transition-colors after:absolute after:inset-0 group-hover:text-brand"
           >
             {title}
           </LocalizedLink>
         </h2>
         {excerpt && (
-          <p className="line-clamp-2 text-[14px] leading-[1.65] wrap-anywhere text-ink-muted pc:line-clamp-3 pc:text-[15px]">
+          // 링크 덮개(after) 위에 글자를 그리되, 누르면 덮개로 통과시켜 상세로 이동
+          <p className="pointer-events-none relative line-clamp-2 text-[14px] leading-[1.65] wrap-anywhere text-ink-muted pc:line-clamp-3 pc:text-[15px]">
             {excerpt}
           </p>
         )}
