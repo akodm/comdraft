@@ -6,8 +6,15 @@
 ## 1. 마이그레이션 적용
 
 1. `drizzle/0026_*.sql` 을 운영 DB 에 적용합니다. 이 마이그레이션은 새 테이블 7개(`admin_account`, `admin_session`, `admin_action_log`, `service_setting`, `ai_prompt`, `ai_prompt_revision`, `ai_prompt_default`)를 만들고 `user` 에 3개 열, `draft_prompt` 에 1개 열을 추가합니다.
-2. 기존 `comdraft` 스키마 테이블은 모두 `comdraft` 역할이 소유하고 전체 DML 권한을 갖고 있으며, 앱과 Lambda 가 그 역할로 접속합니다. 그래서 **`comdraft` 역할로 적용**하면 새 테이블도 같은 소유자가 되어 별도 GRANT 가 필요 없습니다.
-3. 다른 역할(예: `postgres`)로 적용했다면 새 테이블 7개의 소유자를 바꿉니다.
+2. 2026-11-19 에 운영 DB 를 읽기 전용 쿼리로 확인한 결과, 기존 `comdraft` 스키마 테이블은 모두 `comdraft` 역할이 소유하고, `comdraft` 가 유일한 grantee(전체 DML)이며, 프로젝트에서 이름에 "comdraft" 가 들어간 비시스템 역할도 `comdraft` 하나뿐입니다. 앱과 Lambda 는 그 역할로 접속합니다. 적용 전에 아래 쿼리로 다시 확인할 수 있습니다.
+
+```sql
+select tableowner from pg_tables where schemaname = 'comdraft';
+select grantee, privilege_type from information_schema.role_table_grants where table_schema = 'comdraft';
+```
+
+3. 기본 경로는 **`comdraft` 역할로 마이그레이션을 적용**하는 것입니다. 새 테이블도 같은 소유자가 되어 별도 GRANT 가 필요 없습니다.
+4. 다른 역할(예: `postgres`)로 적용했다면 새 테이블 7개의 소유자를 바꿉니다. `alter table ... owner to comdraft` 는 실행하는 역할이 `comdraft` 의 멤버이거나 superuser 여야 합니다.
 
 ```sql
 alter table comdraft.admin_account owner to comdraft;
@@ -19,7 +26,19 @@ alter table comdraft.ai_prompt_revision owner to comdraft;
 alter table comdraft.ai_prompt_default owner to comdraft;
 ```
 
-4. Lambda 가 쓰는 권한은 `ai_prompt`·`service_setting` 은 select, `ai_prompt_default` 는 select/insert/update/delete 입니다. 소유자가 `comdraft` 이면 이미 충족됩니다.
+소유자를 바꿀 수 없으면 대신 `comdraft` 에 권한을 줍니다.
+
+```sql
+grant select, insert, update, delete on comdraft.admin_account to comdraft;
+grant select, insert, update, delete on comdraft.admin_session to comdraft;
+grant select, insert, update, delete on comdraft.admin_action_log to comdraft;
+grant select, insert, update, delete on comdraft.service_setting to comdraft;
+grant select, insert, update, delete on comdraft.ai_prompt to comdraft;
+grant select, insert, update, delete on comdraft.ai_prompt_revision to comdraft;
+grant select, insert, update, delete on comdraft.ai_prompt_default to comdraft;
+```
+
+4. Lambda 가 쓰는 권한은 `ai_prompt`·`service_setting` 은 select, `ai_prompt_default` 는 select/insert/update/delete 입니다. 소유자가 `comdraft` 이거나 위 GRANT 를 적용했다면 충족됩니다.
 5. 앱 배포는 마이그레이션 적용 후에 합니다 (앱이 새 열을 읽음).
 
 ## 2. 어드민 계정 만들기
