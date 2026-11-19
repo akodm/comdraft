@@ -1,11 +1,12 @@
 import 'server-only';
-import { count, desc, eq, gte, inArray, sql } from 'drizzle-orm';
+import { count, desc, eq, gte, inArray } from 'drizzle-orm';
 import {
   markStale,
   resolveStatsWindow,
   summarizeModelUsage,
 } from '@/lib/admin/stats';
 import type { ModelUsage } from '@/lib/admin/stats';
+import { countSince } from '@/lib/admin/stats-sql';
 import { db } from '@/lib/db';
 import { adminAccount, adminActionLog } from '@/lib/db/schema/admin';
 import { user } from '@/lib/db/schema/auth';
@@ -98,9 +99,7 @@ export const getDashboardStats = async (now: Date): Promise<DashboardStats> => {
     db
       .select({
         total: count(),
-        newThisWeek: count(
-          sql`case when ${user.createdAt} >= ${start} then 1 end`,
-        ),
+        newThisWeek: countSince(user.createdAt, start),
         banned: count(user.bannedAt),
       })
       .from(user),
@@ -113,9 +112,7 @@ export const getDashboardStats = async (now: Date): Promise<DashboardStats> => {
       .select({
         total: count(),
         banned: count(post.bannedAt),
-        newThisWeek: count(
-          sql`case when ${post.publishedAt} >= ${start} then 1 end`,
-        ),
+        newThisWeek: countSince(post.publishedAt, start),
       })
       .from(post),
     db
