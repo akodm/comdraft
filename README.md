@@ -23,6 +23,7 @@
   - 이미지는 넣을 때 바로 보이고, 저장할 때 WebP 로 최적화되어 Supabase Storage 에 올라갑니다.
 - **게시**: 초안을 전체 공개 또는 일부 공개(주소를 아는 사람만)로 게시합니다. 게시글 피드(언어 필터), 상세 페이지, sitemap 을 제공합니다.
 - **게시글 검수**: 매일 새 게시글을 검수해, 문제가 있는 글은 지우지 않고 임시 조치합니다 (목록·sitemap 에서 빠지고 상세에는 안내만 표시).
+- **어드민**: 통계, 사용자·게시글·프롬프트 내역 관리, AI 프롬프트 수정, AI 작성 중지를 제공합니다. 주소는 공개하지 않습니다.
 - **사용량 관리**: 사용자 등급별 주간 할당량(매주 일요일 0시 KST 초기화)과 시간당 요청 수 제한이 있습니다.
 - **다국어·SEO**: 한국어(기본)와 영어 화면, 언어별 메타데이터·hreflang, 게시글별 오픈그래프 이미지를 제공합니다.
 
@@ -99,6 +100,7 @@ pnpm dev                # http://localhost:3003
 | `CRON_SECRET` | Vercel Schedules(주간 sitemap 갱신, 일일 현황 보고) 요청 확인 |
 | `GOOGLE_REPORT_CREDENTIALS`, `DAILY_REPORT_TOPIC_ARN` | 일일 현황 보고 (GA4·Search Console 조회용 서비스 계정, SNS 토픽) |
 | `MODERATION_SECRET` | 게시글 검수 API(`POST /api/moderation/posts`) 인증 |
+| `ADMIN_PATH_KEY` | 어드민 주소 키 (`/[lang]/admin/<키>`), 영문·숫자·`-`·`_` 16자 이상. 없으면 어드민 전체 403 |
 
 로컬에서는 `GENERATION_RUNNER` 를 비워 두면 가짜 실행기가 고정된 초안을 만들어, Lambda 없이 전체 흐름을 확인할 수 있습니다.
 
@@ -131,3 +133,4 @@ pnpm dev                # http://localhost:3003
 - [모델 선택 설계](docs/superpowers/specs/2026-11-12-model-choice-design.md)
 - [SEO 메타데이터 설계](docs/superpowers/specs/2026-11-13-seo-metadata-design.md)
 - [코드 직접 입력 설계](docs/superpowers/specs/2026-11-17-direct-code-input-design.md)
+- [어드민 콘솔 설계](docs/superpowers/specs/2026-11-19-admin-console-design.md) · [어드민 운영 가이드](docs/admin-console-operations.md)

@@ -38,8 +38,8 @@ grant select, insert, update, delete on comdraft.ai_prompt_revision to comdraft;
 grant select, insert, update, delete on comdraft.ai_prompt_default to comdraft;
 ```
 
-4. Lambda 가 쓰는 권한은 `ai_prompt`·`service_setting` 은 select, `ai_prompt_default` 는 select/insert/update/delete 입니다. 소유자가 `comdraft` 이거나 위 GRANT 를 적용했다면 충족됩니다.
-5. 앱 배포는 마이그레이션 적용 후에 합니다 (앱이 새 열을 읽음).
+5. Lambda 가 쓰는 권한은 `ai_prompt`·`service_setting` 은 select, `ai_prompt_default` 는 select/insert/update/delete 입니다. 소유자가 `comdraft` 이거나 위 GRANT 를 적용했다면 충족됩니다.
+6. 앱 배포는 마이그레이션 적용 후에 합니다 (앱이 새 열을 읽음).
 
 ## 2. 어드민 계정 만들기
 
@@ -92,6 +92,8 @@ set failed_attempts = 0, locked_until = null, updated_at = now()
 where login_id = '<아이디>';
 ```
 
+잠금 시간이 지나도 실패 횟수는 로그인에 성공할 때까지 남아 있어, 한 번 더 실패하면 다시 15분간 잠깁니다.
+
 ## 6. ADMIN_PATH_KEY 설정
 
 어드민 콘솔 주소의 비밀 경로 값입니다. 운영자가 Vercel 에서 직접 설정합니다.
@@ -100,3 +102,12 @@ where login_id = '<아이디>';
 2. Vercel 프로젝트 Settings > Environment Variables 에 `ADMIN_PATH_KEY` 를 **Production** 환경으로 추가합니다.
 3. 재배포하면 적용됩니다. 값을 바꾸면 이전 주소는 즉시 막힙니다.
 4. 값은 저장소, 로그, 채팅에 남기지 않습니다.
+
+## 7. 배포 순서
+
+1. 운영자가 `drizzle/0026_*.sql` 마이그레이션을 로컬, 운영 순서로 `comdraft` 역할로 적용합니다 (1절).
+2. Vercel Production 에 `ADMIN_PATH_KEY` 를 설정하고, 로컬은 `.env.development` 에 넣습니다 (6절).
+3. comdraft 를 배포합니다.
+4. 운영자가 comdraft-lambda 에서 `pnpm build` 후 `terraform plan` 으로 변경 내용을 확인하고 `terraform apply` 합니다.
+5. Lambda 가 처음 콜드 스타트하면 프롬프트 기본값을 `ai_prompt_default` 에 올립니다. 그 전까지 AI 프롬프트 화면에는 "기본값을 올리지 않았어요" 가 표시됩니다.
+6. 2절의 SQL 로 첫 어드민 계정을 넣고, 로그인해서 비밀번호를 정합니다.
