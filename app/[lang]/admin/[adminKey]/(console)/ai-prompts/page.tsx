@@ -3,6 +3,7 @@ import { ADMIN_TITLE_CLASS } from '@/components/admin/admin-styles';
 import AdminTable from '@/components/admin/admin-table';
 import LocalizedLink from '@/components/shared/localized-link';
 import { listPromptOverview } from '@/lib/admin/ai-prompt-queries';
+import type { PromptStatus } from '@/lib/admin/prompt-status';
 import { requireAdmin, requireAdminKey } from '@/lib/admin/guard';
 import { adminPath } from '@/lib/admin/path-key';
 import { getLocale, initLingui } from '@/lib/i18n/server';
@@ -13,6 +14,22 @@ const formatDateTime = (date: Date, locale: string) =>
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(date);
+
+const StatusLabel = ({ status }: { status: PromptStatus }) => {
+  if (status === 'ignored') {
+    return (
+      <span className="text-danger">
+        <Trans>적용 안 됨</Trans>
+      </span>
+    );
+  }
+
+  return status === 'applied' ? (
+    <Trans>수정됨</Trans>
+  ) : (
+    <Trans>기본값 사용</Trans>
+  );
+};
 
 // 어드민 AI 프롬프트 목록: 로케일별로 묶고 기본값 사용·수정됨 표시
 export default async function AdminAiPromptsPage() {
@@ -76,14 +93,11 @@ export default async function AdminAiPromptsPage() {
                     {row.key}
                   </LocalizedLink>
                 ),
-                status: row.modified ? (
-                  <Trans>수정됨</Trans>
-                ) : (
-                  <Trans>기본값 사용</Trans>
-                ),
-                editor: row.modified ? (row.editorLoginId ?? '-') : '-',
+                status: <StatusLabel status={row.status} />,
+                editor:
+                  row.status !== 'default' ? (row.editorLoginId ?? '-') : '-',
                 time:
-                  row.modified && row.updatedAt
+                  row.status !== 'default' && row.updatedAt
                     ? formatDateTime(row.updatedAt, locale)
                     : '-',
               },

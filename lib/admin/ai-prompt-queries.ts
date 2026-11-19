@@ -7,6 +7,10 @@ import {
   aiPromptDefault,
   aiPromptRevision,
 } from '@/lib/db/schema/admin';
+import {
+  derivePromptStatus,
+  type PromptStatus,
+} from '@/lib/admin/prompt-status';
 
 /**
  * 어드민 AI 프롬프트 조회 (읽기 전용)
@@ -18,8 +22,8 @@ const REVISION_LIMIT = 20;
 export interface PromptOverviewRow {
   locale: string;
   key: string;
-  // 수정본이 있으면 true (없으면 기본값 사용)
-  modified: boolean;
+  // default: 기본값 사용, applied: 수정본 적용 중, ignored: 수정본이 있지만 Lambda 가 무시함
+  status: PromptStatus;
   editorLoginId: string | null;
   updatedAt: Date | null;
 }
@@ -33,6 +37,7 @@ export const listPromptOverview = async (): Promise<PromptOverviewRow[]> => {
     .select({
       locale: aiPromptDefault.locale,
       key: aiPromptDefault.key,
+      requiredMarkers: aiPromptDefault.requiredMarkers,
       overrideContent: aiPrompt.content,
       editorLoginId: adminAccount.loginId,
       updatedAt: aiPrompt.updatedAt,
@@ -52,7 +57,8 @@ export const listPromptOverview = async (): Promise<PromptOverviewRow[]> => {
     .map((row) => ({
       locale: row.locale,
       key: row.key,
-      modified: row.overrideContent !== null,
+      status: derivePromptStatus(row.overrideContent, row.requiredMarkers)
+        .status,
       editorLoginId: row.editorLoginId,
       updatedAt: row.updatedAt,
     }))
@@ -71,6 +77,9 @@ export interface PromptEditorData {
   defaultContent: string;
   requiredMarkers: string[];
   overrideContent: string | null;
+  status: PromptStatus;
+  // 수정본이 무시될 때 빠진 필수 문자열
+  missingMarkers: string[];
   editorLoginId: string | null;
   updatedAt: Date | null;
   revisions: PromptRevisionRow[];
@@ -122,10 +131,17 @@ export const getPromptEditor = async (
     .orderBy(desc(aiPromptRevision.createdAt))
     .limit(REVISION_LIMIT);
 
+  const { status, missing } = derivePromptStatus(
+    override?.content ?? null,
+    base.requiredMarkers,
+  );
+
   return {
     defaultContent: base.content,
     requiredMarkers: base.requiredMarkers,
     overrideContent: override?.content ?? null,
+    status,
+    missingMarkers: missing,
     editorLoginId: override?.editorLoginId ?? null,
     updatedAt: override?.updatedAt ?? null,
     revisions,

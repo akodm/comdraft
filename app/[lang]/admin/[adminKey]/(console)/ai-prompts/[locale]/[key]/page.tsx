@@ -59,6 +59,8 @@ export default async function AdminAiPromptEditPage({
 
   const locale = await getLocale();
   const canEdit = canPerform(admin.role, 'prompt.edit');
+  const overrideLabel =
+    data.status === 'ignored' ? i18n._(msg`적용 안 됨`) : i18n._(msg`수정됨`);
   const listPath = adminPath(locale, requireAdminKey(), 'ai-prompts');
 
   return (
@@ -74,15 +76,37 @@ export default async function AdminAiPromptEditPage({
           {promptLocale} / {promptKey}
         </h1>
         <p className="text-[12px] text-ink-faint">
-          {data.overrideContent !== null ? (
+          {data.overrideContent === null ? (
+            <Trans>기본값 사용 중</Trans>
+          ) : (
             <Trans>
-              수정됨 · {data.editorLoginId ?? '-'} ·{' '}
+              {overrideLabel} · {data.editorLoginId ?? '-'} ·{' '}
               {data.updatedAt ? formatDateTime(data.updatedAt, locale) : '-'}
             </Trans>
-          ) : (
-            <Trans>기본값 사용 중</Trans>
           )}
         </p>
+        {data.status === 'ignored' ? (
+          <div
+            role="alert"
+            className="flex flex-col gap-1 border border-danger bg-white p-3 text-[13px] leading-[1.6] text-danger"
+          >
+            <p>
+              <Trans>
+                기본 문장이 바뀌어 이 수정본은 지금 적용되지 않아요. 빠진
+                문자열:
+              </Trans>
+            </p>
+            {data.missingMarkers.length > 0 ? (
+              <ul className="flex flex-col gap-0.5">
+                {data.missingMarkers.map((marker) => (
+                  <li key={marker}>
+                    <code className="text-[12px] break-all">{marker}</code>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
         {promptKey.endsWith('.system') ? (
           <p className="text-[12px] leading-[1.6] text-ink-muted">
             <Trans>
@@ -127,8 +151,6 @@ export default async function AdminAiPromptEditPage({
           </h2>
           {canEdit ? (
             <PromptEditorForm
-              // 저장·복원으로 값이 바뀌면 입력 칸을 새 값으로 다시 그림
-              key={data.overrideContent ?? 'default'}
               locale={promptLocale}
               promptKey={promptKey}
               initialContent={data.overrideContent ?? data.defaultContent}

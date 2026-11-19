@@ -99,9 +99,11 @@ where login_id = '<아이디>';
 어드민 콘솔 주소의 비밀 경로 값입니다. 운영자가 Vercel 에서 직접 설정합니다.
 
 1. 추측하기 어려운 값을 만듭니다. 예: `openssl rand -hex 16`
-2. Vercel 프로젝트 Settings > Environment Variables 에 `ADMIN_PATH_KEY` 를 **Production** 환경으로 추가합니다.
+2. Vercel 프로젝트 Settings > Environment Variables 에 `ADMIN_PATH_KEY` 를 **Production 환경에만** 추가합니다. Preview 에는 절대 넣지 않습니다 (프리뷰는 검토 전 브랜치 코드가 운영 DB 에 연결된 채 돌기 때문입니다).
 3. 재배포하면 적용됩니다. 값을 바꾸면 이전 주소는 즉시 막힙니다.
 4. 값은 저장소, 로그, 채팅에 남기지 않습니다.
+
+주소의 키는 화면을 숨기는 용도일 뿐이며, 서버 액션은 키와 무관하게 어드민 로그인, 역할, 요청 제한으로 보호됩니다 (키가 유일한 방어선이 아닙니다).
 
 ## 7. 배포 순서
 

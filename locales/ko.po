@@ -14,7 +14,7 @@ msgid "관련 조치 기록"
 msgstr "관련 조치 기록"
 
 #: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:51
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:178
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:200
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:259
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:201
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:214
@@ -38,7 +38,7 @@ msgstr "작업이 없어요"
 msgid "넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요."
 msgstr "넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:167
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:189
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:249
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:192
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:205
@@ -84,7 +84,7 @@ msgstr "공개 범위"
 msgid "cleanup에서 disconnect() 호출"
 msgstr "cleanup에서 disconnect() 호출"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:163
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:185
 msgid "수정 이력"
 msgstr "수정 이력"
 
@@ -209,7 +209,7 @@ msgstr "남음"
 msgid "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
 msgstr "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:120
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:144
 msgid "기본 문장"
 msgstr "기본 문장"
 
@@ -359,6 +359,11 @@ msgstr "초안 목록"
 msgid "태그는 10개까지 넣을 수 있습니다"
 msgstr "태그는 10개까지 넣을 수 있습니다"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:63
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:22
+msgid "적용 안 됨"
+msgstr "적용 안 됨"
+
 #: components/studio/prompt-composer.tsx:410
 msgid "초안 목록 열기"
 msgstr "초안 목록 열기"
@@ -378,8 +383,8 @@ msgstr "이미지 해상도가 너무 큽니다"
 msgid "새 초안"
 msgstr "새 초안"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:171
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:190
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:193
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:212
 msgid "다시 적용"
 msgstr "다시 적용"
 
@@ -426,7 +431,7 @@ msgstr "새 작성 요청을 다시 받아요."
 msgid "저장소와 브랜치를<0/>선택하세요."
 msgstr "저장소와 브랜치를<0/>선택하세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:203
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:225
 msgid "수정 이력이 없어요"
 msgstr "수정 이력이 없어요"
 
@@ -560,7 +565,7 @@ msgstr "조치 기록이 없어요"
 msgid "전체"
 msgstr "전체"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:60
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:77
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:208
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:117
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:108
@@ -673,7 +678,7 @@ msgstr "코드 직접 입력"
 msgid "이름"
 msgstr "이름"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:148
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:170
 msgid "수정본을 지우고 기본 문장을 써요. 지금 수정본은 이력에 남아요."
 msgstr "수정본을 지우고 기본 문장을 써요. 지금 수정본은 이력에 남아요."
 
@@ -712,13 +717,17 @@ msgstr "비공개 저장소의 코드가 본문에 그대로 공개됩니다"
 msgid "마지막으로 읽은 시각 {readAt}"
 msgstr "마지막으로 읽은 시각 {readAt}"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:126
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:150
 msgid "수정 문장"
 msgstr "수정 문장"
 
 #: components/studio/clarification-card.tsx:241
 msgid "작성 전 질문"
 msgstr "작성 전 질문"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:94
+msgid "기본 문장이 바뀌어 이 수정본은 지금 적용되지 않아요. 빠진 문자열:"
+msgstr "기본 문장이 바뀌어 이 수정본은 지금 적용되지 않아요. 빠진 문자열:"
 
 #: components/studio/clarification-card.tsx:46
 msgid "답을 확인해 주세요."
@@ -745,8 +754,8 @@ msgstr "바로 시작해보세요."
 msgid "목록으로"
 msgstr "목록으로"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:30
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:49
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:47
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:66
 #: components/admin/admin-sidebar.tsx:31
 msgid "AI 프롬프트"
 msgstr "AI 프롬프트"
@@ -923,7 +932,7 @@ msgstr "대기"
 msgid "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게시하세요."
 msgstr "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게시하세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:83
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:80
 msgid "기본값 사용 중"
 msgstr "기본값 사용 중"
 
@@ -1057,7 +1066,7 @@ msgstr "저장소 연결 해제"
 msgid "{label} 메뉴"
 msgstr "{label} 메뉴"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:145
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:167
 msgid "기본값으로 되돌리기"
 msgstr "기본값으로 되돌리기"
 
@@ -1104,7 +1113,7 @@ msgstr "AI 초안 · 게시 전 검토 필요"
 msgid "등급 변경"
 msgstr "등급 변경"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:98
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:122
 msgid "꼭 들어 있어야 하는 문자열"
 msgstr "꼭 들어 있어야 하는 문자열"
 
@@ -1221,12 +1230,6 @@ msgstr "GitHub로 시작하기"
 msgid "GitHub 로그인에 실패했습니다."
 msgstr "GitHub 로그인에 실패했습니다."
 
-#. placeholder {0}: data.editorLoginId ?? '-'
-#. placeholder {1}: data.updatedAt ? formatDateTime(data.updatedAt, locale) : '-'
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:78
-msgid "수정됨 · {0} · {1}"
-msgstr "수정됨 · {0} · {1}"
-
 #: components/main/steps-section.tsx:15
 msgid "AI 초안 작성"
 msgstr "AI 초안 작성"
@@ -1293,7 +1296,7 @@ msgstr "새 비밀번호"
 msgid "요청 문구"
 msgstr "요청 문구"
 
-#: components/admin/prompt-editor-form.tsx:53
+#: components/admin/prompt-editor-form.tsx:63
 msgid "저장"
 msgstr "저장"
 
@@ -1376,7 +1379,8 @@ msgstr "(완료)"
 msgid "비밀번호"
 msgstr "비밀번호"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:80
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:63
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:28
 msgid "수정됨"
 msgstr "수정됨"
 
@@ -1487,7 +1491,7 @@ msgstr "AI 사용량"
 msgid "최근 조치 기록"
 msgstr "최근 조치 기록"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:168
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:190
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:250
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:193
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:206
@@ -1676,7 +1680,7 @@ msgstr "개인 공개 저장소 · main"
 msgid "해당 게시글은 임시 조치된 게시글입니다."
 msgstr "해당 게시글은 임시 조치된 게시글입니다."
 
-#: components/admin/prompt-editor-form.tsx:77
+#: components/admin/prompt-editor-form.tsx:87
 msgid "지금 저장된 내용과 같아요."
 msgstr "지금 저장된 내용과 같아요."
 
@@ -1701,7 +1705,7 @@ msgstr "{resetTime} 초기화"
 msgid "이 부분은 자세한 설명이 필요합니다"
 msgstr "이 부분은 자세한 설명이 필요합니다"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:33
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:50
 msgid "Lambda 가 아직 기본값을 올리지 않았어요."
 msgstr "Lambda 가 아직 기본값을 올리지 않았어요."
 
@@ -1717,7 +1721,7 @@ msgstr "GitHub 프로필"
 msgid "Github App 인증"
 msgstr "Github App 인증"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:181
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:203
 msgid "기본값"
 msgstr "기본값"
 
@@ -1797,7 +1801,7 @@ msgstr "언어 전체"
 msgid "강의"
 msgstr "강의"
 
-#: components/admin/prompt-editor-form.tsx:51
+#: components/admin/prompt-editor-form.tsx:61
 #: components/studio/draft-editor.tsx:640
 msgid "저장 중..."
 msgstr "저장 중..."
@@ -1814,7 +1818,7 @@ msgstr "제목"
 msgid "답변 대기"
 msgstr "답변 대기"
 
-#: components/admin/prompt-editor-form.tsx:64
+#: components/admin/prompt-editor-form.tsx:74
 msgid "내용이 비어 있어요."
 msgstr "내용이 비어 있어요."
 
@@ -1855,9 +1859,15 @@ msgstr "주간 제공량의 1% 미만"
 msgid "제거"
 msgstr "제거"
 
-#: components/admin/prompt-editor-form.tsx:57
+#: components/admin/prompt-editor-form.tsx:67
 msgid "저장했어요"
 msgstr "저장했어요"
+
+#. placeholder {0}: data.editorLoginId ?? '-'
+#. placeholder {1}: data.updatedAt ? formatDateTime(data.updatedAt, locale) : '-'
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:82
+msgid "{overrideLabel} · {0} · {1}"
+msgstr "{overrideLabel} · {0} · {1}"
 
 #: components/main/sample-draft-editor.tsx:16
 msgid "무엇을 확인할까요?"
@@ -1924,7 +1934,7 @@ msgstr "작성자"
 msgid "내역을 더 불러오지 못했습니다."
 msgstr "내역을 더 불러오지 못했습니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:61
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:78
 msgid "마지막 수정자"
 msgstr "마지막 수정자"
 
@@ -2028,7 +2038,7 @@ msgstr "복사했습니다"
 msgid "{commitCount}개 선택"
 msgstr "{commitCount}개 선택"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:88
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:112
 msgid "system 문장은 저장할 때의 옵션 표 내용을 그대로 담아요. 말투·유형 문구를 나중에 고쳐도 이 문장 속 표는 바뀌지 않아요."
 msgstr "system 문장은 저장할 때의 옵션 표 내용을 그대로 담아요. 말투·유형 문구를 나중에 고쳐도 이 문장 속 표는 바뀌지 않아요."
 
@@ -2055,7 +2065,7 @@ msgstr "추가"
 msgid "기본 옵션 펼치기"
 msgstr "기본 옵션 펼치기"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:59
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:76
 msgid "키"
 msgstr "키"
 
@@ -2098,7 +2108,7 @@ msgstr "이용이 제한된 계정이라 로그인할 수 없어요."
 msgid "초안 편집"
 msgstr "초안 편집"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:169
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:191
 msgid "이전 내용"
 msgstr "이전 내용"
 
@@ -2142,7 +2152,7 @@ msgstr "커밋을 하나 이상 선택하거나 코드를 직접 넣어주세요
 msgid "필수 항목"
 msgstr "필수 항목"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:71
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:73
 msgid "AI 프롬프트 목록"
 msgstr "AI 프롬프트 목록"
 
@@ -2186,7 +2196,7 @@ msgstr "임시 비밀번호로 로그인했어요. 새 비밀번호를 정해야
 msgid "저장소/커밋 내역"
 msgstr "저장소/커밋 내역"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:193
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:215
 msgid "이 내용을 수정본으로 저장해요. 지금 수정본은 이력에 남아요."
 msgstr "이 내용을 수정본으로 저장해요. 지금 수정본은 이력에 남아요."
 
@@ -2208,7 +2218,7 @@ msgid "코드 복사"
 msgstr "코드 복사"
 
 #. placeholder {0}: PROMPT_MAX_LENGTH.toLocaleString('en-US')
-#: components/admin/prompt-editor-form.tsx:69
+#: components/admin/prompt-editor-form.tsx:79
 msgid "{0}자까지 저장할 수 있어요."
 msgstr "{0}자까지 저장할 수 있어요."
 
@@ -2263,7 +2273,7 @@ msgstr "삭제됨"
 msgid "편집 서식"
 msgstr "편집 서식"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:191
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:213
 #: components/studio/editor-toolbar.tsx:324
 msgid "적용"
 msgstr "적용"
@@ -2385,7 +2395,7 @@ msgstr "AI 작성 중에는 게시할 수 없습니다"
 msgid "커밋으로 쓰는 AI 기술 블로그 초안"
 msgstr "커밋으로 쓰는 AI 기술 블로그 초안"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:82
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:30
 msgid "기본값 사용"
 msgstr "기본값 사용"
 
@@ -2409,7 +2419,7 @@ msgstr "본문에 제목을 넣어 주세요"
 msgid "이름에는 탭이나 줄바꿈을 넣을 수 없습니다."
 msgstr "이름에는 탭이나 줄바꿈을 넣을 수 없습니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:62
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:79
 msgid "수정 시각"
 msgstr "수정 시각"
 
@@ -2417,7 +2427,7 @@ msgstr "수정 시각"
 msgid "글 보기"
 msgstr "글 보기"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:146
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:168
 msgid "되돌리기"
 msgstr "되돌리기"
 
@@ -2453,7 +2463,7 @@ msgstr "Github 계정으로 시작하세요."
 msgid "이번 주 사용률"
 msgstr "이번 주 사용률"
 
-#: components/admin/prompt-editor-form.tsx:83
+#: components/admin/prompt-editor-form.tsx:93
 msgid "꼭 들어 있어야 하는 문자열이 빠졌어요. 아래 항목을 다시 넣어 주세요."
 msgstr "꼭 들어 있어야 하는 문자열이 빠졌어요. 아래 항목을 다시 넣어 주세요."
 
@@ -2598,7 +2608,7 @@ msgstr "문단 스타일"
 msgid "게시 · 공개"
 msgstr "게시 · 공개"
 
-#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:112
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:136
 msgid "없어요"
 msgstr "없어요"
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { Trans } from '@lingui/react/macro';
 import {
   ADMIN_ERROR_CLASS,
@@ -33,6 +33,15 @@ const PromptEditorForm = ({
   initialContent,
 }: PromptEditorFormProps) => {
   const [state, formAction] = useActionState(savePromptOverride, EMPTY_STATE);
+  const [content, setContent] = useState(initialContent);
+  const [syncedContent, setSyncedContent] = useState(initialContent);
+
+  // 입력 칸은 제어 컴포넌트로 두어 거부된 저장에도 입력이 유지됨
+  // 서버 값이 바뀔 때(저장 성공·되돌리기·이력 복원)만 새 값으로 맞춤
+  if (initialContent !== syncedContent) {
+    setSyncedContent(initialContent);
+    setContent(initialContent);
+  }
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
@@ -40,7 +49,8 @@ const PromptEditorForm = ({
       <input type="hidden" name="key" value={promptKey} />
       <textarea
         name="content"
-        defaultValue={initialContent}
+        value={content}
+        onChange={(event) => setContent(event.target.value)}
         rows={24}
         spellCheck={false}
         className={`${ADMIN_TEXTAREA_CLASS} font-mono`}
@@ -52,7 +62,7 @@ const PromptEditorForm = ({
         >
           <Trans>저장</Trans>
         </SubmitButton>
-        {state.saved ? (
+        {state.saved && content === syncedContent ? (
           <span role="status" className="text-[13px] text-ink-muted">
             <Trans>저장했어요</Trans>
           </span>
