@@ -208,13 +208,24 @@ export default async function AdminUserDetailPage({
               hidden={hidden}
             />
           </div>
-          <form action={changeUserPlan} className="flex max-w-md gap-2">
+          {/* 등급이 바뀌면 폼을 새로 그려 선택값을 현재 등급으로 맞춤 (액션 뒤 폼 초기화가 처음 값으로 되돌리는 것을 막음) */}
+          <form
+            key={user.role}
+            action={changeUserPlan}
+            className="flex max-w-md gap-2"
+          >
             <input type="hidden" name="userId" value={user.id} />
             <select
               name="role"
               defaultValue={user.role}
               className={ADMIN_INPUT_CLASS}
             >
+              {/* 정책에 없는 등급이면 첫 항목으로 조용히 바뀌지 않도록 현재 값을 보여 줌 */}
+              {detail.plans.includes(user.role) ? null : (
+                <option value={user.role} disabled>
+                  {user.role}
+                </option>
+              )}
               {detail.plans.map((plan) => (
                 <option key={plan} value={plan}>
                   {plan}
