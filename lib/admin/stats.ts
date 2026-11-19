@@ -76,14 +76,14 @@ export const formatElapsed = (ms: number): string => {
 
 /**
  * 조치 기록 상세의 한 줄 요약
- * - reason, role 만 문자열일 때 보여 줌 (그 밖의 키와 객체는 절대 그대로 내보내지 않음)
+ * - reason, role, title, key, op 만 문자열일 때 보여 줌 (그 밖의 키와 객체는 절대 그대로 내보내지 않음)
  */
 export const summarizeActionDetail = (
   detail: Record<string, unknown>,
 ): string => {
   const parts: string[] = [];
 
-  for (const key of ['reason', 'role', 'title']) {
+  for (const key of ['reason', 'role', 'title', 'key', 'op']) {
     const value = detail[key];
 
     if (typeof value === 'string' && value.trim() !== '') {

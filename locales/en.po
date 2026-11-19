@@ -8,14 +8,16 @@ msgstr ""
 "Language: en\n"
 
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:188
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:202
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:201
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:266
 msgid "관련 조치 기록"
 msgstr "Related action log"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:51
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:178
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:259
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:201
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:215
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:214
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:279
 msgid "삭제된 어드민"
 msgstr "Deleted admin"
@@ -36,9 +38,10 @@ msgstr "No jobs yet"
 msgid "넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요."
 msgstr "The code differs from what you first added. Please add the code again."
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:167
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:249
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:192
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:206
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:205
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:75
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:240
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:270
@@ -54,7 +57,7 @@ msgstr "Open menu"
 msgid "이메일 또는 GitHub 아이디 검색"
 msgstr "Search by email or GitHub username"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:138
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:137
 msgid "사용 토큰"
 msgstr "Tokens used"
 
@@ -80,6 +83,10 @@ msgstr "Visibility"
 #: components/main/sample-commits.ts:21
 msgid "cleanup에서 disconnect() 호출"
 msgstr "Call disconnect() in cleanup"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:163
+msgid "수정 이력"
+msgstr "Revision history"
 
 #: components/studio/draft-sidebar.tsx:178
 msgid "초안을 삭제하지 못했습니다. 다시 시도해주세요."
@@ -202,6 +209,10 @@ msgstr "Remaining"
 msgid "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
 msgstr "You've used all of this week's allowance. It resets on {resetsAt}."
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:120
+msgid "기본 문장"
+msgstr "Default text"
+
 #: app/[lang]/sign-in/page.tsx:94
 msgid "로그인 중 문제가 발생했습니다. ({error})"
 msgstr "Something went wrong while signing in. ({error})"
@@ -225,7 +236,7 @@ msgstr "Search"
 msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 구현 과정과 관찰 로직을 정리하고, 게시 전 확인할 점을 살펴봅니다."
 msgstr "Images now load as they enter the viewport. This post covers the implementation and observer logic, and what to check before publishing."
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:113
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:112
 msgid "오류 코드"
 msgstr "Error code"
 
@@ -292,7 +303,7 @@ msgstr "Branch changed. Reloading commit history."
 msgid "연동"
 msgstr "Connect"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:160
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:159
 msgid "초안 반영"
 msgstr "Applied to draft"
 
@@ -367,6 +378,11 @@ msgstr "The image resolution is too large."
 msgid "새 초안"
 msgstr "New draft"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:171
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:190
+msgid "다시 적용"
+msgstr "Reapply"
+
 #: components/studio/draft-sidebar.tsx:174
 msgid "AI 가 작성 중인 초안은 작성이 끝난 뒤 삭제할 수 있습니다."
 msgstr "You can delete this draft after the AI finishes writing it."
@@ -401,10 +417,18 @@ msgstr "Commit code and code you enter directly are sent to a third-party LLM AP
 msgid "아이디와 다른 비밀번호를 써 주세요."
 msgstr "Use a password different from your ID."
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:72
+msgid "새 작성 요청을 다시 받아요."
+msgstr "New draft requests will be accepted again."
+
 #: app/[lang]/dashboard/repositories/page.tsx:60
 #: components/onboarding/repository-step.tsx:23
 msgid "저장소와 브랜치를<0/>선택하세요."
 msgstr "Select a repository<0/>and a branch."
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:203
+msgid "수정 이력이 없어요"
+msgstr "No revisions yet"
 
 #: components/studio/draft-sidebar.tsx:165
 msgid "세션"
@@ -446,8 +470,8 @@ msgstr "Completed"
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:251
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:136
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:194
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:174
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:208
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:173
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:207
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:163
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:272
 msgid "조치"
@@ -483,7 +507,7 @@ msgstr "Start simply, generate drafts, and keep writing consistently."
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:102
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:93
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:110
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:117
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:116
 #: components/posts/filters/language-filter.tsx:58
 msgid "언어"
 msgstr "Language"
@@ -525,7 +549,7 @@ msgstr "Couldn't refine this blank. Please try again."
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:267
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:206
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:220
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:219
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:284
 msgid "조치 기록이 없어요"
 msgstr "No admin actions yet"
@@ -536,9 +560,10 @@ msgstr "No admin actions yet"
 msgid "전체"
 msgstr "All"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:60
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:208
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:117
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:109
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:108
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:80
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:242
 #: app/[lang]/admin/[adminKey]/(console)/users/page.tsx:84
@@ -562,7 +587,7 @@ msgstr "How was it implemented?"
 msgid "커밋 내역을 불러오지 못했습니다."
 msgstr "Couldn't load the commit history."
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:105
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:104
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:77
 #: components/studio/draft-status.ts:22
 msgid "초안"
@@ -648,6 +673,10 @@ msgstr "Enter code directly"
 msgid "이름"
 msgstr "Name"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:148
+msgid "수정본을 지우고 기본 문장을 써요. 지금 수정본은 이력에 남아요."
+msgstr "This removes the override and uses the default text. The current override stays in the history."
+
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:165
 #: components/studio/draft-list-item.tsx:79
 #: components/studio/draft-list-item.tsx:153
@@ -667,6 +696,10 @@ msgstr "Reason"
 msgid "편집기에서 나가려면 Esc 다음 Tab 을 누르세요."
 msgstr "To leave the editor, press Esc and then Tab."
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:71
+msgid "재개"
+msgstr "Resume"
+
 #: components/studio/commit-sidebar.tsx:88
 msgid "커밋 내역을 불러오는 중..."
 msgstr "Loading commit history..."
@@ -678,6 +711,10 @@ msgstr "Code from this private repository will be published as-is in the post."
 #: components/admin/refresh-button.tsx:31
 msgid "마지막으로 읽은 시각 {readAt}"
 msgstr "Last read at {readAt}"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:126
+msgid "수정 문장"
+msgstr "Override text"
 
 #: components/studio/clarification-card.tsx:241
 msgid "작성 전 질문"
@@ -708,6 +745,8 @@ msgstr "Get started right away."
 msgid "목록으로"
 msgstr "Back to list"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:30
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:49
 #: components/admin/admin-sidebar.tsx:31
 msgid "AI 프롬프트"
 msgstr "AI prompts"
@@ -773,7 +812,7 @@ msgstr "Implementing lazy image loading with IntersectionObserver"
 msgid "제목 5"
 msgstr "Heading 5"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:164
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:163
 msgid "숨긴 시각"
 msgstr "Hidden at"
 
@@ -884,6 +923,10 @@ msgstr "Queued"
 msgid "AI가 작성한 초안입니다. 코드와 설명을 검토한 후 게시하세요."
 msgstr "This draft was written by AI. Review the code and explanations before publishing."
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:83
+msgid "기본값 사용 중"
+msgstr "Using the default"
+
 #: components/studio/publish-dialog.tsx:30
 msgid "게시하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't publish. Please try again."
@@ -901,7 +944,7 @@ msgstr "Commit code and code added with 'Enter code directly' are never stored a
 msgid "스크롤할 때 이미지가 정상적으로 나타나는지, 화면을 벗어난 뒤 관찰이 정리되는지 확인해야 합니다. 실제 성능 변화는 별도의 측정이 필요합니다."
 msgstr "Check that images appear correctly while scrolling and that observers are cleaned up once they leave the viewport. Actual performance gains need to be measured separately."
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:73
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:72
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:55
 #: components/admin/admin-sidebar.tsx:30
 #: components/studio/repository-settings-panel.tsx:552
@@ -960,7 +1003,7 @@ msgstr "Processing..."
 msgid "AI 작성이 끝난 뒤에 링크를 추가할 수 있습니다."
 msgstr "You can add links after the AI finishes writing."
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:77
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:76
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:86
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:106
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:248
@@ -1014,10 +1057,20 @@ msgstr "Disconnect repository"
 msgid "{label} 메뉴"
 msgstr "{label} menu"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:145
+msgid "기본값으로 되돌리기"
+msgstr "Reset to default"
+
 #: components/main/main-header.tsx:33
 #: components/main/mobile-menu.tsx:153
 msgid "주요 메뉴"
 msgstr "Main menu"
+
+#. placeholder {0}: state.updatedByLoginId ?? i18n._(msg`삭제된 어드민`)
+#. placeholder {1}: formatDateTime(state.updatedAt, locale)
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:49
+msgid "마지막 변경: {0} · {1}"
+msgstr "Last changed: {0} · {1}"
 
 #: components/studio/prompt-composer.tsx:241
 msgid "+{pcRest}개"
@@ -1051,6 +1104,10 @@ msgstr "AI draft · Review before publishing"
 msgid "등급 변경"
 msgstr "Change plan"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:98
+msgid "꼭 들어 있어야 하는 문자열"
+msgstr "Required strings"
+
 #: components/studio/commit-sidebar.tsx:134
 msgid "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한과 추적 브랜치를 확인해주세요."
 msgstr "Can't access this repository. Check the GitHub App's repository access and the tracked branch."
@@ -1067,7 +1124,7 @@ msgstr "No matching users"
 msgid "읽는 중"
 msgstr "Reading"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:141
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:140
 msgid "사용 비용"
 msgstr "Cost used"
 
@@ -1082,6 +1139,10 @@ msgstr "Couldn't delete your account. Please try again."
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:236
 msgid "최근 작업"
 msgstr "Recent jobs"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:55
+msgid "아직 바꾼 적이 없어요"
+msgstr "Never changed"
 
 #: components/admin/refresh-button.tsx:44
 msgid "새로고침"
@@ -1102,6 +1163,10 @@ msgstr "The password confirmation doesn't match."
 #: components/studio/prompt-options.tsx:242
 msgid "더 보기"
 msgstr "More"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:82
+msgid "중지"
+msgstr "Pause"
 
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:202
 msgid "지금 이후에 만든 작업만 이번 주 사용량으로 셈해요. 작업 기록은 그대로 남아요."
@@ -1156,6 +1221,12 @@ msgstr "Get started with GitHub"
 msgid "GitHub 로그인에 실패했습니다."
 msgstr "GitHub sign-in failed."
 
+#. placeholder {0}: data.editorLoginId ?? '-'
+#. placeholder {1}: data.updatedAt ? formatDateTime(data.updatedAt, locale) : '-'
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:78
+msgid "수정됨 · {0} · {1}"
+msgstr "Modified · {0} · {1}"
+
 #: components/main/steps-section.tsx:15
 msgid "AI 초안 작성"
 msgstr "Write an AI draft"
@@ -1163,6 +1234,10 @@ msgstr "Write an AI draft"
 #: components/studio/prompt-composer.tsx:85
 msgid "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "Couldn't find the draft or repository. Refresh the page and try again."
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:39
+msgid "AI 작성이 정상으로 동작 중이에요"
+msgstr "AI drafting is running normally"
 
 #: components/admin/login-form.tsx:20
 msgid "로그인을 여러 번 실패해 잠시 잠겼어요. 15분 뒤에 다시 시도해 주세요."
@@ -1213,10 +1288,14 @@ msgstr "The installation request has expired or is invalid. Please try again."
 msgid "새 비밀번호"
 msgstr "New password"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:84
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:83
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:78
 msgid "요청 문구"
 msgstr "Request"
+
+#: components/admin/prompt-editor-form.tsx:53
+msgid "저장"
+msgstr "Save"
 
 #: components/dashboard/status-message.tsx:16
 msgid "GitHub App 이 설치되었습니다. 대시보드에 추가할 저장소를 선택하세요."
@@ -1276,6 +1355,10 @@ msgstr "Maybe later"
 msgid "계속하시면 <0>이용약관</0> 및 <1>개인정보처리방침</1>에 동의하게 됩니다."
 msgstr "By continuing, you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:37
+msgid "지금 AI 작성이 멈춰 있어요"
+msgstr "AI drafting is paused"
+
 #: components/onboarding/install-step.tsx:58
 msgid "Github App 에서<0/>저장소 권한을 승인해주세요."
 msgstr "Approve repository access<0/>in the GitHub App."
@@ -1292,6 +1375,10 @@ msgstr "(done)"
 #: components/admin/login-form.tsx:61
 msgid "비밀번호"
 msgstr "Password"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:80
+msgid "수정됨"
+msgstr "Modified"
 
 #: components/main/steps-section.tsx:16
 msgid "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
@@ -1324,6 +1411,10 @@ msgstr "Turn your work into tech blog drafts and publish them anywhere."
 #: components/studio/prompt-composer.tsx:506
 msgid "AI 가 초안을 작성하는 중..."
 msgstr "AI is writing the draft..."
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:84
+msgid "새 작성 요청을 모두 거부해요. 사유는 기록에 남아요."
+msgstr "All new draft requests will be rejected. The reason is kept in the log."
 
 #: components/studio/repository-settings-panel.tsx:286
 msgid "내역을 더 불러오는 중..."
@@ -1396,9 +1487,10 @@ msgstr "AI usage"
 msgid "최근 조치 기록"
 msgstr "Recent admin actions"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:168
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:250
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:193
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:207
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:206
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:271
 #: app/[lang]/admin/[adminKey]/layout.tsx:8
 #: components/admin/admin-header.tsx:35
@@ -1412,6 +1504,10 @@ msgstr "Anyone can find the post in lists and search."
 #: components/studio/prompt-options.tsx:235
 msgid "필수 항목 더 보기"
 msgstr "More required blocks"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:70
+msgid "AI 작성 재개"
+msgstr "Resume AI drafting"
 
 #: components/studio/generation-progress.tsx:40
 msgid "이용이 제한된 계정이에요."
@@ -1445,7 +1541,7 @@ msgstr "The published post is deleted too, and its public address will stop work
 msgid "시행일"
 msgstr "Effective"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:127
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:126
 #: components/studio/reference-links.tsx:115
 msgid "참고 링크"
 msgstr "Reference links"
@@ -1482,16 +1578,20 @@ msgstr "Sort"
 msgid "직접 입력"
 msgstr "Write my own"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:180
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:179
 msgid "내역 숨기기"
 msgstr "Hide entry"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:253
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:195
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:209
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:208
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:273
 msgid "요약"
 msgstr "Summary"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:81
+msgid "AI 작성 중지"
+msgstr "Pause AI drafting"
 
 #: components/dashboard/repository-card.tsx:49
 msgid "공개 저장소"
@@ -1576,11 +1676,15 @@ msgstr "Personal public repository · main"
 msgid "해당 게시글은 임시 조치된 게시글입니다."
 msgstr "This post has been temporarily restricted."
 
+#: components/admin/prompt-editor-form.tsx:77
+msgid "지금 저장된 내용과 같아요."
+msgstr "This is the same as what is saved now."
+
 #: components/studio/prompt-options.tsx:52
 msgid "Pro 이상"
 msgstr "Pro and up"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:152
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:151
 msgid "시작"
 msgstr "Started"
 
@@ -1597,6 +1701,14 @@ msgstr "Resets {resetTime}"
 msgid "이 부분은 자세한 설명이 필요합니다"
 msgstr "This part needs a detailed explanation"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:33
+msgid "Lambda 가 아직 기본값을 올리지 않았어요."
+msgstr "The Lambda has not published the defaults yet."
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:59
+msgid "멈추면 새 작성 요청이 \"잠시 멈췄어요\" 로 거부돼요. 이미 진행 중인 작업은 그대로 끝나요."
+msgstr "While paused, new draft requests are rejected as \"temporarily paused\". Jobs already running will finish normally."
+
 #: components/studio/account-settings-panel.tsx:145
 msgid "GitHub 프로필"
 msgstr "GitHub profile"
@@ -1604,6 +1716,10 @@ msgstr "GitHub profile"
 #: components/onboarding/install-step.tsx:100
 msgid "Github App 인증"
 msgstr "Authorize GitHub App"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:181
+msgid "기본값"
+msgstr "Default"
 
 #: lib/seo/copy.ts:19
 msgid "커밋 선택 · AI 초안 작성 · 에디터 수정 · 게시와 공유"
@@ -1654,7 +1770,7 @@ msgstr "Used"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:176
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:207
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:116
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:115
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:79
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:241
 #: components/studio/prompt-options.tsx:38
@@ -1681,6 +1797,7 @@ msgstr "All languages"
 msgid "강의"
 msgstr "Tutorial"
 
+#: components/admin/prompt-editor-form.tsx:51
 #: components/studio/draft-editor.tsx:640
 msgid "저장 중..."
 msgstr "Saving..."
@@ -1697,6 +1814,10 @@ msgstr "Title"
 msgid "답변 대기"
 msgstr "Awaiting answer"
 
+#: components/admin/prompt-editor-form.tsx:64
+msgid "내용이 비어 있어요."
+msgstr "The text is empty."
+
 #: components/studio/editor-toolbar.tsx:40
 msgid "제목 1"
 msgstr "Heading 1"
@@ -1705,7 +1826,7 @@ msgstr "Heading 1"
 msgid "코드 하나는 {MAX_CODE_INPUT_LINES}줄, {maxChars}자까지 넣을 수 있습니다."
 msgstr "Each code entry can have up to {MAX_CODE_INPUT_LINES} lines and {maxChars} characters."
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:155
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:154
 msgid "종료"
 msgstr "Finished"
 
@@ -1734,6 +1855,10 @@ msgstr "Less than 1% of weekly usage"
 msgid "제거"
 msgstr "Remove"
 
+#: components/admin/prompt-editor-form.tsx:57
+msgid "저장했어요"
+msgstr "Saved"
+
 #: components/main/sample-draft-editor.tsx:16
 msgid "무엇을 확인할까요?"
 msgstr "What should you check?"
@@ -1758,7 +1883,7 @@ msgstr "Admin sign-in"
 msgid "게시 메뉴"
 msgstr "Publish menu"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:181
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:180
 msgid "숨기기"
 msgstr "Hide"
 
@@ -1799,6 +1924,10 @@ msgstr "Author"
 msgid "내역을 더 불러오지 못했습니다."
 msgstr "Couldn't load more history."
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:61
+msgid "마지막 수정자"
+msgstr "Last editor"
+
 #: components/studio/commit-sidebar.tsx:122
 msgid "다시 로그인"
 msgstr "Sign in again"
@@ -1809,7 +1938,7 @@ msgstr "{emptyBlankCount, plural, one {# blank} other {# blanks}}"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:88
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:206
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:97
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:96
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:76
 #: app/[lang]/admin/[adminKey]/(console)/users/page.tsx:56
 #: components/admin/admin-sidebar.tsx:28
@@ -1821,7 +1950,7 @@ msgstr "Users"
 msgid "선택한 커밋"
 msgstr "Selected commits"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:194
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:193
 msgid "끝나지 않은 작업은 숨길 수 없어요"
 msgstr "Jobs that haven't finished can't be hidden"
 
@@ -1882,7 +2011,7 @@ msgstr "This plan has no usage policy"
 msgid "조건에 맞는 내역이 없어요"
 msgstr "No entries match"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:149
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:148
 msgid "만든 시각"
 msgstr "Created"
 
@@ -1899,6 +2028,10 @@ msgstr "Copied"
 msgid "{commitCount}개 선택"
 msgstr "{commitCount} selected"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:88
+msgid "system 문장은 저장할 때의 옵션 표 내용을 그대로 담아요. 말투·유형 문구를 나중에 고쳐도 이 문장 속 표는 바뀌지 않아요."
+msgstr "System text embeds the option table as it was when saved. Editing the tone or type wording later does not change the table inside this text."
+
 #: components/studio/publish-actions.tsx:275
 #: components/studio/publish-actions.tsx:299
 #: components/studio/publish-actions.tsx:303
@@ -1909,7 +2042,7 @@ msgstr "Unpublish"
 msgid "사용량 약 {ratio}배"
 msgstr "About {ratio}× usage"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:93
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:92
 msgid "작업 정보"
 msgstr "Job details"
 
@@ -1921,6 +2054,10 @@ msgstr "Add"
 #: components/studio/prompt-options.tsx:405
 msgid "기본 옵션 펼치기"
 msgstr "Expand default options"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:59
+msgid "키"
+msgstr "Key"
 
 #: components/studio/draft-editor.tsx:453
 #: lib/generation/blank-questions.ts:14
@@ -1961,6 +2098,10 @@ msgstr "This account has been restricted and can't sign in."
 msgid "초안 편집"
 msgstr "Draft editor"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:169
+msgid "이전 내용"
+msgstr "Previous text"
+
 #: components/studio/generation-progress.tsx:39
 msgid "지금은 AI 작성을 잠시 멈췄어요. 잠시 후 다시 시도해 주세요."
 msgstr "AI writing is temporarily paused. Please try again later."
@@ -1972,7 +2113,7 @@ msgstr "AI writing is temporarily paused. Please try again later."
 msgid "비밀번호 변경"
 msgstr "Change password"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:119
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:118
 msgid "글 유형"
 msgstr "Post type"
 
@@ -1996,10 +2137,14 @@ msgstr "Answer and write"
 msgid "커밋을 하나 이상 선택하거나 코드를 직접 넣어주세요."
 msgstr "Select at least one commit or enter code directly."
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:121
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:120
 #: components/studio/prompt-options.tsx:200
 msgid "필수 항목"
 msgstr "Required blocks"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:71
+msgid "AI 프롬프트 목록"
+msgstr "AI prompt list"
 
 #: components/onboarding/draft-example.tsx:41
 msgid "실제 데이터가 아닌 예시입니다"
@@ -2025,7 +2170,7 @@ msgstr "Example"
 msgid "AI 로 다듬기"
 msgstr "Refine with AI"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:108
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:107
 msgid "종류"
 msgstr "Kind"
 
@@ -2041,6 +2186,10 @@ msgstr "You signed in with a temporary password. Set a new password to use the c
 msgid "저장소/커밋 내역"
 msgstr "Repositories & commits"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:193
+msgid "이 내용을 수정본으로 저장해요. 지금 수정본은 이력에 남아요."
+msgstr "This saves this text as the override. The current override stays in the history."
+
 #: components/dashboard/repository-list.tsx:102
 msgid "저장소 목록을 불러오지 못했습니다."
 msgstr "Couldn't load repositories."
@@ -2049,7 +2198,7 @@ msgstr "Couldn't load repositories."
 msgid "홈으로 이동"
 msgstr "Go to home"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:120
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:119
 #: components/studio/prompt-options.tsx:37
 msgid "길이"
 msgstr "Length"
@@ -2057,6 +2206,11 @@ msgstr "Length"
 #: components/studio/draft-editor.tsx:444
 msgid "코드 복사"
 msgstr "Copy code"
+
+#. placeholder {0}: PROMPT_MAX_LENGTH.toLocaleString('en-US')
+#: components/admin/prompt-editor-form.tsx:69
+msgid "{0}자까지 저장할 수 있어요."
+msgstr "You can save up to {0} characters."
 
 #: components/studio/reference-link-dialog.tsx:130
 #: components/studio/reference-links.tsx:110
@@ -2087,6 +2241,7 @@ msgstr "Filters"
 msgid "사용량을 확인할 수 없습니다."
 msgstr "Usage isn't available."
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:31
 #: components/admin/admin-sidebar.tsx:32
 msgid "AI 제어"
 msgstr "AI control"
@@ -2099,7 +2254,7 @@ msgstr "Why the change?"
 msgid "이미지는 한 장에 5MB 까지 넣을 수 있습니다"
 msgstr "Each image can be up to 5MB."
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:106
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:105
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:101
 msgid "삭제됨"
 msgstr "Deleted"
@@ -2108,11 +2263,12 @@ msgstr "Deleted"
 msgid "편집 서식"
 msgstr "Formatting"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:191
 #: components/studio/editor-toolbar.tsx:324
 msgid "적용"
 msgstr "Apply"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:118
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:117
 #: components/studio/prompt-options.tsx:35
 msgid "말투"
 msgstr "Tone"
@@ -2229,6 +2385,10 @@ msgstr "You can't publish while AI is writing."
 msgid "커밋으로 쓰는 AI 기술 블로그 초안"
 msgstr "AI tech blog drafts from your commits"
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:82
+msgid "기본값 사용"
+msgstr "Using default"
+
 #: components/studio/draft-editor.tsx:466
 msgid "지우기"
 msgstr "Remove"
@@ -2249,9 +2409,17 @@ msgstr "Please add a title to the body."
 msgid "이름에는 탭이나 줄바꿈을 넣을 수 없습니다."
 msgstr "Names cannot contain tabs or line breaks."
 
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:62
+msgid "수정 시각"
+msgstr "Modified at"
+
 #: components/studio/publish-actions.tsx:256
 msgid "글 보기"
 msgstr "View post"
+
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:146
+msgid "되돌리기"
+msgstr "Reset"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:102
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:74
@@ -2273,7 +2441,7 @@ msgstr "Temporary"
 msgid "글의 방향을 정하려면 조금 더 알려 주세요"
 msgstr "Tell us a bit more to set the direction of the post"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:144
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:143
 msgid "예상 비용"
 msgstr "Estimated cost"
 
@@ -2285,7 +2453,11 @@ msgstr "Get started with your GitHub account."
 msgid "이번 주 사용률"
 msgstr "Usage this week"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:183
+#: components/admin/prompt-editor-form.tsx:83
+msgid "꼭 들어 있어야 하는 문자열이 빠졌어요. 아래 항목을 다시 넣어 주세요."
+msgstr "Some required strings are missing. Please add the items below back in."
+
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:182
 msgid "사용자 화면에서 이 내역이 빠져요. 사용량과 통계에는 그대로 남아요."
 msgstr "This entry disappears from the user's view. It still counts toward usage and statistics."
 
@@ -2328,7 +2500,7 @@ msgstr "Blank"
 msgid "가입일"
 msgstr "Joined"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:124
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:123
 msgid "커밋 SHA"
 msgstr "Commit SHA"
 
@@ -2378,6 +2550,11 @@ msgstr "Your GitHub authorization has expired. Please sign in again."
 msgid "기본 옵션"
 msgstr "Default options"
 
+#. placeholder {0}: state.reason
+#: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:44
+msgid "사유: {0}"
+msgstr "Reason: {0}"
+
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:95
 msgid "최근 7일 새 사용자"
 msgstr "New users in the last 7 days"
@@ -2421,7 +2598,11 @@ msgstr "Paragraph style"
 msgid "게시 · 공개"
 msgstr "Published · Public"
 
-#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:135
+#: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:112
+msgid "없어요"
+msgstr "None"
+
+#: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:134
 msgid "사용량"
 msgstr "Usage"
 

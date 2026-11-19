@@ -99,6 +99,12 @@ describe('summarizeActionDetail', () => {
     );
   });
 
+  it('프롬프트 수정 기록은 키와 작업 종류를 보여 줌', () => {
+    expect(
+      summarizeActionDetail({ locale: 'ko', key: 'plan.system', op: 'save' }),
+    ).toBe('plan.system · save');
+  });
+
   it('긴 사유는 잘라 냄', () => {
     const result = summarizeActionDetail({ reason: 'a'.repeat(200) });
     expect(result.length).toBeLessThanOrEqual(61);

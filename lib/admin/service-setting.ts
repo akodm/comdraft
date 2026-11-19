@@ -2,6 +2,7 @@ import 'server-only';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import {
+  adminAccount,
   AI_GENERATION_SETTING_KEY,
   serviceSetting,
   type AiGenerationSetting,
@@ -46,4 +47,30 @@ export async function getAiGenerationSetting(): Promise<AiGenerationSetting> {
     .limit(1);
 
   return parseAiGenerationSetting(row?.value);
+}
+
+export interface AiGenerationState extends AiGenerationSetting {
+  // 마지막으로 바꾼 어드민과 시각 (한 번도 안 바꿨으면 null)
+  updatedByLoginId: string | null;
+  updatedAt: Date | null;
+}
+
+// AI 제어 화면용: 설정과 마지막 변경자·시각
+export async function getAiGenerationState(): Promise<AiGenerationState> {
+  const [row] = await db
+    .select({
+      value: serviceSetting.value,
+      updatedAt: serviceSetting.updatedAt,
+      loginId: adminAccount.loginId,
+    })
+    .from(serviceSetting)
+    .leftJoin(adminAccount, eq(adminAccount.id, serviceSetting.updatedBy))
+    .where(eq(serviceSetting.key, AI_GENERATION_SETTING_KEY))
+    .limit(1);
+
+  return {
+    ...parseAiGenerationSetting(row?.value),
+    updatedByLoginId: row?.loginId ?? null,
+    updatedAt: row?.updatedAt ?? null,
+  };
 }
