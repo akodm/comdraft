@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createSessionToken, hashSessionToken } from './token';
+import { createSessionToken, hashSessionToken } from '@/lib/admin/token';
 
 describe('세션 토큰', () => {
   it('토큰의 해시가 hashSessionToken 과 같음', () => {

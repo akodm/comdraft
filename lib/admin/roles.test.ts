@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { type AdminAction, ADMIN_ACTIONS, canEnter, canPerform } from './roles';
+import {
+  type AdminAction,
+  ADMIN_ACTIONS,
+  canEnter,
+  canPerform,
+} from '@/lib/admin/roles';
 import type { AdminRole } from '@/lib/db/schema/admin';
 
 describe('canPerform', () => {
@@ -10,9 +15,12 @@ describe('canPerform', () => {
     ['editor', 'post.delete', false],
     ['admin', 'ai.pause', true],
     ['guest', 'view', false],
-  ] as [AdminRole, AdminAction, boolean][])('%s 의 %s 권한은 %s', (role, action, ok) => {
-    expect(canPerform(role, action)).toBe(ok);
-  });
+  ] as Array<[AdminRole, AdminAction, boolean]>)(
+    '%s 의 %s 권한은 %s',
+    (role, action, ok) => {
+      expect(canPerform(role, action)).toBe(ok);
+    },
+  );
 
   it('guest 는 어떤 액션도 못 함', () => {
     expect(ADMIN_ACTIONS.some((a) => canPerform('guest', a))).toBe(false);
@@ -24,7 +32,12 @@ describe('canPerform', () => {
 
   it('editor 는 admin 전용 액션만 못 함', () => {
     const denied = ADMIN_ACTIONS.filter((a) => !canPerform('editor', a));
-    expect(denied).toEqual(['post.delete', 'history.delete', 'ai.pause', 'ai.resume']);
+    expect(denied).toEqual([
+      'post.delete',
+      'history.delete',
+      'ai.pause',
+      'ai.resume',
+    ]);
   });
 });
 
