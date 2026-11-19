@@ -38,3 +38,68 @@ describe('사용자 화면 조회', () => {
     expect(toSql(captured.where!)).toContain('"deleted_at" is null');
   });
 });
+
+describe('reserveGenerationSlot', () => {
+  // 실행 순서대로 SQL 과 값을 붙잡는 가짜 트랜잭션 (count 결과는 차례로 돌려줌)
+  const setup = (totals: number[]) => {
+    const calls: Array<{ kind: string; sql: string; params: unknown[] }> = [];
+    const record = (kind: string, query: SQL) => {
+      const { sql, params } = new PgDialect().sqlToQuery(query);
+      calls.push({ kind, sql, params });
+    };
+    const tx = {
+      execute: async (query: SQL) => {
+        record('execute', query);
+        return [];
+      },
+      select: () => {
+        const chain = {
+          from: () => chain,
+          where: async (condition: SQL) => {
+            record('count', condition);
+            return [{ total: totals.shift() ?? 0 }];
+          },
+        };
+        return chain;
+      },
+    };
+
+    return { tx, calls };
+  };
+
+  it('사용자 단위 advisory lock 을 먼저 잡은 뒤 시간당 수와 진행 중 수를 셈', async () => {
+    const { tx, calls } = setup([3, 1]);
+
+    await expect(jobs.reserveGenerationSlot(tx as never, 'u1')).resolves.toBe(
+      'ok',
+    );
+
+    expect(calls.map(({ kind }) => kind)).toEqual([
+      'execute',
+      'count',
+      'count',
+    ]);
+    expect(calls[0].sql).toContain('pg_advisory_xact_lock(hashtext(');
+    expect(calls[0].params).toEqual(['generation:u1']);
+    expect(calls[1].sql).toContain('"created_at" >=');
+    // 진행 중은 queued·running 만 (답변 대기는 Lambda 를 쓰지 않으므로 세지 않음)
+    expect(calls[2].sql).toContain('"status" in');
+    expect(calls[2].params).toEqual(['u1', 'queued', 'running']);
+  });
+
+  it('진행 중 작업이 2개면 too_many_active', async () => {
+    const { tx } = setup([2, 2]);
+
+    await expect(jobs.reserveGenerationSlot(tx as never, 'u1')).resolves.toBe(
+      'too_many_active',
+    );
+  });
+
+  it('시간당 요청 수가 한도면 rate_limited', async () => {
+    const { tx } = setup([20, 0]);
+
+    await expect(jobs.reserveGenerationSlot(tx as never, 'u1')).resolves.toBe(
+      'rate_limited',
+    );
+  });
+});

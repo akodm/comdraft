@@ -9,7 +9,7 @@ import { formatQuotaReset } from '@/lib/generation/quota-format';
 
 /**
  * 빈칸 AI 로 다듬기 안내 문구 (빈칸 아래에 보임)
- * - 시간당 제한·사용량·인증·서버 연결·시간 초과 안내는 작성 요청과 같은 문구
+ * - 시간당 제한·동시 진행 제한·사용량·인증·서버 연결·시간 초과 안내는 작성 요청과 같은 문구
  */
 
 export const BLANK_FILL_FAILED_MESSAGE = msg`빈칸을 다듬지 못했습니다. 다시 시도해 주세요.`;
@@ -31,6 +31,7 @@ export const getBlankFillRequestMessage = (
         formatQuotaReset(new Date(result.resetsAt), locale),
       );
     case 'rate_limited':
+    case 'too_many_active':
     case 'quota_unavailable':
     case 'github_reauth':
     case 'runner_unavailable':

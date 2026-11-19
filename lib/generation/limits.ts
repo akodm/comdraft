@@ -12,6 +12,9 @@ export const MAX_GENERATION_PROMPT_LENGTH = 4000;
 export const GENERATION_HOURLY_LIMIT = 20;
 export const GENERATION_RATE_WINDOW_MS = 60 * 60 * 1000;
 
+// 사용자당 동시에 진행할 수 있는 작업 수 (queued·running, 답변 대기는 Lambda 를 쓰지 않으므로 세지 않음)
+export const MAX_ACTIVE_GENERATIONS = 2;
+
 // 빈칸 채우기 답 최대 길이 (앞뒤 공백을 지운 뒤 1자 이상)
 export const MAX_BLANK_ANSWER_LENGTH = 1000;
 
