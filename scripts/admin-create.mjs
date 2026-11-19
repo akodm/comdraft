@@ -96,7 +96,7 @@ try {
       '로그인 주소: /<lang>/admin/<ADMIN_PATH_KEY>/login — 첫 로그인 때 비밀번호를 바꾸게 돼요.',
     );
     console.log(
-      '권한은 guest 예요. 로그인 전에 viewer 이상으로 올려야 해요 (운영 가이드 3절).',
+      '첫 로그인에서 비밀번호를 정하면 viewer 가 돼요. editor·admin 은 운영 가이드 3절대로 직접 올려 주세요.',
     );
   }
 } finally {
