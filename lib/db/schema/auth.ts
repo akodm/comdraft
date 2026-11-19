@@ -33,6 +33,15 @@ export const user = comdraftSchema.table(
     role: text('role').default('basic').notNull(),
     // 온보딩 완료 시각 (null 이면 GitHub 인증만 끝난 가입 미완료 상태 → /onboarding 으로 유도)
     onboardedAt: timestamp('onboarded_at'),
+    // 어드민이 이용을 막은 시각 (null 이면 정상, 값이 있으면 로그인과 작성 요청 차단)
+    bannedAt: timestamp('banned_at', { withTimezone: true, precision: 3 }),
+    // 이용 제한 사유 (어드민 메모)
+    banReason: text('ban_reason'),
+    // 어드민이 주간 사용량을 초기화한 시각 (이 시각 이후 사용량만 셈)
+    quotaResetAt: timestamp('quota_reset_at', {
+      withTimezone: true,
+      precision: 3,
+    }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
       .defaultNow()

@@ -183,6 +183,13 @@
       "when": 1794966704864,
       "tag": "0025_lovely_phalanx",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795066350690,
+      "tag": "0026_sweet_zeigeist",
+      "breakpoints": true
     }
   ]
 }

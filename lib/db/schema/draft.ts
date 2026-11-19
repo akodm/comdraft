@@ -166,6 +166,8 @@ export const draftPrompt = comdraftSchema.table(
     // Lambda 가 처리를 시작한 시각, 답을 받아 다시 대기열에 넣은 시각 (시간 초과 판정 기준)
     startedAt: timestamp('started_at', { withTimezone: true, precision: 3 }),
     finishedAt: timestamp('finished_at', { withTimezone: true, precision: 3 }),
+    // 어드민이 요청 기록에서 숨긴 시각 (사용량 집계에는 그대로 포함, null 이면 노출)
+    deletedAt: timestamp('deleted_at', { withTimezone: true, precision: 3 }),
     // 완료한 작업의 결과를 초안 본문에 반영한 시각 (반영은 한 번만, null 이면 아직 반영 전이라 편집 잠금)
     appliedAt: timestamp('applied_at', { withTimezone: true, precision: 3 }),
     createdAt: timestamp('created_at', { withTimezone: true, precision: 3 })
