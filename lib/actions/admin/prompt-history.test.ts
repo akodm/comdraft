@@ -69,6 +69,7 @@ vi.mock('@/lib/db', () => ({
 const { getAdminSession } = await import('@/lib/admin/session');
 const { logAdminAction } = await import('@/lib/admin/audit');
 const { revalidatePath } = await import('next/cache');
+const { isPromptSettled } = await import('@/lib/admin/prompt-history-rules');
 const { deletePromptHistory } =
   await import('@/lib/actions/admin/prompt-history');
 
@@ -142,6 +143,9 @@ describe('deletePromptHistory', () => {
     expect(params).not.toContain('queued');
     expect(params).not.toContain('running');
     expect(params).not.toContain('awaiting_input');
+    // 초안 작성만 반영 여부를 따지고, 빈칸 채우기는 완료면 숨길 수 있음
+    expect(sql).toContain('"kind" <> $');
+    expect(params).toContain('draft');
     expect(sql).toContain('"applied_at" is not null');
   });
 
@@ -169,18 +173,36 @@ describe('deletePromptHistory', () => {
   });
 
   it.each([
-    ['queued', null],
-    ['running', null],
-    ['awaiting_input', null],
-    ['completed', null],
-  ])('%s (반영 %s) 이면 job_active', async (status, appliedAt) => {
+    ['queued', 'draft'],
+    ['running', 'draft'],
+    ['awaiting_input', 'draft'],
+    ['completed', 'draft'],
+  ])('%s (%s, 반영 전) 이면 job_active', async (status, kind) => {
     dbState.updated = [];
-    dbState.selectRows = [[{ status, appliedAt, deletedAt: null }]];
+    dbState.selectRows = [[{ status, kind, appliedAt: null, deletedAt: null }]];
     await expect(deletePromptHistory(form({ jobId: 'j1' }))).rejects.toThrow(
       'job_active',
     );
     expect(logAdminAction).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it('빈칸 채우기 + 완료 + 반영 전은 숨길 수 있고, 초안 작성은 job_active', () => {
+    const base = { status: 'completed', appliedAt: null };
+
+    expect(isPromptSettled({ ...base, kind: 'fill' })).toBe(true);
+    expect(isPromptSettled({ ...base, kind: 'draft' })).toBe(false);
+    expect(
+      isPromptSettled({ ...base, kind: 'draft', appliedAt: new Date() }),
+    ).toBe(true);
+    expect(
+      isPromptSettled({ status: 'failed', kind: 'draft', appliedAt: null }),
+    ).toBe(true);
+    for (const status of ['queued', 'running', 'awaiting_input']) {
+      expect(isPromptSettled({ status, kind: 'fill', appliedAt: null })).toBe(
+        false,
+      );
+    }
   });
 
   it('이미 숨긴 내역이면 아무것도 하지 않고 성공 (멱등, 기록 없음)', async () => {

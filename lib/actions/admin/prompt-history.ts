@@ -1,12 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { and, eq, isNotNull, isNull, or } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { draftPrompt } from '@/lib/db/schema/draft';
 import { logAdminAction } from '@/lib/admin/audit';
 import { requireAdmin, requireAdminKey } from '@/lib/admin/guard';
 import { adminPath } from '@/lib/admin/path-key';
+import { settledPromptCondition } from '@/lib/admin/prompt-history-rules';
 import { getRequestLocale } from '@/lib/i18n/request';
 
 const readJobId = (formData: FormData): string => {
@@ -19,17 +20,6 @@ const readJobId = (formData: FormData): string => {
 
   return jobId;
 };
-
-/**
- * 숨겨도 되는(완전히 끝난) 작업 조건
- * - 실패했거나, 완료한 뒤 결과를 초안에 반영한 작업
- * - 진행 중·답변 대기, 완료했지만 아직 반영 전인 작업은 초안 편집을 잠그므로 제외
- */
-const settledCondition = () =>
-  or(
-    eq(draftPrompt.status, 'failed'),
-    and(eq(draftPrompt.status, 'completed'), isNotNull(draftPrompt.appliedAt)),
-  );
 
 // 목록과 해당 내역 상세를 다시 읽도록 표시
 const revalidatePrompt = async (jobId: string): Promise<void> => {
@@ -60,7 +50,7 @@ export async function deletePromptHistory(formData: FormData): Promise<void> {
       and(
         eq(draftPrompt.id, jobId),
         isNull(draftPrompt.deletedAt),
-        settledCondition(),
+        settledPromptCondition(),
       ),
     )
     .returning({ id: draftPrompt.id });

@@ -10,6 +10,7 @@ import LocalizedLink from '@/components/shared/localized-link';
 import { deletePromptHistory } from '@/lib/actions/admin/prompt-history';
 import { requireAdmin, requireAdminKey } from '@/lib/admin/guard';
 import { adminPath } from '@/lib/admin/path-key';
+import { isPromptSettled } from '@/lib/admin/prompt-history-rules';
 import { getPromptDetail } from '@/lib/admin/prompt-history-queries';
 import { canPerform } from '@/lib/admin/roles';
 import { formatMicroUsd, summarizeActionDetail } from '@/lib/admin/stats';
@@ -62,9 +63,7 @@ export default async function AdminPromptDetailPage({
   const key = requireAdminKey();
   const canHide = canPerform(admin.role, 'history.delete');
   // 숨기기는 완전히 끝난 작업만 가능 (서버 액션이 같은 조건으로 다시 확인)
-  const settled =
-    detail.status === 'failed' ||
-    (detail.status === 'completed' && detail.appliedAt !== null);
+  const settled = isPromptSettled(detail);
 
   return (
     <div className="flex flex-col gap-8">
