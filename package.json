@@ -46,6 +46,7 @@
     "@vercel/blob": "^2.8.0",
     "@vercel/speed-insights": "^2.0.0",
     "aws4fetch": "1.0.20",
+    "bcryptjs": "^3.0.3",
     "better-auth": "1.7.10",
     "dayjs": "^1.11.23",
     "drizzle-orm": "0.45.4",

@@ -74,6 +74,9 @@ importers:
       aws4fetch:
         specifier: 1.0.20
         version: 1.0.20
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
       better-auth:
         specifier: 1.7.10
         version: 1.7.10(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(kysely@0.29.6)(postgres@3.4.9))(next@16.3.5(@babel/core@7.29.13(supports-color@7.2.0))(@types/node@20.19.33)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.1.0(@types/node@20.19.33)(happy-dom@21.0.4)(vite@8.3.7(@types/node@20.19.33)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.15)))
@@ -2280,6 +2283,10 @@ packages:
   baseline-browser-mapping@2.11.35:
     resolution: {integrity: sha512-GNk8KX52CHqeNKGk8+7tZnQab/2k1t/BgrUHPKNdijzpEhF1saPQZHVKb6m5loSAxB39gyrTYw34Qf9CQ3u1qQ==}
     engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
     hasBin: true
 
   before-after-hook@4.0.0:
@@ -6168,6 +6175,8 @@ snapshots:
   baseline-browser-mapping@2.10.0: {}
 
   baseline-browser-mapping@2.11.35: {}
+
+  bcryptjs@3.0.3: {}
 
   before-after-hook@4.0.0: {}
 
