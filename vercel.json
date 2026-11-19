@@ -14,7 +14,7 @@
       "requestMethod": "GET"
     },
     "uploads-cleanup": {
-      "schedule": "0 * * * *",
+      "schedule": "0 4 * * *",
       "timezone": "Asia/Seoul",
       "path": "/api/cron/uploads-cleanup",
       "requestMethod": "GET"
