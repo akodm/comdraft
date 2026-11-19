@@ -14,10 +14,13 @@ import {
 import { getAdminPathDecision } from '@/lib/admin/path-key';
 import {
   isPostDetailPath,
-  isViewerId,
   VIEWER_COOKIE,
   VIEWER_COOKIE_MAX_AGE,
 } from '@/lib/posts/post-view';
+import {
+  createViewerCookie,
+  verifyViewerCookie,
+} from '@/lib/posts/viewer-cookie';
 
 // 로그인(세션 쿠키)이 필요한 경로 (로케일 접두사를 뗀 경로 기준)
 const PROTECTED_PATHS = ['/dashboard', '/onboarding'];
@@ -100,17 +103,23 @@ export function proxy(request: NextRequest) {
     request: { headers: requestHeaders },
   });
 
-  // 게시글 상세: 비로그인 방문자도 조회 수를 30일에 한 번만 세도록 방문자 ID 쿠키를 심음
-  // → 조회 기록 액션은 이 쿠키가 없으면 비로그인 조회를 세지 않음 (쿠키 없이 액션만 반복 호출하는 요청 차단)
+  // 게시글 상세: 비로그인 방문자도 조회 수를 30일에 한 번만 세도록 서명한 방문자 ID 쿠키를 심음
+  // → 조회 기록 액션은 서명이 맞는 쿠키가 없으면 비로그인 조회를 세지 않음
+  //   (쿠키 없이 또는 임의로 만든 쿠키로 액션만 반복 호출하는 요청 차단)
+  // → 서명이 없는 예전 쿠키나 틀린 쿠키는 없는 것으로 보고 새로 심음
   // → 페이지 GET 에만 심음: Next 는 여기서 심은 쿠키를 같은 요청의 cookies() 에도 합치므로,
   //   액션 POST 에 심으면 쿠키 없는 액션 호출이 새 ID 로 매번 세짐
+  // → 비밀값이 없으면(설정 누락) 심지 않음: 비로그인 조회를 세지 않을 뿐 페이지는 그대로
+  const viewerSecret = process.env.BETTER_AUTH_SECRET;
+
   if (
+    viewerSecret &&
     request.method === 'GET' &&
     !request.headers.has('next-action') &&
     isPostDetailPath(path) &&
-    !isViewerId(request.cookies.get(VIEWER_COOKIE)?.value)
+    !verifyViewerCookie(request.cookies.get(VIEWER_COOKIE)?.value, viewerSecret)
   ) {
-    response.cookies.set(VIEWER_COOKIE, crypto.randomUUID(), {
+    response.cookies.set(VIEWER_COOKIE, createViewerCookie(viewerSecret), {
       httpOnly: true,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
