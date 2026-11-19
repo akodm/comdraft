@@ -43,7 +43,18 @@ grant select, insert, update, delete on comdraft.ai_prompt_default to comdraft;
 
 ## 2. 어드민 계정 만들기
 
-`pgcrypto` 는 Supabase 에서 `extensions` 스키마에 있습니다. 새 계정은 `guest` 이며 임시 비밀번호로 로그인해 본인 비밀번호를 정해야 `viewer` 이상으로 쓸 수 있습니다.
+새 계정은 `guest` 이며 임시 비밀번호로 로그인해 본인 비밀번호를 정해야 `viewer` 이상으로 쓸 수 있습니다. 스크립트가 임시 비밀번호(24자)를 만들어 해시로만 저장하고, 평문은 화면에 한 번만 보여 줍니다.
+
+```bash
+pnpm admin:create:local <아이디>   # 로컬 DB (.env.development)
+pnpm admin:create:prod <아이디>    # 운영 DB (.env.production)
+```
+
+- 아이디는 영문, 숫자, `.`, `_`, `-` 로 3~64자입니다.
+- 이미 있는 아이디면 아무것도 바꾸지 않고 종료합니다 (비밀번호 재발급은 4절).
+- 출력된 임시 비밀번호는 안전한 채널로 전달하고 채팅, 저장소, 로그에 남기지 않습니다.
+
+직접 SQL 로 하려면 (로컬에 `pgcrypto` 가 없으면 `extensions.` 접두어를 빼거나 먼저 `create extension if not exists pgcrypto;` 를 실행합니다):
 
 ```sql
 insert into comdraft.admin_account (id, login_id, temp_password_hash)
@@ -66,7 +77,16 @@ where login_id = '<아이디>';
 
 ## 4. 비밀번호 재발급
 
-임시 해시를 다시 넣고 본인 비밀번호를 비우며 `guest` 로 내립니다. 기존 로그인 세션도 끊습니다.
+임시 해시를 다시 넣고 본인 비밀번호를 비우며 `guest` 로 내립니다. 실패 횟수와 잠금도 풀고, 기존 로그인 세션을 모두 끊습니다 (한 트랜잭션).
+
+```bash
+pnpm admin:create:local <아이디> --reset
+pnpm admin:create:prod <아이디> --reset
+```
+
+없는 아이디면 아무것도 바꾸지 않고 종료합니다. 재발급 후 다시 권한을 올려야 합니다 (3번).
+
+직접 SQL 로 하려면 (`pgcrypto` 가 없는 로컬은 2절 안내와 같습니다):
 
 ```sql
 update comdraft.admin_account
@@ -81,8 +101,6 @@ where login_id = '<아이디>';
 delete from comdraft.admin_session
 where admin_id = (select id from comdraft.admin_account where login_id = '<아이디>');
 ```
-
-재발급 후 다시 권한을 올려야 합니다 (3번).
 
 ## 5. 잠금 풀기
 
@@ -112,4 +130,4 @@ where login_id = '<아이디>';
 3. comdraft 를 배포합니다.
 4. 운영자가 comdraft-lambda 에서 `pnpm build` 후 `terraform plan` 으로 변경 내용을 확인하고 `terraform apply` 합니다.
 5. Lambda 가 처음 콜드 스타트하면 프롬프트 기본값을 `ai_prompt_default` 에 올립니다. 그 전까지 AI 프롬프트 화면에는 "기본값을 올리지 않았어요" 가 표시됩니다.
-6. 2절의 SQL 로 첫 어드민 계정을 넣고, 로그인해서 비밀번호를 정합니다.
+6. 2절의 `pnpm admin:create:prod <아이디>` 로 첫 어드민 계정을 만들고, 3절로 권한을 올린 뒤 로그인해서 비밀번호를 정합니다.

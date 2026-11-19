@@ -21,6 +21,8 @@
     "db:studio:prod": "dotenv -e .env.production -- drizzle-kit studio",
     "db:backfill-github-login:local": "dotenv -e .env.development -- node scripts/backfill-github-login.mjs",
     "db:backfill-github-login:prod": "dotenv -e .env.production -- node scripts/backfill-github-login.mjs",
+    "admin:create:local": "dotenv -e .env.development -- node scripts/admin-create.mjs",
+    "admin:create:prod": "dotenv -e .env.production -- node scripts/admin-create.mjs",
     "test": "vitest run"
   },
   "dependencies": {

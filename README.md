@@ -114,6 +114,7 @@ pnpm dev                # http://localhost:3003
 | `pnpm i18n:extract` / `pnpm i18n:compile` | 번역 문구 추출 / 컴파일 |
 | `pnpm db:generate` | 스키마 변경으로 마이그레이션 생성 |
 | `pnpm db:migrate:local` / `pnpm db:migrate:prod` | 로컬 / 운영 마이그레이션 적용 |
+| `pnpm admin:create:local <아이디> [--reset]` / `pnpm admin:create:prod ...` | 어드민 계정 생성 / 임시 비밀번호 재발급 (로컬 / 운영) |
 
 ## 배포
 
