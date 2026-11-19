@@ -11,6 +11,7 @@ import {
   splitLocalePath,
   type Locale,
 } from '@/lib/i18n/config';
+import { getAdminPathDecision } from '@/lib/admin/path-key';
 import {
   isPostDetailPath,
   isViewerId,
@@ -66,7 +67,16 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // 어드민: 주소 키가 틀리거나 설정이 없으면 403, 맞으면 사용자 세션 검사 없이 통과
+  // (어드민 인증은 레이아웃·서버 액션이 별도 어드민 세션으로 처리)
+  const adminDecision = getAdminPathDecision(path, process.env.ADMIN_PATH_KEY);
+
+  if (adminDecision === 'forbidden') {
+    return new NextResponse(null, { status: 403 });
+  }
+
   if (
+    adminDecision === 'not_admin' &&
     isProtectedPath(path) &&
     !getSessionCookie(request, { cookiePrefix: 'comdraft' })
   ) {
