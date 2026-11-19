@@ -149,7 +149,7 @@ msgstr "Current password"
 msgid "조회 수"
 msgstr "Views"
 
-#: components/studio/draft-editor.tsx:501
+#: components/studio/draft-editor.tsx:502
 msgid "초안 본문"
 msgstr "Draft body"
 
@@ -169,7 +169,7 @@ msgstr "Started at"
 msgid "마지막 게시"
 msgstr "Last published"
 
-#: components/studio/draft-editor.tsx:460
+#: components/studio/draft-editor.tsx:461
 msgid "설명 필요"
 msgstr "Needs detail"
 
@@ -252,7 +252,7 @@ msgstr "Published · Unlisted"
 msgid "게시를 취소하면 공개 주소가 더 이상 열리지 않습니다"
 msgstr "If you unpublish, the public address will no longer open."
 
-#: components/studio/draft-editor.tsx:662
+#: components/studio/draft-editor.tsx:663
 msgid "마크다운 파일로 내보내기"
 msgstr "Export as Markdown file"
 
@@ -327,7 +327,7 @@ msgstr "Heading 4"
 msgid "유형"
 msgstr "Type"
 
-#: components/studio/draft-editor.tsx:470
+#: components/studio/draft-editor.tsx:471
 msgid "여기에 직접 작성해 주세요"
 msgstr "Write it here yourself"
 
@@ -443,7 +443,7 @@ msgstr "Sessions"
 msgid "계정 정보를 불러오지 못했습니다."
 msgstr "Couldn't load your account details."
 
-#: components/studio/draft-editor.tsx:452
+#: components/studio/draft-editor.tsx:453
 msgid "결과·수치"
 msgstr "Results & numbers"
 
@@ -517,7 +517,7 @@ msgstr "Start simply, generate drafts, and keep writing consistently."
 msgid "언어"
 msgstr "Language"
 
-#: components/studio/draft-editor.tsx:456
+#: components/studio/draft-editor.tsx:457
 msgid "배운 점"
 msgstr "Lessons learned"
 
@@ -619,7 +619,7 @@ msgstr "Link URL"
 msgid "JPEG, PNG, WebP, GIF, AVIF 이미지만 넣을 수 있습니다"
 msgstr "Only JPEG, PNG, WebP, GIF, and AVIF images can be added."
 
-#: components/studio/draft-editor.tsx:61
+#: components/studio/draft-editor.tsx:62
 #: components/studio/publish-dialog.tsx:29
 msgid "올리지 못한 이미지가 있습니다"
 msgstr "Some images haven't been uploaded."
@@ -642,7 +642,7 @@ msgstr "Posts"
 msgid "언어 선택"
 msgstr "Choose language"
 
-#: components/studio/draft-editor.tsx:716
+#: components/studio/draft-editor.tsx:717
 msgid "커밋을 선택하거나 코드를 직접 넣고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 msgstr "Select commits or enter code directly and send a request,<0/>and your draft will appear here."
 
@@ -660,7 +660,7 @@ msgstr "Search by title or author"
 msgid "프로필 메뉴"
 msgstr "Profile menu"
 
-#: components/studio/draft-editor.tsx:653
+#: components/studio/draft-editor.tsx:654
 msgid "HTML 파일로 내보내기"
 msgstr "Export as HTML file"
 
@@ -742,7 +742,7 @@ msgstr "Delete account"
 msgid "등급"
 msgstr "Plan"
 
-#: components/studio/draft-editor.tsx:468
+#: components/studio/draft-editor.tsx:469
 msgid "답은 1,000자까지 적을 수 있습니다"
 msgstr "Answers can be up to 1,000 characters."
 
@@ -768,7 +768,7 @@ msgstr "You've already added this link."
 msgid "추적 브랜치에 커밋이 없습니다."
 msgstr "There are no commits on the tracked branch."
 
-#: components/studio/draft-editor.tsx:643
+#: components/studio/draft-editor.tsx:644
 msgid "저장하지 못했습니다"
 msgstr "Couldn't save"
 
@@ -899,7 +899,7 @@ msgstr "Personal repository"
 msgid "{name} 코드 다시 넣기"
 msgstr "Add code {name} again"
 
-#: components/studio/draft-editor.tsx:457
+#: components/studio/draft-editor.tsx:458
 #: lib/generation/blank-questions.ts:15
 msgid "이 부분에 배운 점을 작성해 주세요"
 msgstr "Write what you learned here"
@@ -1046,7 +1046,7 @@ msgstr "{selectedCount} selected"
 msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgstr "A sample repository and draft to show how the service works."
 
-#: components/studio/draft-editor.tsx:571
+#: components/studio/draft-editor.tsx:572
 msgid "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 msgstr "{count, plural, one {There is # unfilled blank.} other {There are # unfilled blanks.}} Export anyway?"
 
@@ -1193,7 +1193,7 @@ msgstr "Too many requests. Please try again later."
 msgid "이번 주 새 게시글"
 msgstr "New posts this week"
 
-#: components/studio/draft-editor.tsx:448
+#: components/studio/draft-editor.tsx:449
 msgid "계기"
 msgstr "Motivation"
 
@@ -1320,7 +1320,7 @@ msgstr "We couldn't find a verified email on GitHub. Make sure your primary GitH
 msgid "Github 계정으로 로그인합니다"
 msgstr "Sign in with your GitHub account."
 
-#: components/studio/draft-editor.tsx:449
+#: components/studio/draft-editor.tsx:450
 #: lib/generation/blank-questions.ts:13
 msgid "이 부분에 작업 계기를 작성해 주세요"
 msgstr "Write why you started this work here"
@@ -1452,7 +1452,7 @@ msgstr "Italic"
 msgid "comdraft 가 처리하는 개인정보 항목과 이용 목적, AI 초안 작성을 위한 제3자 전송, 보유 기간과 이용자의 권리를 안내합니다."
 msgstr "How comdraft handles personal information: what we collect and why, third-party transfer for AI drafts, retention, and your rights."
 
-#: components/studio/draft-editor.tsx:467
+#: components/studio/draft-editor.tsx:468
 msgid "AI 가 다듬는 중이에요"
 msgstr "AI is refining this"
 
@@ -1670,7 +1670,7 @@ msgstr "AI jobs in progress"
 msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 msgstr "Turn your GitHub commits into tech blog drafts, <0/>then polish and publish them anywhere."
 
-#: components/studio/draft-editor.tsx:443
+#: components/studio/draft-editor.tsx:444
 msgid "내용을 입력하세요"
 msgstr "Start writing"
 
@@ -1704,7 +1704,7 @@ msgstr "Pick GitHub commits and PRs, and AI quickly drafts your tech blog post. 
 msgid "{resetTime} 초기화"
 msgstr "Resets {resetTime}"
 
-#: components/studio/draft-editor.tsx:461
+#: components/studio/draft-editor.tsx:462
 #: lib/generation/blank-questions.ts:16
 msgid "이 부분은 자세한 설명이 필요합니다"
 msgstr "This part needs a detailed explanation"
@@ -1806,12 +1806,12 @@ msgid "강의"
 msgstr "Tutorial"
 
 #: components/admin/prompt-editor-form.tsx:61
-#: components/studio/draft-editor.tsx:640
+#: components/studio/draft-editor.tsx:641
 msgid "저장 중..."
 msgstr "Saving..."
 
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:107
-#: components/studio/draft-editor.tsx:442
+#: components/studio/draft-editor.tsx:443
 msgid "제목"
 msgstr "Title"
 
@@ -1872,6 +1872,10 @@ msgstr "Saved"
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:82
 msgid "{overrideLabel} · {0} · {1}"
 msgstr "{overrideLabel} · {0} · {1}"
+
+#: components/studio/draft-editor.tsx:61
+msgid "이미지를 너무 자주 올렸어요. 잠시 후 다시 시도해 주세요."
+msgstr "You're uploading images too often. Please try again in a moment."
 
 #: components/main/sample-draft-editor.tsx:16
 msgid "무엇을 확인할까요?"
@@ -1946,7 +1950,7 @@ msgstr "Last editor"
 msgid "다시 로그인"
 msgstr "Sign in again"
 
-#: components/studio/draft-editor.tsx:632
+#: components/studio/draft-editor.tsx:633
 msgid "빈칸 {emptyBlankCount}개"
 msgstr "{emptyBlankCount, plural, one {# blank} other {# blanks}}"
 
@@ -2034,7 +2038,7 @@ msgstr "Created"
 msgid "GitHub 로 이동 중..."
 msgstr "Redirecting to GitHub..."
 
-#: components/studio/draft-editor.tsx:444
+#: components/studio/draft-editor.tsx:445
 msgid "복사했습니다"
 msgstr "Copied"
 
@@ -2073,7 +2077,7 @@ msgstr "Expand default options"
 msgid "키"
 msgstr "Key"
 
-#: components/studio/draft-editor.tsx:453
+#: components/studio/draft-editor.tsx:454
 #: lib/generation/blank-questions.ts:14
 msgid "이 부분에 결과나 수치를 작성해 주세요"
 msgstr "Write the results or numbers here"
@@ -2108,7 +2112,7 @@ msgstr "By plan"
 msgid "이용이 제한된 계정이라 로그인할 수 없어요."
 msgstr "This account has been restricted and can't sign in."
 
-#: components/studio/draft-editor.tsx:616
+#: components/studio/draft-editor.tsx:617
 msgid "초안 편집"
 msgstr "Draft editor"
 
@@ -2131,7 +2135,7 @@ msgstr "Change password"
 msgid "글 유형"
 msgstr "Post type"
 
-#: components/studio/draft-editor.tsx:465
+#: components/studio/draft-editor.tsx:466
 msgid "그대로 넣기"
 msgstr "Insert as is"
 
@@ -2180,7 +2184,7 @@ msgstr "We couldn't process your request. Please try again in a moment."
 msgid "예시"
 msgstr "Example"
 
-#: components/studio/draft-editor.tsx:464
+#: components/studio/draft-editor.tsx:465
 msgid "AI 로 다듬기"
 msgstr "Refine with AI"
 
@@ -2217,7 +2221,7 @@ msgstr "Go to home"
 msgid "길이"
 msgstr "Length"
 
-#: components/studio/draft-editor.tsx:444
+#: components/studio/draft-editor.tsx:445
 msgid "코드 복사"
 msgstr "Copy code"
 
@@ -2403,7 +2407,7 @@ msgstr "AI tech blog drafts from your commits"
 msgid "기본값 사용"
 msgstr "Using default"
 
-#: components/studio/draft-editor.tsx:466
+#: components/studio/draft-editor.tsx:467
 msgid "지우기"
 msgstr "Remove"
 

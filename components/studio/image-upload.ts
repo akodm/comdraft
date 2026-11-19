@@ -31,6 +31,8 @@ export type ImageUploadOutcome =
   | { status: 'limit' }
   // AI 작성 잠금 또는 초안 없음: 이번 차례는 그만 올리고 blob 은 그대로 둠 (안내 없음)
   | { status: 'stopped' }
+  // 너무 자주 올림 (시간당 횟수 제한): 안내하고 이번 차례는 그만 올림, blob 은 그대로 둠
+  | { status: 'rate_limited' }
   // 요청·올리기 실패: blob 은 그대로 두고 잠시 뒤·다음 자동 저장 때 다시 시도
   | { status: 'failed' };
 
@@ -168,8 +170,8 @@ export const uploadImageFile = async (
   try {
     const ticket = await deps.request(repositoryId, draftId);
 
-    if (ticket.status === 'limit') {
-      return { status: 'limit' };
+    if (ticket.status === 'limit' || ticket.status === 'rate_limited') {
+      return { status: ticket.status };
     }
 
     if (ticket.status !== 'ok') {
@@ -192,6 +194,7 @@ export const uploadImageFile = async (
         };
       case 'unsupported':
       case 'limit':
+      case 'rate_limited':
       case 'failed':
         return result;
       case 'locked':
@@ -212,7 +215,9 @@ export interface UploadBlobsContext {
   upload: (file: File) => Promise<ImageUploadOutcome>;
   // 편집기의 그 blob 이미지를 공개 주소로 바꾸거나(change) 지움(null)
   apply: (src: string, change: UploadedImage | null) => void;
-  notify: (reason: 'failed' | 'limit' | 'heic' | 'type' | 'too_large') => void;
+  notify: (
+    reason: 'failed' | 'limit' | 'rate_limited' | 'heic' | 'type' | 'too_large',
+  ) => void;
   revoke: (src: string) => void;
 }
 
@@ -221,6 +226,7 @@ export interface UploadBlobsContext {
  * - 이미 올린 것은 다시 올리지 않고 반영만, 원본을 잃은 것은 지움
  * - 실패·장 수 상한은 blob 과 원본을 그대로 두고 안내 (다음 시도 때 다시 올림)
  * - 서버가 거부한 형식·해상도는 안내 후 지움, AI 작성 잠금·초안 없음이면 남은 것도 이번에는 멈춤
+ * - 너무 자주 올렸으면(rate_limited) 안내하고 남은 것도 이번에는 멈춤 (blob 은 그대로)
  * - blob 주소는 편집기가 공개 주소로 바뀌거나 이미지가 지워진 뒤에만 놓음
  */
 export const uploadBlobs = async (
@@ -247,6 +253,12 @@ export const uploadBlobs = async (
     const outcome = await upload(file);
 
     if (outcome.status === 'stopped') {
+      return;
+    }
+
+    // 남은 이미지도 같은 제한에 걸리므로 안내만 하고 이번에는 멈춤
+    if (outcome.status === 'rate_limited') {
+      notify('rate_limited');
       return;
     }
 

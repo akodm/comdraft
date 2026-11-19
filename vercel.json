@@ -12,6 +12,12 @@
       "timezone": "Asia/Seoul",
       "path": "/api/cron/daily-report",
       "requestMethod": "GET"
+    },
+    "uploads-cleanup": {
+      "schedule": "0 * * * *",
+      "timezone": "Asia/Seoul",
+      "path": "/api/cron/uploads-cleanup",
+      "requestMethod": "GET"
     }
   }
 }

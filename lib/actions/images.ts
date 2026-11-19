@@ -7,6 +7,7 @@ import { image } from '@/lib/db/schema';
 import { isDraftEditLocked } from '@/lib/generation/jobs';
 import { convertToWebp, UnsupportedImageError } from '@/lib/images/convert';
 import { insertImageWithinLimit } from '@/lib/images/records';
+import { consumeImageUploadAttempt } from '@/lib/images/upload-limit';
 import {
   getImagePath,
   getImagePublicUrl,
@@ -31,6 +32,8 @@ export type RequestImageUploadResult =
   | { status: 'limit' }
   // AI 작성 중이라 편집 잠금
   | { status: 'locked' }
+  // 사용자당 시간당 주소 발급 횟수를 넘음
+  | { status: 'rate_limited' }
   | { status: 'not_found' };
 
 export type FinalizeImageUploadResult =
@@ -38,6 +41,8 @@ export type FinalizeImageUploadResult =
   | { status: 'unsupported'; reason: 'heic' | 'type' | 'too_large' }
   | { status: 'limit' }
   | { status: 'locked' }
+  // 사용자당 시간당 마무리(변환) 횟수를 넘음
+  | { status: 'rate_limited' }
   | { status: 'not_found' }
   | { status: 'failed' };
 
@@ -68,6 +73,7 @@ const checkDraftImageGate = async (
 /**
  * 이미지 올리기 준비: 임시 버킷에 직접 올릴 서명 주소(token) 발급
  * - 브라우저는 uploadToSignedUrl(path, token, file) 로 원본을 올린 뒤 finalizeImageUpload 호출
+ * - 사용자당 시간당 발급 횟수를 넘으면 rate_limited (검사를 통과한 요청만 셈)
  */
 export async function requestImageUpload(
   repositoryId: string,
@@ -78,6 +84,10 @@ export async function requestImageUpload(
   const gate = await checkDraftImageGate(user.id, repositoryId, draftId);
   if (gate !== 'ok') {
     return { status: gate };
+  }
+
+  if (!(await consumeImageUploadAttempt('upload-url', user.id))) {
+    return { status: 'rate_limited' };
   }
 
   const uploadId = crypto.randomUUID();
@@ -94,6 +104,7 @@ export async function requestImageUpload(
  * - 변환이 거부되면 원본을 지우고 unsupported, 그 밖의 오류는 원본을 지우고 failed
  * - 원본이 IMAGE_MAX_BYTES 를 넘으면 변환하지 않고 unsupported 'too_large'
  *   (브라우저가 올리기 전에 크기를 막으므로 검사를 건너뛴 요청만 해당: 새 사유를 만들지 않고 기존 사유를 씀)
+ * - 사용자당 시간당 마무리 횟수를 넘으면 원본을 지우고 rate_limited (변환 전에 확인, 다시 시도는 새 주소로)
  */
 export async function finalizeImageUpload(
   repositoryId: string,
@@ -112,6 +123,11 @@ export async function finalizeImageUpload(
   }
 
   const uploadPath = getUploadPath(user.id, uploadId);
+
+  if (!(await consumeImageUploadAttempt('finalize', user.id))) {
+    await removeUploads([uploadPath]);
+    return { status: 'rate_limited' };
+  }
 
   try {
     const original = await downloadUpload(uploadPath);

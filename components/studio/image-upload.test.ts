@@ -230,6 +230,22 @@ describe('uploadImageFile', () => {
     expect(notUploaded.finalize).not.toHaveBeenCalled();
   });
 
+  it('주소 발급·마무리가 rate_limited 면 rate_limited', async () => {
+    const requestLimited = createDeps({
+      request: vi.fn(async () => ({ status: 'rate_limited' as const })),
+    });
+    const finalizeLimited = createDeps({
+      finalize: vi.fn(async () => ({ status: 'rate_limited' as const })),
+    });
+
+    for (const deps of [requestLimited, finalizeLimited]) {
+      await expect(
+        uploadImageFile(deps, 'repo', 'draft', file),
+      ).resolves.toEqual({ status: 'rate_limited' });
+    }
+    expect(requestLimited.upload).not.toHaveBeenCalled();
+  });
+
   it('마무리의 unsupported·limit 은 그대로, locked·not_found 는 stopped', async () => {
     const cases = [
       [
@@ -410,6 +426,18 @@ describe('uploadBlobs', () => {
     expect(context.apply).toHaveBeenCalledWith(BLOB_A, null);
     expect(context.files.has(BLOB_A)).toBe(false);
     expect(context.revoke).toHaveBeenCalledWith(BLOB_A);
+  });
+
+  it('너무 자주 올렸으면 안내하고 blob 과 원본을 남긴 채 이번에는 멈춘다', async () => {
+    const context = setup([{ status: 'rate_limited' }]);
+
+    await uploadBlobs([BLOB_A, BLOB_B], context);
+
+    expect(context.upload).toHaveBeenCalledTimes(1);
+    expect(context.notify).toHaveBeenCalledWith('rate_limited');
+    expect(context.apply).not.toHaveBeenCalled();
+    expect(context.revoke).not.toHaveBeenCalled();
+    expect(context.files.size).toBe(2);
   });
 
   it('AI 작성 잠금·초안 없음이면 남은 이미지도 이번에는 올리지 않는다', async () => {
