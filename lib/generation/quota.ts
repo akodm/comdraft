@@ -63,6 +63,19 @@ export function getQuotaWeek(
   return { start: start.toDate(), resetsAt: start.add(7, 'day').toDate() };
 }
 
+/**
+ * 이번 주 사용량을 세기 시작하는 시각
+ * - 어드민이 사용량을 초기화했으면 주 시작과 초기화 시각 중 늦은 쪽 (Lambda 의 예약 쿼리와 같은 기준)
+ */
+export function getUsageWindowStart(
+  weekStart: Date,
+  quotaResetAt: Date | null,
+): Date {
+  return quotaResetAt && quotaResetAt.getTime() > weekStart.getTime()
+    ? quotaResetAt
+    : weekStart;
+}
+
 /** 예상 사용량이 남은 양의 허용 비율 이내인지 (남은 양이 0 이하면 항상 거부) */
 export function isWithinAllowance(
   estimate: number,

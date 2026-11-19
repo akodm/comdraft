@@ -7,6 +7,7 @@ import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { draft, draftPrompt, post, userRepository } from '@/lib/db/schema';
 import { isGenerationErrorCode } from '@/lib/generation/contract';
+import { visibleToUser } from '@/lib/generation/jobs';
 import { getUserQuota } from '@/lib/generation/quota-queries';
 import {
   getGithubUserToken,
@@ -78,6 +79,7 @@ const loadPromptHistoryPage = async (
     .where(
       and(
         owned,
+        visibleToUser,
         eq(draftPrompt.kind, 'draft'),
         cursor === null
           ? undefined
@@ -104,6 +106,7 @@ const loadPromptHistoryPage = async (
       .where(
         and(
           owned,
+          visibleToUser,
           inArray(draft.id, [...new Set(pageRows.map((row) => row.draftId))]),
           sql`(${draftPrompt.createdAt}, ${draftPrompt.id}) >= ${anchorRow(oldest.id)}`,
         ),

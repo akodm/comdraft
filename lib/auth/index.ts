@@ -3,6 +3,7 @@ import { betterAuth } from 'better-auth/minimal';
 import { APIError } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
+import { isUserBanned } from '@/lib/auth/ban';
 import { db } from '@/lib/db';
 import * as schema from '@/lib/db/schema';
 import {
@@ -90,6 +91,21 @@ export const auth = betterAuth({
             throw new APIError('FORBIDDEN', {
               code: 'email_not_verified',
               message: 'GitHub 에서 인증된 이메일을 확인할 수 없습니다.',
+            });
+          }
+        },
+      },
+    },
+    session: {
+      create: {
+        // 이용 제한(밴)된 사용자는 새 세션을 만들지 않음
+        // false 를 돌려도 막히지만 콜백이 unable_to_create_session 으로 보내므로,
+        // 코드를 실어 던져 로그인 화면에 ?error=banned 로 안내 (user.create.before 와 같은 방식)
+        before: async (session) => {
+          if (await isUserBanned(session.userId)) {
+            throw new APIError('FORBIDDEN', {
+              code: 'banned',
+              message: '이용이 제한된 계정이라 로그인할 수 없습니다.',
             });
           }
         },

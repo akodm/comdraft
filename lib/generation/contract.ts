@@ -79,6 +79,10 @@ export const GENERATION_ERROR_CODES = [
   'cancelled',
   // 그 밖의 오류
   'internal',
+  // 어드민이 AI 작성을 중지해 시작하지 않음 (사용량 차감 없음)
+  'service_paused',
+  // 작업 주인이 이용 제한(밴) 상태라 시작하지 않음 (사용량 차감 없음)
+  'user_banned',
 ] as const;
 export type GenerationErrorCode = (typeof GENERATION_ERROR_CODES)[number];
 

@@ -4,6 +4,7 @@ import type { JSONContent } from '@tiptap/core';
 import { asc, eq } from 'drizzle-orm';
 import { refresh } from 'next/cache';
 import { headers } from 'next/headers';
+import { getAiGenerationSetting } from '@/lib/admin/service-setting';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { draft, draftPrompt, draftReferenceLink } from '@/lib/db/schema';
@@ -47,6 +48,10 @@ import {
 } from '@/lib/generation/limits';
 import { clampModel, isModelAllowed } from '@/lib/generation/models';
 import { getUserQuota } from '@/lib/generation/quota-queries';
+import {
+  getGenerationBlock,
+  type GenerationBlock,
+} from '@/lib/generation/service-block';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { getRequestLocale } from '@/lib/i18n/request';
 import {
@@ -91,6 +96,8 @@ export type RequestDraftGenerationResult =
   | { status: 'quota_exhausted'; resetsAt: string }
   // 등급의 할당량 정책이 없어 확인할 수 없음
   | { status: 'quota_unavailable' }
+  // 어드민이 AI 작성을 중지함 / 이용이 제한된 사용자
+  | { status: GenerationBlock }
   | { status: 'invalid' }
   // 지금 등급에서 쓸 수 없는 모델
   | { status: 'model_locked' }
@@ -225,20 +232,41 @@ const createJob = async (
 // 작업을 만들기 전 사용자 단위 검사 결과 (통과하면 실행기에 넘길 GitHub 토큰)
 type GenerationGateResult =
   | { status: 'ok'; githubToken: string }
+  | { status: GenerationBlock }
   | { status: 'rate_limited' }
   | { status: 'quota_exhausted'; resetsAt: string }
   | { status: 'quota_unavailable' }
   | { status: 'github_reauth' };
 
+// 검사에 쓰는 세션 사용자 값 (bannedAt 은 세션 조회 때 DB 에서 함께 읽음)
+interface GateUser {
+  id: string;
+  bannedAt?: Date | null;
+}
+
+// AI 작성 중지·사용자 밴 확인 (새 요청과 되묻기 재개 공용, 막지 않으면 null)
+const checkGenerationBlock = async (
+  user: GateUser,
+): Promise<GenerationBlock | null> =>
+  getGenerationBlock(await getAiGenerationSetting(), user.bannedAt);
+
 /**
  * 작업을 만들기 전 사용자 단위 검사 (초안 작성과 빈칸 채우기 공용)
- * 1. 시간당 요청 수
- * 2. 멈춘 작업 시간 초과 처리 후 이번 주 할당량 (정책이 없거나 소진이면 거부)
- * 3. GitHub 토큰 (실행기 요청 형식에 필요)
+ * 1. AI 작성 중지 → 사용자 밴
+ * 2. 시간당 요청 수
+ * 3. 멈춘 작업 시간 초과 처리 후 이번 주 할당량 (정책이 없거나 소진이면 거부)
+ * 4. GitHub 토큰 (실행기 요청 형식에 필요)
  */
 const checkGenerationGate = async (
-  userId: string,
+  user: GateUser,
 ): Promise<GenerationGateResult> => {
+  const userId = user.id;
+  const block = await checkGenerationBlock(user);
+
+  if (block) {
+    return { status: block };
+  }
+
   const since = new Date(Date.now() - GENERATION_RATE_WINDOW_MS);
 
   if ((await countUserJobsSince(userId, since)) >= GENERATION_HOURLY_LIMIT) {
@@ -307,7 +335,7 @@ export async function requestDraftGeneration(
     return { status: 'not_found' };
   }
 
-  const gate = await checkGenerationGate(user.id);
+  const gate = await checkGenerationGate(user);
 
   if (gate.status !== 'ok') {
     return gate;
@@ -458,7 +486,8 @@ export type RequestBlankFillResult =
         | 'not_found'
         | 'github_reauth'
         | 'runner_unavailable'
-        | 'quota_unavailable';
+        | 'quota_unavailable'
+        | GenerationBlock;
     }
   | { status: 'quota_exhausted'; resetsAt: string }
   // 저장된 본문에 그 id 의 빈칸이 없음
@@ -594,7 +623,7 @@ export async function requestBlankFill(
     return { status: 'not_found' };
   }
 
-  const gate = await checkGenerationGate(user.id);
+  const gate = await checkGenerationGate(user);
 
   if (gate.status !== 'ok') {
     return gate;
@@ -670,6 +699,8 @@ export interface ResumeClarifiedJobInput {
 export type ResumeClarifiedJobResult =
   | { status: 'started'; job: GenerationJobView }
   | { status: 'invalid' | 'github_reauth' }
+  // AI 작성 중지 / 이용 제한 사용자 (작업은 답변 대기 그대로)
+  | { status: GenerationBlock }
   // 처음 넣은 직접 입력 코드가 없거나 달라 다시 넣어야 함 (작업은 답변 대기 그대로)
   | { status: 'code_required'; job: GenerationJobView }
   // job: 지금 서버가 아는 작업 (화면이 낡은 답변 대기 상태에서 벗어나도록, 없거나 내 것이 아니면 null)
@@ -681,10 +712,11 @@ export type ResumeClarifiedJobResult =
 /**
  * 되묻기에 답하거나 건너뛰고 작업을 다시 실행
  * 1. 세션, 내 초안 작성 작업이 답변 대기인지
- * 2. 답 검증 (저장된 질문 기준, 건너뛰면 생략)
- * 3. GitHub 토큰
- * 4. 답변 대기 → queued (다른 탭이 먼저 처리했으면 not_found, 실행기를 두 번 부르지 않음)
- * 5. 작성기 시작, 시작하지 못하면 실패 처리
+ * 2. AI 작성 중지·사용자 밴 (작업 상태는 바꾸지 않고 거부, 재개하면 다시 답할 수 있음)
+ * 3. 답 검증 (저장된 질문 기준, 건너뛰면 생략)
+ * 4. GitHub 토큰
+ * 5. 답변 대기 → queued (다른 탭이 먼저 처리했으면 not_found, 실행기를 두 번 부르지 않음)
+ * 6. 작성기 시작, 시작하지 못하면 실패 처리
  * - 시간당 요청 수와 주간 할당량은 검사하지 않음: 새 요청이 아니고 사용량은 Lambda 가 예약할 때 검사
  */
 export async function resumeClarifiedJob(
@@ -704,6 +736,12 @@ export async function resumeClarifiedJob(
       status: 'not_found',
       job: owned?.kind === 'draft' ? owned : null,
     };
+  }
+
+  const block = await checkGenerationBlock(user);
+
+  if (block) {
+    return { status: block };
   }
 
   let answers: ReturnType<typeof parseClarificationAnswers> | 'skipped';

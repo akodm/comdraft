@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import LinguiClientProvider from '@/components/providers/lingui-client-provider';
 import FloatingLocaleSwitcher from '@/components/shared/floating-locale-switcher';
 import GoogleTag from '@/components/shared/google-tag';
+import HideOnAdmin from '@/components/shared/hide-on-admin';
 import { LOCALES } from '@/lib/i18n/config';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 import { getSiteOrigin } from '@/lib/posts/metadata';
@@ -76,12 +77,17 @@ export default async function RootLayout({
           initialLocale={i18n.locale}
           initialMessages={i18n.messages}
         >
-          <FloatingLocaleSwitcher />
+          <HideOnAdmin>
+            <FloatingLocaleSwitcher />
+          </HideOnAdmin>
           {children}
         </LinguiClientProvider>
-        <Analytics />
-        <SpeedInsights />
-        <GoogleTag />
+        {/* 어드민 주소(주소 키 포함)가 방문 분석에 남지 않도록 어드민 화면에서는 불러오지 않음 */}
+        <HideOnAdmin>
+          <Analytics />
+          <SpeedInsights />
+          <GoogleTag />
+        </HideOnAdmin>
       </body>
     </html>
   );

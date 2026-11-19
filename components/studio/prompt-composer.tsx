@@ -13,7 +13,9 @@ import {
   CodeInputButton,
   CodeInputChips,
 } from '@/components/studio/code-input-chips';
-import GenerationProgress from '@/components/studio/generation-progress';
+import GenerationProgress, {
+  GENERATION_ERROR_MESSAGES,
+} from '@/components/studio/generation-progress';
 import PromptEditor, {
   type PromptEditorHandle,
 } from '@/components/studio/prompt-editor';
@@ -63,6 +65,8 @@ type Notice =
   | 'runner_unavailable'
   | 'not_found'
   | 'quota_unavailable'
+  | 'service_paused'
+  | 'user_banned'
   | 'error';
 
 // 작성 요청 결과 안내 (빈칸 다듬기 요청도 시간당 제한·인증·서버 연결 안내는 같은 문구를 씀)
@@ -80,6 +84,8 @@ export const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
   runner_unavailable: msg`AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.`,
   not_found: msg`초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.`,
   quota_unavailable: msg`사용량 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.`,
+  service_paused: GENERATION_ERROR_MESSAGES.service_paused,
+  user_banned: GENERATION_ERROR_MESSAGES.user_banned,
   error: msg`작성 요청을 보내지 못했습니다. 다시 시도해주세요.`,
 };
 

@@ -38,6 +38,8 @@ type CardError =
   | 'github_reauth'
   | 'runner_unavailable'
   | 'code_required'
+  | 'service_paused'
+  | 'user_banned'
   | 'error';
 
 const CARD_ERROR_MESSAGES: Record<CardError, MessageDescriptor> = {
@@ -46,6 +48,8 @@ const CARD_ERROR_MESSAGES: Record<CardError, MessageDescriptor> = {
   github_reauth: GENERATION_ERROR_MESSAGES.github_reauth,
   runner_unavailable: GENERATION_ERROR_MESSAGES.runner_unavailable,
   code_required: msg`넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요.`,
+  service_paused: GENERATION_ERROR_MESSAGES.service_paused,
+  user_banned: GENERATION_ERROR_MESSAGES.user_banned,
   error: GENERATION_ERROR_MESSAGES.internal,
 };
 

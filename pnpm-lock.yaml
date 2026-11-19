@@ -74,6 +74,9 @@ importers:
       aws4fetch:
         specifier: 1.0.20
         version: 1.0.20
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
       better-auth:
         specifier: 1.7.10
         version: 1.7.10(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(kysely@0.29.6)(postgres@3.4.9))(next@16.3.5(@babel/core@7.29.13(supports-color@7.2.0))(@types/node@20.19.33)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.1.0(@types/node@20.19.33)(happy-dom@21.0.4)(vite@8.3.7(@types/node@20.19.33)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.15)))
@@ -86,6 +89,9 @@ importers:
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.3.0)
+      lucide-react:
+        specifier: ^1.74.0
+        version: 1.74.0(@types/react@19.3.0)(react@19.3.0)
       motion:
         specifier: ^13.4.0
         version: 13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2282,6 +2288,10 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
+  bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
+    hasBin: true
+
   before-after-hook@4.0.0:
     resolution: {integrity: sha512-q6tR3RPqIB1pMiTRMFcZwuG5T8vwp+vUvEG0vuI6B+Rikh5BfPp2fQ82c925FOs+b0lcFQ8CFrL+KbilfZFhOQ==}
 
@@ -3499,6 +3509,15 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
+
+  lucide-react@1.74.0:
+    resolution: {integrity: sha512-A1doIs/1fj1WnPbtIT7WRiM6Kvw5NUg+BtkoOh3Shpr4obwSDVt6WxCEcNH56EWprzuCoKle1OF0RqIkojwL1A==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -6169,6 +6188,8 @@ snapshots:
 
   baseline-browser-mapping@2.11.35: {}
 
+  bcryptjs@3.0.3: {}
+
   before-after-hook@4.0.0: {}
 
   better-auth@1.7.10(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(kysely@0.29.6)(postgres@3.4.9))(next@16.3.5(@babel/core@7.29.13(supports-color@7.2.0))(@types/node@20.19.33)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.1.0(@types/node@20.19.33)(happy-dom@21.0.4)(vite@8.3.7(@types/node@20.19.33)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.15))):
@@ -7385,6 +7406,12 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
+
+  lucide-react@1.74.0(@types/react@19.3.0)(react@19.3.0):
+    dependencies:
+      react: 19.3.0
+    optionalDependencies:
+      '@types/react': 19.3.0
 
   magic-string@0.30.21:
     dependencies:

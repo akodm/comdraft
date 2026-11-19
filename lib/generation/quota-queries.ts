@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { draftPrompt, quotaPlan, user } from '@/lib/db/schema';
 import {
   getQuotaWeek,
+  getUsageWindowStart,
   summarizeQuota,
   toQuotaPlan,
   type QuotaSummary,
@@ -13,13 +14,14 @@ import {
  * 사용자의 이번 주 사용량 요약
  * - 등급의 정책 행이 없으면 null
  * - 이번 주(주 시작 이후)에 만든 작업만 셈 (초안을 삭제한 작업도 사용자 기준으로 셈)
+ * - 어드민이 사용량을 초기화했으면 초기화 시각 이후에 만든 작업만 셈
  */
 export async function getUserQuota(
   userId: string,
   now: Date = new Date(),
 ): Promise<QuotaSummary | null> {
   const [row] = await db
-    .select({ plan: quotaPlan })
+    .select({ plan: quotaPlan, quotaResetAt: user.quotaResetAt })
     .from(user)
     .innerJoin(quotaPlan, eq(quotaPlan.role, user.role))
     .where(eq(user.id, userId))
@@ -30,7 +32,10 @@ export async function getUserQuota(
   }
 
   const plan = toQuotaPlan(row.plan);
-  const { start } = getQuotaWeek(now, plan);
+  const start = getUsageWindowStart(
+    getQuotaWeek(now, plan).start,
+    row.quotaResetAt,
+  );
 
   const jobs = await db
     .select({

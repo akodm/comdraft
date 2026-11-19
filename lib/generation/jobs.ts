@@ -447,6 +447,7 @@ export const getFillJobParagraphs = async (
         eq(draftPrompt.id, jobId),
         eq(draftPrompt.kind, 'fill'),
         eq(draftPrompt.status, 'completed'),
+        visibleToUser,
       ),
     )
     .limit(1);
@@ -539,6 +540,9 @@ export const isDraftEditLocked = async (draftId: string) => {
   return Boolean(locked);
 };
 
+// 어드민이 숨긴 내역을 사용자 화면 조회에서 제외하는 조건 (사용량·잠금·속도 제한·정리는 숨긴 행도 셈)
+export const visibleToUser = isNull(draftPrompt.deletedAt);
+
 // 초안의 가장 최근 작업 (kind 를 주면 그 종류 중에서)
 export const getLatestDraftJob = async (
   draftId: string,
@@ -551,6 +555,7 @@ export const getLatestDraftJob = async (
       and(
         eq(draftPrompt.draftId, draftId),
         kind ? eq(draftPrompt.kind, kind) : undefined,
+        visibleToUser,
       ),
     )
     .orderBy(desc(draftPrompt.createdAt))
@@ -571,7 +576,13 @@ export const getLatestDraftJobOptions = async (draftId: string) => {
       locale: draftPrompt.locale,
     })
     .from(draftPrompt)
-    .where(and(eq(draftPrompt.draftId, draftId), eq(draftPrompt.kind, 'draft')))
+    .where(
+      and(
+        eq(draftPrompt.draftId, draftId),
+        eq(draftPrompt.kind, 'draft'),
+        visibleToUser,
+      ),
+    )
     .orderBy(desc(draftPrompt.createdAt))
     .limit(1);
 
@@ -587,7 +598,9 @@ export const getUserJob = async (
     .select(jobViewColumns)
     .from(draftPrompt)
     .innerJoin(draft, eq(draftPrompt.draftId, draft.id))
-    .where(and(eq(draftPrompt.id, jobId), eq(draft.userId, userId)))
+    .where(
+      and(eq(draftPrompt.id, jobId), eq(draft.userId, userId), visibleToUser),
+    )
     .limit(1);
 
   return row ? toJobView(row) : null;

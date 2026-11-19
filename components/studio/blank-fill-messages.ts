@@ -36,6 +36,8 @@ export const getBlankFillRequestMessage = (
     case 'runner_unavailable':
     case 'busy':
     case 'not_found':
+    case 'service_paused':
+    case 'user_banned':
       return NOTICE_MESSAGES[result.status];
     default:
       return BLANK_FILL_FAILED_MESSAGE;
@@ -45,7 +47,7 @@ export const getBlankFillRequestMessage = (
 /**
  * 빈칸 채우기 작업이 실패한 이유 (작업이 생긴 뒤 Lambda·서버가 남긴 사유 코드)
  * - quota_exceeded: 사용량 소진 문구 (resetsAt 은 표시할 초기화 시각, 모르면 다시 시도 안내)
- * - timeout: 작성 시간 초과 문구 / 그 밖: 다시 시도 안내
+ * - timeout: 작성 시간 초과 문구 / service_paused·user_banned: 작성 요청 거부와 같은 문구 / 그 밖: 다시 시도 안내
  */
 export const getBlankFillJobMessage = (
   errorCode: GenerationErrorCode | null,
@@ -59,7 +61,9 @@ export const getBlankFillJobMessage = (
         ? getQuotaExhaustedMessage(resetsAt)
         : BLANK_FILL_FAILED_MESSAGE;
     case 'timeout':
-      return GENERATION_ERROR_MESSAGES.timeout;
+    case 'service_paused':
+    case 'user_banned':
+      return GENERATION_ERROR_MESSAGES[errorCode];
     default:
       return BLANK_FILL_FAILED_MESSAGE;
   }
