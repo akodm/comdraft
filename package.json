@@ -23,6 +23,8 @@
     "db:backfill-github-login:prod": "dotenv -e .env.production -- node scripts/backfill-github-login.mjs",
     "admin:create:local": "dotenv -e .env.development -- node scripts/admin-create.mjs",
     "admin:create:prod": "dotenv -e .env.production -- node scripts/admin-create.mjs",
+    "admin:role:local": "dotenv -e .env.development -- node scripts/admin-role.mjs",
+    "admin:role:prod": "dotenv -e .env.production -- node scripts/admin-role.mjs",
     "test": "vitest run"
   },
   "dependencies": {

@@ -69,6 +69,14 @@ values (
 
 등급은 `guest` < `viewer` < `editor` < `admin` 입니다.
 
+첫 로그인에서 본인 비밀번호를 정하면 자동으로 `viewer` 가 됩니다. 그 뒤에 아래 명령으로 바꿉니다 (첫 로그인 전에는 `guest` 로만 둘 수 있습니다). 권한은 요청마다 DB 에서 읽으므로 로그인한 세션에도 바로 반영됩니다.
+
+```bash
+pnpm admin:role:local <아이디> admin   # 운영은 admin:role:prod
+```
+
+직접 SQL 로 하려면:
+
 ```sql
 update comdraft.admin_account
 set role = 'admin', updated_at = now()

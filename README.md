@@ -115,6 +115,7 @@ pnpm dev                # http://localhost:3003
 | `pnpm db:generate` | 스키마 변경으로 마이그레이션 생성 |
 | `pnpm db:migrate:local` / `pnpm db:migrate:prod` | 로컬 / 운영 마이그레이션 적용 |
 | `pnpm admin:create:local <아이디> [--reset]` / `pnpm admin:create:prod ...` | 어드민 계정 생성 / 임시 비밀번호 재발급 (로컬 / 운영) |
+| `pnpm admin:role:local <아이디> <권한>` / `pnpm admin:role:prod ...` | 어드민 권한 변경 (guest·viewer·editor·admin, 첫 로그인 후) |
 
 ## 배포
 
