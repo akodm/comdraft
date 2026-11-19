@@ -31,6 +31,8 @@ const ERROR_MESSAGES = new Map([
     msg`GitHub 인증 요청이 만료되었거나 유효하지 않습니다. 다시 시도해주세요.`,
   ],
   ['github_reauth', msg`GitHub 인증이 만료되었습니다. 다시 로그인해주세요.`],
+  // 이용 제한(밴): 세션 생성 훅이 로그인을 거부했거나, requireSession 이 남은 세션을 지우고 보냄
+  ['banned', msg`이용이 제한된 계정이라 로그인할 수 없어요.`],
 ]);
 
 interface SignInPageProps {

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getJobUsage,
   getQuotaWeek,
+  getUsageWindowStart,
   isWithinAllowance,
   summarizeQuota,
   toQuotaPlan,
@@ -119,6 +120,38 @@ describe('getJobUsage', () => {
       }),
     ).toBe(9_000);
   });
+
+  it('시작 전에 거부된 작업(service_paused, used_cost 0)은 사용량 0', () =>
+    expect(
+      getJobUsage({
+        status: 'failed',
+        errorCode: 'service_paused',
+        estimatedCost: 500,
+        usedCost: 0,
+      }),
+    ).toBe(0));
+});
+
+describe('getUsageWindowStart', () => {
+  it('초기화 시점이 주 시작보다 늦으면 초기화 시점부터 셈', () => {
+    expect(
+      getUsageWindowStart(
+        new Date('2026-11-15T15:00:00Z'),
+        new Date('2026-11-18T03:00:00Z'),
+      ),
+    ).toEqual(new Date('2026-11-18T03:00:00Z'));
+    expect(getUsageWindowStart(new Date('2026-11-15T15:00:00Z'), null)).toEqual(
+      new Date('2026-11-15T15:00:00Z'),
+    );
+  });
+
+  it('지난주에 초기화했으면 이번 주 시작부터 셈', () =>
+    expect(
+      getUsageWindowStart(
+        new Date('2026-11-15T15:00:00Z'),
+        new Date('2026-11-10T03:00:00Z'),
+      ),
+    ).toEqual(new Date('2026-11-15T15:00:00Z')));
 });
 
 describe('summarizeQuota', () => {
@@ -142,6 +175,24 @@ describe('summarizeQuota', () => {
       remaining: -20_000,
     });
     expect(summary.resetsAt).toEqual(new Date('2026-11-14T15:00:00Z'));
+  });
+
+  it('플랜을 내려 한도를 넘으면 사용률이 100% 를 넘고 남은 양이 음수', () => {
+    const summary = summarizeQuota(
+      { ...seoul, weeklyCostLimit: 1_000_000 },
+      [
+        {
+          status: 'completed',
+          estimatedCost: 0,
+          usedCost: 1_230_000,
+          errorCode: null,
+        },
+      ],
+      new Date('2026-11-12T00:00:00Z'),
+    );
+    expect(summary.remaining).toBeLessThan(0);
+    // 화면의 사용률 표시는 used / limit
+    expect(Math.round((summary.used / summary.limit) * 100)).toBe(123);
   });
 });
 

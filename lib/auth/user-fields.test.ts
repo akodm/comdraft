@@ -27,6 +27,24 @@ describe('USER_ADDITIONAL_FIELDS', () => {
       parseUserInput(options, { onboardedAt: new Date() }, 'update'),
     ).toThrow();
   });
+
+  it('이용 제한 시각은 세션 user 에 들어가고 클라이언트 요청으로 바꿀 수 없다', () => {
+    expect(USER_ADDITIONAL_FIELDS.bannedAt).toMatchObject({
+      type: 'date',
+      required: false,
+      input: false,
+    });
+    expect(() =>
+      parseUserInput(options, { bannedAt: new Date() }, 'update'),
+    ).toThrow();
+    expect(
+      parseAdditionalUserInputFromProviderProfile(
+        options,
+        { bannedAt: new Date() },
+        'create',
+      ),
+    ).not.toHaveProperty('bannedAt');
+  });
 });
 
 describe('changesProviderOnlyField', () => {

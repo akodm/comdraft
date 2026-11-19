@@ -16,6 +16,13 @@ export const USER_ADDITIONAL_FIELDS = {
     required: false,
     input: false,
   },
+  // 이용 제한(밴) 시각, 세션 user 객체에서 확인하기 위해 등록
+  // input: false → 어드민 조치에서만 기록 (클라이언트 요청·GitHub 프로필로 설정 불가)
+  bannedAt: {
+    type: 'date',
+    required: false,
+    input: false,
+  },
   // GitHub 아이디 (게시글 작성자 프로필 링크용)
   // input: true → 가입 때 mapProfileToUser 결과가 저장됨 (false 면 프로필 값도 빠짐)
   // 클라이언트의 사용자 정보 수정 요청으로 바꾸는 것은 user.update.before 훅이 거절 (changesProviderOnlyField)

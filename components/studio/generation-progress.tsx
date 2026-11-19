@@ -35,6 +35,9 @@ export const GENERATION_ERROR_MESSAGES: Record<
   runner_unavailable: msg`AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.`,
   cancelled: msg`작성을 취소했습니다.`,
   internal: msg`알 수 없는 오류로 작성하지 못했습니다. 다시 시도해주세요.`,
+  // 작성 요청 거부 안내에도 같은 문구를 씀 (prompt-composer, clarification-card, 빈칸 다듬기)
+  service_paused: msg`지금은 AI 작성을 잠시 멈췄어요. 잠시 후 다시 시도해 주세요.`,
+  user_banned: msg`이용이 제한된 계정이에요.`,
 };
 
 type StepState = 'done' | 'current' | 'pending';
