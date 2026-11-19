@@ -1,6 +1,6 @@
 'use server';
 
-import { and, eq, ne, sql } from 'drizzle-orm';
+import { and, eq, isNull, lte, ne, or, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { adminAccount, adminSession } from '@/lib/db/schema/admin';
 import { logAdminAction } from '@/lib/admin/audit';
@@ -9,10 +9,17 @@ import {
   requireAdminKey,
   requireAdminPasswordStep,
 } from '@/lib/admin/guard';
-import { evaluateLogin, isLocked } from '@/lib/admin/login';
 import {
-  isLoginIpBlocked,
-  recordLoginIpFailure,
+  classifyUnreserved,
+  evaluateLogin,
+  isIpOverLimit,
+  lockUntilFrom,
+  type LoginReservation,
+  MAX_FAILED_ATTEMPTS,
+} from '@/lib/admin/login';
+import {
+  releaseLoginIpAttempt,
+  reserveLoginIpAttempt,
 } from '@/lib/admin/login-limit';
 import {
   hashPassword,
@@ -34,43 +41,85 @@ export interface AdminPasswordState {
   error?: 'too_short' | 'same_as_login' | 'mismatch' | 'wrong_current';
 }
 
+interface AccountAttempt {
+  reservation: LoginReservation;
+  adminId: string | null;
+  // 비교할 해시 (임시 비밀번호가 있으면 임시 해시, 예약되지 않았으면 null → 더미 비교)
+  hash: string | null;
+}
+
+const UNKNOWN_ATTEMPT: AccountAttempt = {
+  reservation: { kind: 'unknown' },
+  adminId: null,
+  hash: null,
+};
+
 const readField = (formData: FormData, name: string): string => {
   const value = formData.get(name);
 
   return typeof value === 'string' ? value : '';
 };
 
-const findAccountByLoginId = async (loginId: string) => {
-  const [account] = await db
-    .select({
+/**
+ * 비밀번호 비교 전에 이번 시도를 실패로 미리 셈
+ * - 잠금 중인 계정은 행이 걸리지 않아 올리지 않음 (그때는 다시 읽어 잠금인지 없는 계정인지 구분)
+ * - MAX_FAILED_ATTEMPTS 번째가 되는 순간 같은 문장에서 잠금 시각도 저장해 동시 요청이 잠금을 건너뛰지 못함
+ */
+const reserveAccountAttempt = async (
+  loginId: string,
+  now: Date,
+): Promise<AccountAttempt> => {
+  const [row] = await db
+    .update(adminAccount)
+    .set({
+      failedAttempts: sql`${adminAccount.failedAttempts} + 1`,
+      lockedUntil: sql`case when ${adminAccount.failedAttempts} + 1 >= ${MAX_FAILED_ATTEMPTS} then ${lockUntilFrom(now).toISOString()}::timestamptz else ${adminAccount.lockedUntil} end`,
+    })
+    .where(
+      and(
+        eq(adminAccount.loginId, loginId),
+        or(
+          isNull(adminAccount.lockedUntil),
+          lte(adminAccount.lockedUntil, now),
+        ),
+      ),
+    )
+    .returning({
       id: adminAccount.id,
       role: adminAccount.role,
-      failedAttempts: adminAccount.failedAttempts,
+      attempts: adminAccount.failedAttempts,
       lockedUntil: adminAccount.lockedUntil,
       tempPasswordHash: adminAccount.tempPasswordHash,
       passwordHash: adminAccount.passwordHash,
-    })
+    });
+
+  if (row) {
+    return {
+      reservation: {
+        kind: 'reserved',
+        role: row.role,
+        attempts: row.attempts,
+        lockedUntil: row.lockedUntil,
+        hasTempPassword: row.tempPasswordHash !== null,
+      },
+      adminId: row.id,
+      hash: row.tempPasswordHash ?? row.passwordHash,
+    };
+  }
+
+  const [existing] = await db
+    .select({ lockedUntil: adminAccount.lockedUntil })
     .from(adminAccount)
     .where(eq(adminAccount.loginId, loginId))
     .limit(1);
 
-  return account ?? null;
+  return {
+    ...UNKNOWN_ATTEMPT,
+    reservation: classifyUnreserved(existing ?? null, now),
+  };
 };
 
-// 실패 수를 하나 올리고, 이번 실패로 잠금이 정해졌으면 잠금 시각도 저장
-const recordAccountFailure = async (
-  adminId: string,
-  lockUntil: Date | null,
-) => {
-  await db
-    .update(adminAccount)
-    .set({
-      failedAttempts: sql`${adminAccount.failedAttempts} + 1`,
-      ...(lockUntil ? { lockedUntil: lockUntil } : {}),
-    })
-    .where(eq(adminAccount.id, adminId));
-};
-
+// 로그인 성공: 미리 센 실패와 잠금을 지우고 마지막 로그인 시각 저장
 const recordAccountSuccess = async (adminId: string, now: Date) => {
   await db
     .update(adminAccount)
@@ -80,9 +129,9 @@ const recordAccountSuccess = async (adminId: string, now: Date) => {
 
 /**
  * 어드민 로그인 (useActionState 용)
- * 1. IP 실패 수가 한도를 넘었으면 비밀번호를 확인하지 않고 거부
- * 2. 임시 비밀번호가 있으면 임시 해시, 없으면 본인 해시로 비교 (계정이 없거나 잠금 중이면 더미 비교)
- * 3. 성공하면 세션을 만들고 콘솔 또는 비밀번호 변경 화면으로 이동
+ * 1. IP 실패 수를 먼저 올리고, 한도를 넘었으면 실제 비교 없이 거부 (더미 비교로 응답 시간은 맞춤)
+ * 2. 계정 실패 수를 먼저 올린 뒤 비교 (계정이 없거나 잠금 중이면 더미 비교)
+ * 3. 성공하면 미리 센 실패를 되돌리고 세션을 만든 뒤 콘솔 또는 비밀번호 변경 화면으로 이동
  */
 export async function loginAdmin(
   _prev: AdminLoginState,
@@ -93,45 +142,33 @@ export async function loginAdmin(
   const password = readField(formData, 'password');
   const { ipAddress } = await getAdminClientInfo();
 
-  if (await isLoginIpBlocked(ipAddress)) {
+  if (isIpOverLimit(await reserveLoginIpAttempt(ipAddress))) {
+    await verifyPassword(password, null);
+
     return { error: 'invalid' };
   }
 
   const now = new Date();
-  const account = loginId ? await findAccountByLoginId(loginId) : null;
-  const hash =
-    account && !isLocked(account, now)
-      ? (account.tempPasswordHash ?? account.passwordHash)
-      : null;
-  const passwordOk = await verifyPassword(password, hash);
-  const outcome = evaluateLogin(
-    account && {
-      role: account.role,
-      failedAttempts: account.failedAttempts,
-      lockedUntil: account.lockedUntil,
-      hasTempPassword: account.tempPasswordHash !== null,
-    },
-    passwordOk,
-    now,
-  );
+  const attempt = loginId
+    ? await reserveAccountAttempt(loginId, now)
+    : UNKNOWN_ATTEMPT;
+  const passwordOk = await verifyPassword(password, attempt.hash);
+  const outcome = evaluateLogin(attempt.reservation, passwordOk);
 
-  if (outcome.kind !== 'ok' || !account) {
-    await recordLoginIpFailure(ipAddress);
-
-    if (outcome.kind === 'failed' && account) {
-      await recordAccountFailure(account.id, outcome.lockUntil);
-    }
-
+  if (outcome.kind !== 'ok' || attempt.adminId === null) {
     return { error: outcome.kind === 'locked' ? 'locked' : 'invalid' };
   }
 
-  await recordAccountSuccess(account.id, now);
-  await startAdminSession(account.id);
+  const adminId = attempt.adminId;
+
+  await recordAccountSuccess(adminId, now);
+  await releaseLoginIpAttempt(ipAddress);
+  await startAdminSession(adminId);
   await logAdminAction({
-    adminId: account.id,
+    adminId,
     action: 'auth.login',
     targetType: 'admin_account',
-    targetId: account.id,
+    targetId: adminId,
   });
 
   return redirectToAdmin(

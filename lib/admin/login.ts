@@ -3,7 +3,8 @@ import { canEnter } from '@/lib/admin/roles';
 
 /**
  * 어드민 로그인 판정 (DB·쿠키를 쓰지 않는 순수 함수)
- * - 계정 조회, 비밀번호 비교, 실패 수 저장은 서버 액션이 하고 여기서는 결과만 정함
+ * - 동시 요청이 잠금·IP 한도를 건너뛰지 못하도록 서버 액션은 비밀번호 비교 전에
+ *   실패 수를 먼저 올려(예약) 두고, 여기서는 예약 결과와 비교 결과로 응답만 정함
  */
 
 // 연속 실패가 이 횟수에 닿으면 잠금
@@ -14,13 +15,23 @@ export const LOCK_DURATION_MS = 15 * 60 * 1000;
 export const IP_FAILURE_LIMIT = 20;
 export const IP_FAILURE_WINDOW_MS = 60 * 60 * 1000;
 
-export interface LoginAccount {
-  role: AdminRole;
-  failedAttempts: number;
-  lockedUntil: Date | null;
-  // 임시 비밀번호 해시가 남아 있는지 (있으면 임시 비밀번호로 확인)
-  hasTempPassword: boolean;
-}
+/**
+ * 비밀번호 비교 전 계정 상태
+ * - unknown: 없는 계정
+ * - locked: 잠금 중이라 실패 수를 올리지 못함 (비밀번호를 확인하지 않음)
+ * - reserved: 이번 시도를 실패로 미리 센 계정 (attempts·lockedUntil 은 올린 뒤의 값)
+ */
+export type LoginReservation =
+  | { kind: 'unknown' }
+  | { kind: 'locked'; until: Date }
+  | {
+      kind: 'reserved';
+      role: AdminRole;
+      attempts: number;
+      lockedUntil: Date | null;
+      // 임시 비밀번호 해시가 남아 있는지 (있으면 임시 비밀번호로 확인)
+      hasTempPassword: boolean;
+    };
 
 export type LoginOutcome =
   | { kind: 'locked'; until: Date }
@@ -28,61 +39,61 @@ export type LoginOutcome =
   | { kind: 'denied' }
   | { kind: 'ok'; next: 'console' | 'password' };
 
-export function isLocked(
-  account: Pick<LoginAccount, 'lockedUntil'> | null,
+// 이번 예약으로 MAX_FAILED_ATTEMPTS 번째 실패가 되면 저장할 잠금 해제 시각
+export function lockUntilFrom(now: Date): Date {
+  return new Date(now.getTime() + LOCK_DURATION_MS);
+}
+
+// 예약(UPDATE)에 걸린 행이 없을 때, 같은 아이디로 다시 읽은 계정이 잠금 중인지로 구분
+export function classifyUnreserved(
+  account: { lockedUntil: Date | null } | null,
   now: Date,
-): boolean {
-  return (
+): LoginReservation {
+  if (
     account !== null &&
     account.lockedUntil !== null &&
     account.lockedUntil.getTime() > now.getTime()
-  );
+  ) {
+    return { kind: 'locked', until: account.lockedUntil };
+  }
+
+  return { kind: 'unknown' };
 }
 
 /**
  * 로그인 결과 판정
- * - 잠금 중이면 비밀번호 결과와 상관없이 locked (액션도 잠금 중에는 실제 해시와 비교하지 않음)
- * - 실패가 MAX_FAILED_ATTEMPTS 번째 이상이면 지금부터 15분 잠금
+ * - 잠금 중이면 비밀번호 결과와 상관없이 locked
+ * - 실패면 예약 때 정해진 잠금 시각(있으면)을 그대로 돌려줌
  * - 비밀번호가 맞아도 들어올 수 없는 권한(비밀번호를 정한 guest)이면 denied
  */
 export function evaluateLogin(
-  account: LoginAccount | null,
+  reservation: LoginReservation,
   passwordOk: boolean,
-  now: Date,
 ): LoginOutcome {
-  if (account === null) {
+  if (reservation.kind === 'unknown') {
     return { kind: 'failed', lockUntil: null };
   }
 
-  if (isLocked(account, now)) {
-    return { kind: 'locked', until: account.lockedUntil as Date };
+  if (reservation.kind === 'locked') {
+    return { kind: 'locked', until: reservation.until };
   }
 
   if (!passwordOk) {
-    const attempts = account.failedAttempts + 1;
-
     return {
       kind: 'failed',
       lockUntil:
-        attempts >= MAX_FAILED_ATTEMPTS
-          ? new Date(now.getTime() + LOCK_DURATION_MS)
+        reservation.attempts >= MAX_FAILED_ATTEMPTS
+          ? reservation.lockedUntil
           : null,
     };
   }
 
-  const next = canEnter(account.role, account.hasTempPassword);
+  const next = canEnter(reservation.role, reservation.hasTempPassword);
 
   return next === 'denied' ? { kind: 'denied' } : { kind: 'ok', next };
 }
 
-// rate_limit 행 기준으로 이 IP 의 로그인 시도를 막을지 (lastRequest 는 마지막 실패 시각, ms)
-export function isIpBlocked(
-  row: { count: number; lastRequest: number } | null,
-  nowMs: number,
-): boolean {
-  if (row === null || nowMs - row.lastRequest > IP_FAILURE_WINDOW_MS) {
-    return false;
-  }
-
-  return row.count > IP_FAILURE_LIMIT;
+// 이번 시도를 포함해 센 IP 실패 수가 한도를 넘었는지
+export function isIpOverLimit(count: number): boolean {
+  return count > IP_FAILURE_LIMIT;
 }
