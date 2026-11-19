@@ -1,6 +1,7 @@
 import 'server-only';
 import { and, count, desc, eq, ilike, or } from 'drizzle-orm';
 import { ADMIN_PAGE_SIZE } from '@/lib/admin/pagination';
+import { escapeLike } from '@/lib/admin/search';
 import { db } from '@/lib/db';
 import { adminAccount, adminActionLog } from '@/lib/db/schema/admin';
 import { session, user } from '@/lib/db/schema/auth';
@@ -28,10 +29,6 @@ export interface UserListRow {
   // 이번 주 사용량 (등급 정책이 없으면 null)
   quota: QuotaSummary | null;
 }
-
-// LIKE 의 와일드카드(%, _, \)를 글자 그대로 찾도록 이스케이프
-const escapeLike = (value: string): string =>
-  value.replace(/[\\%_]/g, (char) => `\\${char}`);
 
 /**
  * 사용자 목록 (이메일·GitHub 아이디 부분 일치, 최근 가입순, 50개씩)

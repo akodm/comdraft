@@ -83,7 +83,7 @@ export const summarizeActionDetail = (
 ): string => {
   const parts: string[] = [];
 
-  for (const key of ['reason', 'role']) {
+  for (const key of ['reason', 'role', 'title']) {
     const value = detail[key];
 
     if (typeof value === 'string' && value.trim() !== '') {
