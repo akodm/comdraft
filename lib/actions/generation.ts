@@ -739,6 +739,8 @@ export type ResumeClarifiedJobResult =
   | { status: GenerationBlock }
   // 처음 넣은 직접 입력 코드가 없거나 달라 다시 넣어야 함 (작업은 답변 대기 그대로)
   | { status: 'code_required'; job: GenerationJobView }
+  // 동시에 진행 중인 작업이 한도(MAX_ACTIVE_GENERATIONS)만큼 있음 (작업은 답변 대기 그대로)
+  | { status: 'too_many_active' }
   // job: 지금 서버가 아는 작업 (화면이 낡은 답변 대기 상태에서 벗어나도록, 없거나 내 것이 아니면 null)
   | {
       status: 'not_found' | 'runner_unavailable';
@@ -751,7 +753,8 @@ export type ResumeClarifiedJobResult =
  * 2. AI 작성 중지·사용자 밴 (작업 상태는 바꾸지 않고 거부, 재개하면 다시 답할 수 있음)
  * 3. 답 검증 (저장된 질문 기준, 건너뛰면 생략)
  * 4. GitHub 토큰
- * 5. 답변 대기 → queued (다른 탭이 먼저 처리했으면 not_found, 실행기를 두 번 부르지 않음)
+ * 5. 멈춘 작업 시간 초과 처리 후, 사용자 잠금 안에서 진행 중 작업 수를 세고 답변 대기 → queued
+ *    (진행 중이 한도면 too_many_active, 다른 탭이 먼저 처리했으면 not_found, 실행기를 두 번 부르지 않음)
  * 6. 작성기 시작, 시작하지 못하면 실패 처리
  * - 시간당 요청 수와 주간 할당량은 검사하지 않음: 새 요청이 아니고 사용량은 Lambda 가 예약할 때 검사
  */
@@ -814,7 +817,16 @@ export async function resumeClarifiedJob(
     throw error;
   }
 
-  if (!(await requeueAwaitingJob(jobId, answers))) {
+  // 멈춘 작업이 진행 중으로 세지지 않도록 먼저 시간 초과 처리
+  await expireStaleJobs({ userId: user.id });
+
+  const requeued = await requeueAwaitingJob(jobId, user.id, answers);
+
+  if (requeued === 'too_many_active') {
+    return { status: 'too_many_active' };
+  }
+
+  if (requeued === 'not_found') {
     return {
       status: 'not_found',
       job: await getUserJob(user.id, jobId),

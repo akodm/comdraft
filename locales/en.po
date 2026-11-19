@@ -34,7 +34,7 @@ msgstr "Medium"
 msgid "작업이 없어요"
 msgstr "No jobs yet"
 
-#: components/studio/clarification-card.tsx:50
+#: components/studio/clarification-card.tsx:52
 msgid "넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요."
 msgstr "The code differs from what you first added. Please add the code again."
 
@@ -721,7 +721,7 @@ msgstr "Last read at {readAt}"
 msgid "수정 문장"
 msgstr "Override text"
 
-#: components/studio/clarification-card.tsx:241
+#: components/studio/clarification-card.tsx:245
 msgid "작성 전 질문"
 msgstr "Questions before writing"
 
@@ -729,7 +729,7 @@ msgstr "Questions before writing"
 msgid "기본 문장이 바뀌어 이 수정본은 지금 적용되지 않아요. 빠진 문자열:"
 msgstr "The default text changed, so this edited version is not applied right now. Missing strings:"
 
-#: components/studio/clarification-card.tsx:46
+#: components/studio/clarification-card.tsx:48
 msgid "답을 확인해 주세요."
 msgstr "Please check your answers."
 
@@ -905,7 +905,7 @@ msgid "이 부분에 배운 점을 작성해 주세요"
 msgstr "Write what you learned here"
 
 #. placeholder {0}: question.id
-#: components/studio/clarification-card.tsx:121
+#: components/studio/clarification-card.tsx:125
 msgid "{0} 답 직접 입력"
 msgstr "Write your own answer for {0}"
 
@@ -914,7 +914,7 @@ msgstr "Write your own answer for {0}"
 msgid "작업 과정을 <0>글 초안으로.</0>"
 msgstr "Turn your work <0>into drafts.</0>"
 
-#: components/studio/clarification-card.tsx:47
+#: components/studio/clarification-card.tsx:49
 msgid "이미 처리된 질문입니다. 화면을 새로 고쳐 주세요."
 msgstr "This question was already handled. Please refresh the page."
 
@@ -978,6 +978,7 @@ msgstr "{0, plural, one {# line} other {# lines}}"
 msgid "이전 쪽"
 msgstr "Previous page"
 
+#: components/studio/clarification-card.tsx:54
 #: components/studio/prompt-composer.tsx:85
 msgid "진행 중인 작성이 끝난 뒤 다시 요청해 주세요. (동시에 {MAX_ACTIVE_GENERATIONS}개까지)"
 msgstr "Please wait for your current writing jobs to finish, then try again. (Up to {MAX_ACTIVE_GENERATIONS} at a time)"
@@ -1582,7 +1583,7 @@ msgstr "Total cost"
 msgid "구분"
 msgstr "Sort"
 
-#: components/studio/clarification-card.tsx:114
+#: components/studio/clarification-card.tsx:118
 msgid "직접 입력"
 msgstr "Write my own"
 
@@ -1646,7 +1647,7 @@ msgstr "Connected repositories"
 
 #: components/admin/confirm-action-button.tsx:46
 #: components/main/profile-menu.tsx:199
-#: components/studio/clarification-card.tsx:314
+#: components/studio/clarification-card.tsx:318
 #: components/studio/code-input-dialog.tsx:240
 #: components/studio/prompt-composer.tsx:541
 #: components/studio/publish-dialog.tsx:168
@@ -1889,7 +1890,7 @@ msgstr "View drafts"
 msgid "12자 이상, 아이디와 다르게 정해 주세요."
 msgstr "Use at least 12 characters, different from your ID."
 
-#: components/studio/clarification-card.tsx:306
+#: components/studio/clarification-card.tsx:310
 msgid "그냥 작성"
 msgstr "Write anyway"
 
@@ -2147,7 +2148,7 @@ msgstr "Developer blog posts"
 msgid "fix: 언마운트 시 observer 해제"
 msgstr "fix: disconnect observer on unmount"
 
-#: components/studio/clarification-card.tsx:297
+#: components/studio/clarification-card.tsx:301
 msgid "답하고 작성"
 msgstr "Answer and write"
 
@@ -2455,7 +2456,7 @@ msgstr "Banned"
 msgid "임시"
 msgstr "Temporary"
 
-#: components/studio/clarification-card.tsx:253
+#: components/studio/clarification-card.tsx:257
 msgid "글의 방향을 정하려면 조금 더 알려 주세요"
 msgstr "Tell us a bit more to set the direction of the post"
 

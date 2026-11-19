@@ -13,6 +13,10 @@ export interface GenerationSlotCounts {
   activeJobs: number;
 }
 
+// 진행 중 작업이 한도 아래라 하나 더 시작할 수 있는지 (새 작업·되묻기 재개 공통)
+export const hasActiveCapacity = (activeJobs: number) =>
+  activeJobs < MAX_ACTIVE_GENERATIONS;
+
 export const decideGenerationSlot = ({
   recentJobs,
   activeJobs,
@@ -21,7 +25,7 @@ export const decideGenerationSlot = ({
     return 'rate_limited';
   }
 
-  if (activeJobs >= MAX_ACTIVE_GENERATIONS) {
+  if (!hasActiveCapacity(activeJobs)) {
     return 'too_many_active';
   }
 

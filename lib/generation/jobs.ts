@@ -35,6 +35,7 @@ import { GENERATION_RATE_WINDOW_MS } from '@/lib/generation/limits';
 import { markdownToDraftDocument } from '@/lib/generation/markdown';
 import {
   decideGenerationSlot,
+  hasActiveCapacity,
   type GenerationSlotStatus,
 } from '@/lib/generation/slot';
 import {
@@ -617,30 +618,21 @@ export type JobTransaction = Parameters<
 >[0];
 
 /**
- * 새 작업을 받을 수 있는지 확인 (작업 INSERT 와 같은 트랜잭션 안에서 INSERT 전에 호출)
- * 1. 사용자 단위 advisory lock 으로 같은 사용자의 동시 요청을 줄 세움 (트랜잭션이 끝나면 풀림)
- *    → 동시에 보낸 요청이 서로의 작업을 보지 못한 채 함께 한도를 통과하지 못함
- * 2. 지난 1시간 동안 만든 작업 수 (초안을 삭제한 요청도 셈)
- * 3. 진행 중(queued·running) 작업 수 (답변 대기는 Lambda 를 쓰지 않으므로 세지 않음)
+ * 사용자 단위 advisory lock 을 잡고 진행 중(queued·running) 작업 수를 셈 (작업 생성·재개 공통)
+ * - 같은 사용자의 동시 요청을 줄 세움 (트랜잭션이 끝나면 풀림)
+ *   → 동시에 보낸 요청이 서로의 작업을 보지 못한 채 함께 한도를 통과하지 못함
+ * - 답변 대기(awaiting_input)는 Lambda 를 쓰지 않으므로 세지 않음
  * - 멈춘 작업의 시간 초과 처리(expireStaleJobs)는 호출 전에 끝내 둠
  */
-export const reserveGenerationSlot = async (
+const lockAndCountActiveJobs = async (
   tx: JobTransaction,
   userId: string,
-  now = new Date(),
-): Promise<GenerationSlotStatus> => {
+): Promise<number> => {
   await tx.execute(
     sql`select pg_advisory_xact_lock(hashtext(${`generation:${userId}`}))`,
   );
 
-  const since = new Date(now.getTime() - GENERATION_RATE_WINDOW_MS);
-  const [{ total: recentJobs }] = await tx
-    .select({ total: count() })
-    .from(draftPrompt)
-    .where(
-      and(eq(draftPrompt.userId, userId), gte(draftPrompt.createdAt, since)),
-    );
-  const [{ total: activeJobs }] = await tx
+  const [{ total }] = await tx
     .select({ total: count() })
     .from(draftPrompt)
     .where(
@@ -648,6 +640,28 @@ export const reserveGenerationSlot = async (
         eq(draftPrompt.userId, userId),
         inArray(draftPrompt.status, ['queued', 'running']),
       ),
+    );
+
+  return total;
+};
+
+/**
+ * 새 작업을 받을 수 있는지 확인 (작업 INSERT 와 같은 트랜잭션 안에서 INSERT 전에 호출)
+ * 1. 사용자 잠금 + 진행 중 작업 수 (lockAndCountActiveJobs)
+ * 2. 지난 1시간 동안 만든 작업 수 (초안을 삭제한 요청도 셈)
+ */
+export const reserveGenerationSlot = async (
+  tx: JobTransaction,
+  userId: string,
+  now = new Date(),
+): Promise<GenerationSlotStatus> => {
+  const activeJobs = await lockAndCountActiveJobs(tx, userId);
+  const since = new Date(now.getTime() - GENERATION_RATE_WINDOW_MS);
+  const [{ total: recentJobs }] = await tx
+    .select({ total: count() })
+    .from(draftPrompt)
+    .where(
+      and(eq(draftPrompt.userId, userId), gte(draftPrompt.createdAt, since)),
     );
 
   return decideGenerationSlot({ recentJobs, activeJobs });
@@ -740,33 +754,41 @@ export const failJob = async (
 
 /**
  * 답변 대기 → queued 로 되돌려 다시 실행 (초안 작성 작업만)
- * - 조건부 UPDATE 라 다른 탭이 먼저 처리했으면 false (실행기를 두 번 부르지 않음)
+ * - 새 작업과 같은 사용자 잠금 안에서 진행 중 작업 수를 세고, 한도면 그대로 두고 too_many_active
+ *   (시간당 요청 수는 새 요청이 아니므로 세지 않음)
+ * - 조건부 UPDATE 라 다른 탭이 먼저 처리했으면 not_found (실행기를 두 번 부르지 않음)
  * - started_at 은 다시 대기열에 넣은 시각 (queued 시간 초과를 이 시각부터 잼)
  * - 답은 clarification.answers 에 저장, 건너뛰면 "skipped"
  */
 export const requeueAwaitingJob = async (
   jobId: string,
+  userId: string,
   answers: GenerationClarificationAnswer[] | 'skipped',
-) => {
-  const [row] = await db
-    .update(draftPrompt)
-    .set({
-      status: 'queued',
-      step: 0,
-      startedAt: new Date(),
-      clarification: sql`jsonb_set(${draftPrompt.clarification}, '{answers}', ${JSON.stringify(answers)}::jsonb)`,
-    })
-    .where(
-      and(
-        eq(draftPrompt.id, jobId),
-        eq(draftPrompt.kind, 'draft'),
-        eq(draftPrompt.status, 'awaiting_input'),
-      ),
-    )
-    .returning({ id: draftPrompt.id });
+): Promise<'requeued' | 'not_found' | 'too_many_active'> =>
+  db.transaction(async (tx) => {
+    if (!hasActiveCapacity(await lockAndCountActiveJobs(tx, userId))) {
+      return 'too_many_active';
+    }
 
-  return Boolean(row);
-};
+    const [row] = await tx
+      .update(draftPrompt)
+      .set({
+        status: 'queued',
+        step: 0,
+        startedAt: new Date(),
+        clarification: sql`jsonb_set(${draftPrompt.clarification}, '{answers}', ${JSON.stringify(answers)}::jsonb)`,
+      })
+      .where(
+        and(
+          eq(draftPrompt.id, jobId),
+          eq(draftPrompt.kind, 'draft'),
+          eq(draftPrompt.status, 'awaiting_input'),
+        ),
+      )
+      .returning({ id: draftPrompt.id });
+
+    return row ? 'requeued' : 'not_found';
+  });
 
 /**
  * 답변 대기 중인 작업을 취소 (cancelled 로 실패 처리, 잠금 해제)
