@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  adminPath,
   getAdminPathDecision,
   isValidAdminKey,
   matchesAdminKey,
-} from './path-key';
+} from '@/lib/admin/path-key';
 
 const KEY = 'k3y_abcdefghijklmn';
 
@@ -41,5 +42,15 @@ describe('isValidAdminKey / matchesAdminKey', () => {
     expect(matchesAdminKey(KEY, KEY)).toBe(true);
     expect(matchesAdminKey(`${KEY}x`, KEY)).toBe(false);
     expect(matchesAdminKey(KEY, undefined)).toBe(false);
+  });
+});
+
+describe('adminPath', () => {
+  it('로케일·키·하위 경로로 어드민 주소를 만든다 (끝 슬래시 없음)', () => {
+    expect(adminPath('ko', KEY)).toBe(`/ko/admin/${KEY}`);
+    expect(adminPath('en', KEY, 'login')).toBe(`/en/admin/${KEY}/login`);
+    expect(adminPath('ko', KEY, 'account/password')).toBe(
+      `/ko/admin/${KEY}/account/password`,
+    );
   });
 });

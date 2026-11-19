@@ -1,4 +1,5 @@
 import { timingSafeEqual } from 'node:crypto';
+import type { Locale } from '@/lib/i18n/config';
 
 const ADMIN_KEY_PATTERN = /^[A-Za-z0-9_-]{16,}$/;
 
@@ -44,4 +45,14 @@ export function getAdminPathDecision(
   }
 
   return matchesAdminKey(second, key) ? 'allow' : 'forbidden';
+}
+
+/**
+ * 어드민 화면 주소 (끝 슬래시 없음)
+ * @example adminPath('ko', key, 'login') // '/ko/admin/<key>/login'
+ */
+export function adminPath(lang: Locale, key: string, sub?: string): string {
+  const base = `/${lang}/admin/${key}`;
+
+  return sub ? `${base}/${sub}` : base;
 }
