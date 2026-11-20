@@ -7,7 +7,7 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:188
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:244
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:201
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:277
 msgid "관련 조치 기록"
@@ -16,7 +16,7 @@ msgstr "Related action log"
 #: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:51
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:200
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:259
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:201
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:257
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:214
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:290
 msgid "삭제된 어드민"
@@ -40,7 +40,7 @@ msgstr "The code differs from what you first added. Please add the code again."
 
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:189
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:249
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:192
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:248
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:205
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:75
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:251
@@ -73,7 +73,7 @@ msgstr "Draft requests (prompts) are stored to improve the service. Do not put p
 msgid "단계"
 msgstr "Step"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:95
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:104
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:83
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:109
 #: components/studio/publish-dialog.tsx:106
@@ -118,7 +118,7 @@ msgstr "Connect GitHub"
 msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
 msgstr "Images now load starting with the ones on screen. This post covers how it was implemented and what to check."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:164
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:220
 msgid "게시글 삭제"
 msgstr "Delete post"
 
@@ -144,7 +144,7 @@ msgstr "Add a repository and start drafting"
 msgid "현재 비밀번호"
 msgstr "Current password"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:109
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:118
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:114
 msgid "조회 수"
 msgstr "Views"
@@ -165,7 +165,7 @@ msgstr "A tech blogging habit"
 msgid "시작 시각"
 msgstr "Started at"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:106
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:115
 msgid "마지막 게시"
 msgstr "Last published"
 
@@ -477,8 +477,8 @@ msgid "완료"
 msgstr "Completed"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:251
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:136
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:194
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:192
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:250
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:173
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:207
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:163
@@ -513,7 +513,7 @@ msgstr "Your first repository<0/>is connected."
 msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 msgstr "Start simply, generate drafts, and keep writing consistently."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:102
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:111
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:93
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:110
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:116
@@ -557,7 +557,7 @@ msgid "빈칸을 다듬지 못했습니다. 다시 시도해 주세요."
 msgstr "Couldn't refine this blank. Please try again."
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:267
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:206
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:262
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:219
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:295
 msgid "조치 기록이 없어요"
@@ -690,7 +690,7 @@ msgstr "Name"
 msgid "수정본을 지우고 기본 문장을 써요. 지금 수정본은 이력에 남아요."
 msgstr "This removes the override and uses the default text. The current override stays in the history."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:165
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:221
 #: components/studio/draft-list-item.tsx:79
 #: components/studio/draft-list-item.tsx:153
 #: components/studio/repository-settings-panel.tsx:474
@@ -758,7 +758,7 @@ msgstr "Answers can be up to 1,000 characters."
 msgid "바로 시작해보세요."
 msgstr "Get started right away."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:181
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:237
 msgid "목록으로"
 msgstr "Back to list"
 
@@ -887,7 +887,7 @@ msgstr "Insert image"
 msgid "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "Couldn't find the draft. Refresh the page and try again."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:120
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:129
 msgid "공개 화면"
 msgstr "Public page"
 
@@ -948,7 +948,7 @@ msgstr "Using the default"
 msgid "게시하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't publish. Please try again."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:103
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:112
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:111
 msgid "게시일"
 msgstr "Published"
@@ -1013,7 +1013,7 @@ msgctxt "admin role"
 msgid "조회"
 msgstr "Viewer"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:167
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:223
 msgid "게시글이 지워지고 원래 초안은 작성 중 상태로 돌아가요. 되돌릴 수 없어요."
 msgstr "The post is deleted and its original draft goes back to in progress. This can't be undone."
 
@@ -1060,7 +1060,7 @@ msgid "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼�
 msgstr "{count, plural, one {There is # unfilled blank.} other {There are # unfilled blanks.}} Export anyway?"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:62
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:99
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:108
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:88
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:135
 #: components/studio/publish-dialog.tsx:45
@@ -1154,6 +1154,10 @@ msgstr "Cost used"
 msgid "{charCount} / {maxChars}자"
 msgstr "{charCount} / {maxChars} chars"
 
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:179
+msgid "날짜"
+msgstr "Date"
+
 #: components/main/profile-menu.tsx:205
 msgid "탈퇴하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't delete your account. Please try again."
@@ -1185,6 +1189,10 @@ msgstr "The password confirmation doesn't match."
 #: components/studio/prompt-options.tsx:242
 msgid "더 보기"
 msgstr "More"
+
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:148
+msgid "기간"
+msgstr "Period"
 
 #: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:82
 msgid "중지"
@@ -1506,7 +1514,7 @@ msgstr "Recent admin actions"
 
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:190
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:250
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:193
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:249
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:206
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:282
 #: app/[lang]/admin/[adminKey]/layout.tsx:8
@@ -1533,6 +1541,16 @@ msgstr "Check AI writing status and pause it if needed"
 #: components/studio/generation-progress.tsx:40
 msgid "이용이 제한된 계정이에요."
 msgstr "This account has been restricted."
+
+#. placeholder {0}: rangeTotal.toLocaleString(locale)
+#. placeholder {1}: rangePeak.toLocaleString(locale)
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:167
+msgid "최근 {range}일 합계 {0} · 하루 최고 {1} (한국 시간 기준, 같은 방문자는 30일에 한 번만 셈)"
+msgstr "Last {range} days: {0} total · peak {1} per day (KST; each visitor counted once per 30 days)"
+
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:180
+msgid "표로 보기"
+msgstr "View as table"
 
 #: components/studio/prompt-composer.tsx:76
 msgid "작성 요청을 입력해주세요."
@@ -1604,7 +1622,7 @@ msgid "내역 숨기기"
 msgstr "Hide entry"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:253
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:195
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:251
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:208
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:284
 msgid "요약"
@@ -1622,7 +1640,7 @@ msgstr "Public repository"
 msgid "AI 초안 작성 중"
 msgstr "AI is writing"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:81
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:90
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:100
 msgid "기본 정보"
 msgstr "Basic info"
@@ -1667,6 +1685,10 @@ msgstr "Connected repositories"
 msgid "취소"
 msgstr "Cancel"
 
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:161
+msgid "{days}일"
+msgstr "{days}d"
+
 #: components/main/sample-commits.ts:13
 msgid "refactor: 이미지 로딩 훅 분리"
 msgstr "refactor: extract image loading hook"
@@ -1674,6 +1696,10 @@ msgstr "refactor: extract image loading hook"
 #: components/main/sample-commits.ts:15
 msgid "관찰 로직을 재사용 가능한 훅으로 분리"
 msgstr "Extract the observing logic into a reusable hook"
+
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:178
+msgid "조회"
+msgstr "Views"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:202
 msgid "진행 중인 AI 작업"
@@ -1774,7 +1800,7 @@ msgid "관리자"
 msgstr "Admin"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:62
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:97
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:106
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:87
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:133
 msgid "전체 공개"
@@ -1784,7 +1810,7 @@ msgstr "Public"
 msgid "{blankCount, plural, other {빈칸 #개를 채우고 완료를 눌러야 게시할 수 있습니다}}"
 msgstr "{blankCount, plural, one {Fill in # blank and mark it done before publishing.} other {Fill in # blanks and mark them done before publishing.}}"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:115
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:124
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:119
 msgid "밴 사유"
 msgstr "Ban reason"
@@ -1864,7 +1890,7 @@ msgctxt "admin role"
 msgid "편집"
 msgstr "Editor"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:143
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:199
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:170
 msgid "해제"
 msgstr "Lift"
@@ -1954,7 +1980,7 @@ msgstr "Strikethrough"
 msgid "전체 {total}건"
 msgstr "{total} total"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:85
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:94
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:108
 msgid "작성자"
 msgstr "Author"
@@ -2016,6 +2042,10 @@ msgstr "Redirecting..."
 #: components/studio/code-input-dialog.tsx:224
 msgid "넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 다만 작성된 초안에 인용된 부분은 초안 내용으로 저장되고, 요청 문구에 붙인 코드도 저장됩니다."
 msgstr "Code added here is not stored and is used only for AI writing. Parts quoted in the written draft are stored as draft content, and code pasted into the request text is stored too."
+
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:182
+msgid "최근 {range}일 일별 조회 수, 합계 {rangeTotal}"
+msgstr "Daily views for the last {range} days, {rangeTotal} total"
 
 #: components/studio/prompt-composer.tsx:82
 msgid "이 모델은 현재 등급에서 쓸 수 없습니다."
@@ -2314,6 +2344,10 @@ msgstr "Deleted"
 msgid "편집 서식"
 msgstr "Formatting"
 
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:145
+msgid "일별 조회 수"
+msgstr "Daily views"
+
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:213
 #: components/studio/editor-toolbar.tsx:324
 msgid "적용"
@@ -2415,7 +2449,7 @@ msgstr "Signing in..."
 msgid "커밋 내역"
 msgstr "Commit history"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:112
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:121
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:116
 msgid "밴 시각"
 msgstr "Banned at"
@@ -2473,9 +2507,9 @@ msgid "되돌리기"
 msgstr "Reset"
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:102
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:74
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:149
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:150
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:83
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:205
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:206
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:142
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:93
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:176
@@ -2567,7 +2601,7 @@ msgstr "Reset"
 msgid "이미지를 올리지 못했습니다. 다시 시도합니다"
 msgstr "Couldn't upload the image. Retrying."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:142
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:198
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:169
 msgid "밴 해제"
 msgstr "Unban"
@@ -2689,7 +2723,7 @@ msgstr "Confirm new password"
 msgid "{host} 링크 삭제"
 msgstr "Remove {host} link"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:152
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:208
 msgid "목록과 사이트맵에서 빠지고 상세에는 안내만 보여요."
 msgstr "It is removed from lists and the sitemap, and the detail page shows only a notice."
 

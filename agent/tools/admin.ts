@@ -22,7 +22,12 @@ import {
   getPromptEditor,
   listPromptOverview,
 } from '@/lib/admin/ai-prompt-queries';
-import { getPostDetail, listPosts } from '@/lib/admin/post-queries';
+import {
+  getPostDailyViews,
+  getPostDetail,
+  listPosts,
+} from '@/lib/admin/post-queries';
+import { VIEW_RANGES } from '@/lib/admin/post-views';
 import {
   getPromptDetail,
   listPromptHistory,
@@ -181,6 +186,23 @@ export const adminTools = {
     input: z.object({ postId }),
     access: allows('view'),
   }),
+  getPostViews: defineTool(
+    async (input) => getPostDailyViews(input.postId, input.days ?? 30),
+    {
+      description:
+        "One post's views per day (KST dates, 0 on days without views) for the last 7, 30 or 90 days. Each visitor counts once per 30 days.",
+      usage:
+        'When the admin asks how views changed over time for a post. Find the id with listPosts.',
+      input: z.object({
+        postId,
+        days: z
+          .union(VIEW_RANGES.map((days) => z.literal(days)))
+          .optional()
+          .describe('7, 30 (default) or 90'),
+      }),
+      access: allows('view'),
+    },
+  ),
   listPromptHistory: defineTool(
     async (input) =>
       listPromptHistory({ q: input.q ?? '', page: input.page ?? 1 }),

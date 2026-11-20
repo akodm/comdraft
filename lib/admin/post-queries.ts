@@ -1,7 +1,14 @@
 import 'server-only';
 import { requireAdmin } from '@/lib/admin/guard';
-import { and, count, desc, eq, ilike, or, sql } from 'drizzle-orm';
+import { and, count, desc, eq, gte, ilike, or, sql } from 'drizzle-orm';
 import { ADMIN_PAGE_SIZE } from '@/lib/admin/pagination';
+import {
+  type DailyViews,
+  fillDailyViews,
+  VIEW_TIMEZONE,
+  type ViewRange,
+  viewRangeStart,
+} from '@/lib/admin/post-views';
 import { escapeLike } from '@/lib/admin/search';
 import { db } from '@/lib/db';
 import { adminAccount, adminActionLog } from '@/lib/db/schema/admin';
@@ -191,4 +198,33 @@ export const getPostDetail = async (
     viewCount,
     actions,
   };
+};
+
+/**
+ * 게시글의 일별 조회 수 (오늘을 포함한 days 일, 한국 시간 날짜별, 조회가 없는 날은 0)
+ * - post_view 는 같은 방문자를 30일에 한 번만 세므로 "그날 처음 센 방문" 수
+ */
+export const getPostDailyViews = async (
+  postId: string,
+  days: ViewRange,
+  now: Date = new Date(),
+): Promise<DailyViews[]> => {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
+  // 시간대는 고정 상수라 SQL 에 그대로 넣음 (매개변수로 넣으면 select 와 group by 의 식이 달라져 Postgres 가 거절)
+  const day = sql<string>`to_char((${postView.viewedAt} at time zone ${sql.raw(`'${VIEW_TIMEZONE}'`)})::date, 'YYYY-MM-DD')`;
+  const rows = await db
+    .select({ day, views: count() })
+    .from(postView)
+    .where(
+      and(
+        eq(postView.postId, postId),
+        gte(postView.viewedAt, viewRangeStart(now, days)),
+      ),
+    )
+    // select 의 첫 열(날짜)로 묶음
+    .groupBy(sql`1`);
+
+  return fillDailyViews(rows, now, days);
 };

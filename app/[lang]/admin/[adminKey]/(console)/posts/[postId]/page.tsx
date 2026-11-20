@@ -8,16 +8,19 @@ import ConfirmActionButton from '@/components/admin/confirm-action-button';
 import { banPost, deletePost, unbanPost } from '@/lib/actions/admin/posts';
 import { requireAdmin, requireAdminKey } from '@/lib/admin/guard';
 import { adminPath } from '@/lib/admin/path-key';
-import { getPostDetail } from '@/lib/admin/post-queries';
+import { getPostDailyViews, getPostDetail } from '@/lib/admin/post-queries';
+import { parseViewRange, VIEW_RANGES } from '@/lib/admin/post-views';
 import { canPerform } from '@/lib/admin/roles';
 import { summarizeActionDetail } from '@/lib/admin/stats';
 import { localizePath } from '@/lib/i18n/config';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 import { getPostPath } from '@/lib/posts/post-path';
 import LocalizedLink from '@/components/shared/localized-link';
+import ViewsLineChart from '@/components/admin/views-line-chart';
 
 interface AdminPostDetailPageProps {
   params: Promise<{ postId: string }>;
+  searchParams: Promise<{ range?: string }>;
 }
 
 const SECTION_TITLE_CLASS =
@@ -46,6 +49,7 @@ const InfoRow = ({
 // 어드민 게시글 상세: 정보, 조치 버튼, 관련 조치 기록
 export default async function AdminPostDetailPage({
   params,
+  searchParams,
 }: AdminPostDetailPageProps) {
   const i18n = await initLingui();
   const admin = await requireAdmin('view');
@@ -58,6 +62,11 @@ export default async function AdminPostDetailPage({
 
   const locale = await getLocale();
   const { post, author } = detail;
+  // 일별 조회 수 그래프 (기간: ?range=7|30|90, 기본 30일)
+  const range = parseViewRange((await searchParams).range);
+  const dailyViews = await getPostDailyViews(post.id, range);
+  const rangeTotal = dailyViews.reduce((sum, day) => sum + day.views, 0);
+  const rangePeak = Math.max(0, ...dailyViews.map((day) => day.views));
   const listPath = adminPath(locale, requireAdminKey(), 'posts');
   const canModerate = canPerform(admin.role, 'post.ban');
   const canDelete = canPerform(admin.role, 'post.delete');
@@ -128,6 +137,53 @@ export default async function AdminPostDetailPage({
             </a>
           </InfoRow>
         </dl>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className={SECTION_TITLE_CLASS}>
+            <Trans>일별 조회 수</Trans>
+          </h2>
+          {/* 기간 고르기 (그래프 위 한 줄) */}
+          <nav className="flex gap-1" aria-label={i18n._(msg`기간`)}>
+            {VIEW_RANGES.map((days) => (
+              <LocalizedLink
+                key={days}
+                href={`?range=${days}`}
+                scroll={false}
+                aria-current={days === range ? 'page' : undefined}
+                className={`border px-2.5 py-1 text-[12px] ${
+                  days === range
+                    ? 'border-brand bg-brand-soft text-ink'
+                    : 'border-line text-ink-muted hover:text-ink'
+                }`}
+              >
+                <Trans>{days}일</Trans>
+              </LocalizedLink>
+            ))}
+          </nav>
+        </div>
+        <p className="text-[12px] text-ink-muted">
+          <Trans>
+            최근 {range}일 합계 {rangeTotal.toLocaleString(locale)} · 하루 최고{' '}
+            {rangePeak.toLocaleString(locale)} (한국 시간 기준, 같은 방문자는
+            30일에 한 번만 셈)
+          </Trans>
+        </p>
+        <div className="border border-line bg-panel p-4">
+          <ViewsLineChart
+            data={dailyViews}
+            locale={locale}
+            labels={{
+              views: i18n._(msg`조회`),
+              date: i18n._(msg`날짜`),
+              table: i18n._(msg`표로 보기`),
+              summary: i18n._(
+                msg`최근 ${range}일 일별 조회 수, 합계 ${rangeTotal}`,
+              ),
+            }}
+          />
+        </div>
       </section>
 
       {canModerate ? (

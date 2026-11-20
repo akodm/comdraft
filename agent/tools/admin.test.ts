@@ -22,6 +22,7 @@ const VIEW_TOOLS = [
   'getAiPrompt',
   'getDashboard',
   'getPost',
+  'getPostViews',
   'getPromptHistory',
   'getUser',
   'listAiPrompts',
