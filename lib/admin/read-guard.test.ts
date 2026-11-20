@@ -62,6 +62,11 @@ const READERS: Array<[string, () => Promise<unknown>]> = [
     async () => (await import('@/lib/admin/post-queries')).getPostDetail('p1'),
   ],
   [
+    'getPostDailyViews',
+    async () =>
+      (await import('@/lib/admin/post-queries')).getPostDailyViews('p1', 30),
+  ],
+  [
     'listPromptHistory',
     async () =>
       (await import('@/lib/admin/prompt-history-queries')).listPromptHistory({
