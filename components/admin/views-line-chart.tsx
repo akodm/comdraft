@@ -25,7 +25,7 @@ interface ViewsLineChartProps {
 }
 
 const WIDTH = 720;
-const HEIGHT = 240;
+const HEIGHT = 180;
 const PAD = { top: 16, right: 16, bottom: 28, left: 40 };
 const PLOT_W = WIDTH - PAD.left - PAD.right;
 const PLOT_H = HEIGHT - PAD.top - PAD.bottom;
@@ -104,7 +104,7 @@ export default function ViewsLineChart({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="relative">
+      <div className="relative max-w-[720px]">
         <svg
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           className="h-auto w-full touch-none select-none outline-none focus-visible:ring-2 focus-visible:ring-brand"

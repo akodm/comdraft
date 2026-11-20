@@ -2,6 +2,7 @@ import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
   ADMIN_INPUT_CLASS,
+  ADMIN_SELECT_CLASS,
   ADMIN_TITLE_CLASS,
 } from '@/components/admin/admin-styles';
 import AdminPagination from '@/components/admin/admin-pagination';
@@ -81,7 +82,7 @@ export default async function AdminPostsPage({
           name="visibility"
           defaultValue={visibility ?? ''}
           aria-label={i18n._(msg`공개 범위`)}
-          className={`${ADMIN_INPUT_CLASS} w-auto`}
+          className={`${ADMIN_SELECT_CLASS} w-auto`}
         >
           <option value="">{i18n._(msg`공개 범위 전체`)}</option>
           <option value="public">{i18n._(msg`전체 공개`)}</option>
@@ -91,7 +92,7 @@ export default async function AdminPostsPage({
           name="language"
           defaultValue={postLocale ?? ''}
           aria-label={i18n._(msg`언어`)}
-          className={`${ADMIN_INPUT_CLASS} w-auto`}
+          className={`${ADMIN_SELECT_CLASS} w-auto`}
         >
           <option value="">{i18n._(msg`언어 전체`)}</option>
           <option value="ko">ko</option>
