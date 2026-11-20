@@ -1,4 +1,5 @@
 import 'server-only';
+import { requireAdmin } from '@/lib/admin/guard';
 import { and, asc, desc, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import {
@@ -33,6 +34,9 @@ const localeOrder = (locale: string): number => (locale === 'ko' ? 0 : 1);
 
 // 기본값 행 전체와 수정 여부, 마지막 수정자·시각
 export const listPromptOverview = async (): Promise<PromptOverviewRow[]> => {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
   const rows = await db
     .select({
       locale: aiPromptDefault.locale,
@@ -90,6 +94,9 @@ export const getPromptEditor = async (
   locale: string,
   key: string,
 ): Promise<PromptEditorData | null> => {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
   const [base] = await db
     .select({
       content: aiPromptDefault.content,

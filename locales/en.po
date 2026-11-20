@@ -368,6 +368,10 @@ msgstr "Not applied"
 msgid "초안 목록 열기"
 msgstr "Open draft list"
 
+#: app/[lang]/admin/[adminKey]/(console)/layout.tsx:18
+msgid "사용량이 한도를 넘은 사용자 찾기"
+msgstr "Find users over their usage limit"
+
 #: components/studio/repository-settings-panel.tsx:388
 msgid "브랜치가 없습니다."
 msgstr "No branches found."
@@ -606,6 +610,10 @@ msgstr "Revoke"
 #: components/studio/draft-list-item.tsx:124
 msgid "제목 없는 초안"
 msgstr "Untitled draft"
+
+#: app/[lang]/admin/[adminKey]/(console)/layout.tsx:17
+msgid "문제 있는 게시글 찾아서 밴하기"
+msgstr "Find and ban problematic posts"
 
 #: components/main/mobile-menu.tsx:133
 msgid "메뉴"
@@ -1518,6 +1526,10 @@ msgstr "More required blocks"
 msgid "AI 작성 재개"
 msgstr "Resume AI drafting"
 
+#: app/[lang]/admin/[adminKey]/(console)/layout.tsx:16
+msgid "AI 작성 상태 확인하고 필요하면 멈추기"
+msgstr "Check AI writing status and pause it if needed"
+
 #: components/studio/generation-progress.tsx:40
 msgid "이용이 제한된 계정이에요."
 msgstr "This account has been restricted."
@@ -1675,6 +1687,10 @@ msgstr "Turn your GitHub commits into tech blog drafts, <0/>then polish and publ
 msgid "내용을 입력하세요"
 msgstr "Start writing"
 
+#: app/[lang]/admin/[adminKey]/(console)/layout.tsx:54
+msgid "AI 어시스턴트"
+msgstr "AI Assistant"
+
 #: components/auth/commit-to-draft-motion.tsx:55
 #: components/main/sample-commit-panel.tsx:33
 #: components/onboarding/draft-example.tsx:51
@@ -1801,6 +1817,10 @@ msgstr "Account"
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:96
 msgid "언어 전체"
 msgstr "All languages"
+
+#: app/[lang]/admin/[adminKey]/(console)/layout.tsx:19
+msgid "이번 주 통계 요약해 줘"
+msgstr "Summarize this week's stats"
 
 #: lib/studio/options.ts:57
 msgid "강의"
@@ -2125,6 +2145,10 @@ msgstr "Previous text"
 msgid "지금은 AI 작성을 잠시 멈췄어요. 잠시 후 다시 시도해 주세요."
 msgstr "AI writing is temporarily paused. Please try again later."
 
+#: app/[lang]/admin/[adminKey]/(console)/layout.tsx:21
+msgid "최근 가입한 사용자 목록 조회"
+msgstr "List recently joined users"
+
 #: app/[lang]/admin/[adminKey]/(auth)/password/page.tsx:28
 #: app/[lang]/admin/[adminKey]/(console)/account/password/page.tsx:16
 #: components/admin/admin-profile-menu.tsx:87
@@ -2172,6 +2196,10 @@ msgstr "Sample data, not your own"
 #: components/studio/prompt-composer.tsx:531
 msgid "초안을 다시 작성할까요?"
 msgstr "Rewrite this draft?"
+
+#: app/[lang]/admin/[adminKey]/(console)/layout.tsx:55
+msgid "무엇이든 물어보세요..."
+msgstr "Ask me anything..."
 
 #: components/studio/code-input-dialog.tsx:135
 msgid "코드 다시 넣기"
@@ -2243,6 +2271,10 @@ msgstr "Loading branches..."
 #: components/main/steps-section.tsx:20
 msgid "사이트 내 게시하거나 내보내어 다른 곳에서 활용하세요."
 msgstr "Publish it on the site, or export it to use anywhere else."
+
+#: app/[lang]/admin/[adminKey]/(console)/layout.tsx:20
+msgid "진행 중인 AI 작업 보여 줘"
+msgstr "Show AI jobs in progress"
 
 #: components/studio/account-settings-panel.tsx:291
 msgid "연동 계정"
