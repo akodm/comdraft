@@ -16,7 +16,8 @@ export type {
 } from 'dopus/react';
 
 // Plugins are optional. Remove a line to drop that part of the chat; see the README.
-const plugins = [toolLog(), approvals()];
+// "모두 승인" 은 끔: 프롬프트 주입으로 끼어든 호출이 한꺼번에 승인되지 않도록 카드마다 확인
+const plugins = [toolLog(), approvals({ approveAll: false })];
 
 export function AgentChat(props: AgentChatProps) {
   return <Chat {...props} plugins={props.plugins ?? plugins} />;

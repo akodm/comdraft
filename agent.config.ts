@@ -4,7 +4,9 @@ import { z } from 'zod';
 import app, { locales } from '@/agent/prompts/app';
 import preset from '@/agent/prompts/preset';
 import { adminTools } from '@/agent/tools/admin';
+import { maskAdminKey } from '@/lib/admin/agent-request';
 import { canPerform } from '@/lib/admin/roles';
+import { incrementRateLimit } from '@/lib/rate-limit';
 import { getAdminSession } from '@/lib/admin/session';
 import type { AdminRole } from '@/lib/db/schema/admin';
 
@@ -15,6 +17,10 @@ declare module 'dopus' {
     role: AdminRole;
   }
 }
+
+// 어드민 한 명이 1시간에 보낼 수 있는 에이전트 요청 수 (고정 창, rate_limit 테이블)
+const AGENT_RATE_LIMIT = 60;
+const AGENT_RATE_WINDOW_MS = 60 * 60 * 1000;
 
 /**
  * 기존 서버 함수를 도구로 등록 (에이전트 요청 안에서 실행되므로 쿠키·권한 확인이 그대로 적용됨)
@@ -44,12 +50,33 @@ export default defineAgent({
   requireUser: true,
   // 모델에 알려 줄 요청마다의 사실: 지금 묻는 사람은 어드민 계정이며 서비스 사용자가 아님
   // (identify 값은 모델에 그대로 가지 않으므로, 없으면 도구 결과에서 서비스 사용자를 본인으로 짐작함)
-  runtime: (_, { user }) =>
-    user
+  // 브라우저가 알려 주는 현재 주소(page)에는 어드민 키가 들어 있으므로 가려서 덮어씀 (runtime 값이 브라우저 값보다 우선)
+  runtime: (_, { user, client }) => ({
+    page: maskAdminKey(client.page, process.env.ADMIN_PATH_KEY),
+    ...(user
       ? {
           'Signed-in admin (admin console account, not a service user)': `${user.loginId} (role: ${user.role})`,
         }
-      : {},
+      : {}),
+  }),
+  // 비용·남용 방지: 어드민마다 1시간에 60번, 한 요청의 도구 왕복·본문·출력 크기 제한
+  beforeRequest: async ({ user }) => {
+    if (!user) {
+      return undefined;
+    }
+
+    const count = await incrementRateLimit(
+      `agent:${user.id}`,
+      AGENT_RATE_WINDOW_MS,
+    );
+
+    return count > AGENT_RATE_LIMIT
+      ? new Response('Too Many Requests', { status: 429 })
+      : undefined;
+  },
+  maxSteps: 6,
+  limits: { maxBodyBytes: 200_000 },
+  callOptions: { maxOutputTokens: 4000 },
   // 프롬프트 층 (안정 → 요청마다): dopus 기본 규칙 → preset → app → runtime
   prompt: { preset, app, locales },
 });
