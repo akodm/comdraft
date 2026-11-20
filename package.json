@@ -28,6 +28,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.106",
+    "@ai-sdk/react": "^4.0.181",
     "@better-auth/drizzle-adapter": "1.7.10",
     "@codemirror/commands": "6.11.1",
     "@codemirror/language": "6.13.1",
@@ -49,10 +51,12 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.0",
     "@vercel/speed-insights": "^2.0.0",
+    "ai": "^7.0.177",
     "aws4fetch": "1.0.20",
     "bcryptjs": "^3.0.3",
     "better-auth": "1.7.10",
     "dayjs": "^1.11.23",
+    "dopus": "^0.4.0",
     "drizzle-orm": "0.45.4",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^1.74.0",
@@ -63,9 +67,12 @@
     "qs": "^6.16.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "sharp": "0.35.4",
-    "tailwind-scrollbar-hide": "^4.0.0"
+    "tailwind-scrollbar-hide": "^4.0.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.4",

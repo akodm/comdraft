@@ -1,8 +1,25 @@
+import type { MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/core/macro';
 import AdminHeader from '@/components/admin/admin-header';
+import { AgentWidget } from '@/components/agent/agent-chat';
 import AdminSidebar from '@/components/admin/admin-sidebar';
+import {
+  type AgentSuggestionId,
+  agentSuggestionsFor,
+} from '@/lib/admin/agent-suggestions';
 import { requireAdmin, requireAdminKey } from '@/lib/admin/guard';
 import { adminPath } from '@/lib/admin/path-key';
 import { getLocale, initLingui } from '@/lib/i18n/server';
+
+// 에이전트 위젯 기본 제안 문구 (어떤 제안을 보여 줄지는 권한에 따라 agentSuggestionsFor 가 정함)
+const SUGGESTION_MESSAGES: Record<AgentSuggestionId, MessageDescriptor> = {
+  'ai-pause': msg`AI 작성 상태 확인하고 필요하면 멈추기`,
+  'ban-post': msg`문제 있는 게시글 찾아서 밴하기`,
+  'reset-usage': msg`사용량이 한도를 넘은 사용자 찾기`,
+  'weekly-stats': msg`이번 주 통계 요약해 줘`,
+  'active-jobs': msg`진행 중인 AI 작업 보여 줘`,
+  'recent-users': msg`최근 가입한 사용자 목록 조회`,
+};
 
 /**
  * 어드민 콘솔 틀: 위 헤더, 왼쪽 사이드 메뉴, 오른쪽 넓은 본문 (푸터 없음)
@@ -12,7 +29,7 @@ import { getLocale, initLingui } from '@/lib/i18n/server';
 export default async function AdminConsoleLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  await initLingui();
+  const i18n = await initLingui();
   const lang = await getLocale();
   const session = await requireAdmin('view');
   const basePath = adminPath(lang, requireAdminKey());
@@ -31,6 +48,16 @@ export default async function AdminConsoleLayout({
           {children}
         </main>
       </div>
+      {/* 콘솔에 들어온 어드민에게만 (로그인·비밀번호 변경 화면에는 그리지 않음) */}
+      <AgentWidget
+        labels={{
+          title: i18n._(msg`AI 어시스턴트`),
+          placeholder: i18n._(msg`무엇이든 물어보세요...`),
+        }}
+        suggestions={agentSuggestionsFor(session.role).map(({ id }) =>
+          i18n._(SUGGESTION_MESSAGES[id]),
+        )}
+      />
     </div>
   );
 }
