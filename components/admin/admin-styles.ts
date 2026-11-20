@@ -14,6 +14,9 @@ export const ADMIN_LABEL_CLASS =
 export const ADMIN_INPUT_CLASS =
   'h-10 w-full border border-line bg-white px-3 text-[14px] text-ink outline-none transition-colors placeholder:text-ink-subtle focus:border-brand';
 
+// 선택 상자: 입력 칸과 같은 모양 + 화살표를 오른쪽에서 안쪽으로 띄움 (globals.css 의 select-chevron)
+export const ADMIN_SELECT_CLASS = `${ADMIN_INPUT_CLASS} select-chevron pr-9`;
+
 // 여러 줄 입력 칸 (조치 사유)
 export const ADMIN_TEXTAREA_CLASS =
   'w-full resize-y border border-line bg-white px-3 py-2 text-[13px] leading-[1.6] text-ink outline-none transition-colors focus:border-brand';

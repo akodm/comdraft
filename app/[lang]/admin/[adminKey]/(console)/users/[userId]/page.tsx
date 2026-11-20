@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
-  ADMIN_INPUT_CLASS,
+  ADMIN_SELECT_CLASS,
   ADMIN_TITLE_CLASS,
 } from '@/components/admin/admin-styles';
 import AdminTable from '@/components/admin/admin-table';
@@ -218,7 +218,7 @@ export default async function AdminUserDetailPage({
             <select
               name="role"
               defaultValue={user.role}
-              className={ADMIN_INPUT_CLASS}
+              className={ADMIN_SELECT_CLASS}
             >
               {/* 정책에 없는 등급이면 첫 항목으로 조용히 바뀌지 않도록 현재 값을 보여 줌 */}
               {detail.plans.includes(user.role) ? null : (
