@@ -9,7 +9,7 @@ msgstr ""
 
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:188
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:201
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:266
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:277
 msgid "관련 조치 기록"
 msgstr "Related action log"
 
@@ -18,7 +18,7 @@ msgstr "Related action log"
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:259
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:201
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:214
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:279
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:290
 msgid "삭제된 어드민"
 msgstr "Deleted admin"
 
@@ -30,11 +30,11 @@ msgstr "Sign up / Sign in with GitHub"
 msgid "중간"
 msgstr "Medium"
 
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:260
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:271
 msgid "작업이 없어요"
 msgstr "No jobs yet"
 
-#: components/studio/clarification-card.tsx:50
+#: components/studio/clarification-card.tsx:52
 msgid "넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요."
 msgstr "The code differs from what you first added. Please add the code again."
 
@@ -43,8 +43,8 @@ msgstr "The code differs from what you first added. Please add the code again."
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:192
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:205
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:75
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:240
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:270
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:251
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:281
 msgid "시각"
 msgstr "Time"
 
@@ -101,7 +101,7 @@ msgid "임시 조치(밴)"
 msgstr "Temporarily blocked (banned)"
 
 #: components/studio/generation-progress.tsx:35
-#: components/studio/prompt-composer.tsx:84
+#: components/studio/prompt-composer.tsx:87
 msgid "AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요."
 msgstr "Couldn't reach the AI writing service. Please try again shortly."
 
@@ -149,7 +149,7 @@ msgstr "Current password"
 msgid "조회 수"
 msgstr "Views"
 
-#: components/studio/draft-editor.tsx:501
+#: components/studio/draft-editor.tsx:502
 msgid "초안 본문"
 msgstr "Draft body"
 
@@ -169,7 +169,7 @@ msgstr "Started at"
 msgid "마지막 게시"
 msgstr "Last published"
 
-#: components/studio/draft-editor.tsx:460
+#: components/studio/draft-editor.tsx:461
 msgid "설명 필요"
 msgstr "Needs detail"
 
@@ -182,7 +182,7 @@ msgid "현재 비밀번호가 맞지 않아요."
 msgstr "Your current password is incorrect."
 
 #: components/studio/generation-progress.tsx:31
-#: components/studio/prompt-composer.tsx:83
+#: components/studio/prompt-composer.tsx:86
 #: components/studio/repository-settings-panel.tsx:56
 msgid "GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요."
 msgstr "Your GitHub session has expired. Sign in again and retry."
@@ -195,7 +195,7 @@ msgstr "Higher models use up this week's allowance faster."
 msgid "언어 변경"
 msgstr "Change language"
 
-#: components/studio/prompt-composer.tsx:86
+#: components/studio/prompt-composer.tsx:89
 msgid "사용량 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
 msgstr "Couldn't load usage information. Please try again in a moment."
 
@@ -204,7 +204,7 @@ msgid "남음"
 msgstr "Remaining"
 
 #: components/studio/blank-fill-messages.ts:19
-#: components/studio/prompt-composer.tsx:469
+#: components/studio/prompt-composer.tsx:472
 #: components/studio/quota-exhausted-banner.tsx:30
 msgid "이번 주 사용 가능한 양을 모두 사용했습니다. {resetsAt}에 초기화됩니다."
 msgstr "You've used all of this week's allowance. It resets on {resetsAt}."
@@ -252,7 +252,7 @@ msgstr "Published · Unlisted"
 msgid "게시를 취소하면 공개 주소가 더 이상 열리지 않습니다"
 msgstr "If you unpublish, the public address will no longer open."
 
-#: components/studio/draft-editor.tsx:662
+#: components/studio/draft-editor.tsx:663
 msgid "마크다운 파일로 내보내기"
 msgstr "Export as Markdown file"
 
@@ -327,7 +327,7 @@ msgstr "Heading 4"
 msgid "유형"
 msgstr "Type"
 
-#: components/studio/draft-editor.tsx:470
+#: components/studio/draft-editor.tsx:471
 msgid "여기에 직접 작성해 주세요"
 msgstr "Write it here yourself"
 
@@ -364,7 +364,7 @@ msgstr "You can add up to 10 tags"
 msgid "적용 안 됨"
 msgstr "Not applied"
 
-#: components/studio/prompt-composer.tsx:410
+#: components/studio/prompt-composer.tsx:413
 msgid "초안 목록 열기"
 msgstr "Open draft list"
 
@@ -443,7 +443,7 @@ msgstr "Sessions"
 msgid "계정 정보를 불러오지 못했습니다."
 msgstr "Couldn't load your account details."
 
-#: components/studio/draft-editor.tsx:452
+#: components/studio/draft-editor.tsx:453
 msgid "결과·수치"
 msgstr "Results & numbers"
 
@@ -478,7 +478,7 @@ msgstr "Completed"
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:173
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:207
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:163
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:272
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:283
 msgid "조치"
 msgstr "Action"
 
@@ -517,7 +517,7 @@ msgstr "Start simply, generate drafts, and keep writing consistently."
 msgid "언어"
 msgstr "Language"
 
-#: components/studio/draft-editor.tsx:456
+#: components/studio/draft-editor.tsx:457
 msgid "배운 점"
 msgstr "Lessons learned"
 
@@ -555,7 +555,7 @@ msgstr "Couldn't refine this blank. Please try again."
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:267
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:206
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:219
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:284
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:295
 msgid "조치 기록이 없어요"
 msgstr "No admin actions yet"
 
@@ -570,7 +570,7 @@ msgstr "All"
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:117
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:108
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:80
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:242
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:253
 #: app/[lang]/admin/[adminKey]/(console)/users/page.tsx:84
 msgid "상태"
 msgstr "Status"
@@ -619,12 +619,12 @@ msgstr "Link URL"
 msgid "JPEG, PNG, WebP, GIF, AVIF 이미지만 넣을 수 있습니다"
 msgstr "Only JPEG, PNG, WebP, GIF, and AVIF images can be added."
 
-#: components/studio/draft-editor.tsx:61
+#: components/studio/draft-editor.tsx:62
 #: components/studio/publish-dialog.tsx:29
 msgid "올리지 못한 이미지가 있습니다"
 msgstr "Some images haven't been uploaded."
 
-#: components/studio/prompt-composer.tsx:77
+#: components/studio/prompt-composer.tsx:79
 msgid "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 msgstr "You can select up to {MAX_GENERATION_COMMITS} commits at a time."
 
@@ -642,7 +642,7 @@ msgstr "Posts"
 msgid "언어 선택"
 msgstr "Choose language"
 
-#: components/studio/draft-editor.tsx:716
+#: components/studio/draft-editor.tsx:717
 msgid "커밋을 선택하거나 코드를 직접 넣고 작성 요청을 보내면<0/>이곳에 초안이 만들어집니다."
 msgstr "Select commits or enter code directly and send a request,<0/>and your draft will appear here."
 
@@ -660,7 +660,7 @@ msgstr "Search by title or author"
 msgid "프로필 메뉴"
 msgstr "Profile menu"
 
-#: components/studio/draft-editor.tsx:653
+#: components/studio/draft-editor.tsx:654
 msgid "HTML 파일로 내보내기"
 msgstr "Export as HTML file"
 
@@ -721,7 +721,7 @@ msgstr "Last read at {readAt}"
 msgid "수정 문장"
 msgstr "Override text"
 
-#: components/studio/clarification-card.tsx:241
+#: components/studio/clarification-card.tsx:245
 msgid "작성 전 질문"
 msgstr "Questions before writing"
 
@@ -729,7 +729,7 @@ msgstr "Questions before writing"
 msgid "기본 문장이 바뀌어 이 수정본은 지금 적용되지 않아요. 빠진 문자열:"
 msgstr "The default text changed, so this edited version is not applied right now. Missing strings:"
 
-#: components/studio/clarification-card.tsx:46
+#: components/studio/clarification-card.tsx:48
 msgid "답을 확인해 주세요."
 msgstr "Please check your answers."
 
@@ -742,7 +742,7 @@ msgstr "Delete account"
 msgid "등급"
 msgstr "Plan"
 
-#: components/studio/draft-editor.tsx:468
+#: components/studio/draft-editor.tsx:469
 msgid "답은 1,000자까지 적을 수 있습니다"
 msgstr "Answers can be up to 1,000 characters."
 
@@ -768,7 +768,7 @@ msgstr "You've already added this link."
 msgid "추적 브랜치에 커밋이 없습니다."
 msgstr "There are no commits on the tracked branch."
 
-#: components/studio/draft-editor.tsx:643
+#: components/studio/draft-editor.tsx:644
 msgid "저장하지 못했습니다"
 msgstr "Couldn't save"
 
@@ -845,7 +845,7 @@ msgstr "This request was larger than your remaining usage, so it wasn't processe
 msgid "추적 브랜치 {branch}"
 msgstr "Tracked branch {branch}"
 
-#: components/studio/prompt-composer.tsx:119
+#: components/studio/prompt-composer.tsx:122
 msgid "{count, plural, other {커밋 #개}}"
 msgstr "{count, plural, one {# commit} other {# commits}}"
 
@@ -887,7 +887,7 @@ msgstr "Public page"
 msgid "넣음 · 고치기"
 msgstr "Added · Edit"
 
-#: components/studio/prompt-composer.tsx:79
+#: components/studio/prompt-composer.tsx:81
 msgid "작성 요청을 보낼 수 없습니다. 입력한 내용을 확인해주세요."
 msgstr "Couldn't send the request. Check what you entered."
 
@@ -899,13 +899,13 @@ msgstr "Personal repository"
 msgid "{name} 코드 다시 넣기"
 msgstr "Add code {name} again"
 
-#: components/studio/draft-editor.tsx:457
+#: components/studio/draft-editor.tsx:458
 #: lib/generation/blank-questions.ts:15
 msgid "이 부분에 배운 점을 작성해 주세요"
 msgstr "Write what you learned here"
 
 #. placeholder {0}: question.id
-#: components/studio/clarification-card.tsx:121
+#: components/studio/clarification-card.tsx:125
 msgid "{0} 답 직접 입력"
 msgstr "Write your own answer for {0}"
 
@@ -914,7 +914,7 @@ msgstr "Write your own answer for {0}"
 msgid "작업 과정을 <0>글 초안으로.</0>"
 msgstr "Turn your work <0>into drafts.</0>"
 
-#: components/studio/clarification-card.tsx:47
+#: components/studio/clarification-card.tsx:49
 msgid "이미 처리된 질문입니다. 화면을 새로 고쳐 주세요."
 msgstr "This question was already handled. Please refresh the page."
 
@@ -978,6 +978,11 @@ msgstr "{0, plural, one {# line} other {# lines}}"
 msgid "이전 쪽"
 msgstr "Previous page"
 
+#: components/studio/clarification-card.tsx:54
+#: components/studio/prompt-composer.tsx:85
+msgid "진행 중인 작성이 끝난 뒤 다시 요청해 주세요. (동시에 {MAX_ACTIVE_GENERATIONS}개까지)"
+msgstr "Please wait for your current writing jobs to finish, then try again. (Up to {MAX_ACTIVE_GENERATIONS} at a time)"
+
 #: components/studio/editor-toolbar.tsx:41
 msgid "제목 2"
 msgstr "Heading 2"
@@ -987,7 +992,7 @@ msgstr "Heading 2"
 msgid "이메일"
 msgstr "Email"
 
-#: components/studio/prompt-composer.tsx:194
+#: components/studio/prompt-composer.tsx:197
 msgid "모두 해제"
 msgstr "Clear all"
 
@@ -1015,8 +1020,8 @@ msgstr "You can add links after the AI finishes writing."
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:76
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:86
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:106
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:248
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:257
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:259
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:268
 msgid "숨김"
 msgstr "Hidden"
 
@@ -1042,7 +1047,7 @@ msgstr "{selectedCount} selected"
 msgid "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgstr "A sample repository and draft to show how the service works."
 
-#: components/studio/draft-editor.tsx:571
+#: components/studio/draft-editor.tsx:572
 msgid "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 msgstr "{count, plural, one {There is # unfilled blank.} other {There are # unfilled blanks.}} Export anyway?"
 
@@ -1081,7 +1086,7 @@ msgstr "Main menu"
 msgid "마지막 변경: {0} · {1}"
 msgstr "Last changed: {0} · {1}"
 
-#: components/studio/prompt-composer.tsx:241
+#: components/studio/prompt-composer.tsx:244
 msgid "+{pcRest}개"
 msgstr "+{pcRest}"
 
@@ -1109,7 +1114,7 @@ msgstr "{0, plural, one {The code you first added had # line. Please add the sam
 msgid "AI 초안 · 게시 전 검토 필요"
 msgstr "AI draft · Review before publishing"
 
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:228
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:239
 msgid "등급 변경"
 msgstr "Change plan"
 
@@ -1145,7 +1150,7 @@ msgstr "{charCount} / {maxChars} chars"
 msgid "탈퇴하지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't delete your account. Please try again."
 
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:236
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:247
 msgid "최근 작업"
 msgstr "Recent jobs"
 
@@ -1181,7 +1186,7 @@ msgstr "Pause"
 msgid "지금 이후에 만든 작업만 이번 주 사용량으로 셈해요. 작업 기록은 그대로 남아요."
 msgstr "Only jobs created from now on count toward this week's usage. Job history is kept."
 
-#: components/studio/prompt-composer.tsx:82
+#: components/studio/prompt-composer.tsx:84
 msgid "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
 msgstr "Too many requests. Please try again later."
 
@@ -1189,15 +1194,15 @@ msgstr "Too many requests. Please try again later."
 msgid "이번 주 새 게시글"
 msgstr "New posts this week"
 
-#: components/studio/draft-editor.tsx:448
+#: components/studio/draft-editor.tsx:449
 msgid "계기"
 msgstr "Motivation"
 
-#: components/studio/prompt-composer.tsx:452
+#: components/studio/prompt-composer.tsx:455
 msgid "선택한 커밋이나 코드로 어떤 글을 쓸지 요청해주세요."
 msgstr "Tell us what to write from the selected commits or code."
 
-#: components/studio/prompt-composer.tsx:89
+#: components/studio/prompt-composer.tsx:92
 msgid "작성 요청을 보내지 못했습니다. 다시 시도해주세요."
 msgstr "Couldn't send your request. Please try again."
 
@@ -1205,8 +1210,8 @@ msgstr "Couldn't send your request. Please try again."
 msgid "시작하기"
 msgstr "Get started"
 
-#: components/studio/prompt-composer.tsx:440
-#: components/studio/prompt-composer.tsx:451
+#: components/studio/prompt-composer.tsx:443
+#: components/studio/prompt-composer.tsx:454
 msgid "작성 요청"
 msgstr "Request"
 
@@ -1234,7 +1239,7 @@ msgstr "GitHub sign-in failed."
 msgid "AI 초안 작성"
 msgstr "Write an AI draft"
 
-#: components/studio/prompt-composer.tsx:85
+#: components/studio/prompt-composer.tsx:88
 msgid "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "Couldn't find the draft or repository. Refresh the page and try again."
 
@@ -1316,7 +1321,7 @@ msgstr "We couldn't find a verified email on GitHub. Make sure your primary GitH
 msgid "Github 계정으로 로그인합니다"
 msgstr "Sign in with your GitHub account."
 
-#: components/studio/draft-editor.tsx:449
+#: components/studio/draft-editor.tsx:450
 #: lib/generation/blank-questions.ts:13
 msgid "이 부분에 작업 계기를 작성해 주세요"
 msgstr "Write why you started this work here"
@@ -1388,7 +1393,7 @@ msgstr "Modified"
 msgid "커밋에 대한 설명을 프롬프트에 넣어 초안을 만듭니다."
 msgstr "Add a description of your commits to the prompt to generate a draft."
 
-#: components/studio/prompt-composer.tsx:160
+#: components/studio/prompt-composer.tsx:163
 msgid "{sha} 선택 해제"
 msgstr "Deselect {sha}"
 
@@ -1412,7 +1417,7 @@ msgstr "Sign-in is blocked and writing requests are rejected. Current sessions e
 msgid "작업 과정을 기술 블로그의 초안으로 활용하고, 어디든 게시하세요."
 msgstr "Turn your work into tech blog drafts and publish them anywhere."
 
-#: components/studio/prompt-composer.tsx:506
+#: components/studio/prompt-composer.tsx:509
 msgid "AI 가 초안을 작성하는 중..."
 msgstr "AI is writing the draft..."
 
@@ -1448,7 +1453,7 @@ msgstr "Italic"
 msgid "comdraft 가 처리하는 개인정보 항목과 이용 목적, AI 초안 작성을 위한 제3자 전송, 보유 기간과 이용자의 권리를 안내합니다."
 msgstr "How comdraft handles personal information: what we collect and why, third-party transfer for AI drafts, retention, and your rights."
 
-#: components/studio/draft-editor.tsx:467
+#: components/studio/draft-editor.tsx:468
 msgid "AI 가 다듬는 중이에요"
 msgstr "AI is refining this"
 
@@ -1466,7 +1471,7 @@ msgstr "Account settings"
 msgid "코드"
 msgstr "Code"
 
-#: components/studio/prompt-composer.tsx:537
+#: components/studio/prompt-composer.tsx:540
 msgid "다시 작성"
 msgstr "Rewrite"
 
@@ -1474,7 +1479,7 @@ msgstr "Rewrite"
 msgid "comdraft — 커밋으로 쓰는 AI 기술 블로그 초안"
 msgstr "comdraft — AI tech blog drafts from your commits"
 
-#: components/studio/prompt-composer.tsx:508
+#: components/studio/prompt-composer.tsx:511
 msgid "작성 요청을 보내는 중..."
 msgstr "Sending request..."
 
@@ -1495,7 +1500,7 @@ msgstr "Recent admin actions"
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:250
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:193
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:206
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:271
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:282
 #: app/[lang]/admin/[adminKey]/layout.tsx:8
 #: components/admin/admin-header.tsx:35
 msgid "어드민"
@@ -1517,7 +1522,7 @@ msgstr "Resume AI drafting"
 msgid "이용이 제한된 계정이에요."
 msgstr "This account has been restricted."
 
-#: components/studio/prompt-composer.tsx:74
+#: components/studio/prompt-composer.tsx:76
 msgid "작성 요청을 입력해주세요."
 msgstr "Enter a request."
 
@@ -1562,7 +1567,7 @@ msgstr "Organization repository"
 msgid "어드민 메뉴"
 msgstr "Admin menu"
 
-#: components/studio/prompt-composer.tsx:81
+#: components/studio/prompt-composer.tsx:83
 msgid "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요."
 msgstr "The AI is already writing this draft. Try again when it finishes."
 
@@ -1578,7 +1583,7 @@ msgstr "Total cost"
 msgid "구분"
 msgstr "Sort"
 
-#: components/studio/clarification-card.tsx:114
+#: components/studio/clarification-card.tsx:118
 msgid "직접 입력"
 msgstr "Write my own"
 
@@ -1589,7 +1594,7 @@ msgstr "Hide entry"
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:253
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:195
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:208
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:273
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:284
 msgid "요약"
 msgstr "Summary"
 
@@ -1610,13 +1615,13 @@ msgstr "AI is writing"
 msgid "기본 정보"
 msgstr "Basic info"
 
-#: components/studio/prompt-composer.tsx:531
+#: components/studio/prompt-composer.tsx:534
 msgid "새로 작성하면 지금 본문이 AI 결과로 바뀝니다. 직접 고친 내용도 사라집니다."
 msgstr "Rewriting replaces the current body with the AI result. Your own edits will be lost too."
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:184
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:83
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:245
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:256
 msgid "비용"
 msgstr "Cost"
 
@@ -1628,7 +1633,7 @@ msgstr "Turn this history into one post"
 msgid "기본"
 msgstr "Default"
 
-#: components/studio/prompt-composer.tsx:520
+#: components/studio/prompt-composer.tsx:523
 msgid "제출"
 msgstr "Submit"
 
@@ -1642,9 +1647,9 @@ msgstr "Connected repositories"
 
 #: components/admin/confirm-action-button.tsx:46
 #: components/main/profile-menu.tsx:199
-#: components/studio/clarification-card.tsx:314
+#: components/studio/clarification-card.tsx:318
 #: components/studio/code-input-dialog.tsx:240
-#: components/studio/prompt-composer.tsx:538
+#: components/studio/prompt-composer.tsx:541
 #: components/studio/publish-dialog.tsx:168
 #: components/studio/reference-link-dialog.tsx:189
 msgid "취소"
@@ -1666,7 +1671,7 @@ msgstr "AI jobs in progress"
 msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
 msgstr "Turn your GitHub commits into tech blog drafts, <0/>then polish and publish them anywhere."
 
-#: components/studio/draft-editor.tsx:443
+#: components/studio/draft-editor.tsx:444
 msgid "내용을 입력하세요"
 msgstr "Start writing"
 
@@ -1700,7 +1705,7 @@ msgstr "Pick GitHub commits and PRs, and AI quickly drafts your tech blog post. 
 msgid "{resetTime} 초기화"
 msgstr "Resets {resetTime}"
 
-#: components/studio/draft-editor.tsx:461
+#: components/studio/draft-editor.tsx:462
 #: lib/generation/blank-questions.ts:16
 msgid "이 부분은 자세한 설명이 필요합니다"
 msgstr "This part needs a detailed explanation"
@@ -1776,7 +1781,7 @@ msgstr "Used"
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:207
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:115
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:79
-#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:241
+#: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:252
 #: components/studio/prompt-options.tsx:38
 msgid "모델"
 msgstr "Model"
@@ -1802,12 +1807,12 @@ msgid "강의"
 msgstr "Tutorial"
 
 #: components/admin/prompt-editor-form.tsx:61
-#: components/studio/draft-editor.tsx:640
+#: components/studio/draft-editor.tsx:641
 msgid "저장 중..."
 msgstr "Saving..."
 
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:107
-#: components/studio/draft-editor.tsx:442
+#: components/studio/draft-editor.tsx:443
 msgid "제목"
 msgstr "Title"
 
@@ -1869,6 +1874,10 @@ msgstr "Saved"
 msgid "{overrideLabel} · {0} · {1}"
 msgstr "{overrideLabel} · {0} · {1}"
 
+#: components/studio/draft-editor.tsx:61
+msgid "이미지를 너무 자주 올렸어요. 잠시 후 다시 시도해 주세요."
+msgstr "You're uploading images too often. Please try again in a moment."
+
 #: components/main/sample-draft-editor.tsx:16
 msgid "무엇을 확인할까요?"
 msgstr "What should you check?"
@@ -1881,7 +1890,7 @@ msgstr "View drafts"
 msgid "12자 이상, 아이디와 다르게 정해 주세요."
 msgstr "Use at least 12 characters, different from your ID."
 
-#: components/studio/clarification-card.tsx:306
+#: components/studio/clarification-card.tsx:310
 msgid "그냥 작성"
 msgstr "Write anyway"
 
@@ -1901,7 +1910,7 @@ msgstr "Hide"
 msgid "저장소의 커밋 내역을 불러오고 선택합니다."
 msgstr "Load your repository's commit history and pick commits."
 
-#: components/studio/prompt-composer.tsx:75
+#: components/studio/prompt-composer.tsx:77
 msgid "작성 요청은 {MAX_GENERATION_PROMPT_LENGTH}자까지 보낼 수 있습니다."
 msgstr "Requests can be up to {MAX_GENERATION_PROMPT_LENGTH} characters."
 
@@ -1942,7 +1951,7 @@ msgstr "Last editor"
 msgid "다시 로그인"
 msgstr "Sign in again"
 
-#: components/studio/draft-editor.tsx:632
+#: components/studio/draft-editor.tsx:633
 msgid "빈칸 {emptyBlankCount}개"
 msgstr "{emptyBlankCount, plural, one {# blank} other {# blanks}}"
 
@@ -1956,7 +1965,7 @@ msgid "사용자"
 msgstr "Users"
 
 #: components/main/sample-commit-panel.tsx:14
-#: components/studio/prompt-composer.tsx:138
+#: components/studio/prompt-composer.tsx:141
 msgid "선택한 커밋"
 msgstr "Selected commits"
 
@@ -1988,7 +1997,7 @@ msgstr "Redirecting..."
 msgid "넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 다만 작성된 초안에 인용된 부분은 초안 내용으로 저장되고, 요청 문구에 붙인 코드도 저장됩니다."
 msgstr "Code added here is not stored and is used only for AI writing. Parts quoted in the written draft are stored as draft content, and code pasted into the request text is stored too."
 
-#: components/studio/prompt-composer.tsx:80
+#: components/studio/prompt-composer.tsx:82
 msgid "이 모델은 현재 등급에서 쓸 수 없습니다."
 msgstr "This model isn't available on your current plan."
 
@@ -2030,7 +2039,7 @@ msgstr "Created"
 msgid "GitHub 로 이동 중..."
 msgstr "Redirecting to GitHub..."
 
-#: components/studio/draft-editor.tsx:444
+#: components/studio/draft-editor.tsx:445
 msgid "복사했습니다"
 msgstr "Copied"
 
@@ -2069,7 +2078,7 @@ msgstr "Expand default options"
 msgid "키"
 msgstr "Key"
 
-#: components/studio/draft-editor.tsx:453
+#: components/studio/draft-editor.tsx:454
 #: lib/generation/blank-questions.ts:14
 msgid "이 부분에 결과나 수치를 작성해 주세요"
 msgstr "Write the results or numbers here"
@@ -2104,7 +2113,7 @@ msgstr "By plan"
 msgid "이용이 제한된 계정이라 로그인할 수 없어요."
 msgstr "This account has been restricted and can't sign in."
 
-#: components/studio/draft-editor.tsx:616
+#: components/studio/draft-editor.tsx:617
 msgid "초안 편집"
 msgstr "Draft editor"
 
@@ -2127,7 +2136,7 @@ msgstr "Change password"
 msgid "글 유형"
 msgstr "Post type"
 
-#: components/studio/draft-editor.tsx:465
+#: components/studio/draft-editor.tsx:466
 msgid "그대로 넣기"
 msgstr "Insert as is"
 
@@ -2139,11 +2148,11 @@ msgstr "Developer blog posts"
 msgid "fix: 언마운트 시 observer 해제"
 msgstr "fix: disconnect observer on unmount"
 
-#: components/studio/clarification-card.tsx:297
+#: components/studio/clarification-card.tsx:301
 msgid "답하고 작성"
 msgstr "Answer and write"
 
-#: components/studio/prompt-composer.tsx:76
+#: components/studio/prompt-composer.tsx:78
 msgid "커밋을 하나 이상 선택하거나 코드를 직접 넣어주세요."
 msgstr "Select at least one commit or enter code directly."
 
@@ -2160,7 +2169,7 @@ msgstr "AI prompt list"
 msgid "실제 데이터가 아닌 예시입니다"
 msgstr "Sample data, not your own"
 
-#: components/studio/prompt-composer.tsx:528
+#: components/studio/prompt-composer.tsx:531
 msgid "초안을 다시 작성할까요?"
 msgstr "Rewrite this draft?"
 
@@ -2176,7 +2185,7 @@ msgstr "We couldn't process your request. Please try again in a moment."
 msgid "예시"
 msgstr "Example"
 
-#: components/studio/draft-editor.tsx:464
+#: components/studio/draft-editor.tsx:465
 msgid "AI 로 다듬기"
 msgstr "Refine with AI"
 
@@ -2213,7 +2222,7 @@ msgstr "Go to home"
 msgid "길이"
 msgstr "Length"
 
-#: components/studio/draft-editor.tsx:444
+#: components/studio/draft-editor.tsx:445
 msgid "코드 복사"
 msgstr "Copy code"
 
@@ -2399,7 +2408,7 @@ msgstr "AI tech blog drafts from your commits"
 msgid "기본값 사용"
 msgstr "Using default"
 
-#: components/studio/draft-editor.tsx:466
+#: components/studio/draft-editor.tsx:467
 msgid "지우기"
 msgstr "Remove"
 
@@ -2447,7 +2456,7 @@ msgstr "Banned"
 msgid "임시"
 msgstr "Temporary"
 
-#: components/studio/clarification-card.tsx:253
+#: components/studio/clarification-card.tsx:257
 msgid "글의 방향을 정하려면 조금 더 알려 주세요"
 msgstr "Tell us a bit more to set the direction of the post"
 
@@ -2547,7 +2556,7 @@ msgstr "Title or author"
 msgid "선택한 브랜치를 찾을 수 없습니다. 목록을 다시 열어 주세요."
 msgstr "Couldn't find the selected branch. Please reopen the list."
 
-#: components/studio/prompt-composer.tsx:177
+#: components/studio/prompt-composer.tsx:180
 msgid "커밋 내역에서 초안에 쓸 커밋을 선택해주세요."
 msgstr "Select the commits to use from the commit history."
 
@@ -2573,8 +2582,8 @@ msgstr "New users in the last 7 days"
 msgid "초안 편집기"
 msgstr "Draft editor"
 
-#: components/studio/prompt-composer.tsx:186
-#: components/studio/prompt-composer.tsx:418
+#: components/studio/prompt-composer.tsx:189
+#: components/studio/prompt-composer.tsx:421
 msgid "커밋 내역 열기"
 msgstr "Open commit history"
 
@@ -2616,7 +2625,7 @@ msgstr "None"
 msgid "사용량"
 msgstr "Usage"
 
-#: components/studio/prompt-composer.tsx:121
+#: components/studio/prompt-composer.tsx:124
 msgid "커밋 선택"
 msgstr "Select commits"
 
@@ -2665,6 +2674,6 @@ msgstr "Numbered list"
 msgid "GitHub 인증이 만료되었습니다."
 msgstr "Your GitHub session has expired."
 
-#: components/studio/prompt-composer.tsx:78
+#: components/studio/prompt-composer.tsx:80
 msgid "직접 입력한 코드는 모두 합쳐 {MAX_CODE_INPUT_TOTAL_CHARS}자까지 보낼 수 있습니다."
 msgstr "Code you enter directly can total up to {MAX_CODE_INPUT_TOTAL_CHARS} characters."

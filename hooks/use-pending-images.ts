@@ -24,6 +24,7 @@ export type ImageNotice =
   | ImageRejection
   | 'too_large'
   | 'failed'
+  | 'rate_limited'
   | 'unuploaded';
 
 const NOTICE_DURATION = 6000;

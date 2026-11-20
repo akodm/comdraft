@@ -29,7 +29,6 @@ import {
   cancelAwaitingJob,
   claimFillJob,
   clearFailedFillContexts,
-  countUserJobsSince,
   expireStaleJobs,
   failJob,
   getFillJobParagraphs,
@@ -37,12 +36,11 @@ import {
   getUserJob,
   isActiveJobConflict,
   requeueAwaitingJob,
+  reserveGenerationSlot,
   syncDraftJobs,
   type GenerationJobView,
 } from '@/lib/generation/jobs';
 import {
-  GENERATION_HOURLY_LIMIT,
-  GENERATION_RATE_WINDOW_MS,
   MAX_GENERATION_COMMITS,
   MAX_GENERATION_PROMPT_LENGTH,
 } from '@/lib/generation/limits';
@@ -52,6 +50,7 @@ import {
   getGenerationBlock,
   type GenerationBlock,
 } from '@/lib/generation/service-block';
+import type { GenerationSlotStatus } from '@/lib/generation/slot';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { getRequestLocale } from '@/lib/i18n/request';
 import {
@@ -91,7 +90,8 @@ export type RequestDraftGenerationResult =
     }
   // 이 초안에 이미 진행 중인 작업이 있음
   | { status: 'busy' }
-  | { status: 'rate_limited' }
+  // 시간당 요청 수를 넘음 / 동시에 진행 중인 작업이 한도(MAX_ACTIVE_GENERATIONS)만큼 있음
+  | { status: SlotRejection }
   // 이번 주 사용량을 모두 사용함 (resetsAt 은 ISO)
   | { status: 'quota_exhausted'; resetsAt: string }
   // 등급의 할당량 정책이 없어 확인할 수 없음
@@ -107,6 +107,15 @@ export type RequestDraftGenerationResult =
   | { status: 'runner_unavailable' };
 
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
+
+// 작업을 만들 때 시간당 요청 수·동시 진행 수에 걸린 이유
+type SlotRejection = Exclude<GenerationSlotStatus, 'ok'>;
+
+// 작업 만들기 결과 (초안 작성과 빈칸 채우기 공용)
+type CreateJobResult<T> =
+  | ({ status: 'created' } & T)
+  | { status: 'busy' }
+  | { status: SlotRejection };
 
 interface ParsedRequest {
   prompt: string;
@@ -155,6 +164,8 @@ const parseRequest = (
 
 /**
  * 작업(queued)을 만들고 초안 id 와 작업 id 반환 (새 초안이면 초안과 참고 링크도 함께 생성)
+ * - 같은 트랜잭션에서 사용자 잠금을 잡고 시간당 요청 수·동시 진행 수를 센 뒤 INSERT
+ *   (한도에 걸리면 아무것도 만들지 않고 rate_limited·too_many_active)
  * - 같은 초안에 진행 중인 작업이 있으면 유일 인덱스에 걸려 'busy'
  */
 const createJob = async (
@@ -162,12 +173,18 @@ const createJob = async (
   repositoryId: string,
   request: ParsedRequest,
   locale: Locale,
-) => {
+): Promise<CreateJobResult<{ draftId: string; jobId: string }>> => {
   const draftId = request.draftId ?? crypto.randomUUID();
   const jobId = crypto.randomUUID();
 
   try {
-    await db.transaction(async (tx) => {
+    const slot = await db.transaction(async (tx) => {
+      const reserved = await reserveGenerationSlot(tx, userId);
+
+      if (reserved !== 'ok') {
+        return reserved;
+      }
+
       // 요청 시점의 참고 링크 (작성기는 이 목록만 읽음)
       let referenceUrls = request.referenceUrls;
 
@@ -217,23 +234,28 @@ const createJob = async (
         referenceUrls,
         locale,
       });
+
+      return reserved;
     });
+
+    if (slot !== 'ok') {
+      return { status: slot };
+    }
   } catch (error) {
     if (isActiveJobConflict(error)) {
-      return null;
+      return { status: 'busy' };
     }
 
     throw error;
   }
 
-  return { draftId, jobId };
+  return { status: 'created', draftId, jobId };
 };
 
 // 작업을 만들기 전 사용자 단위 검사 결과 (통과하면 실행기에 넘길 GitHub 토큰)
 type GenerationGateResult =
   | { status: 'ok'; githubToken: string }
   | { status: GenerationBlock }
-  | { status: 'rate_limited' }
   | { status: 'quota_exhausted'; resetsAt: string }
   | { status: 'quota_unavailable' }
   | { status: 'github_reauth' };
@@ -253,9 +275,10 @@ const checkGenerationBlock = async (
 /**
  * 작업을 만들기 전 사용자 단위 검사 (초안 작성과 빈칸 채우기 공용)
  * 1. AI 작성 중지 → 사용자 밴
- * 2. 시간당 요청 수
- * 3. 멈춘 작업 시간 초과 처리 후 이번 주 할당량 (정책이 없거나 소진이면 거부)
- * 4. GitHub 토큰 (실행기 요청 형식에 필요)
+ * 2. 멈춘 작업 시간 초과 처리 후 이번 주 할당량 (정책이 없거나 소진이면 거부)
+ * 3. GitHub 토큰 (실행기 요청 형식에 필요)
+ * - 시간당 요청 수와 동시 진행 수는 작업을 만드는 트랜잭션에서 잠금을 잡고 확인 (reserveGenerationSlot)
+ *   → 시간 초과 처리를 여기서 먼저 끝내야 멈춘 작업이 진행 중으로 세지지 않음
  */
 const checkGenerationGate = async (
   user: GateUser,
@@ -265,12 +288,6 @@ const checkGenerationGate = async (
 
   if (block) {
     return { status: block };
-  }
-
-  const since = new Date(Date.now() - GENERATION_RATE_WINDOW_MS);
-
-  if ((await countUserJobsSince(userId, since)) >= GENERATION_HOURLY_LIMIT) {
-    return { status: 'rate_limited' };
   }
 
   // 멈춘 작업(Lambda 비정상 종료)의 예상량이 계속 사용량으로 잡히지 않도록 먼저 시간 초과 처리
@@ -305,8 +322,9 @@ const checkGenerationGate = async (
 
 /**
  * AI 작성 요청
- * 1. 세션, 저장소/초안 소유, 입력 제한, 시간당 요청 수 확인
- * 2. (새 초안이면 초안을 만들고) 작업을 queued 로 저장 → 진행 중 작업이 있으면 busy
+ * 1. 세션, 저장소/초안 소유, 입력 제한, 사용자 단위 검사(checkGenerationGate)
+ * 2. 시간당 요청 수·동시 진행 수를 확인하고 (새 초안이면 초안을 만들고) 작업을 queued 로 저장
+ *    → 한도에 걸리면 rate_limited·too_many_active, 이 초안에 진행 중 작업이 있으면 busy
  * 3. 작성기 시작 (가짜 또는 Lambda). 시작하지 못하면 작업을 실패 처리해 잠금 해제
  * - 작업 진행은 작업의 channel 로 Realtime 신호를 받고 getGenerationStatus 로 다시 읽어 확인
  */
@@ -354,8 +372,8 @@ export async function requestDraftGeneration(
     await getRequestLocale(),
   );
 
-  if (!created) {
-    return { status: 'busy' };
+  if (created.status !== 'created') {
+    return created;
   }
 
   try {
@@ -481,7 +499,7 @@ export type RequestBlankFillResult =
   | {
       status:
         | 'busy'
-        | 'rate_limited'
+        | SlotRejection
         | 'invalid'
         | 'not_found'
         | 'github_reauth'
@@ -555,53 +573,69 @@ const prepareFillJob = async (
 
 /**
  * 빈칸 채우기 작업(queued) 저장 후 작업 id 반환
+ * - 초안 작성과 같이 한 트랜잭션에서 사용자 잠금을 잡고 시간당 요청 수·동시 진행 수를 센 뒤 INSERT
  * - 답은 prompt 와 blank_answer 에 함께 저장, 커밋과 참고 링크는 비움
- * - 같은 초안에 진행 중인 작업(종류 무관)이 있으면 유일 인덱스에 걸려 null
+ * - 같은 초안에 진행 중인 작업(종류 무관)이 있으면 유일 인덱스에 걸려 busy
  */
 const createFillJob = async (
   userId: string,
   request: BlankFillRequest,
   values: FillJobValues,
-) => {
+): Promise<CreateJobResult<{ jobId: string }>> => {
   const jobId = crypto.randomUUID();
 
   try {
-    await db.insert(draftPrompt).values({
-      id: jobId,
-      userId,
-      draftId: request.draftId,
-      kind: 'fill',
-      prompt: request.answer,
-      blankId: request.blankId,
-      blankQuestion: values.question,
-      blankAnswer: request.answer,
-      blankContext: values.context,
-      tone: values.options.tone,
-      postType: values.options.postType,
-      length: values.options.length,
-      requiredBlocks: values.options.requiredBlocks,
-      model: values.options.model,
-      commitShas: [],
-      referenceUrls: [],
-      locale: values.locale,
+    const slot = await db.transaction(async (tx) => {
+      const reserved = await reserveGenerationSlot(tx, userId);
+
+      if (reserved !== 'ok') {
+        return reserved;
+      }
+
+      await tx.insert(draftPrompt).values({
+        id: jobId,
+        userId,
+        draftId: request.draftId,
+        kind: 'fill',
+        prompt: request.answer,
+        blankId: request.blankId,
+        blankQuestion: values.question,
+        blankAnswer: request.answer,
+        blankContext: values.context,
+        tone: values.options.tone,
+        postType: values.options.postType,
+        length: values.options.length,
+        requiredBlocks: values.options.requiredBlocks,
+        model: values.options.model,
+        commitShas: [],
+        referenceUrls: [],
+        locale: values.locale,
+      });
+
+      return reserved;
     });
+
+    if (slot !== 'ok') {
+      return { status: slot };
+    }
   } catch (error) {
     if (isActiveJobConflict(error)) {
-      return null;
+      return { status: 'busy' };
     }
 
     throw error;
   }
 
-  return jobId;
+  return { status: 'created', jobId };
 };
 
 /**
  * 빈칸 하나를 AI 로 다듬는 요청
  * 1. 세션, 입력(빈칸 id 형식, 답 길이), 저장소/초안 소유
- * 2. 초안 작성과 같은 사용자 단위 검사 (시간당 요청 수, 시간 초과 정리, 주간 할당량, GitHub 토큰)
+ * 2. 초안 작성과 같은 사용자 단위 검사 (시간 초과 정리, 주간 할당량, GitHub 토큰)
  * 3. 저장된 본문에 그 빈칸이 있는지 (화면은 자동 저장을 마친 뒤 요청)
- * 4. 작업을 queued 로 저장 (진행 중 작업이 있으면 busy) → 실행기 시작, 시작하지 못하면 실패 처리
+ * 4. 시간당 요청 수·동시 진행 수를 확인하고 작업을 queued 로 저장 (한도면 rate_limited·too_many_active,
+ *    진행 중 작업이 있으면 busy) → 실행기 시작, 시작하지 못하면 실패 처리
  * - 편집기 전체를 잠그지 않으므로 화면을 다시 렌더링하지 않음
  */
 export async function requestBlankFill(
@@ -642,11 +676,13 @@ export async function requestBlankFill(
     return { status: 'blank_missing' };
   }
 
-  const jobId = await createFillJob(user.id, request, values);
+  const created = await createFillJob(user.id, request, values);
 
-  if (!jobId) {
-    return { status: 'busy' };
+  if (created.status !== 'created') {
+    return created;
   }
+
+  const { jobId } = created;
 
   try {
     await getGenerationRunner().start({
@@ -703,6 +739,8 @@ export type ResumeClarifiedJobResult =
   | { status: GenerationBlock }
   // 처음 넣은 직접 입력 코드가 없거나 달라 다시 넣어야 함 (작업은 답변 대기 그대로)
   | { status: 'code_required'; job: GenerationJobView }
+  // 동시에 진행 중인 작업이 한도(MAX_ACTIVE_GENERATIONS)만큼 있음 (작업은 답변 대기 그대로)
+  | { status: 'too_many_active' }
   // job: 지금 서버가 아는 작업 (화면이 낡은 답변 대기 상태에서 벗어나도록, 없거나 내 것이 아니면 null)
   | {
       status: 'not_found' | 'runner_unavailable';
@@ -715,7 +753,8 @@ export type ResumeClarifiedJobResult =
  * 2. AI 작성 중지·사용자 밴 (작업 상태는 바꾸지 않고 거부, 재개하면 다시 답할 수 있음)
  * 3. 답 검증 (저장된 질문 기준, 건너뛰면 생략)
  * 4. GitHub 토큰
- * 5. 답변 대기 → queued (다른 탭이 먼저 처리했으면 not_found, 실행기를 두 번 부르지 않음)
+ * 5. 멈춘 작업 시간 초과 처리 후, 사용자 잠금 안에서 진행 중 작업 수를 세고 답변 대기 → queued
+ *    (진행 중이 한도면 too_many_active, 다른 탭이 먼저 처리했으면 not_found, 실행기를 두 번 부르지 않음)
  * 6. 작성기 시작, 시작하지 못하면 실패 처리
  * - 시간당 요청 수와 주간 할당량은 검사하지 않음: 새 요청이 아니고 사용량은 Lambda 가 예약할 때 검사
  */
@@ -778,7 +817,16 @@ export async function resumeClarifiedJob(
     throw error;
   }
 
-  if (!(await requeueAwaitingJob(jobId, answers))) {
+  // 멈춘 작업이 진행 중으로 세지지 않도록 먼저 시간 초과 처리
+  await expireStaleJobs({ userId: user.id });
+
+  const requeued = await requeueAwaitingJob(jobId, user.id, answers);
+
+  if (requeued === 'too_many_active') {
+    return { status: 'too_many_active' };
+  }
+
+  if (requeued === 'not_found') {
     return {
       status: 'not_found',
       job: await getUserJob(user.id, jobId),

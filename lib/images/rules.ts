@@ -31,6 +31,8 @@ export const IMAGE_MAX_INPUT_PIXELS = 40_000_000;
 export const IMAGE_CLEANUP_GRACE_MS = 10 * 60 * 1000;
 export const IMAGE_BUCKET = 'comdraft-images';
 export const IMAGE_UPLOAD_BUCKET = 'comdraft-uploads';
+// 임시 버킷의 원본을 두는 시간 (마무리하지 않고 남은 원본은 정리 스케줄이 지움)
+export const IMAGE_UPLOAD_MAX_AGE_MS = 60 * 60 * 1000;
 
 const IMAGE_ALT_MAX_LENGTH = 200;
 const PUBLIC_PATH_PREFIX = `/storage/v1/object/public/${IMAGE_BUCKET}/`;
@@ -264,4 +266,32 @@ export function excludeReferencedImages<T extends { path: string }>(
   referencedPaths: Set<string>,
 ): T[] {
   return images.filter((image) => !referencedPaths.has(image.path));
+}
+
+/**
+ * 임시 버킷 목록에서 만든 지 maxAgeMs 가 지난 파일 이름 (지울 대상)
+ * - 폴더(id 없음)와 만든 시각을 알 수 없는 항목은 건너뜀
+ */
+export function selectExpiredUploads(
+  objects: Array<{
+    name: string;
+    id: string | null;
+    created_at: string | null;
+  }>,
+  now: Date,
+  maxAgeMs: number = IMAGE_UPLOAD_MAX_AGE_MS,
+): string[] {
+  const threshold = now.getTime() - maxAgeMs;
+
+  return objects
+    .filter(({ id, created_at: createdAt }) => {
+      if (!id || !createdAt) {
+        return false;
+      }
+
+      const time = Date.parse(createdAt);
+
+      return Number.isFinite(time) && time < threshold;
+    })
+    .map(({ name }) => name);
 }

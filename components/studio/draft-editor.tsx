@@ -58,6 +58,7 @@ const IMAGE_NOTICE_MESSAGES: Record<ImageNotice, MessageDescriptor> = {
   limit: msg`초안 하나에 이미지는 10장까지 넣을 수 있습니다`,
   too_large: msg`이미지 해상도가 너무 큽니다`,
   failed: msg`이미지를 올리지 못했습니다. 다시 시도합니다`,
+  rate_limited: msg`이미지를 너무 자주 올렸어요. 잠시 후 다시 시도해 주세요.`,
   unuploaded: msg`올리지 못한 이미지가 있습니다`,
 };
 

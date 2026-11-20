@@ -2,6 +2,7 @@ import { getSchema, type JSONContent } from '@tiptap/core';
 import { describe, expect, it } from 'vitest';
 import {
   IMAGE_CLEANUP_GRACE_MS,
+  IMAGE_UPLOAD_MAX_AGE_MS,
   checkImageFile,
   collectImageSrcs,
   collectOwnImagePaths,
@@ -14,6 +15,7 @@ import {
   isUuid,
   parseImagePath,
   removeDisallowedImages,
+  selectExpiredUploads,
 } from '@/lib/images/rules';
 import { createDraftSchemaExtensions } from '@/lib/studio/editor-schema';
 
@@ -619,5 +621,46 @@ describe('isUuid', () => {
     expect(isUuid('../other-user/file')).toBe(false);
     expect(isUuid('3f2b8c1e-9a4d-4e7b-8c21-5d6f7a8b9c0d/x')).toBe(false);
     expect(isUuid('')).toBe(false);
+  });
+});
+
+describe('selectExpiredUploads', () => {
+  const now = new Date('2026-11-19T12:00:00.000Z');
+  const at = (msAgo: number) => new Date(now.getTime() - msAgo).toISOString();
+  const file = (name: string, createdAt: string | null) => ({
+    name,
+    id: `id-${name}`,
+    created_at: createdAt,
+  });
+
+  it('임시 원본은 1시간 동안 둠', () => {
+    expect(IMAGE_UPLOAD_MAX_AGE_MS).toBe(60 * 60 * 1000);
+  });
+
+  it('만든 지 1시간이 지난 파일 이름만 고름', () => {
+    expect(
+      selectExpiredUploads(
+        [
+          file('old', at(IMAGE_UPLOAD_MAX_AGE_MS + 1)),
+          file('edge', at(IMAGE_UPLOAD_MAX_AGE_MS)),
+          file('fresh', at(60 * 1000)),
+        ],
+        now,
+      ),
+    ).toEqual(['old']);
+  });
+
+  it('폴더(id 없음)와 만든 시각을 알 수 없는 항목은 건너뜀', () => {
+    expect(
+      selectExpiredUploads(
+        [
+          { name: 'user-1', id: null, created_at: null },
+          file('unknown', null),
+          file('broken', 'not-a-date'),
+          file('old', at(2 * IMAGE_UPLOAD_MAX_AGE_MS)),
+        ],
+        now,
+      ),
+    ).toEqual(['old']);
   });
 });

@@ -23,6 +23,7 @@ import {
 } from '@/lib/generation/contract';
 import type { GenerationJobView } from '@/lib/generation/jobs';
 import { matchesCodeInputMeta } from '@/lib/generation/code-input';
+import { MAX_ACTIVE_GENERATIONS } from '@/lib/generation/limits';
 import {
   canSubmitAnswers,
   toClarificationAnswers,
@@ -38,6 +39,7 @@ type CardError =
   | 'github_reauth'
   | 'runner_unavailable'
   | 'code_required'
+  | 'too_many_active'
   | 'service_paused'
   | 'user_banned'
   | 'error';
@@ -48,6 +50,8 @@ const CARD_ERROR_MESSAGES: Record<CardError, MessageDescriptor> = {
   github_reauth: GENERATION_ERROR_MESSAGES.github_reauth,
   runner_unavailable: GENERATION_ERROR_MESSAGES.runner_unavailable,
   code_required: msg`넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요.`,
+  // 작성 요청의 동시 진행 제한과 같은 문구 (prompt-composer 가 이 파일을 import 하므로 문구를 다시 씀)
+  too_many_active: msg`진행 중인 작성이 끝난 뒤 다시 요청해 주세요. (동시에 ${MAX_ACTIVE_GENERATIONS}개까지)`,
   service_paused: GENERATION_ERROR_MESSAGES.service_paused,
   user_banned: GENERATION_ERROR_MESSAGES.user_banned,
   error: GENERATION_ERROR_MESSAGES.internal,

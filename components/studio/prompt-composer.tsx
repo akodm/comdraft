@@ -34,6 +34,7 @@ import {
 import type { GenerationJobView } from '@/lib/generation/jobs';
 import { parseCodeInputs } from '@/lib/generation/code-input';
 import {
+  MAX_ACTIVE_GENERATIONS,
   MAX_CODE_INPUT_TOTAL_CHARS,
   MAX_GENERATION_COMMITS,
   MAX_GENERATION_PROMPT_LENGTH,
@@ -61,6 +62,7 @@ type Notice =
   | 'model_locked'
   | 'busy'
   | 'rate_limited'
+  | 'too_many_active'
   | 'github_reauth'
   | 'runner_unavailable'
   | 'not_found'
@@ -80,6 +82,7 @@ export const NOTICE_MESSAGES: Record<Notice, MessageDescriptor> = {
   model_locked: msg`이 모델은 현재 등급에서 쓸 수 없습니다.`,
   busy: msg`이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시 요청해주세요.`,
   rate_limited: msg`작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.`,
+  too_many_active: msg`진행 중인 작성이 끝난 뒤 다시 요청해 주세요. (동시에 ${MAX_ACTIVE_GENERATIONS}개까지)`,
   github_reauth: msg`GitHub 인증이 만료되었습니다. 다시 로그인한 뒤 시도해주세요.`,
   runner_unavailable: msg`AI 작성 서버에 연결하지 못했습니다. 잠시 후 다시 시도해주세요.`,
   not_found: msg`초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.`,

@@ -1,5 +1,9 @@
 import 'server-only';
-import { IMAGE_BUCKET, IMAGE_UPLOAD_BUCKET } from '@/lib/images/rules';
+import {
+  IMAGE_BUCKET,
+  IMAGE_UPLOAD_BUCKET,
+  selectExpiredUploads,
+} from '@/lib/images/rules';
 import { getServerSupabase } from '@/lib/supabase/server';
 
 // 이미지 Storage 호출 모음 (임시 버킷: 원본, 공개 버킷: 변환본)
@@ -110,4 +114,75 @@ export async function removeUserImageFolders(userId: string): Promise<boolean> {
   }
 
   return ok;
+}
+
+type UploadBucket = ReturnType<
+  ReturnType<typeof getServerSupabase>['storage']['from']
+>;
+// 목록 항목 (storage-js 를 직접 의존하지 않도록 list 의 반환 형식에서 꺼냄)
+type FileObject = NonNullable<
+  Awaited<ReturnType<UploadBucket['list']>>['data']
+>[number];
+
+// 임시 버킷의 한 폴더(prefix)를 끝까지 나열 (목록을 다 모은 뒤 지우므로 offset 으로 넘겨도 빠지지 않음)
+async function listAllUploads(
+  bucket: UploadBucket,
+  prefix: string,
+): Promise<FileObject[]> {
+  const objects: FileObject[] = [];
+
+  for (let offset = 0; ; offset += LIST_PAGE_SIZE) {
+    const { data, error } = await bucket.list(prefix, {
+      limit: LIST_PAGE_SIZE,
+      offset,
+      sortBy: { column: 'name', order: 'asc' },
+    });
+
+    if (error) {
+      throw new Error(`임시 원본 목록 조회 실패: ${error.message}`);
+    }
+
+    objects.push(...(data ?? []));
+
+    if (!data || data.length < LIST_PAGE_SIZE) {
+      return objects;
+    }
+  }
+}
+
+/**
+ * 임시 버킷에서 만든 지 1시간이 지난 원본 삭제 (마무리하지 않고 남은 원본)
+ * - 원본 경로는 {userId}/{uploadId}: 맨 위의 사용자 폴더를 나열한 뒤 폴더마다 오래된 파일을 지움
+ * - 목록 조회·삭제가 실패하면 던짐 (다음 정리 때 다시 시도)
+ * @returns 지운 파일 수
+ */
+export async function removeExpiredUploads(now = new Date()): Promise<number> {
+  const bucket = getServerSupabase().storage.from(IMAGE_UPLOAD_BUCKET);
+  const entries = await listAllUploads(bucket, '');
+  // 폴더는 id 가 없음 / 맨 위에 바로 놓인 파일도 같은 규칙으로 지움
+  const folders = entries.filter(({ id }) => !id).map(({ name }) => name);
+  const targets = selectExpiredUploads(entries, now);
+
+  for (const folder of folders) {
+    const files = await listAllUploads(bucket, folder);
+
+    targets.push(
+      ...selectExpiredUploads(files, now).map((name) => `${folder}/${name}`),
+    );
+  }
+
+  let removed = 0;
+
+  for (let start = 0; start < targets.length; start += LIST_PAGE_SIZE) {
+    const chunk = targets.slice(start, start + LIST_PAGE_SIZE);
+    const { data, error } = await bucket.remove(chunk);
+
+    if (error) {
+      throw new Error(`임시 원본 삭제 실패: ${error.message}`);
+    }
+
+    removed += data?.length ?? chunk.length;
+  }
+
+  return removed;
 }
