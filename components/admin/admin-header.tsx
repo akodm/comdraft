@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Trans } from '@lingui/react/macro';
 import AdminProfileMenu from '@/components/admin/admin-profile-menu';
 import BrandLogo from '@/components/main/brand-logo';
@@ -11,6 +12,8 @@ interface AdminHeaderProps {
   role: AdminRole;
   // 콘솔용 비밀번호 변경 화면 주소 (adminPath 결과)
   passwordHref: string;
+  // 어드민 표시 옆에 둘 Claude 상태 신호등 (레이아웃이 Suspense 로 감싸 넘김)
+  status?: ReactNode;
 }
 
 /**
@@ -24,6 +27,7 @@ const AdminHeader = ({
   loginId,
   role,
   passwordHref,
+  status,
 }: AdminHeaderProps) => {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-white px-4 lg:px-6">
@@ -34,6 +38,7 @@ const AdminHeader = ({
         <span className="border border-line px-1.5 py-0.5 text-[11px] leading-[normal] font-medium text-ink-faint">
           <Trans>어드민</Trans>
         </span>
+        {status}
       </div>
       <AdminProfileMenu
         loginId={loginId}

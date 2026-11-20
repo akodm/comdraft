@@ -1,6 +1,10 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
+import { Suspense } from 'react';
 import AdminHeader from '@/components/admin/admin-header';
+import ClaudeStatusIndicator, {
+  ClaudeStatusIndicatorLoading,
+} from '@/components/admin/claude-status-indicator';
 import { AgentWidget } from '@/components/agent/agent-chat';
 import AdminSidebar from '@/components/admin/admin-sidebar';
 import {
@@ -41,6 +45,12 @@ export default async function AdminConsoleLayout({
         loginId={session.loginId}
         role={session.role}
         passwordHref={`${basePath}/account/password`}
+        status={
+          // 상태 페이지 응답을 기다리는 동안에도 콘솔은 먼저 보이게 (새로고침마다 한 번 읽음)
+          <Suspense fallback={<ClaudeStatusIndicatorLoading />}>
+            <ClaudeStatusIndicator />
+          </Suspense>
+        }
       />
       <div className="flex flex-1 flex-col lg:flex-row">
         <AdminSidebar basePath={basePath} />
