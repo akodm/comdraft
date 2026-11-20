@@ -1,5 +1,6 @@
 import 'server-only';
 import { eq } from 'drizzle-orm';
+import { requireAdmin } from '@/lib/admin/guard';
 import { db } from '@/lib/db';
 import {
   adminAccount,
@@ -57,6 +58,9 @@ export interface AiGenerationState extends AiGenerationSetting {
 
 // AI 제어 화면용: 설정과 마지막 변경자·시각
 export async function getAiGenerationState(): Promise<AiGenerationState> {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
   const [row] = await db
     .select({
       value: serviceSetting.value,

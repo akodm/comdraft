@@ -1,4 +1,5 @@
 import 'server-only';
+import { requireAdmin } from '@/lib/admin/guard';
 import { count, desc, eq, gte, inArray } from 'drizzle-orm';
 import {
   markStale,
@@ -86,6 +87,9 @@ const getBasicPlan = async () => {
 };
 
 export const getDashboardStats = async (now: Date): Promise<DashboardStats> => {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
   const { start, fallback } = resolveStatsWindow(now, await getBasicPlan());
 
   const [
@@ -155,6 +159,9 @@ export const getDashboardStats = async (now: Date): Promise<DashboardStats> => {
 };
 
 export const getActiveJobs = async (now: Date): Promise<ActiveJobRow[]> => {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
   const rows = await db
     .select({
       id: draftPrompt.id,
@@ -184,6 +191,9 @@ export const getActiveJobs = async (now: Date): Promise<ActiveJobRow[]> => {
 export const getRecentAdminActions = async (
   limit = 20,
 ): Promise<RecentAdminAction[]> => {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
   return db
     .select({
       id: adminActionLog.id,

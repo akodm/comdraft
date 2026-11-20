@@ -1,4 +1,5 @@
 import 'server-only';
+import { requireAdmin } from '@/lib/admin/guard';
 import { and, count, desc, eq, ilike, or } from 'drizzle-orm';
 import { ADMIN_PAGE_SIZE } from '@/lib/admin/pagination';
 import { escapeLike } from '@/lib/admin/search';
@@ -41,6 +42,9 @@ export const listUsers = async ({
   q: string;
   page: number;
 }): Promise<{ rows: UserListRow[]; total: number }> => {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
   const term = q.trim();
   const pattern = `%${escapeLike(term)}%`;
   const where = term
@@ -112,6 +116,9 @@ export interface UserDetail {
 export const getUserDetail = async (
   userId: string,
 ): Promise<UserDetail | null> => {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
   const [found] = await db
     .select({
       id: user.id,
