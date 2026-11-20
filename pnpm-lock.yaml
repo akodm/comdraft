@@ -93,8 +93,8 @@ importers:
         specifier: ^1.11.23
         version: 1.11.23
       dopus:
-        specifier: ^0.4.0
-        version: 0.4.0(@ai-sdk/react@4.0.181(react@19.3.0)(zod@4.6.7))(ai@7.0.177(zod@4.6.7))(next@16.3.5(@babel/core@7.29.13(supports-color@7.2.0))(@types/node@20.19.33)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react-markdown@10.1.0(@types/react@19.3.0)(react@19.3.0)(supports-color@7.2.0))(react@19.3.0)(remark-gfm@4.0.1(supports-color@7.2.0))(zod@4.6.7)
+        specifier: ^0.5.0
+        version: 0.5.0(@ai-sdk/react@4.0.181(react@19.3.0)(zod@4.6.7))(ai@7.0.177(zod@4.6.7))(next@16.3.5(@babel/core@7.29.13(supports-color@7.2.0))(@types/node@20.19.33)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react-markdown@10.1.0(@types/react@19.3.0)(react@19.3.0)(supports-color@7.2.0))(react@19.3.0)(remark-gfm@4.0.1(supports-color@7.2.0))(zod@4.6.7)
       drizzle-orm:
         specifier: 0.45.4
         version: 0.45.4(kysely@0.29.6)(postgres@3.4.9)
@@ -2687,8 +2687,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dopus@0.4.0:
-    resolution: {integrity: sha512-705Mq+L5AfedsjFx1KjKQw6wJfSj/d7qdYSH6IAyJBtNgnwwDBD8eoGrrjlOg/PQHyujNkV8lKIBvsASxmmJWw==}
+  dopus@0.5.0:
+    resolution: {integrity: sha512-TX2Rcz36wGm606k36tw7D312KLl2WyM0dMRkWXmte5GmviIICBqgN6LjMqv7eS8MQDLfszi5xFM/pshbARITDA==}
     engines: {node: '>=22'}
     hasBin: true
     peerDependencies:
@@ -6955,7 +6955,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dopus@0.4.0(@ai-sdk/react@4.0.181(react@19.3.0)(zod@4.6.7))(ai@7.0.177(zod@4.6.7))(next@16.3.5(@babel/core@7.29.13(supports-color@7.2.0))(@types/node@20.19.33)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react-markdown@10.1.0(@types/react@19.3.0)(react@19.3.0)(supports-color@7.2.0))(react@19.3.0)(remark-gfm@4.0.1(supports-color@7.2.0))(zod@4.6.7):
+  dopus@0.5.0(@ai-sdk/react@4.0.181(react@19.3.0)(zod@4.6.7))(ai@7.0.177(zod@4.6.7))(next@16.3.5(@babel/core@7.29.13(supports-color@7.2.0))(@types/node@20.19.33)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react-markdown@10.1.0(@types/react@19.3.0)(react@19.3.0)(supports-color@7.2.0))(react@19.3.0)(remark-gfm@4.0.1(supports-color@7.2.0))(zod@4.6.7):
     dependencies:
       '@clack/prompts': 1.9.0
       ai: 7.0.177(zod@4.6.7)
