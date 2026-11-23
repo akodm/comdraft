@@ -56,7 +56,7 @@
     "bcryptjs": "^3.0.3",
     "better-auth": "1.7.10",
     "dayjs": "^1.11.23",
-    "dopus": "^0.5.0",
+    "dopus": "^0.6.1",
     "drizzle-orm": "0.45.4",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^1.74.0",
