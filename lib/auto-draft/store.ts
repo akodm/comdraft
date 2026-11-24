@@ -220,6 +220,26 @@ export async function moveBoundary(
   return updated.length > 0;
 }
 
+// 사용자가 직접 고른 기준점으로 경계를 덮어씀 (이전 경계와 무관), 바뀐 행이 있으면 true
+export async function setBoundary(
+  userId: string,
+  repositoryId: string,
+  sha: string,
+): Promise<boolean> {
+  const updated = await db
+    .update(repositoryAutoDraft)
+    .set({ boundarySha: sha })
+    .where(
+      and(
+        eq(repositoryAutoDraft.userId, userId),
+        eq(repositoryAutoDraft.repositoryId, repositoryId),
+      ),
+    )
+    .returning({ userId: repositoryAutoDraft.userId });
+
+  return updated.length > 0;
+}
+
 // 제외한 커밋 SHA 와 사유
 export async function listExcludedShas(
   userId: string,

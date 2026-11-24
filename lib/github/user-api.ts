@@ -209,6 +209,10 @@ export interface GithubUserCommit {
   };
   // GitHub 계정과 연결되지 않은 커밋(이메일 미등록 등)은 null
   author: { login: string; avatar_url: string } | null;
+  // GitHub 계정의 committer (web-flow 는 GitHub 가 직접 만든 커밋)
+  committer: { login: string } | null;
+  // 부모가 둘 이상이면 머지 커밋
+  parents: Array<{ sha: string }>;
 }
 
 // Link 헤더에 rel="next" 가 있으면 다음 페이지 존재 (커밋 목록 API 는 전체 개수를 주지 않음)

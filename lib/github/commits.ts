@@ -61,6 +61,8 @@ export interface RepositoryCommit {
   authorAvatarUrl: string | null;
   committedAt: string | null;
   htmlUrl: string;
+  parentShas: string[];
+  committerLogin: string | null;
 }
 
 interface ListRepositoryCommitsParams {
@@ -130,6 +132,8 @@ export const listRepositoryCommits = async ({
         committedAt:
           item.commit.committer?.date ?? item.commit.author?.date ?? null,
         htmlUrl: item.html_url,
+        parentShas: item.parents.map((parent) => parent.sha),
+        committerLogin: item.committer?.login ?? null,
       }),
     ),
   };

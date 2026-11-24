@@ -1,11 +1,25 @@
 'use server';
 
 import { requireSession } from '@/lib/auth/session';
+import { selectBatch } from '@/lib/auto-draft/batch';
 import {
+  compareBranch,
+  findEmptyCommits,
+  getBranchHead,
+  getFirstParent,
+} from '@/lib/auto-draft/github';
+import {
+  excludeCommits,
+  getAutoDraftRepo,
   getAutoDraftSetting,
+  listExcludedShas,
+  restoreCommit,
   saveAutoDraftSetting,
   setAutoDraftEnabled,
+  setBoundary,
 } from '@/lib/auto-draft/store';
+import { parseTrigger } from '@/lib/auto-draft/trigger';
+import type { ExcludedCommitReason } from '@/lib/db/schema/auto-draft';
 import type { GenerationModel } from '@/lib/generation/contract';
 import { MAX_GENERATION_PROMPT_LENGTH } from '@/lib/generation/limits';
 import { getAllowedModels, isModelAllowed } from '@/lib/generation/models';
@@ -118,4 +132,191 @@ export async function toggleAutoDraft(
   const result = await setAutoDraftEnabled(user.id, repository.id, enabled);
 
   return { status: result };
+}
+
+export interface AutoDraftExcluded {
+  sha: string;
+  reason: ExcludedCommitReason;
+}
+
+export type AutoDraftStateResult =
+  | { status: 'off' | 'not_found' | 'error' }
+  | {
+      status: 'ok';
+      // 묶음의 첫 커밋 (대상이 없으면 null)
+      anchorSha: string | null;
+      batchShas: string[];
+      excluded: AutoDraftExcluded[];
+    }
+  | { status: 'anchor_missing'; excluded: AutoDraftExcluded[] };
+
+const toExcludedList = (excluded: Map<string, ExcludedCommitReason>) =>
+  Array.from(excluded, ([sha, reason]) => ({ sha, reason }));
+
+/**
+ * 스튜디오 커밋 목록 표시용: 경계 다음 커밋부터 자동 대상 묶음을 계산
+ * - 꺼져 있으면 off, 경계가 없거나 사라졌으면 anchor_missing
+ * - GitHub 조회 실패는 error (표시만 생략)
+ */
+export async function loadAutoDraftState(
+  repositoryId: string,
+): Promise<AutoDraftStateResult> {
+  const { user } = await requireSession();
+  const repo = await getAutoDraftRepo(user.id, repositoryId);
+
+  if (!repo) {
+    return { status: 'not_found' };
+  }
+
+  const setting = await getAutoDraftSetting(user.id, repositoryId);
+
+  if (!setting?.enabled) {
+    return { status: 'off' };
+  }
+
+  try {
+    const excluded = await listExcludedShas(user.id, repositoryId);
+
+    if (setting.boundarySha === null) {
+      return { status: 'anchor_missing', excluded: toExcludedList(excluded) };
+    }
+
+    const head = await getBranchHead(repo);
+    const compared = head
+      ? await compareBranch(repo, setting.boundarySha, head)
+      : ({ status: 'anchor_missing' } as const);
+
+    if (compared.status !== 'ok') {
+      return { status: 'anchor_missing', excluded: toExcludedList(excluded) };
+    }
+
+    const triggerShas = compared.commits
+      .filter((commit) => parseTrigger(commit.message) !== null)
+      .map((commit) => commit.sha);
+    const emptyShas =
+      triggerShas.length > 0
+        ? await findEmptyCommits(repo, triggerShas)
+        : new Set<string>();
+    const { batchShas } = selectBatch(compared.commits, {
+      excludedShas: new Set(excluded.keys()),
+      emptyShas,
+    });
+
+    return {
+      status: 'ok',
+      anchorSha: batchShas[0] ?? null,
+      batchShas,
+      excluded: toExcludedList(excluded),
+    };
+  } catch {
+    return { status: 'error' };
+  }
+}
+
+const COMMIT_SHA_PATTERN = /^[0-9a-f]{40}$/;
+
+const isCommitSha = (value: unknown): value is string =>
+  typeof value === 'string' && COMMIT_SHA_PATTERN.test(value);
+
+export type AutoDraftCommitActionResult =
+  | { status: 'ok' }
+  | { status: 'invalid' | 'not_found' | 'off' | 'error' };
+
+/**
+ * 커밋 줄 동작: 이 커밋부터 자동 대상으로 삼도록 기준점을 옮김
+ * - 경계(마지막으로 쓴 커밋, 제외) = 그 커밋의 첫 부모, 이전 경계와 무관하게 덮어씀
+ * - 부모가 없는 루트 커밋이거나 커밋을 찾을 수 없으면 invalid
+ */
+export async function setAutoDraftAnchor(
+  repositoryId: string,
+  sha: string,
+): Promise<AutoDraftCommitActionResult> {
+  const { user } = await requireSession();
+
+  if (!isCommitSha(sha)) {
+    return { status: 'invalid' };
+  }
+
+  const repo = await getAutoDraftRepo(user.id, repositoryId);
+
+  if (!repo) {
+    return { status: 'not_found' };
+  }
+
+  const setting = await getAutoDraftSetting(user.id, repositoryId);
+
+  if (!setting?.enabled) {
+    return { status: 'off' };
+  }
+
+  try {
+    const parentSha = await getFirstParent(repo, sha);
+
+    if (parentSha === null) {
+      return { status: 'invalid' };
+    }
+
+    await setBoundary(user.id, repositoryId, parentSha);
+
+    return { status: 'ok' };
+  } catch {
+    return { status: 'error' };
+  }
+}
+
+// 등록한 저장소에서 자동 초안이 켜져 있을 때만 제외 목록을 바꿀 수 있음
+const checkExcludeAccess = async (
+  userId: string,
+  repositoryId: string,
+  sha: string,
+): Promise<AutoDraftCommitActionResult> => {
+  if (!isCommitSha(sha)) {
+    return { status: 'invalid' };
+  }
+
+  if (!(await getAutoDraftRepo(userId, repositoryId))) {
+    return { status: 'not_found' };
+  }
+
+  const setting = await getAutoDraftSetting(userId, repositoryId);
+
+  return setting?.enabled ? { status: 'ok' } : { status: 'off' };
+};
+
+/**
+ * 커밋 줄 동작: 커밋을 자동 대상에서 제외 (사용자 제외)
+ */
+export async function excludeAutoDraftCommit(
+  repositoryId: string,
+  sha: string,
+): Promise<AutoDraftCommitActionResult> {
+  const { user } = await requireSession();
+  const access = await checkExcludeAccess(user.id, repositoryId, sha);
+
+  if (access.status !== 'ok') {
+    return access;
+  }
+
+  await excludeCommits(user.id, repositoryId, [sha], 'user');
+
+  return { status: 'ok' };
+}
+
+/**
+ * 커밋 줄 동작: 제외한 커밋을 다시 자동 대상으로 되돌림
+ */
+export async function restoreAutoDraftCommit(
+  repositoryId: string,
+  sha: string,
+): Promise<AutoDraftCommitActionResult> {
+  const { user } = await requireSession();
+  const access = await checkExcludeAccess(user.id, repositoryId, sha);
+
+  if (access.status !== 'ok') {
+    return access;
+  }
+
+  await restoreCommit(user.id, repositoryId, sha);
+
+  return { status: 'ok' };
 }

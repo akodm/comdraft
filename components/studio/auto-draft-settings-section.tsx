@@ -88,7 +88,7 @@ const Switch = ({
 
 const SettingsForm = ({ initial }: { initial: Loaded }) => {
   const { t } = useLingui();
-  const { repository } = useStudio();
+  const { repository, autoDraft } = useStudio();
   const switchLabelId = useId();
   const promptId = useId();
   const [enabled, setEnabled] = useState(initial.enabled);
@@ -107,6 +107,8 @@ const SettingsForm = ({ initial }: { initial: Loaded }) => {
 
         if (result.status === 'ok') {
           setEnabled(next);
+          // 커밋 목록의 기준점·자동 대상 표시도 바로 바꿈
+          void autoDraft.refresh();
         } else if (result.status === 'unavailable') {
           setToggleNotice(
             t`브랜치의 최신 커밋을 확인하지 못해 켜지 못했습니다. 잠시 후 다시 시도해 주세요.`,

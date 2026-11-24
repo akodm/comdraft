@@ -1,17 +1,26 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { Trans, useLingui } from '@lingui/react/macro';
 import LocalizedLink from '@/components/shared/localized-link';
 import Spinner from '@/components/shared/spinner';
+import CommitMarkers from '@/components/studio/commit-markers';
+import CommitRowMenu from '@/components/studio/commit-row-menu';
 import { useStudio } from '@/components/studio/studio-context';
 import {
   getSidebarClass,
   ICON_BUTTON_CLASS,
   THIN_SCROLL_CLASS,
 } from '@/components/studio/studio-styles';
+import type { AutoDraftCommitAction } from '@/hooks/use-auto-draft-state';
 import type { StudioCommit } from '@/lib/actions/studio';
+import {
+  getCommitMarkers,
+  isCollectable,
+  type MarkerState,
+} from '@/lib/auto-draft/markers';
+import { MAX_GENERATION_COMMITS } from '@/lib/generation/limits';
 import { shortSha } from '@/lib/studio/draft-content';
 
 // 목록 끝이 스크롤 영역 아래 이만큼 가까워지면 다음 30개 요청
@@ -21,10 +30,21 @@ interface CommitRowProps {
   commit: StudioCommit;
   isSelected: boolean;
   onToggle: (sha: string) => void;
+  // 자동 초안이 꺼져 있거나 상태를 모르면 null (표시와 메뉴를 숨김)
+  autoDraft: {
+    markerState: MarkerState;
+    isPending: boolean;
+    onAction: (action: AutoDraftCommitAction, sha: string) => void;
+  } | null;
 }
 
-// 커밋 한 줄: 체크박스(행 클릭으로 선택/해제) + GitHub 커밋 링크
-const CommitRow = ({ commit, isSelected, onToggle }: CommitRowProps) => {
+// 커밋 한 줄: 체크박스(행 클릭으로 선택/해제) + 자동 초안 표시·메뉴 + GitHub 커밋 링크
+const CommitRow = ({
+  commit,
+  isSelected,
+  onToggle,
+  autoDraft,
+}: CommitRowProps) => {
   const { t } = useLingui();
   const sha = shortSha(commit.sha);
 
@@ -59,6 +79,20 @@ const CommitRow = ({ commit, isSelected, onToggle }: CommitRowProps) => {
           </span>
         </span>
       </button>
+      {autoDraft && (
+        <div className="flex shrink-0 items-center">
+          <CommitMarkers
+            markers={getCommitMarkers(commit, autoDraft.markerState)}
+          />
+          <CommitRowMenu
+            shortSha={sha}
+            isExcluded={autoDraft.markerState.excluded.has(commit.sha)}
+            canExclude={isCollectable(commit)}
+            isPending={autoDraft.isPending}
+            onAction={(action) => autoDraft.onAction(action, commit.sha)}
+          />
+        </div>
+      )}
       <a
         href={commit.htmlUrl}
         target="_blank"
@@ -150,6 +184,41 @@ const CommitListStatus = () => {
   return null;
 };
 
+interface AutoDraftSummaryProps {
+  // 자동 대상 개수, 기준점을 찾을 수 없으면 null
+  count: number | null;
+  hasActionError: boolean;
+}
+
+// 목록 위 요약: 자동 대상 n/20, 기준점을 찾을 수 없으면 다시 지정 안내
+const AutoDraftSummary = ({ count, hasActionError }: AutoDraftSummaryProps) => {
+  const max = MAX_GENERATION_COMMITS;
+
+  return (
+    <div className="flex shrink-0 flex-col gap-1.5 px-4 pb-3 text-[11px] leading-[1.5] pc:p-0">
+      {count === null ? (
+        <p className="break-keep text-danger">
+          <Trans>
+            기준점 커밋을 찾을 수 없습니다. 커밋 메뉴에서 기준점을 다시 지정해
+            주세요.
+          </Trans>
+        </p>
+      ) : (
+        <p className="font-mono text-ink-muted">
+          <Trans>
+            자동 대상 {count}/{max}
+          </Trans>
+        </p>
+      )}
+      {hasActionError && (
+        <p role="alert" className="break-keep text-danger">
+          <Trans>처리하지 못했습니다. 다시 시도해 주세요.</Trans>
+        </p>
+      )}
+    </div>
+  );
+};
+
 interface CommitSidebarProps {
   // 모바일에서 열려 있는지 (PC 는 항상 보임)
   isOpen: boolean;
@@ -163,13 +232,46 @@ interface CommitSidebarProps {
  */
 const CommitSidebar = ({ isOpen }: CommitSidebarProps) => {
   const { t } = useLingui();
-  const { commitHistory, selectedShas, toggleCommit, setOpenPanel } =
+  const { commitHistory, autoDraft, selectedShas, toggleCommit, setOpenPanel } =
     useStudio();
   const { commits, state, hasMore, loadMore } = commitHistory;
   const selectedCount = selectedShas.size;
   const listRef = useRef<HTMLUListElement>(null);
   const sentinelRef = useRef<HTMLLIElement>(null);
   const loadedCount = `${commits.length}${hasMore && commits.length > 0 ? '+' : ''}`;
+
+  // 자동 초안이 켜져 있을 때만 표시·메뉴를 보임 (꺼짐·조회 실패는 숨김)
+  const autoDraftState = autoDraft.state;
+  const markerState = useMemo<MarkerState | null>(() => {
+    if (
+      autoDraftState?.status !== 'ok' &&
+      autoDraftState?.status !== 'anchor_missing'
+    ) {
+      return null;
+    }
+
+    return {
+      anchorSha:
+        autoDraftState.status === 'ok' ? autoDraftState.anchorSha : null,
+      batchShas: autoDraftState.status === 'ok' ? autoDraftState.batchShas : [],
+      excluded: new Map(
+        autoDraftState.excluded.map(({ sha, reason }) => [sha, reason]),
+      ),
+    };
+  }, [autoDraftState]);
+  const { run: runAutoDraftAction, isPending: isAutoDraftPending } = autoDraft;
+  const rowAutoDraft = useMemo(
+    () =>
+      markerState
+        ? {
+            markerState,
+            isPending: isAutoDraftPending,
+            onAction: (action: AutoDraftCommitAction, sha: string) =>
+              void runAutoDraftAction(action, sha),
+          }
+        : null,
+    [markerState, isAutoDraftPending, runAutoDraftAction],
+  );
 
   useEffect(() => {
     const list = listRef.current;
@@ -233,6 +335,16 @@ const CommitSidebar = ({ isOpen }: CommitSidebarProps) => {
         </h2>
         <p className="font-mono">{loadedCount}</p>
       </div>
+      {markerState && (
+        <AutoDraftSummary
+          count={
+            autoDraftState?.status === 'ok'
+              ? markerState.batchShas.length
+              : null
+          }
+          hasActionError={autoDraft.hasActionError}
+        />
+      )}
       <ul
         ref={listRef}
         className={`flex min-h-0 flex-1 flex-col gap-1 px-3 pb-3 pc:-mr-2 pc:px-0 pc:pr-2 ${THIN_SCROLL_CLASS}`}
@@ -243,6 +355,7 @@ const CommitSidebar = ({ isOpen }: CommitSidebarProps) => {
             commit={commit}
             isSelected={selectedShas.has(commit.sha)}
             onToggle={toggleCommit}
+            autoDraft={rowAutoDraft}
           />
         ))}
         <li ref={sentinelRef} className="shrink-0">
