@@ -206,6 +206,38 @@ describe('resolveFirstParentRange', () => {
     expect(range.chain.map((c) => c.sha)).toEqual(['t1', 'c2', 't2']);
   });
 
+  it('사슬 위라도 GitHub 가 만든 [comdraft] 커밋(squash·rebase 머지)은 후보가 아님', () => {
+    const commits = [
+      node('c1', ['b']),
+      node('s', ['c1'], { message: '[comdraft]', committerLogin: 'web-flow' }),
+    ];
+    expect(resolveFirstParentRange(commits, 'b', 's', ['s'])).toEqual({
+      status: 'trigger_not_on_branch',
+    });
+  });
+
+  it('사슬 위라도 제목이 [comdraft] 인 머지 커밋은 후보가 아님', () => {
+    const commits = [
+      node('c1', ['b']),
+      node('f1', ['b']),
+      node('m', ['c1', 'f1'], { message: '[comdraft]' }),
+    ];
+    expect(resolveFirstParentRange(commits, 'b', 'm', ['m'])).toEqual({
+      status: 'trigger_not_on_branch',
+    });
+  });
+
+  it('직접 올린 후보가 그보다 최신인 web-flow 후보보다 우선', () => {
+    const commits = [
+      node('t', ['b'], { message: '[comdraft]' }),
+      node('s', ['t'], { message: '[comdraft]', committerLogin: 'web-flow' }),
+    ];
+    const range = resolveFirstParentRange(commits, 'b', 's', ['s', 't']);
+    expect(range).toMatchObject({ status: 'ok', endSha: 't' });
+    if (range.status !== 'ok') throw new Error();
+    expect(range.chain.map((c) => c.sha)).toEqual(['t']);
+  });
+
   it('사슬이 경계에 닿지 않으면 후보가 있어도 anchor_missing', () => {
     const commits = [
       node('m', ['a', 'b']),

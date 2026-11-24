@@ -434,6 +434,82 @@ describe('runAutoDraft', () => {
     expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 't');
   });
 
+  it('사슬 위 [comdraft] 가 squash 머지(web-flow) 커밋이면 trigger_not_on_branch, 경계는 그대로', async () => {
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({
+        status: 'ok' as const,
+        commits: [
+          commit(1),
+          { ...commit(2, '[comdraft] long'), committerLogin: 'web-flow' },
+        ],
+      })),
+    });
+    const out = await runAutoDraft(
+      target(),
+      push('c2', { length: 'long' }),
+      deps,
+    );
+    expect(out).toEqual({
+      status: 'skipped',
+      errorCode: 'trigger_not_on_branch',
+    });
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
+    expect(deps.createDraftJob).not.toHaveBeenCalled();
+  });
+
+  it('제목이 [comdraft] 인 머지 커밋은 trigger_not_on_branch', async () => {
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({
+        status: 'ok' as const,
+        commits: [
+          commit(1),
+          node('f1', [OLD]),
+          node('m', ['c1', 'f1'], '[comdraft]'),
+        ],
+      })),
+    });
+    const out = await runAutoDraft(target(), push('m'), deps);
+    expect(out).toEqual({
+      status: 'skipped',
+      errorCode: 'trigger_not_on_branch',
+    });
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
+  });
+
+  it('직접 올린 후보가 더 최신인 web-flow 후보보다 우선', async () => {
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({
+        status: 'ok' as const,
+        commits: [
+          commit(1, '[comdraft] friendly'),
+          { ...commit(2, '[comdraft] long'), committerLogin: 'web-flow' },
+        ],
+      })),
+    });
+    await runAutoDraft(
+      target(),
+      {
+        headSha: 'c2',
+        candidates: [
+          { sha: 'c2', options: { length: 'long' } },
+          { sha: 'c1', options: { tone: 'friendly' } },
+        ],
+      },
+      deps,
+    );
+    expect(deps.createDraftJob).toHaveBeenCalledWith(
+      'u1',
+      'r1',
+      expect.objectContaining({
+        commitShas: ['c1'],
+        triggerSha: 'c1',
+        options: expect.objectContaining({ tone: 'friendly' }),
+      }),
+      'en',
+    );
+    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c1');
+  });
+
   it('직접 올린 후보가 둘이면 사슬에서 가장 최신 것', async () => {
     const deps = makeDeps({
       compare: vi.fn(async () => ({

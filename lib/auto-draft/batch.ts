@@ -135,6 +135,7 @@ export function selectBatch(
  * - 사슬은 headSha 에서 첫 부모만 따라 경계까지, 닿지 않으면 anchor_missing (후보가 있어도)
  * - triggerShas 가 없으면(스튜디오) 끝 커밋은 headSha
  * - 있으면(실행기) 사슬 위에 있는 후보 중 가장 최신 것이 끝 커밋, 사슬은 거기까지 자름
+ *   → 머지 커밋·GitHub 가 만든 커밋은 후보로 치지 않음 (어떤 PR 머지도 실행하지 않음)
  *   → 하나도 없으면 trigger_not_on_branch (머지로 들어온 [comdraft] 는 실행하지 않음)
  */
 export function resolveFirstParentRange(
@@ -155,8 +156,11 @@ export function resolveFirstParentRange(
     return { status: 'ok', endSha: headSha, chain, sideShas };
   }
 
+  // 머지 커밋·GitHub 가 만든 커밋(squash·rebase 머지, 웹 편집)은 사슬 위라도 트리거가 아님
   const candidates = new Set(triggerShas);
-  const endIndex = chain.findLastIndex((commit) => candidates.has(commit.sha));
+  const endIndex = chain.findLastIndex(
+    (commit) => candidates.has(commit.sha) && getOwnSkipReason(commit) === null,
+  );
   if (endIndex < 0) return { status: 'trigger_not_on_branch' };
 
   return {
