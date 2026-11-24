@@ -84,13 +84,17 @@ const CommitRow = ({
           <CommitMarkers
             markers={getCommitMarkers(commit, autoDraft.markerState)}
           />
-          <CommitRowMenu
-            shortSha={sha}
-            isExcluded={autoDraft.markerState.excluded.has(commit.sha)}
-            canExclude={isCollectable(commit, autoDraft.markerState)}
-            isPending={autoDraft.isPending}
-            onAction={(action) => autoDraft.onAction(action, commit.sha)}
-          />
+          {/* 수집 안 됨(머지·GitHub·머지로 들어온 커밋)은 기준점·제외 대상이 아니라 메뉴 자리만 둠 */}
+          {isCollectable(commit, autoDraft.markerState) ? (
+            <CommitRowMenu
+              shortSha={sha}
+              isExcluded={autoDraft.markerState.excluded.has(commit.sha)}
+              isPending={autoDraft.isPending}
+              onAction={(action) => autoDraft.onAction(action, commit.sha)}
+            />
+          ) : (
+            <span aria-hidden className="size-6" />
+          )}
         </div>
       )}
       <a
