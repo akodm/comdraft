@@ -17,11 +17,38 @@ export type CompareResult =
   | { status: 'ok'; commits: BranchCommit[] }
   | { status: 'anchor_missing' };
 
-export type SkipReason = 'merge' | 'github' | 'excluded' | 'empty_trigger';
+// side: 머지로 들어온 커밋 (추적 브랜치의 첫 부모 사슬에 없음)
+export type SkipReason =
+  | 'merge'
+  | 'github'
+  | 'excluded'
+  | 'empty_trigger'
+  | 'side';
 
 export interface SkipSets {
   excludedShas: ReadonlySet<string>;
   emptyShas: ReadonlySet<string>;
+}
+
+export interface BatchSelection {
+  // 오래된 순, 최대 20개
+  batchShas: string[];
+  skipped: Map<string, SkipReason>;
+  // 20개 제한에 걸리지 않고 끝 커밋까지 다 봤는지
+  exhausted: boolean;
+}
+
+export type BatchPlan =
+  | ({ status: 'ok' } & BatchSelection)
+  | { status: 'anchor_missing' };
+
+// 커밋 자체 정보로만 정해지는 건너뛰기 사유 (머지 커밋, GitHub 가 만든 커밋), 해당 없으면 null
+export function getOwnSkipReason(
+  commit: Pick<BranchCommit, 'parentShas' | 'committerLogin'>,
+): 'merge' | 'github' | null {
+  if (commit.parentShas.length >= 2) return 'merge';
+  if (commit.committerLogin === GITHUB_COMMITTER_LOGIN) return 'github';
+  return null;
 }
 
 // 건너뛰는 사유 (여럿이면 merge → github → excluded → empty_trigger 순), 대상이면 null
@@ -29,8 +56,8 @@ export function getSkipReason(
   commit: BranchCommit,
   { excludedShas, emptyShas }: SkipSets,
 ): SkipReason | null {
-  if (commit.parentShas.length >= 2) return 'merge';
-  if (commit.committerLogin === GITHUB_COMMITTER_LOGIN) return 'github';
+  const own = getOwnSkipReason(commit);
+  if (own) return own;
   if (excludedShas.has(commit.sha)) return 'excluded';
   if (parseTrigger(commit.message) !== null && emptyShas.has(commit.sha)) {
     return 'empty_trigger';
@@ -38,23 +65,78 @@ export function getSkipReason(
   return null;
 }
 
+/**
+ * 끝 커밋에서 첫 부모만 따라 경계(제외)까지 거슬러 올라간 사슬 (오래된 순)
+ * - 머지로 들어온 커밋(두 번째 이후 부모 쪽)은 사슬에 들어가지 않음
+ * - 경계에 닿기 전에 compare 목록을 벗어나면 null (경계가 첫 부모 사슬 위에 없음)
+ */
+export function getFirstParentChain(
+  commits: BranchCommit[],
+  boundarySha: string,
+  endSha: string,
+): BranchCommit[] | null {
+  const bySha = new Map(commits.map((commit) => [commit.sha, commit]));
+  const chain: BranchCommit[] = [];
+  let current = endSha;
+
+  while (current !== boundarySha) {
+    const commit = bySha.get(current);
+    // 목록에 없는 커밋이거나 같은 커밋을 다시 만나면 경계에 닿을 수 없음
+    if (!commit || chain.length >= commits.length) return null;
+    chain.push(commit);
+    const parent = commit.parentShas[0];
+    if (parent === undefined) return null;
+    current = parent;
+  }
+
+  return chain.reverse();
+}
+
 // 오래된 순 커밋에서 묶음(최대 20개)과 건너뛴 커밋을 계산
 export function selectBatch(
   commits: BranchCommit[],
   sets: SkipSets,
-): { batchShas: string[]; skipped: Map<string, SkipReason> } {
+): BatchSelection {
   const batchShas: string[] = [];
   const skipped = new Map<string, SkipReason>();
 
   for (const commit of commits) {
     // 20개가 차면 이후 커밋은 다음 묶음 몫
-    if (batchShas.length >= MAX_GENERATION_COMMITS) break;
+    if (batchShas.length >= MAX_GENERATION_COMMITS) {
+      return { batchShas, skipped, exhausted: false };
+    }
     const reason = getSkipReason(commit, sets);
     if (reason) skipped.set(commit.sha, reason);
     else batchShas.push(commit.sha);
   }
 
-  return { batchShas, skipped };
+  return { batchShas, skipped, exhausted: true };
+}
+
+/**
+ * compare 목록(오래된 순) 에서 첫 부모 사슬만 골라 묶음을 계산
+ * - 사슬 밖 커밋은 모두 side 로 건너뜀, 사슬 커밋에는 기존 건너뛰기 규칙과 20개 제한 적용
+ * - 사슬이 경계에 닿지 않으면 anchor_missing
+ */
+export function selectFirstParentBatch(
+  commits: BranchCommit[],
+  boundarySha: string,
+  endSha: string,
+  sets: SkipSets,
+): BatchPlan {
+  const chain = getFirstParentChain(commits, boundarySha, endSha);
+  if (chain === null) return { status: 'anchor_missing' };
+
+  const chainShas = new Set(chain.map((commit) => commit.sha));
+  const skipped = new Map<string, SkipReason>();
+  for (const commit of commits) {
+    if (!chainShas.has(commit.sha)) skipped.set(commit.sha, 'side');
+  }
+
+  const selection = selectBatch(chain, sets);
+  for (const [sha, reason] of selection.skipped) skipped.set(sha, reason);
+
+  return { status: 'ok', ...selection, skipped };
 }
 
 // GitHub compare 의 status(404 는 null) 를 결과로 변환

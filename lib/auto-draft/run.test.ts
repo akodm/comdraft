@@ -14,7 +14,8 @@ import { runAutoDraft, type RunDeps } from '@/lib/auto-draft/run';
 import type { PushTarget } from '@/lib/auto-draft/store';
 import { DEFAULT_PROMPT_OPTIONS } from '@/lib/studio/options';
 
-const OLD = 'base0';
+// 경계 = 첫 커밋 c1 의 첫 부모
+const OLD = 'c0';
 
 const target = (over: Partial<PushTarget['setting']> = {}): PushTarget => ({
   userId: 'u1',
@@ -126,14 +127,18 @@ describe('runAutoDraft', () => {
 
   it('묶음이 비면 no_commits, 경계는 건드리지 않음', async () => {
     const deps = makeDeps({
-      compare: vi.fn(async () => ({ status: 'ok' as const, commits: [] })),
+      compare: vi.fn(async () => ({
+        status: 'ok' as const,
+        commits: [commit(1, '[comdraft]')],
+      })),
+      findEmptyCommits: vi.fn(async () => new Set(['c1'])),
     });
-    const out = await runAutoDraft(target(), 'c3', {}, deps);
+    const out = await runAutoDraft(target(), 'c1', {}, deps);
     expect(out).toEqual({ status: 'skipped', errorCode: 'no_commits' });
     expect(deps.moveBoundary).not.toHaveBeenCalled();
   });
 
-  it('빈 트리거 확인은 트리거 커밋에만', async () => {
+  it('빈 트리거 확인은 트리거 커밋에만, 끝까지 봤으면 경계는 트리거 커밋으로', async () => {
     const deps = makeDeps({
       findEmptyCommits: vi.fn(async () => new Set(['c3'])),
     });
@@ -148,6 +153,63 @@ describe('runAutoDraft', () => {
       expect.objectContaining({ commitShas: ['c2', 'c1'] }),
       'en',
     );
+    // 묶음 마지막(c2)이 아니라 끝 커밋(c3)까지 옮겨 빈 트리거를 다시 보지 않음
+    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c3');
+  });
+
+  it('20개에서 잘리면 경계는 묶음 마지막 커밋으로, 되돌릴 때도 같은 값', async () => {
+    const commits = Array.from({ length: 25 }, (_, i) =>
+      commit(i + 1, i === 24 ? '[comdraft]' : undefined),
+    );
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({ status: 'ok' as const, commits })),
+      createDraftJob: vi.fn(async () => ({ status: 'rate_limited' as const })),
+    });
+    await runAutoDraft(target(), 'c25', {}, deps);
+    expect(deps.moveBoundary).toHaveBeenNthCalledWith(
+      1,
+      'u1',
+      'r1',
+      OLD,
+      'c20',
+    );
+    expect(deps.moveBoundary).toHaveBeenLastCalledWith('u1', 'r1', 'c20', OLD);
+  });
+
+  it('머지로 들어온 커밋은 묶음에 넣지 않음 (첫 부모 사슬만)', async () => {
+    // c0 → c1 → m(c1, f1) → c3
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({
+        status: 'ok' as const,
+        commits: [
+          { ...commit(9), sha: 'f1', parentShas: [OLD] },
+          commit(1),
+          { ...commit(2), sha: 'm', parentShas: ['c1', 'f1'] },
+          { ...commit(3, '[comdraft]'), parentShas: ['m'] },
+        ],
+      })),
+    });
+    const out = await runAutoDraft(target(), 'c3', {}, deps);
+    expect(out).toMatchObject({ status: 'started' });
+    expect(deps.createDraftJob).toHaveBeenCalledWith(
+      'u1',
+      'r1',
+      expect.objectContaining({ commitShas: ['c3', 'c1'] }),
+      'en',
+    );
+    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c3');
+  });
+
+  it('첫 부모 사슬이 경계에 닿지 않으면 anchor_missing', async () => {
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({
+        status: 'ok' as const,
+        commits: [{ ...commit(3, '[comdraft]'), parentShas: ['zz'] }],
+      })),
+    });
+    const out = await runAutoDraft(target(), 'c3', {}, deps);
+    expect(out).toEqual({ status: 'skipped', errorCode: 'anchor_missing' });
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
   });
 
   it('정상: 최신순 commitShas, 경계 선점 한 번, 러너 시작', async () => {

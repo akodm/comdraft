@@ -1,6 +1,6 @@
 import 'server-only';
 import { desc, eq } from 'drizzle-orm';
-import { selectBatch, type CompareResult } from '@/lib/auto-draft/batch';
+import { computeAutoDraftBatch } from '@/lib/auto-draft/batch-server';
 import { compareBranch, findEmptyCommits } from '@/lib/auto-draft/github';
 import {
   listExcludedShas,
@@ -9,7 +9,6 @@ import {
 } from '@/lib/auto-draft/store';
 import {
   mergeTriggerOptions,
-  parseTrigger,
   type TriggerOptions,
 } from '@/lib/auto-draft/trigger';
 import { db } from '@/lib/db';
@@ -30,7 +29,7 @@ import type { PromptOptions } from '@/lib/studio/options';
 
 /**
  * 커밋 트리거 자동 초안 실행 (웹훅이 after() 안에서 호출)
- * - 순서: 프리셋 → gate → 모델 → compare·묶음 → 경계 선점 → 작업 생성 → 실행기 시작
+ * - 순서: 프리셋 → gate → 모델 → 묶음(첫 부모 사슬) → 경계 선점 → 작업 생성 → 실행기 시작
  * - 경계는 작업을 만들기 전에 먼저 옮겨(선점) 서로 다른 트리거가 같은 커밋을 두 번 쓰지 않게 함
  *   → 작업을 만들지 못하거나 실행기를 시작하지 못하면 원래 경계로 되돌림
  * - 시작 전에 막힌 경우는 초안 없이 실패 행(draft_prompt)만 남김 (커밋 메시지는 저장하지 않음)
@@ -152,28 +151,6 @@ const slotErrorCode = (
   return status === 'busy' ? 'too_many_active' : status;
 };
 
-// 비교 결과에서 묶음 SHA(오래된 순) 계산 (빈 트리거 확인은 트리거 커밋에만)
-const pickBatch = async (
-  target: PushTarget,
-  compared: Extract<CompareResult, { status: 'ok' }>,
-  deps: RunDeps,
-): Promise<string[]> => {
-  const triggerShas = compared.commits
-    .filter((commit) => parseTrigger(commit.message) !== null)
-    .map((commit) => commit.sha);
-  const [emptyShas, excluded] = await Promise.all([
-    triggerShas.length > 0
-      ? deps.findEmptyCommits(target.repo, triggerShas)
-      : Promise.resolve(new Set<string>()),
-    deps.listExcludedShas(target.userId, target.repositoryId),
-  ]);
-
-  return selectBatch(compared.commits, {
-    excludedShas: new Set(excluded.keys()),
-    emptyShas,
-  }).batchShas;
-};
-
 export async function runAutoDraft(
   target: PushTarget,
   triggerSha: string,
@@ -213,18 +190,35 @@ export async function runAutoDraft(
   }
 
   const boundary = setting.boundarySha;
-  const compared = await deps.compare(target.repo, boundary, triggerSha);
-  if (compared.status === 'anchor_missing') return skip('anchor_missing');
+  const excluded = await deps.listExcludedShas(userId, repositoryId);
+  const plan = await computeAutoDraftBatch(
+    target.repo,
+    boundary,
+    triggerSha,
+    excluded,
+    deps,
+  );
+  if (plan.status === 'anchor_missing') return skip('anchor_missing');
 
-  const batchShas = await pickBatch(target, compared, deps);
+  const { batchShas } = plan;
   const last = batchShas.at(-1);
   if (last === undefined) return skip('no_commits');
 
+  // 끝까지 봤으면 트리거 커밋까지, 20개에서 잘렸으면 묶음 마지막 커밋까지 경계를 옮김
+  // → 건너뛴 커밋(빈 트리거·머지 등)을 다음 실행에서 다시 보지 않음
+  const claimTo = plan.exhausted ? triggerSha : last;
+
   // 묶음 선점: 다른 트리거가 먼저 경계를 옮겼으면 이 묶음은 이미 그쪽 몫
-  const claimed = await deps.moveBoundary(userId, repositoryId, boundary, last);
+  const claimed = await deps.moveBoundary(
+    userId,
+    repositoryId,
+    boundary,
+    claimTo,
+  );
   if (!claimed) return skip('no_commits');
 
-  const revert = () => deps.moveBoundary(userId, repositoryId, last, boundary);
+  const revert = () =>
+    deps.moveBoundary(userId, repositoryId, claimTo, boundary);
 
   let created: CreateDraftJobResult;
   try {
