@@ -3,6 +3,7 @@
 import { and, count, desc, eq, inArray, sql } from 'drizzle-orm';
 import { refresh } from 'next/cache';
 import { headers } from 'next/headers';
+import { resetBoundaryForBranch } from '@/lib/auto-draft/store';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { draft, draftPrompt, post, userRepository } from '@/lib/db/schema';
@@ -304,6 +305,9 @@ export async function changeRepositoryBranch(
         eq(userRepository.repositoryId, repository.id),
       ),
     );
+
+  // 자동 초안이 설정돼 있으면 새 브랜치 최신 커밋으로 경계를 다시 잡음
+  await resetBoundaryForBranch(user.id, repository.id);
 
   refresh();
 
