@@ -332,7 +332,7 @@ msgstr "HEIC 형식은 지원하지 않습니다"
 msgid "검토 전 초안"
 msgstr "검토 전 초안"
 
-#: components/studio/generation-progress.tsx:136
+#: components/studio/generation-progress.tsx:137
 msgid "AI 작성 대기 중"
 msgstr "AI 작성 대기 중"
 
@@ -626,7 +626,7 @@ msgstr "저장소 삭제"
 msgid "어떻게 구현했나요?"
 msgstr "어떻게 구현했나요?"
 
-#: components/studio/commit-sidebar.tsx:133
+#: components/studio/commit-sidebar.tsx:137
 msgid "커밋 내역을 불러오지 못했습니다."
 msgstr "커밋 내역을 불러오지 못했습니다."
 
@@ -751,7 +751,7 @@ msgstr "링크를 추가하지 못했습니다. 다시 시도해주세요."
 msgid "사유"
 msgstr "사유"
 
-#: components/studio/commit-row-menu.tsx:108
+#: components/studio/commit-row-menu.tsx:105
 msgid "제외 취소"
 msgstr "제외 취소"
 
@@ -767,7 +767,7 @@ msgstr "편집기에서 나가려면 Esc 다음 Tab 을 누르세요."
 msgid "재개"
 msgstr "재개"
 
-#: components/studio/commit-sidebar.tsx:122
+#: components/studio/commit-sidebar.tsx:126
 msgid "커밋 내역을 불러오는 중..."
 msgstr "커밋 내역을 불러오는 중..."
 
@@ -826,7 +826,7 @@ msgstr "AI 프롬프트"
 msgid "이미 추가한 링크입니다."
 msgstr "이미 추가한 링크입니다."
 
-#: components/studio/commit-sidebar.tsx:179
+#: components/studio/commit-sidebar.tsx:183
 msgid "추적 브랜치에 커밋이 없습니다."
 msgstr "추적 브랜치에 커밋이 없습니다."
 
@@ -839,7 +839,7 @@ msgstr "저장하지 못했습니다"
 #: components/onboarding/repository-connect-form.tsx:247
 #: components/studio/account-settings-panel.tsx:279
 #: components/studio/auto-draft-settings-section.tsx:338
-#: components/studio/commit-sidebar.tsx:139
+#: components/studio/commit-sidebar.tsx:143
 #: components/studio/repository-settings-panel.tsx:344
 #: components/studio/repository-settings-panel.tsx:588
 msgid "다시 시도"
@@ -862,7 +862,7 @@ msgstr "로그아웃"
 #: components/shared/confirm-dialog.tsx:94
 #: components/shared/dialog-frame.tsx:82
 #: components/studio/code-input-dialog.tsx:142
-#: components/studio/generation-progress.tsx:114
+#: components/studio/generation-progress.tsx:115
 #: components/studio/quota-exhausted-banner.tsx:35
 #: components/studio/reference-link-dialog.tsx:134
 #: components/studio/settings-dialog.tsx:87
@@ -904,7 +904,7 @@ msgstr "메뉴 닫기"
 msgid "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
 msgstr "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
 
-#: components/studio/generation-progress.tsx:100
+#: components/studio/generation-progress.tsx:101
 msgid "이번 요청은 남은 사용량보다 커서 진행하지 않았습니다. 사용량은 차감되지 않았습니다. 커밋 수나 길이를 줄이거나 {resetsAt} 이후에 다시 시도해 주세요."
 msgstr "이번 요청은 남은 사용량보다 커서 진행하지 않았습니다. 사용량은 차감되지 않았습니다. 커밋 수나 길이를 줄이거나 {resetsAt} 이후에 다시 시도해 주세요."
 
@@ -1126,7 +1126,7 @@ msgstr "삭제한 초안은 되돌릴 수 없습니다"
 msgid "로그인"
 msgstr "로그인"
 
-#: components/studio/commit-sidebar.tsx:336
+#: components/studio/commit-sidebar.tsx:340
 msgid "{selectedCount}개 선택"
 msgstr "{selectedCount}개 선택"
 
@@ -1217,7 +1217,7 @@ msgstr "등급 변경"
 msgid "꼭 들어 있어야 하는 문자열"
 msgstr "꼭 들어 있어야 하는 문자열"
 
-#: components/studio/commit-sidebar.tsx:168
+#: components/studio/commit-sidebar.tsx:172
 msgid "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한과 추적 브랜치를 확인해주세요."
 msgstr "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한과 추적 브랜치를 확인해주세요."
 
@@ -1350,7 +1350,7 @@ msgstr "초안 또는 저장소를 찾을 수 없습니다. 새로고침 후 다
 msgid "AI 작성이 정상으로 동작 중이에요"
 msgstr "AI 작성이 정상으로 동작 중이에요"
 
-#: components/studio/commit-sidebar.tsx:215
+#: components/studio/commit-sidebar.tsx:219
 msgid "처리하지 못했습니다. 다시 시도해 주세요."
 msgstr "처리하지 못했습니다. 다시 시도해 주세요."
 
@@ -1463,7 +1463,7 @@ msgstr "개발자 이메일"
 msgid "작성을 취소했습니다."
 msgstr "작성을 취소했습니다."
 
-#: components/studio/commit-sidebar.tsx:100
+#: components/studio/commit-sidebar.tsx:104
 msgid "GitHub 에서 커밋 {sha} 열기"
 msgstr "GitHub 에서 커밋 {sha} 열기"
 
@@ -1471,7 +1471,7 @@ msgstr "GitHub 에서 커밋 {sha} 열기"
 msgid "나중에 할게요"
 msgstr "나중에 할게요"
 
-#: components/studio/commit-sidebar.tsx:201
+#: components/studio/commit-sidebar.tsx:205
 msgid "기준점 커밋을 찾을 수 없습니다. 커밋 메뉴에서 기준점을 다시 지정해 주세요."
 msgstr "기준점 커밋을 찾을 수 없습니다. 커밋 메뉴에서 기준점을 다시 지정해 주세요."
 
@@ -1492,7 +1492,7 @@ msgstr "Github App 에서<0/>저장소 권한을 승인해주세요."
 msgid "이메일 또는 GitHub 아이디"
 msgstr "이메일 또는 GitHub 아이디"
 
-#: components/studio/generation-progress.tsx:160
+#: components/studio/generation-progress.tsx:161
 msgid "(완료)"
 msgstr "(완료)"
 
@@ -1706,7 +1706,7 @@ msgstr "세션 무효화"
 msgid "조직 저장소"
 msgstr "조직 저장소"
 
-#: components/studio/commit-row-menu.tsx:108
+#: components/studio/commit-row-menu.tsx:105
 msgid "제외"
 msgstr "제외"
 
@@ -1753,7 +1753,7 @@ msgstr "AI 작성 중지"
 msgid "공개 저장소"
 msgstr "공개 저장소"
 
-#: components/studio/generation-progress.tsx:138
+#: components/studio/generation-progress.tsx:139
 msgid "AI 초안 작성 중"
 msgstr "AI 초안 작성 중"
 
@@ -1881,7 +1881,7 @@ msgstr "이 부분은 자세한 설명이 필요합니다"
 msgid "Lambda 가 아직 기본값을 올리지 않았어요."
 msgstr "Lambda 가 아직 기본값을 올리지 않았어요."
 
-#: components/studio/commit-row-menu.tsx:89
+#: components/studio/commit-row-menu.tsx:87
 msgid "여기를 기준점으로"
 msgstr "여기를 기준점으로"
 
@@ -1916,6 +1916,10 @@ msgstr "확인 중"
 #: components/main/main-footer.tsx:48
 msgid "문의하기"
 msgstr "문의하기"
+
+#: components/studio/generation-progress.tsx:49
+msgid "[comdraft] 커밋이 브랜치에 직접 올린 커밋이 아니라서(머지로 들어온 커밋) 실행하지 않았습니다."
+msgstr "[comdraft] 커밋이 브랜치에 직접 올린 커밋이 아니라서(머지로 들어온 커밋) 실행하지 않았습니다."
 
 #: components/dashboard/repository-card.tsx:71
 #: components/onboarding/repository-connect-form.tsx:219
@@ -1952,7 +1956,7 @@ msgstr "확인 불가"
 msgid "밴 사유"
 msgstr "밴 사유"
 
-#: components/studio/commit-sidebar.tsx:208
+#: components/studio/commit-sidebar.tsx:212
 msgid "자동 대상 {count}/{max}"
 msgstr "자동 대상 {count}/{max}"
 
@@ -2142,7 +2146,7 @@ msgstr "내역을 더 불러오지 못했습니다."
 msgid "마지막 수정자"
 msgstr "마지막 수정자"
 
-#: components/studio/commit-sidebar.tsx:156
+#: components/studio/commit-sidebar.tsx:160
 msgid "다시 로그인"
 msgstr "다시 로그인"
 
@@ -2638,9 +2642,9 @@ msgstr "올바른 URL을 입력해주세요."
 msgid "로그인 중..."
 msgstr "로그인 중..."
 
-#: components/studio/commit-sidebar.tsx:312
-#: components/studio/commit-sidebar.tsx:318
-#: components/studio/commit-sidebar.tsx:339
+#: components/studio/commit-sidebar.tsx:316
+#: components/studio/commit-sidebar.tsx:322
+#: components/studio/commit-sidebar.tsx:343
 msgid "커밋 내역"
 msgstr "커밋 내역"
 
@@ -2745,7 +2749,7 @@ msgstr "사용자 화면에서 이 내역이 빠져요. 사용량과 통계에�
 msgid "저장소에 접근할 수 없어 브랜치를 불러오지 못했습니다."
 msgstr "저장소에 접근할 수 없어 브랜치를 불러오지 못했습니다."
 
-#: components/studio/commit-row-menu.tsx:58
+#: components/studio/commit-row-menu.tsx:56
 msgid "커밋 {shortSha} 메뉴"
 msgstr "커밋 {shortSha} 메뉴"
 
@@ -2865,7 +2869,7 @@ msgid "커밋 내역 열기"
 msgstr "커밋 내역 열기"
 
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:143
-#: components/studio/generation-progress.tsx:90
+#: components/studio/generation-progress.tsx:91
 msgid "다음 초기화"
 msgstr "다음 초기화"
 
@@ -2922,7 +2926,7 @@ msgstr "아직 게시된 글이 없습니다"
 msgid "경과"
 msgstr "경과"
 
-#: components/studio/commit-sidebar.tsx:322
+#: components/studio/commit-sidebar.tsx:326
 msgid "커밋 내역 닫기"
 msgstr "커밋 내역 닫기"
 
@@ -2947,7 +2951,7 @@ msgstr "작업 수"
 msgid "번호 목록"
 msgstr "번호 목록"
 
-#: components/studio/commit-sidebar.tsx:151
+#: components/studio/commit-sidebar.tsx:155
 msgid "GitHub 인증이 만료되었습니다."
 msgstr "GitHub 인증이 만료되었습니다."
 

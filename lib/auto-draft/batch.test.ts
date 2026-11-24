@@ -7,9 +7,11 @@ import {
   getFirstParentChain,
   getOwnSkipReason,
   getSkipReason,
+  resolveFirstParentRange,
   selectBatch,
   selectFirstParentBatch,
   type BranchCommit,
+  type SkipSets,
 } from '@/lib/auto-draft/batch';
 
 function commit(
@@ -150,6 +152,71 @@ describe('getFirstParentChain', () => {
   });
 });
 
+// compare 목록 → 첫 부모 범위 → 묶음 (실행기·스튜디오와 같은 순서)
+const plan = (
+  commits: BranchCommit[],
+  boundarySha: string,
+  headSha: string,
+  sets: SkipSets = none,
+  triggerShas?: readonly string[],
+) =>
+  selectFirstParentBatch(
+    resolveFirstParentRange(commits, boundarySha, headSha, triggerShas),
+    sets,
+  );
+
+describe('resolveFirstParentRange', () => {
+  it('후보 없이 부르면(스튜디오) 끝은 브랜치 끝, 사슬 밖 커밋은 side', () => {
+    const commits = [
+      node('f1', ['b']),
+      node('c1', ['b']),
+      node('m', ['c1', 'f1']),
+    ];
+    const range = resolveFirstParentRange(commits, 'b', 'm');
+    expect(range).toMatchObject({
+      status: 'ok',
+      endSha: 'm',
+      sideShas: ['f1'],
+    });
+    if (range.status !== 'ok') throw new Error();
+    expect(range.chain.map((c) => c.sha)).toEqual(['c1', 'm']);
+  });
+
+  it('후보가 모두 머지로 들어온 커밋이면 trigger_not_on_branch', () => {
+    const commits = [
+      node('c1', ['b']),
+      node('f1', ['b'], { message: '[comdraft]' }),
+      node('m', ['c1', 'f1']),
+    ];
+    expect(resolveFirstParentRange(commits, 'b', 'm', ['f1'])).toEqual({
+      status: 'trigger_not_on_branch',
+    });
+  });
+
+  it('사슬 위 후보 중 가장 최신 것에서 사슬을 자름 (후보 순서와 무관)', () => {
+    const commits = [
+      node('t1', ['b'], { message: '[comdraft] short' }),
+      node('c2', ['t1']),
+      node('t2', ['c2'], { message: '[comdraft] long' }),
+      node('c3', ['t2']),
+    ];
+    const range = resolveFirstParentRange(commits, 'b', 'c3', ['t1', 't2']);
+    expect(range).toMatchObject({ status: 'ok', endSha: 't2' });
+    if (range.status !== 'ok') throw new Error();
+    expect(range.chain.map((c) => c.sha)).toEqual(['t1', 'c2', 't2']);
+  });
+
+  it('사슬이 경계에 닿지 않으면 후보가 있어도 anchor_missing', () => {
+    const commits = [
+      node('m', ['a', 'b']),
+      node('t', ['m'], { message: '[comdraft]' }),
+    ];
+    expect(resolveFirstParentRange(commits, 'b', 't', ['t'])).toEqual({
+      status: 'anchor_missing',
+    });
+  });
+});
+
 describe('selectFirstParentBatch', () => {
   it('머지로 들어온 커밋은 side, 머지 커밋은 merge 로 건너뜀', () => {
     const commits = [
@@ -158,9 +225,9 @@ describe('selectFirstParentBatch', () => {
       node('m', ['c1', 'f1']),
       node('t', ['m'], { message: '[comdraft]' }),
     ];
-    const result = selectFirstParentBatch(commits, 'b', 't', none);
-    expect(result).toEqual({
+    expect(plan(commits, 'b', 't')).toEqual({
       status: 'ok',
+      endSha: 't',
       batchShas: ['c1', 't'],
       skipped: new Map([
         ['f1', 'side'],
@@ -170,8 +237,89 @@ describe('selectFirstParentBatch', () => {
     });
   });
 
+  it('범위 판정이 ok 가 아니면 그대로 돌려줌', () => {
+    expect(
+      selectFirstParentBatch({ status: 'trigger_not_on_branch' }, none),
+    ).toEqual({ status: 'trigger_not_on_branch' });
+    expect(selectFirstParentBatch({ status: 'anchor_missing' }, none)).toEqual({
+      status: 'anchor_missing',
+    });
+  });
+
+  it('직접 올린 트리거 뒤에 같은 푸시로 머지가 오면 묶음은 트리거까지, 들어온 커밋은 side', () => {
+    // b → t([comdraft]) → m(t, f1), f1 은 머지로 들어온 [comdraft] 커밋
+    const commits = [
+      node('t', ['b'], { message: '[comdraft]' }),
+      node('f1', ['b'], { message: '[comdraft] long' }),
+      node('m', ['t', 'f1']),
+    ];
+    expect(plan(commits, 'b', 'm', none, ['f1', 't'])).toEqual({
+      status: 'ok',
+      endSha: 't',
+      batchShas: ['t'],
+      skipped: new Map([['f1', 'side']]),
+      exhausted: true,
+    });
+  });
+
+  it('직접 올린 후보가 둘이면 사슬에서 가장 최신 것이 끝 커밋', () => {
+    const commits = [
+      node('c1', ['b']),
+      node('t1', ['c1'], { message: '[comdraft] short' }),
+      node('c2', ['t1']),
+      node('t2', ['c2'], { message: '[comdraft] long' }),
+    ];
+    expect(plan(commits, 'b', 't2', none, ['t2', 't1'])).toMatchObject({
+      status: 'ok',
+      endSha: 't2',
+      batchShas: ['c1', 't1', 'c2', 't2'],
+      exhausted: true,
+    });
+  });
+
+  it('PR 머지의 [comdraft] 는 실행하지 않고, 다음 직접 트리거가 사슬 커밋만 씀', () => {
+    // main: b → c1, PR: f1([comdraft]) → m(c1, f1) 로 머지
+    const merged = [
+      node('c1', ['b']),
+      node('f1', ['b'], { message: '[comdraft]' }),
+      node('m', ['c1', 'f1']),
+    ];
+    expect(plan(merged, 'b', 'm', none, ['f1'])).toEqual({
+      status: 'trigger_not_on_branch',
+    });
+
+    // 경계는 b 그대로, main 에 직접 t([comdraft]) 를 올림
+    const first = plan(
+      [...merged, node('t', ['m'], { message: '[comdraft]' })],
+      'b',
+      't',
+      none,
+      ['t'],
+    );
+    expect(first).toEqual({
+      status: 'ok',
+      endSha: 't',
+      batchShas: ['c1', 't'],
+      skipped: new Map([
+        ['f1', 'side'],
+        ['m', 'merge'],
+      ]),
+      exhausted: true,
+    });
+
+    // 경계 t 이후: 다시 쓰는 커밋 없음
+    const next = plan(
+      [node('c4', ['t']), node('t2', ['c4'], { message: '[comdraft]' })],
+      't',
+      't2',
+      none,
+      ['t2'],
+    );
+    expect(next).toMatchObject({ status: 'ok', batchShas: ['c4', 't2'] });
+  });
+
   it('끝까지 본 뒤 끝 커밋을 경계로 삼으면 다음 실행에서 다시 쓰지 않음', () => {
-    const first = selectFirstParentBatch(
+    const first = plan(
       [
         node('f1', ['b']),
         node('c1', ['b']),
@@ -180,12 +328,11 @@ describe('selectFirstParentBatch', () => {
       ],
       'b',
       't',
-      none,
     );
     expect(first).toMatchObject({ status: 'ok', exhausted: true });
 
     // 다음 push: 경계 t 이후의 compare 목록 (t 의 조상은 들어오지 않음)
-    const next = selectFirstParentBatch(
+    const next = plan(
       [
         node('f2', ['t']),
         node('c4', ['t']),
@@ -194,7 +341,6 @@ describe('selectFirstParentBatch', () => {
       ],
       't',
       't2',
-      none,
     );
     expect(next).toMatchObject({ status: 'ok', batchShas: ['c4', 't2'] });
     if (first.status !== 'ok' || next.status !== 'ok') throw new Error();
@@ -207,7 +353,7 @@ describe('selectFirstParentBatch', () => {
     const commits = Array.from({ length: 22 }, (_, i) =>
       node(`c${i + 1}`, [i === 0 ? 'b' : `c${i}`]),
     );
-    const result = selectFirstParentBatch(commits, 'b', 'c22', none);
+    const result = plan(commits, 'b', 'c22');
     expect(result).toMatchObject({ status: 'ok', exhausted: false });
     if (result.status !== 'ok') throw new Error();
     expect(result.batchShas).toHaveLength(20);
@@ -216,9 +362,7 @@ describe('selectFirstParentBatch', () => {
 
   it('사슬이 경계에 닿지 않으면 anchor_missing', () => {
     const commits = [node('m', ['a', 'b']), node('t', ['m'])];
-    expect(selectFirstParentBatch(commits, 'b', 't', none)).toEqual({
-      status: 'anchor_missing',
-    });
+    expect(plan(commits, 'b', 't')).toEqual({ status: 'anchor_missing' });
   });
 
   it('사슬 커밋에는 기존 건너뛰기 규칙(web-flow·제외·빈 트리거)을 그대로 적용', () => {
@@ -227,12 +371,13 @@ describe('selectFirstParentBatch', () => {
       node('c2', ['c1']),
       node('c3', ['c2'], { message: '[comdraft]' }),
     ];
-    const result = selectFirstParentBatch(commits, 'b', 'c3', {
+    const result = plan(commits, 'b', 'c3', {
       excludedShas: new Set(['c2']),
       emptyShas: new Set(['c3']),
     });
     expect(result).toEqual({
       status: 'ok',
+      endSha: 'c3',
       batchShas: [],
       skipped: new Map([
         ['c1', 'github'],

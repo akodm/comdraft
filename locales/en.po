@@ -332,7 +332,7 @@ msgstr "HEIC images aren't supported."
 msgid "검토 전 초안"
 msgstr "Draft awaiting review"
 
-#: components/studio/generation-progress.tsx:136
+#: components/studio/generation-progress.tsx:137
 msgid "AI 작성 대기 중"
 msgstr "Waiting for AI writer"
 
@@ -626,7 +626,7 @@ msgstr "Delete repository"
 msgid "어떻게 구현했나요?"
 msgstr "How was it implemented?"
 
-#: components/studio/commit-sidebar.tsx:133
+#: components/studio/commit-sidebar.tsx:137
 msgid "커밋 내역을 불러오지 못했습니다."
 msgstr "Couldn't load the commit history."
 
@@ -751,7 +751,7 @@ msgstr "Couldn't add the link. Please try again."
 msgid "사유"
 msgstr "Reason"
 
-#: components/studio/commit-row-menu.tsx:108
+#: components/studio/commit-row-menu.tsx:105
 msgid "제외 취소"
 msgstr "Undo exclude"
 
@@ -767,7 +767,7 @@ msgstr "To leave the editor, press Esc and then Tab."
 msgid "재개"
 msgstr "Resume"
 
-#: components/studio/commit-sidebar.tsx:122
+#: components/studio/commit-sidebar.tsx:126
 msgid "커밋 내역을 불러오는 중..."
 msgstr "Loading commit history..."
 
@@ -826,7 +826,7 @@ msgstr "AI prompts"
 msgid "이미 추가한 링크입니다."
 msgstr "You've already added this link."
 
-#: components/studio/commit-sidebar.tsx:179
+#: components/studio/commit-sidebar.tsx:183
 msgid "추적 브랜치에 커밋이 없습니다."
 msgstr "There are no commits on the tracked branch."
 
@@ -839,7 +839,7 @@ msgstr "Couldn't save"
 #: components/onboarding/repository-connect-form.tsx:247
 #: components/studio/account-settings-panel.tsx:279
 #: components/studio/auto-draft-settings-section.tsx:338
-#: components/studio/commit-sidebar.tsx:139
+#: components/studio/commit-sidebar.tsx:143
 #: components/studio/repository-settings-panel.tsx:344
 #: components/studio/repository-settings-panel.tsx:588
 msgid "다시 시도"
@@ -862,7 +862,7 @@ msgstr "Sign out"
 #: components/shared/confirm-dialog.tsx:94
 #: components/shared/dialog-frame.tsx:82
 #: components/studio/code-input-dialog.tsx:142
-#: components/studio/generation-progress.tsx:114
+#: components/studio/generation-progress.tsx:115
 #: components/studio/quota-exhausted-banner.tsx:35
 #: components/studio/reference-link-dialog.tsx:134
 #: components/studio/settings-dialog.tsx:87
@@ -904,7 +904,7 @@ msgstr "Close menu"
 msgid "화면 밖의 이미지까지 한꺼번에 요청하지 않도록, 이미지가 화면에 들어올 때 로딩하는 방식으로 변경했습니다."
 msgstr "Instead of requesting every image at once, including off-screen ones, images now load as they enter the viewport."
 
-#: components/studio/generation-progress.tsx:100
+#: components/studio/generation-progress.tsx:101
 msgid "이번 요청은 남은 사용량보다 커서 진행하지 않았습니다. 사용량은 차감되지 않았습니다. 커밋 수나 길이를 줄이거나 {resetsAt} 이후에 다시 시도해 주세요."
 msgstr "This request was larger than your remaining usage, so it wasn't processed. Your usage was not deducted. Reduce the number of commits or the length, or try again after {resetsAt}."
 
@@ -1126,7 +1126,7 @@ msgstr "A deleted draft cannot be restored."
 msgid "로그인"
 msgstr "Sign in"
 
-#: components/studio/commit-sidebar.tsx:336
+#: components/studio/commit-sidebar.tsx:340
 msgid "{selectedCount}개 선택"
 msgstr "{selectedCount} selected"
 
@@ -1217,7 +1217,7 @@ msgstr "Change plan"
 msgid "꼭 들어 있어야 하는 문자열"
 msgstr "Required strings"
 
-#: components/studio/commit-sidebar.tsx:168
+#: components/studio/commit-sidebar.tsx:172
 msgid "저장소에 접근할 수 없습니다. GitHub 앱의 저장소 권한과 추적 브랜치를 확인해주세요."
 msgstr "Can't access this repository. Check the GitHub App's repository access and the tracked branch."
 
@@ -1350,7 +1350,7 @@ msgstr "Couldn't find the draft or repository. Refresh the page and try again."
 msgid "AI 작성이 정상으로 동작 중이에요"
 msgstr "AI drafting is running normally"
 
-#: components/studio/commit-sidebar.tsx:215
+#: components/studio/commit-sidebar.tsx:219
 msgid "처리하지 못했습니다. 다시 시도해 주세요."
 msgstr "Couldn't process that. Please try again."
 
@@ -1463,7 +1463,7 @@ msgstr "Developer email"
 msgid "작성을 취소했습니다."
 msgstr "Writing was cancelled."
 
-#: components/studio/commit-sidebar.tsx:100
+#: components/studio/commit-sidebar.tsx:104
 msgid "GitHub 에서 커밋 {sha} 열기"
 msgstr "Open commit {sha} on GitHub"
 
@@ -1471,7 +1471,7 @@ msgstr "Open commit {sha} on GitHub"
 msgid "나중에 할게요"
 msgstr "Maybe later"
 
-#: components/studio/commit-sidebar.tsx:201
+#: components/studio/commit-sidebar.tsx:205
 msgid "기준점 커밋을 찾을 수 없습니다. 커밋 메뉴에서 기준점을 다시 지정해 주세요."
 msgstr "The anchor commit could not be found. Set the anchor again from the commit menu."
 
@@ -1492,7 +1492,7 @@ msgstr "Approve repository access<0/>in the GitHub App."
 msgid "이메일 또는 GitHub 아이디"
 msgstr "Email or GitHub username"
 
-#: components/studio/generation-progress.tsx:160
+#: components/studio/generation-progress.tsx:161
 msgid "(완료)"
 msgstr "(done)"
 
@@ -1706,7 +1706,7 @@ msgstr "Revoke sessions"
 msgid "조직 저장소"
 msgstr "Organization repository"
 
-#: components/studio/commit-row-menu.tsx:108
+#: components/studio/commit-row-menu.tsx:105
 msgid "제외"
 msgstr "Exclude"
 
@@ -1753,7 +1753,7 @@ msgstr "Pause AI drafting"
 msgid "공개 저장소"
 msgstr "Public repository"
 
-#: components/studio/generation-progress.tsx:138
+#: components/studio/generation-progress.tsx:139
 msgid "AI 초안 작성 중"
 msgstr "AI is writing"
 
@@ -1881,7 +1881,7 @@ msgstr "This part needs a detailed explanation"
 msgid "Lambda 가 아직 기본값을 올리지 않았어요."
 msgstr "The Lambda has not published the defaults yet."
 
-#: components/studio/commit-row-menu.tsx:89
+#: components/studio/commit-row-menu.tsx:87
 msgid "여기를 기준점으로"
 msgstr "Set as anchor"
 
@@ -1916,6 +1916,10 @@ msgstr "Checking"
 #: components/main/main-footer.tsx:48
 msgid "문의하기"
 msgstr "Contact"
+
+#: components/studio/generation-progress.tsx:49
+msgid "[comdraft] 커밋이 브랜치에 직접 올린 커밋이 아니라서(머지로 들어온 커밋) 실행하지 않았습니다."
+msgstr "Not run because the [comdraft] commit came in through a merge, not a direct push to the branch."
 
 #: components/dashboard/repository-card.tsx:71
 #: components/onboarding/repository-connect-form.tsx:219
@@ -1952,7 +1956,7 @@ msgstr "Unavailable"
 msgid "밴 사유"
 msgstr "Ban reason"
 
-#: components/studio/commit-sidebar.tsx:208
+#: components/studio/commit-sidebar.tsx:212
 msgid "자동 대상 {count}/{max}"
 msgstr "Auto batch {count}/{max}"
 
@@ -2142,7 +2146,7 @@ msgstr "Couldn't load more history."
 msgid "마지막 수정자"
 msgstr "Last editor"
 
-#: components/studio/commit-sidebar.tsx:156
+#: components/studio/commit-sidebar.tsx:160
 msgid "다시 로그인"
 msgstr "Sign in again"
 
@@ -2638,9 +2642,9 @@ msgstr "Enter a valid URL."
 msgid "로그인 중..."
 msgstr "Signing in..."
 
-#: components/studio/commit-sidebar.tsx:312
-#: components/studio/commit-sidebar.tsx:318
-#: components/studio/commit-sidebar.tsx:339
+#: components/studio/commit-sidebar.tsx:316
+#: components/studio/commit-sidebar.tsx:322
+#: components/studio/commit-sidebar.tsx:343
 msgid "커밋 내역"
 msgstr "Commit history"
 
@@ -2745,7 +2749,7 @@ msgstr "This entry disappears from the user's view. It still counts toward usage
 msgid "저장소에 접근할 수 없어 브랜치를 불러오지 못했습니다."
 msgstr "Couldn't load branches because the repository isn't accessible."
 
-#: components/studio/commit-row-menu.tsx:58
+#: components/studio/commit-row-menu.tsx:56
 msgid "커밋 {shortSha} 메뉴"
 msgstr "Menu for commit {shortSha}"
 
@@ -2865,7 +2869,7 @@ msgid "커밋 내역 열기"
 msgstr "Open commit history"
 
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:143
-#: components/studio/generation-progress.tsx:90
+#: components/studio/generation-progress.tsx:91
 msgid "다음 초기화"
 msgstr "the next reset"
 
@@ -2922,7 +2926,7 @@ msgstr "No posts have been published yet"
 msgid "경과"
 msgstr "Elapsed"
 
-#: components/studio/commit-sidebar.tsx:322
+#: components/studio/commit-sidebar.tsx:326
 msgid "커밋 내역 닫기"
 msgstr "Close commit history"
 
@@ -2947,7 +2951,7 @@ msgstr "Jobs"
 msgid "번호 목록"
 msgstr "Numbered list"
 
-#: components/studio/commit-sidebar.tsx:151
+#: components/studio/commit-sidebar.tsx:155
 msgid "GitHub 인증이 만료되었습니다."
 msgstr "Your GitHub session has expired."
 

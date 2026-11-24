@@ -50,8 +50,12 @@ describe('verifyWebhookSignature', () => {
   });
 });
 
+const HEAD = 'f'.repeat(40);
+const ZERO_SHA = '0'.repeat(40);
+
 const payload = {
   ref: 'refs/heads/main',
+  after: HEAD,
   forced: false,
   sender: { id: 42 },
   repository: { id: 7 },
@@ -62,6 +66,7 @@ describe('parsePushEvent', () => {
   it('필드를 뽑아 낸다', () => {
     expect(parsePushEvent(payload)).toEqual({
       ref: 'refs/heads/main',
+      after: HEAD,
       forced: false,
       senderId: 42,
       repositoryId: 7,
@@ -89,6 +94,13 @@ describe('parsePushEvent', () => {
     expect(parsePushEvent({ ...payload, commits: undefined })).toBeNull();
     expect(parsePushEvent({ ...payload, commits: [{ id: 'a' }] })).toBeNull();
   });
+
+  it('after(푸시 끝 SHA) 가 없거나 40자리 16진수가 아니면 null', () => {
+    expect(parsePushEvent({ ...payload, after: undefined })).toBeNull();
+    expect(parsePushEvent({ ...payload, after: 'abc' })).toBeNull();
+    expect(parsePushEvent({ ...payload, after: 'g'.repeat(40) })).toBeNull();
+    expect(parsePushEvent({ ...payload, after: 1 })).toBeNull();
+  });
 });
 
 const target = { branch: 'main', githubAccountId: '42' };
@@ -96,6 +108,7 @@ const target = { branch: 'main', githubAccountId: '42' };
 function event(overrides: Partial<PushEvent> = {}): PushEvent {
   return {
     ref: 'refs/heads/main',
+    after: HEAD,
     forced: false,
     senderId: 42,
     repositoryId: 7,
@@ -105,12 +118,19 @@ function event(overrides: Partial<PushEvent> = {}): PushEvent {
 }
 
 describe('planPushEvent', () => {
-  it('트리거 커밋이면 trigger', () => {
+  it('트리거 커밋이면 trigger, 푸시 끝 SHA 와 후보를 함께', () => {
     expect(planPushEvent(event(), target)).toEqual({
       kind: 'trigger',
-      triggerSha: 'a1',
-      options: { length: 'short' },
+      headSha: HEAD,
+      candidates: [{ sha: 'a1', options: { length: 'short' } }],
     });
+  });
+
+  it('브랜치 삭제 푸시(after 가 0, 커밋 없음)는 ignore', () => {
+    const e = parsePushEvent({ ...payload, after: ZERO_SHA, commits: [] });
+    expect(e).not.toBeNull();
+    if (!e) throw new Error();
+    expect(planPushEvent(e, target)).toEqual({ kind: 'ignore' });
   });
 
   it('대상 브랜치가 아니면 ignore', () => {
@@ -157,7 +177,7 @@ describe('planPushEvent', () => {
     ).toEqual({ kind: 'ignore' });
   });
 
-  it('트리거가 둘이면 마지막(최신) 커밋', () => {
+  it('트리거 후보는 모든 트리거 커밋을 최신순으로, 옵션도 후보마다', () => {
     const e = event({
       commits: [
         { id: 'a1', message: '[comdraft] short' },
@@ -166,7 +186,13 @@ describe('planPushEvent', () => {
         { id: 'a4', message: 'fix' },
       ],
     });
-    const plan = planPushEvent(e, target);
-    expect(plan).toMatchObject({ kind: 'trigger', triggerSha: 'a3' });
+    expect(planPushEvent(e, target)).toEqual({
+      kind: 'trigger',
+      headSha: HEAD,
+      candidates: [
+        { sha: 'a3', options: { length: 'long' } },
+        { sha: 'a1', options: { length: 'short' } },
+      ],
+    });
   });
 });

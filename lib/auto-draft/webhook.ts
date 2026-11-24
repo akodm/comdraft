@@ -2,19 +2,38 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { parseTrigger, type TriggerOptions } from '@/lib/auto-draft/trigger';
 
 const SIGNATURE_PATTERN = /^sha256=[0-9a-f]{64}$/i;
+const COMMIT_SHA_PATTERN = /^[0-9a-f]{40}$/i;
 
 export interface PushEvent {
   ref: string;
+  // 푸시 뒤 브랜치 끝 SHA (브랜치 삭제면 0 40개)
+  after: string;
   forced: boolean;
   senderId: number;
   repositoryId: number;
   commits: Array<{ id: string; message: string }>;
 }
 
+// 푸시에 들어 있던 트리거 커밋 하나
+export interface TriggerCandidate {
+  sha: string;
+  options: TriggerOptions;
+}
+
+/**
+ * 트리거가 있는 푸시 (실행기 입력)
+ * - candidates: 트리거 커밋 전부, 최신순 (하나 이상)
+ * - 실제 트리거는 실행기가 headSha 의 첫 부모 사슬 위에 있는 후보 중에서 고름 (머지로 들어온 커밋 제외)
+ */
+export interface TriggerPush {
+  headSha: string;
+  candidates: [TriggerCandidate, ...TriggerCandidate[]];
+}
+
 export type PushPlan =
   | { kind: 'ignore' }
   | { kind: 'exclude_forced'; shas: string[] }
-  | { kind: 'trigger'; triggerSha: string; options: TriggerOptions };
+  | ({ kind: 'trigger' } & TriggerPush);
 
 // X-Hub-Signature-256 헤더를 원본 본문으로 검증 (절대 throw 하지 않음)
 export function verifyWebhookSignature(
@@ -37,9 +56,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 // push 페이로드에서 필요한 필드만 추출, 하나라도 없거나 타입이 다르면 null
 export function parsePushEvent(payload: unknown): PushEvent | null {
   if (!isRecord(payload)) return null;
-  const { ref, forced, sender, repository, commits } = payload;
+  const { ref, after, forced, sender, repository, commits } = payload;
 
   if (typeof ref !== 'string' || typeof forced !== 'boolean') return null;
+  if (typeof after !== 'string' || !COMMIT_SHA_PATTERN.test(after)) {
+    return null;
+  }
   if (!isRecord(sender) || typeof sender.id !== 'number') return null;
   if (!isRecord(repository) || typeof repository.id !== 'number') return null;
   if (!Array.isArray(commits)) return null;
@@ -58,6 +80,7 @@ export function parsePushEvent(payload: unknown): PushEvent | null {
 
   return {
     ref,
+    after,
     forced,
     senderId: sender.id,
     repositoryId: repository.id,
@@ -81,11 +104,19 @@ export function planPushEvent(
     return { kind: 'exclude_forced', shas: event.commits.map((c) => c.id) };
   }
 
-  // 가장 최신(마지막) 트리거 커밋을 기준으로 삼음
+  // 트리거 커밋을 모두 후보로 (최신순), 어느 것을 쓸지는 실행기가 브랜치 사슬을 보고 정함
+  const candidates: TriggerCandidate[] = [];
   for (let i = event.commits.length - 1; i >= 0; i -= 1) {
     const commit = event.commits[i];
     const options = parseTrigger(commit.message);
-    if (options) return { kind: 'trigger', triggerSha: commit.id, options };
+    if (options) candidates.push({ sha: commit.id, options });
   }
-  return { kind: 'ignore' };
+
+  const [newest, ...rest] = candidates;
+  if (!newest) return { kind: 'ignore' };
+  return {
+    kind: 'trigger',
+    headSha: event.after,
+    candidates: [newest, ...rest],
+  };
 }

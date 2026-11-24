@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       scheduled += 1;
       after(async () => {
         try {
-          await runAutoDraft(target, plan.triggerSha, plan.options);
+          await runAutoDraft(target, plan);
         } catch (error) {
           // 실패 기록은 실행기가 남김 → 여기는 예상 밖 오류만 (커밋 내용은 남기지 않음)
           console.error(
@@ -90,16 +90,14 @@ export async function POST(request: NextRequest) {
             toErrorMessage(error),
           );
           // 내역에서 보이도록 internal 실패 행을 남김 (같은 트리거 행이 이미 있으면 그대로)
-          await recordUnexpectedFailure(
-            target,
-            plan.triggerSha,
-            plan.options,
-          ).catch((recordError: unknown) => {
-            console.error(
-              '[github-webhook] 실패 기록을 남기지 못함:',
-              toErrorMessage(recordError),
-            );
-          });
+          await recordUnexpectedFailure(target, plan).catch(
+            (recordError: unknown) => {
+              console.error(
+                '[github-webhook] 실패 기록을 남기지 못함:',
+                toErrorMessage(recordError),
+              );
+            },
+          );
         }
       });
     }

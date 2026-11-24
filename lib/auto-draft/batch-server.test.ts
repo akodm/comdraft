@@ -20,6 +20,9 @@ const makeIo = (commits: BranchCommit[], empty: string[] = []) => ({
   findEmptyCommits: vi.fn(async () => new Set(empty)),
 });
 
+// 스튜디오처럼 브랜치 끝까지, 트리거 후보 없이
+const plainInput = { boundarySha: 'b', headSha: 't', excluded: new Map() };
+
 describe('computeAutoDraftBatch', () => {
   it('빈 트리거 확인은 첫 부모 사슬의 트리거 커밋에만', async () => {
     const io = makeIo(
@@ -31,11 +34,16 @@ describe('computeAutoDraftBatch', () => {
       ],
       ['c1'],
     );
-    const result = await computeAutoDraftBatch(repo, 'b', 't', new Map(), io);
+    const result = await computeAutoDraftBatch(
+      repo,
+      { boundarySha: 'b', headSha: 't', excluded: new Map() },
+      io,
+    );
     expect(io.compare).toHaveBeenCalledWith(repo, 'b', 't');
     expect(io.findEmptyCommits).toHaveBeenCalledWith(repo, ['c1', 't']);
     expect(result).toEqual({
       status: 'ok',
+      endSha: 't',
       batchShas: ['t'],
       skipped: new Map([
         ['f1', 'side'],
@@ -50,9 +58,7 @@ describe('computeAutoDraftBatch', () => {
     const io = makeIo([node('c1', ['b']), node('c2', ['c1'])]);
     const result = await computeAutoDraftBatch(
       repo,
-      'b',
-      'c2',
-      new Map([['c1', 'user']]),
+      { boundarySha: 'b', headSha: 'c2', excluded: new Map([['c1', 'user']]) },
       io,
     );
     expect(io.findEmptyCommits).not.toHaveBeenCalled();
@@ -64,7 +70,7 @@ describe('computeAutoDraftBatch', () => {
       compare: vi.fn(async () => ({ status: 'anchor_missing' as const })),
       findEmptyCommits: vi.fn(async () => new Set<string>()),
     };
-    expect(await computeAutoDraftBatch(repo, 'b', 't', new Map(), io)).toEqual({
+    expect(await computeAutoDraftBatch(repo, plainInput, io)).toEqual({
       status: 'anchor_missing',
     });
     expect(io.findEmptyCommits).not.toHaveBeenCalled();
@@ -72,9 +78,67 @@ describe('computeAutoDraftBatch', () => {
 
   it('첫 부모 사슬이 경계에 닿지 않으면 anchor_missing', async () => {
     const io = makeIo([node('m', ['a', 'b']), node('t', ['m'], '[comdraft]')]);
-    expect(await computeAutoDraftBatch(repo, 'b', 't', new Map(), io)).toEqual({
-      status: 'anchor_missing',
+    expect(
+      await computeAutoDraftBatch(
+        repo,
+        { ...plainInput, triggerShas: ['t'] },
+        io,
+      ),
+    ).toEqual({ status: 'anchor_missing' });
+    expect(io.findEmptyCommits).not.toHaveBeenCalled();
+  });
+
+  it('트리거 후보가 있으면 compare 는 푸시 끝까지 한 번, 빈 커밋 확인은 고른 트리거까지만', async () => {
+    // b → t0([comdraft], 이전 푸시) → c1 → t1([comdraft]) → m(t1, f1) → c3
+    // f1 은 머지로 들어온 [comdraft], 이번 푸시의 후보는 f1·t1
+    const io = makeIo([
+      node('t0', ['b'], '[comdraft]'),
+      node('c1', ['t0']),
+      node('t1', ['c1'], '[comdraft] long'),
+      node('f1', ['b'], '[comdraft]'),
+      node('m', ['t1', 'f1']),
+      node('c3', ['m']),
+    ]);
+    const result = await computeAutoDraftBatch(
+      repo,
+      {
+        boundarySha: 'b',
+        headSha: 'c3',
+        excluded: new Map(),
+        triggerShas: ['f1', 't1'],
+      },
+      io,
+    );
+    expect(io.compare).toHaveBeenCalledTimes(1);
+    expect(io.compare).toHaveBeenCalledWith(repo, 'b', 'c3');
+    expect(io.findEmptyCommits).toHaveBeenCalledWith(repo, ['t0', 't1']);
+    expect(result).toEqual({
+      status: 'ok',
+      endSha: 't1',
+      batchShas: ['t0', 'c1', 't1'],
+      skipped: new Map([['f1', 'side']]),
+      exhausted: true,
     });
+  });
+
+  it('트리거 후보가 모두 머지로 들어왔으면 trigger_not_on_branch, 빈 커밋 확인 안 함', async () => {
+    const io = makeIo([
+      node('c1', ['b']),
+      node('f1', ['b'], '[comdraft]'),
+      node('m', ['c1', 'f1']),
+    ]);
+    expect(
+      await computeAutoDraftBatch(
+        repo,
+        {
+          boundarySha: 'b',
+          headSha: 'm',
+          excluded: new Map(),
+          triggerShas: ['f1'],
+        },
+        io,
+      ),
+    ).toEqual({ status: 'trigger_not_on_branch' });
     expect(io.findEmptyCommits).not.toHaveBeenCalled();
   });
 });

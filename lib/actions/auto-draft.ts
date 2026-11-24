@@ -185,7 +185,11 @@ export async function loadAutoDraftState(
 
     const head = await getBranchHead(repo);
     const plan = head
-      ? await computeAutoDraftBatch(repo, setting.boundarySha, head, excluded)
+      ? await computeAutoDraftBatch(repo, {
+          boundarySha: setting.boundarySha,
+          headSha: head,
+          excluded,
+        })
       : ({ status: 'anchor_missing' } as const);
 
     if (plan.status !== 'ok') {
