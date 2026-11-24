@@ -45,8 +45,8 @@ const OptionValueTable = () => (
       {OPTION_VALUE_ROWS.map(({ key, values }) => (
         <tr key={key}>
           <th scope="row" className="w-16 py-1.5 pr-3 align-top font-medium">
-            {key === 'tone' && <Trans>톤</Trans>}
-            {key === 'postType' && <Trans>글 종류</Trans>}
+            {key === 'tone' && <Trans>말투</Trans>}
+            {key === 'postType' && <Trans>유형</Trans>}
             {key === 'length' && <Trans>길이</Trans>}
           </th>
           <td className="py-1.5 font-mono break-words">{values.join(' / ')}</td>
@@ -264,8 +264,8 @@ const SettingsForm = ({ initial }: { initial: Loaded }) => {
         <OptionValueTable />
         <p className="text-[12px] leading-[1.6] break-keep text-ink-faint">
           <Trans>
-            PR 머지로 들어온 커밋, 머지 커밋, force push 로 올라온 커밋은 모이지
-            않습니다.
+            머지로 들어온 커밋(PR 머지 포함), 머지 커밋, GitHub 에서 만든 커밋,
+            force push 로 올라온 커밋은 모이지 않습니다.
           </Trans>
         </p>
       </div>

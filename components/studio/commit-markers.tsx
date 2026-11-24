@@ -39,7 +39,7 @@ const CommitMarkers = ({ markers }: CommitMarkersProps) => {
           ? t`force push 로 올라와 제외된 커밋입니다`
           : t`제외한 커밋입니다. 자동 대상에 들어가지 않습니다`;
       case 'not_collected':
-        return t`머지 커밋이나 GitHub 에서 만든 커밋은 자동 대상에 들어가지 않습니다`;
+        return t`머지로 들어온 커밋이나 머지 커밋, GitHub 에서 만든 커밋은 자동 대상에 들어가지 않습니다`;
     }
   };
 
