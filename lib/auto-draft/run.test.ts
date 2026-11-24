@@ -10,7 +10,11 @@ vi.mock('@/lib/generation/jobs', () => ({}));
 vi.mock('@/lib/generation/get-runner', () => ({}));
 
 import type { BranchCommit } from '@/lib/auto-draft/batch';
-import { runAutoDraft, type RunDeps } from '@/lib/auto-draft/run';
+import {
+  recordUnexpectedFailure,
+  runAutoDraft,
+  type RunDeps,
+} from '@/lib/auto-draft/run';
 import type { PushTarget } from '@/lib/auto-draft/store';
 import { DEFAULT_PROMPT_OPTIONS } from '@/lib/studio/options';
 
@@ -327,5 +331,30 @@ describe('runAutoDraft', () => {
     });
     const out = await runAutoDraft(target({ prompt: '' }), 'c3', {}, deps);
     expect(out).toEqual({ status: 'duplicate' });
+  });
+});
+
+describe('recordUnexpectedFailure', () => {
+  it('트리거 옵션을 합친 internal 실패 행을 남김', async () => {
+    const deps = makeDeps();
+    await recordUnexpectedFailure(target(), 'c3', { length: 'long' }, deps);
+    expect(deps.recordFailure).toHaveBeenCalledWith({
+      userId: 'u1',
+      repositoryId: 'r1',
+      triggerSha: 'c3',
+      errorCode: 'internal',
+      prompt: '프리셋',
+      options: expect.objectContaining({ length: 'long', model: 'haiku' }),
+      locale: 'en',
+    });
+  });
+
+  it('이미 같은 트리거 행이 있으면(duplicate) 조용히 끝냄', async () => {
+    const deps = makeDeps({
+      recordFailure: vi.fn(async () => 'duplicate' as const),
+    });
+    await expect(
+      recordUnexpectedFailure(target(), 'c3', {}, deps),
+    ).resolves.toBeUndefined();
   });
 });

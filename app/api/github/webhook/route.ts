@@ -1,5 +1,5 @@
 import { after, type NextRequest } from 'next/server';
-import { runAutoDraft } from '@/lib/auto-draft/run';
+import { recordUnexpectedFailure, runAutoDraft } from '@/lib/auto-draft/run';
 import { excludeCommits, findPushTargets } from '@/lib/auto-draft/store';
 import {
   parsePushEvent,
@@ -9,6 +9,10 @@ import {
 import { getGithubWebhookSecret } from '@/lib/github/env';
 
 const BRANCH_REF_PREFIX = 'refs/heads/';
+
+// 로그에는 오류 메시지만 남김 (오류 객체에 요청·커밋 정보가 딸려 있을 수 있음)
+const toErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
 
 // 자동 초안 실행은 응답 뒤에 이어지므로 넉넉한 시간을 줌
 export const maxDuration = 300;
@@ -81,7 +85,21 @@ export async function POST(request: NextRequest) {
           await runAutoDraft(target, plan.triggerSha, plan.options);
         } catch (error) {
           // 실패 기록은 실행기가 남김 → 여기는 예상 밖 오류만 (커밋 내용은 남기지 않음)
-          console.error('자동 초안 실행 중 예상하지 못한 오류', error);
+          console.error(
+            '[github-webhook] 자동 초안 실행 중 예상하지 못한 오류:',
+            toErrorMessage(error),
+          );
+          // 내역에서 보이도록 internal 실패 행을 남김 (같은 트리거 행이 이미 있으면 그대로)
+          await recordUnexpectedFailure(
+            target,
+            plan.triggerSha,
+            plan.options,
+          ).catch((recordError: unknown) => {
+            console.error(
+              '[github-webhook] 실패 기록을 남기지 못함:',
+              toErrorMessage(recordError),
+            );
+          });
         }
       });
     }

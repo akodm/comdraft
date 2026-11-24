@@ -151,6 +151,29 @@ const slotErrorCode = (
   return status === 'busy' ? 'too_many_active' : status;
 };
 
+/**
+ * 실행 중 예상 밖 오류가 났을 때 internal 실패 행을 남김 (웹훅 after() 에서 호출)
+ * - 같은 트리거 SHA 의 행(작업 행이나 실패 행)이 이미 있으면 그대로 둠
+ */
+export async function recordUnexpectedFailure(
+  target: PushTarget,
+  triggerSha: string,
+  trigger: TriggerOptions,
+  deps: Pick<RunDeps, 'getLocale' | 'recordFailure'> = defaultRunDeps,
+): Promise<void> {
+  const { userId, repositoryId, setting } = target;
+
+  await deps.recordFailure({
+    userId,
+    repositoryId,
+    triggerSha,
+    errorCode: 'internal',
+    prompt: setting.prompt,
+    options: mergeTriggerOptions(setting.options, trigger),
+    locale: await deps.getLocale(userId),
+  });
+}
+
 export async function runAutoDraft(
   target: PushTarget,
   triggerSha: string,
