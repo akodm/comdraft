@@ -83,6 +83,20 @@ export const GENERATION_ERROR_CODES = [
   'service_paused',
   // 작업 주인이 이용 제한(밴) 상태라 시작하지 않음 (사용량 차감 없음)
   'user_banned',
+  // 자동 초안: 저장소 프리셋(프롬프트)이 없어 시작하지 않음
+  'no_preset',
+  // 자동 초안: 기준점 이후 새 커밋이 없음
+  'no_commits',
+  // 자동 초안: 기준점 커밋을 브랜치에서 찾을 수 없음
+  'anchor_missing',
+  // 자동 초안: 시간당 요청 한도를 넘음
+  'rate_limited',
+  // 자동 초안: 동시에 진행 중인 작업이 너무 많음
+  'too_many_active',
+  // 자동 초안: 사용량 정책을 확인할 수 없음
+  'quota_unavailable',
+  // 자동 초안: 현재 등급에서 쓸 수 없는 모델
+  'model_locked',
 ] as const;
 export type GenerationErrorCode = (typeof GENERATION_ERROR_CODES)[number];
 

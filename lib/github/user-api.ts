@@ -56,8 +56,11 @@ export class GithubApiError extends Error {
   }
 }
 
-// Better Auth 가 저장한 GitHub 토큰을 복호화해서 가져옴 (만료 시 refresh token 으로 자동 갱신)
-export const getGithubUserToken = async (userId: string, headers: Headers) => {
+/**
+ * Better Auth 가 저장한 GitHub 토큰을 복호화해서 가져옴 (만료 시 refresh token 으로 자동 갱신)
+ * - 세션이 없는 호출(웹훅)은 headers 를 생략 (빈 Headers 를 넘기면 세션 없음으로 UNAUTHORIZED)
+ */
+export const getGithubUserToken = async (userId: string, headers?: Headers) => {
   const [githubAccount] = await db
     .select({ id: account.id })
     .from(account)
@@ -72,7 +75,7 @@ export const getGithubUserToken = async (userId: string, headers: Headers) => {
   const { accessToken } = await auth.api
     .getAccessToken({
       body: { accountId: githubAccount.id, userId },
-      headers,
+      ...(headers ? { headers } : {}),
     })
     .catch((error: unknown) => {
       if (error instanceof APIError) {

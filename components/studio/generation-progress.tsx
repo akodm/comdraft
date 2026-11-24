@@ -38,6 +38,14 @@ export const GENERATION_ERROR_MESSAGES: Record<
   // 작성 요청 거부 안내에도 같은 문구를 씀 (prompt-composer, clarification-card, 빈칸 다듬기)
   service_paused: msg`지금은 AI 작성을 잠시 멈췄어요. 잠시 후 다시 시도해 주세요.`,
   user_banned: msg`이용이 제한된 계정이에요.`,
+  // 자동 초안(커밋 트리거)이 시작하지 못한 이유
+  no_preset: msg`프롬프트 프리셋이 없어 실행하지 않았습니다. 저장소 설정에서 프리셋을 입력해 주세요.`,
+  no_commits: msg`기준점 이후 새 커밋이 없어 실행하지 않았습니다.`,
+  anchor_missing: msg`기준점 커밋을 브랜치에서 찾을 수 없습니다. 스튜디오에서 기준점을 다시 지정해 주세요.`,
+  rate_limited: msg`1시간 요청 한도를 넘어 실행하지 않았습니다.`,
+  too_many_active: msg`진행 중인 작업이 많아 실행하지 않았습니다.`,
+  quota_unavailable: msg`사용량 정책을 확인할 수 없어 실행하지 않았습니다.`,
+  model_locked: msg`지금 등급에서 쓸 수 없는 모델이라 실행하지 않았습니다. 저장소 설정의 기본 옵션을 확인해 주세요.`,
 };
 
 type StepState = 'done' | 'current' | 'pending';
