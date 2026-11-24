@@ -8,12 +8,15 @@ import {
 
 const item = (
   id: string,
-  draftId: string,
+  draftId: string | null,
   kind: PromptHistoryItem['kind'],
   createdAt: string,
 ): PromptHistoryItem => ({
   id,
   draftId,
+  source: draftId === null ? 'commit_trigger' : 'studio',
+  triggerSha: null,
+  errorCode: null,
   kind,
   prompt: id,
   commitShas: [],
@@ -24,6 +27,40 @@ const item = (
 });
 
 describe('groupPromptHistory', () => {
+  it('초안이 없는 자동 실행 실패 항목은 단독으로 두고 순서를 유지한다', () => {
+    const items = [
+      item('draft-2', 'd1', 'draft', '2026-11-12T06:00:00Z'),
+      item('auto-fail', null, 'draft', '2026-11-12T05:00:00Z'),
+      item('fill-1', 'd1', 'fill', '2026-11-12T04:00:00Z'),
+      item('draft-1', 'd1', 'draft', '2026-11-12T03:00:00Z'),
+    ];
+
+    const entries = groupPromptHistory(items);
+
+    expect(entries.map((entry) => entry.item.id)).toEqual([
+      'draft-2',
+      'auto-fail',
+      'draft-1',
+    ]);
+    expect(entries[1].fills).toEqual([]);
+    expect(entries[2].fills.map((fill) => fill.id)).toEqual(['fill-1']);
+  });
+
+  it('draftId 가 null 인 항목끼리는 같은 초안으로 보지 않는다', () => {
+    const items = [
+      item('fill-null', null, 'fill', '2026-11-12T05:00:00Z'),
+      item('auto-fail', null, 'draft', '2026-11-12T04:00:00Z'),
+    ];
+
+    const entries = groupPromptHistory(items);
+
+    expect(entries.map((entry) => entry.item.id)).toEqual([
+      'fill-null',
+      'auto-fail',
+    ]);
+    expect(entries[1].fills).toEqual([]);
+  });
+
   it('빈칸 채우기를 같은 초안의 바로 앞 초안 작성 요청 아래에 붙인다', () => {
     const items = [
       item('fill-2', 'd1', 'fill', '2026-11-12T05:00:00Z'),

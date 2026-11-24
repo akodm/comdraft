@@ -426,6 +426,8 @@ const createFillJob = async (
         id: jobId,
         userId,
         draftId: request.draftId,
+        // 빈칸 채우기도 저장소의 내역에 속함
+        repositoryId: request.repositoryId,
         kind: 'fill',
         prompt: request.answer,
         blankId: request.blankId,
