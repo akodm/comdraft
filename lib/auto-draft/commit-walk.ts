@@ -18,32 +18,32 @@ export function toBranchCommit(json: GithubCommitJson): BranchCommit {
   };
 }
 
-// 커밋 목록 API 한 번에 가져오는 개수와 최대 페이지 수
-export const WALK_PER_PAGE = 100;
-export const WALK_MAX_PAGES = 20;
+// compare 한 페이지에 요청하는 개수와 최대 페이지 수
+export const COMPARE_PER_PAGE = 100;
+export const COMPARE_MAX_PAGES = 20;
 
 /**
- * 최신 커밋부터 페이지 단위로 거슬러 올라가 baseSha 직전까지 모음 (오래된 순으로 반환)
- * - baseSha 는 포함하지 않음, 끝까지 가도 baseSha 를 못 만나면 null
- * - fetchPage 는 1부터 시작하는 페이지를 최신순으로 돌려주며, 빈 배열이면 끝
+ * compare 결과를 페이지 단위로 이어 붙임 (오래된 순)
+ * - 1페이지는 호출부가 이미 받았고, total 만큼 모일 때까지 다음 페이지를 요청
+ * - 최대 페이지 안에 다 모으지 못하거나 빈 페이지가 오면 null
  */
-export async function walkBackToBase(
-  baseSha: string,
+export async function collectComparePages(
+  first: BranchCommit[],
+  total: number,
   fetchPage: (page: number) => Promise<BranchCommit[]>,
-  maxPages: number = WALK_MAX_PAGES,
+  maxPages: number = COMPARE_MAX_PAGES,
 ): Promise<BranchCommit[] | null> {
-  const collected: BranchCommit[] = [];
+  const collected = [...first];
 
-  for (let page = 1; page <= maxPages; page += 1) {
+  for (let page = 2; collected.length < total; page += 1) {
+    if (page > maxPages) return null;
+
     const commits = await fetchPage(page);
 
     if (commits.length === 0) return null;
 
-    for (const commit of commits) {
-      if (commit.sha === baseSha) return collected.reverse();
-      collected.push(commit);
-    }
+    collected.push(...commits);
   }
 
-  return null;
+  return collected;
 }

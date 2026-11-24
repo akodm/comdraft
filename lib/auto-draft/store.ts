@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import type { ExcludedCommitReason } from '@/lib/db/schema/auto-draft';
 import { getBranchHead, type AutoDraftRepo } from '@/lib/auto-draft/github';
 import { db } from '@/lib/db';
@@ -159,25 +159,41 @@ export async function setAutoDraftEnabled(
   if (!repo) return 'not_found';
 
   const existing = await getAutoDraftSetting(userId, repositoryId);
-  let boundarySha = existing?.boundarySha ?? null;
+  let head: string | null = null;
 
-  if (enabled && boundarySha === null) {
+  // 경계가 없을 때만 최신 커밋을 구함
+  if (enabled && !existing?.boundarySha) {
     try {
-      boundarySha = await getBranchHead(repo);
+      head = await getBranchHead(repo);
     } catch {
       return 'unavailable';
     }
 
-    if (boundarySha === null) return 'unavailable';
+    if (head === null) return 'unavailable';
   }
 
+  // 켜기/끄기는 enabled 만 갱신 (동시에 움직인 경계를 되돌리지 않음)
   await db
     .insert(repositoryAutoDraft)
-    .values({ userId, repositoryId, enabled, boundarySha })
+    .values({ userId, repositoryId, enabled })
     .onConflictDoUpdate({
       target: [repositoryAutoDraft.userId, repositoryAutoDraft.repositoryId],
-      set: { enabled, boundarySha },
+      set: { enabled },
     });
+
+  // 경계는 비어 있을 때만 채움
+  if (head !== null) {
+    await db
+      .update(repositoryAutoDraft)
+      .set({ boundarySha: head })
+      .where(
+        and(
+          eq(repositoryAutoDraft.userId, userId),
+          eq(repositoryAutoDraft.repositoryId, repositoryId),
+          isNull(repositoryAutoDraft.boundarySha),
+        ),
+      );
+  }
 
   return 'ok';
 }

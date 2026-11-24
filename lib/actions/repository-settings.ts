@@ -286,6 +286,11 @@ export async function changeRepositoryBranch(
     return { status: 'invalid' };
   }
 
+  // 이미 추적 중인 브랜치면 그대로 둠 (오래된 화면의 재요청으로 경계가 옮겨지지 않게)
+  if (branch === repository.branch) {
+    return { status: 'changed', branch };
+  }
+
   try {
     const branches = await loadBranches(user.id, repository);
 
