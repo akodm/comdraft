@@ -83,7 +83,8 @@ const loadPromptHistoryPage = async (
       and(
         // 초안을 만들기 전에 실패한 자동 실행은 draftId 가 없으므로 요청 행의 소유로 판단
         eq(draftPrompt.userId, userId),
-        eq(draftPrompt.repositoryId, repositoryId),
+        // repository_id 컬럼 추가 전 코드가 남긴 행은 값이 없으므로 초안의 저장소로 판단
+        sql`coalesce(${draftPrompt.repositoryId}, ${draft.repositoryId}) = ${repositoryId}`,
         or(
           isNotNull(draftPrompt.draftId),
           eq(draftPrompt.source, 'commit_trigger'),
