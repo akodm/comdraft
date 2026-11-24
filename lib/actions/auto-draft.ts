@@ -1,13 +1,9 @@
 'use server';
 
 import { requireSession } from '@/lib/auth/session';
-import { selectBatch } from '@/lib/auto-draft/batch';
-import {
-  compareBranch,
-  findEmptyCommits,
-  getBranchHead,
-  getFirstParent,
-} from '@/lib/auto-draft/github';
+import type { SkipReason } from '@/lib/auto-draft/batch';
+import { computeAutoDraftBatch } from '@/lib/auto-draft/batch-server';
+import { getBranchHead, getFirstParent } from '@/lib/auto-draft/github';
 import {
   excludeCommits,
   getAutoDraftRepo,
@@ -18,7 +14,6 @@ import {
   setAutoDraftEnabled,
   setBoundary,
 } from '@/lib/auto-draft/store';
-import { parseTrigger } from '@/lib/auto-draft/trigger';
 import type { ExcludedCommitReason } from '@/lib/db/schema/auto-draft';
 import type { GenerationModel } from '@/lib/generation/contract';
 import { MAX_GENERATION_PROMPT_LENGTH } from '@/lib/generation/limits';
@@ -139,6 +134,11 @@ export interface AutoDraftExcluded {
   reason: ExcludedCommitReason;
 }
 
+export interface AutoDraftSkipped {
+  sha: string;
+  reason: SkipReason;
+}
+
 export type AutoDraftStateResult =
   | { status: 'off' | 'not_found' | 'error' }
   | {
@@ -146,6 +146,8 @@ export type AutoDraftStateResult =
       // 묶음의 첫 커밋 (대상이 없으면 null)
       anchorSha: string | null;
       batchShas: string[];
+      // 범위 안에서 건너뛴 커밋 (수집 안 됨 표시용)
+      skipped: AutoDraftSkipped[];
       excluded: AutoDraftExcluded[];
     }
   | { status: 'anchor_missing'; excluded: AutoDraftExcluded[] };
@@ -154,7 +156,7 @@ const toExcludedList = (excluded: Map<string, ExcludedCommitReason>) =>
   Array.from(excluded, ([sha, reason]) => ({ sha, reason }));
 
 /**
- * 스튜디오 커밋 목록 표시용: 경계 다음 커밋부터 자동 대상 묶음을 계산
+ * 스튜디오 커밋 목록 표시용: 경계 다음 커밋부터 자동 대상 묶음을 계산 (실행기와 같은 계산)
  * - 꺼져 있으면 off, 경계가 없거나 사라졌으면 anchor_missing
  * - GitHub 조회 실패는 error (표시만 생략)
  */
@@ -182,30 +184,19 @@ export async function loadAutoDraftState(
     }
 
     const head = await getBranchHead(repo);
-    const compared = head
-      ? await compareBranch(repo, setting.boundarySha, head)
+    const plan = head
+      ? await computeAutoDraftBatch(repo, setting.boundarySha, head, excluded)
       : ({ status: 'anchor_missing' } as const);
 
-    if (compared.status !== 'ok') {
+    if (plan.status !== 'ok') {
       return { status: 'anchor_missing', excluded: toExcludedList(excluded) };
     }
 
-    const triggerShas = compared.commits
-      .filter((commit) => parseTrigger(commit.message) !== null)
-      .map((commit) => commit.sha);
-    const emptyShas =
-      triggerShas.length > 0
-        ? await findEmptyCommits(repo, triggerShas)
-        : new Set<string>();
-    const { batchShas } = selectBatch(compared.commits, {
-      excludedShas: new Set(excluded.keys()),
-      emptyShas,
-    });
-
     return {
       status: 'ok',
-      anchorSha: batchShas[0] ?? null,
-      batchShas,
+      anchorSha: plan.batchShas[0] ?? null,
+      batchShas: plan.batchShas,
+      skipped: Array.from(plan.skipped, ([sha, reason]) => ({ sha, reason })),
       excluded: toExcludedList(excluded),
     };
   } catch {

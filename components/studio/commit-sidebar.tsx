@@ -87,7 +87,7 @@ const CommitRow = ({
           <CommitRowMenu
             shortSha={sha}
             isExcluded={autoDraft.markerState.excluded.has(commit.sha)}
-            canExclude={isCollectable(commit)}
+            canExclude={isCollectable(commit, autoDraft.markerState)}
             isPending={autoDraft.isPending}
             onAction={(action) => autoDraft.onAction(action, commit.sha)}
           />
@@ -254,6 +254,11 @@ const CommitSidebar = ({ isOpen }: CommitSidebarProps) => {
       anchorSha:
         autoDraftState.status === 'ok' ? autoDraftState.anchorSha : null,
       batchShas: autoDraftState.status === 'ok' ? autoDraftState.batchShas : [],
+      skipped: new Map(
+        autoDraftState.status === 'ok'
+          ? autoDraftState.skipped.map(({ sha, reason }) => [sha, reason])
+          : [],
+      ),
       excluded: new Map(
         autoDraftState.excluded.map(({ sha, reason }) => [sha, reason]),
       ),

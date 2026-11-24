@@ -1,10 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@lingui/core/macro', () => ({ msg: (id: unknown) => id }));
+
+import type { SkipReason } from '@/lib/auto-draft/batch';
 import { getCommitMarkers, isCollectable } from '@/lib/auto-draft/markers';
 
 const base = { sha: 'a', parentShas: ['p'], committerLogin: 'dev' };
 const state = {
   anchorSha: 'a',
   batchShas: ['a', 'b'],
+  skipped: new Map<string, SkipReason>(),
   excluded: new Map<string, 'user' | 'force_push'>(),
 };
 
@@ -40,7 +45,38 @@ describe('getCommitMarkers', () => {
     ).toEqual([{ kind: 'excluded', reason: 'force_push' }]);
   });
 
-  it('머지 커밋과 web-flow 커밋은 수집 안 됨 하나만 받는다', () => {
+  it('범위 안에서는 서버가 계산한 사유(merge·github·side)로 수집 안 됨을 정한다', () => {
+    const excluded = new Map([['s', 'user' as const]]);
+    const skipped = new Map<string, SkipReason>([
+      ['m', 'merge'],
+      ['w', 'github'],
+      // 머지로 들어온 커밋: 커밋 자체는 평범해 보여도 수집 안 됨
+      ['s', 'side'],
+    ]);
+
+    for (const sha of ['m', 'w', 's']) {
+      expect(
+        getCommitMarkers({ ...base, sha }, { ...state, skipped, excluded }),
+      ).toEqual([{ kind: 'not_collected' }]);
+    }
+  });
+
+  it('범위 안의 빈 트리거·제외는 수집 안 됨이 아니다', () => {
+    const skipped = new Map<string, SkipReason>([
+      ['e', 'empty_trigger'],
+      ['x', 'excluded'],
+    ]);
+    const excluded = new Map([['x', 'user' as const]]);
+
+    expect(
+      getCommitMarkers({ ...base, sha: 'e' }, { ...state, skipped }),
+    ).toEqual([]);
+    expect(
+      getCommitMarkers({ ...base, sha: 'x' }, { ...state, skipped, excluded }),
+    ).toEqual([{ kind: 'excluded', reason: 'user' }]);
+  });
+
+  it('범위 밖이면 커밋 자체 정보로 머지·web-flow 를 수집 안 됨으로 본다', () => {
     const excluded = new Map([['m', 'user' as const]]);
 
     expect(
@@ -65,9 +101,22 @@ describe('getCommitMarkers', () => {
 });
 
 describe('isCollectable', () => {
-  it('머지·web-flow 가 아니면 수집 대상이다', () => {
-    expect(isCollectable(base)).toBe(true);
-    expect(isCollectable({ ...base, parentShas: ['p', 'q'] })).toBe(false);
-    expect(isCollectable({ ...base, committerLogin: 'web-flow' })).toBe(false);
+  it('범위 밖은 머지·web-flow 가 아니면 수집 대상이다', () => {
+    expect(isCollectable({ ...base, sha: 'z' }, state)).toBe(true);
+    expect(
+      isCollectable({ ...base, sha: 'z', parentShas: ['p', 'q'] }, state),
+    ).toBe(false);
+    expect(
+      isCollectable({ ...base, sha: 'z', committerLogin: 'web-flow' }, state),
+    ).toBe(false);
+  });
+
+  it('범위 안은 서버 사유를 따른다', () => {
+    const skipped = new Map<string, SkipReason>([['s', 'side']]);
+
+    expect(isCollectable({ ...base, sha: 's' }, { ...state, skipped })).toBe(
+      false,
+    );
+    expect(isCollectable(base, { ...state, skipped })).toBe(true);
   });
 });

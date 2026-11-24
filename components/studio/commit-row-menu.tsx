@@ -13,7 +13,7 @@ const MENU_ITEM_CLASS =
 interface CommitRowMenuProps {
   shortSha: string;
   isExcluded: boolean;
-  // 머지·GitHub 가 만든 커밋은 어차피 대상이 아니라 제외 동작을 숨김
+  // 머지 커밋·GitHub 가 만든 커밋·머지로 들어온 커밋은 어차피 대상이 아니라 제외 동작을 숨김
   canExclude: boolean;
   isPending: boolean;
   onAction: (action: AutoDraftCommitAction) => void;
