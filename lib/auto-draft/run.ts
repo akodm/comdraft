@@ -245,7 +245,8 @@ export async function runAutoDraft(
       locale,
     );
   } catch (error) {
-    await revert();
+    // 되돌리기가 실패해도 원래 오류를 던짐
+    await revert().catch(() => undefined);
     throw error;
   }
 
@@ -264,8 +265,9 @@ export async function runAutoDraft(
     });
   } catch {
     // 작업 행이 이미 있으므로 실패 행을 따로 남기지 않음
-    await deps.failJob(created.jobId, 'runner_unavailable');
+    // 경계를 먼저 되돌려 failJob 이 실패해도 항상 복구
     await revert();
+    await deps.failJob(created.jobId, 'runner_unavailable');
 
     return { status: 'skipped', errorCode: 'runner_unavailable' };
   }

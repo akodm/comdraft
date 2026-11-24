@@ -229,6 +229,36 @@ describe('runAutoDraft', () => {
     expect(deps.recordFailure).not.toHaveBeenCalled();
   });
 
+  it('failJob 이 실패해도 경계는 먼저 되돌림', async () => {
+    const deps = makeDeps({
+      startRunner: vi.fn(async () => {
+        throw new Error('down');
+      }),
+      failJob: vi.fn(async () => {
+        throw new Error('db');
+      }),
+    });
+    await expect(runAutoDraft(target(), 'c3', {}, deps)).rejects.toThrow('db');
+    expect(deps.moveBoundary).toHaveBeenLastCalledWith('u1', 'r1', 'c3', OLD);
+  });
+
+  it('createDraftJob 이 던지면 경계를 되돌리고 원래 오류를 던짐', async () => {
+    const moveBoundary = vi
+      .fn()
+      .mockResolvedValueOnce(true)
+      .mockRejectedValueOnce(new Error('revert'));
+    const deps = makeDeps({
+      moveBoundary,
+      createDraftJob: vi.fn(async () => {
+        throw new Error('orig');
+      }),
+    });
+    await expect(runAutoDraft(target(), 'c3', {}, deps)).rejects.toThrow(
+      'orig',
+    );
+    expect(moveBoundary).toHaveBeenLastCalledWith('u1', 'r1', 'c3', OLD);
+  });
+
   it('실패 기록이 duplicate 이면 duplicate', async () => {
     const deps = makeDeps({
       recordFailure: vi.fn(async () => 'duplicate' as const),
