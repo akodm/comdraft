@@ -27,7 +27,8 @@ type Loaded = Extract<AutoDraftSettingsResult, { status: 'ok' }>;
 type LoadState =
   | { status: 'loading' }
   | { status: 'error' }
-  | { status: 'ready'; settings: Loaded };
+  // 어느 저장소의 설정인지 함께 들고 있어 저장소가 바뀌면 이전 값을 쓰지 않음
+  | { status: 'ready'; repositoryId: string; settings: Loaded };
 
 type Notice = { kind: 'saved' } | { kind: 'error'; message: string } | null;
 
@@ -289,7 +290,11 @@ const AutoDraftSettingsSection = () => {
         if (!isStale) {
           setState(
             result.status === 'ok'
-              ? { status: 'ready', settings: result }
+              ? {
+                  status: 'ready',
+                  repositoryId: repository.id,
+                  settings: result,
+                }
               : { status: 'error' },
           );
         }
@@ -310,7 +315,8 @@ const AutoDraftSettingsSection = () => {
       <h3 className="text-[12px] leading-[normal] font-bold text-ink-faint">
         <Trans>커밋으로 초안 만들기</Trans>
       </h3>
-      {state.status === 'loading' && (
+      {(state.status === 'loading' ||
+        (state.status === 'ready' && state.repositoryId !== repository.id)) && (
         <div
           aria-hidden="true"
           className="h-40 w-full animate-pulse rounded bg-surface"
@@ -333,7 +339,10 @@ const AutoDraftSettingsSection = () => {
           </button>
         </div>
       )}
-      {state.status === 'ready' && <SettingsForm initial={state.settings} />}
+      {state.status === 'ready' && state.repositoryId === repository.id && (
+        // 저장소마다 새로 그려 입력 중인 값이 다른 저장소로 넘어가지 않게 함
+        <SettingsForm key={repository.id} initial={state.settings} />
+      )}
     </section>
   );
 };
