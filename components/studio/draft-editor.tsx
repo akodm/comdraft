@@ -347,7 +347,7 @@ const useAppliedContent = (
     const container = revealRef.current;
     if (container) {
       container.scrollIntoView({ block: 'start', behavior: 'smooth' });
-      playDraftReveal(container, editor.view.dom.childElementCount);
+      playDraftReveal(container);
     }
 
     setDraftTitle(draft.id, draft.title);
