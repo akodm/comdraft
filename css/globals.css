@@ -197,6 +197,29 @@ body {
 }
 
 /*
+ * 드롭다운 메뉴 열림: 버튼 쪽에서 살짝 밀려 나오며 나타남 (닫힐 때는 바로 사라짐)
+ * - animate-dropdown: 버튼 아래로 열리는 메뉴, animate-dropup: 버튼 위로 열리는 메뉴
+ * - translate 대신 transform 을 움직여 메뉴의 위치 지정용 translate(-translate-x-1/2 등)와 겹치지 않음
+ */
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--dropdown-shift, -6px)) scale(0.96);
+  }
+}
+
+@utility animate-dropdown {
+  transform-origin: top;
+  animation: dropdown-in 180ms var(--ease-out) both;
+}
+
+@utility animate-dropup {
+  --dropdown-shift: 6px;
+  transform-origin: bottom;
+  animation: dropdown-in 180ms var(--ease-out) both;
+}
+
+/*
  * AI 초안 반영 효과 (components/studio/draft-reveal.ts 가 편집기 바깥 틀에 data-draft-reveal 을 잠시 닮)
  * - 본문: 전체가 한 번에 천천히(1.4초) 페이드인
  * - 반짝이: 본문 위 여기저기서 작은 별(4갈래)이 커졌다 작아지며 반짝임 (위치·크기·시점은 스크립트가 정함)

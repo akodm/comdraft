@@ -188,7 +188,7 @@ const BlockStyleMenu = ({
       {isOpen && (
         <div
           id={menuId}
-          className={`absolute top-[calc(100%+4px)] left-0 w-36 ${DROPDOWN_PANEL_CLASS}`}
+          className={`animate-dropdown absolute top-[calc(100%+4px)] left-0 w-36 ${DROPDOWN_PANEL_CLASS}`}
         >
           <ul className="flex flex-col gap-1">
             {BLOCK_STYLES.map(({ value, label }, index) => (
@@ -293,7 +293,7 @@ const LinkMenu = ({
         <form
           id={menuId}
           onSubmit={submit}
-          className={`absolute inset-x-0 top-[calc(100%+4px)] pc:inset-x-auto pc:left-1/2 pc:w-72 pc:-translate-x-1/2 ${DROPDOWN_PANEL_CLASS}`}
+          className={`animate-dropdown absolute inset-x-0 top-[calc(100%+4px)] pc:inset-x-auto pc:left-1/2 pc:w-72 pc:-translate-x-1/2 ${DROPDOWN_PANEL_CLASS}`}
         >
           <label className="flex flex-col gap-2 text-[12px] leading-[normal] font-medium text-ink">
             <Trans>링크 주소</Trans>

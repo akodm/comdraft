@@ -58,7 +58,7 @@ const StudioProfileMenu = ({ userName }: StudioProfileMenuProps) => {
         {isOpen && (
           <div
             id={menuId}
-            className="absolute -inset-x-1 bottom-[calc(100%+28px)] z-20 flex flex-col gap-0.5 rounded-md border border-line bg-white p-2"
+            className="animate-dropup absolute -inset-x-1 bottom-[calc(100%+28px)] z-20 flex flex-col gap-0.5 rounded-md border border-line bg-white p-2"
           >
             <ul className="flex flex-col gap-0.5">
               <li>

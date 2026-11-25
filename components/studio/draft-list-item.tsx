@@ -62,7 +62,7 @@ const DraftItemMenu = ({ title, onDelete }: DraftItemMenuProps) => {
       {isOpen && (
         <div
           id={menuId}
-          className="absolute top-[calc(100%+8px)] right-1 z-20 w-33 rounded border border-line bg-white"
+          className="animate-dropdown absolute top-[calc(100%+8px)] right-1 z-20 w-33 rounded border border-line bg-white"
         >
           <button
             ref={firstItemRef}

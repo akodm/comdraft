@@ -251,7 +251,7 @@ const RequiredBlocksSelect = ({
         {isOpen && (
           <div
             id={menuId}
-            className={`absolute right-0 bottom-[calc(100%+4px)] w-44 ${DROPDOWN_PANEL_CLASS}`}
+            className={`animate-dropup absolute right-0 bottom-[calc(100%+4px)] w-44 ${DROPDOWN_PANEL_CLASS}`}
           >
             <ul className="flex flex-col gap-1">
               {REQUIRED_BLOCKS.map((block, index) => {
