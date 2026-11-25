@@ -10,6 +10,7 @@ import {
 } from '@/lib/db/schema/admin';
 import { canEnter } from '@/lib/admin/roles';
 import { createSessionToken, hashSessionToken } from '@/lib/admin/token';
+import { getClientIp } from '@/lib/request-ip';
 
 /**
  * 어드민 세션 (서비스 사용자 세션과 별개)
@@ -37,12 +38,10 @@ export async function getAdminClientInfo(): Promise<{
   userAgent: string | null;
 }> {
   const headerList = await headers();
-  const forwarded = headerList.get('x-forwarded-for')?.split(',')[0]?.trim();
-  const realIp = headerList.get('x-real-ip')?.trim();
   const userAgent = headerList.get('user-agent');
 
   return {
-    ipAddress: forwarded || realIp || 'unknown',
+    ipAddress: getClientIp(headerList),
     userAgent: userAgent ? userAgent.slice(0, MAX_USER_AGENT_LENGTH) : null,
   };
 }
