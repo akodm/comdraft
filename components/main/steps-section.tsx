@@ -1,5 +1,7 @@
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { revealOrder } from '@/components/main/motion-order';
+import RevealSection from '@/components/main/reveal-section';
 
 // 서비스 이용 단계 (렌더링 시 현재 로케일로 번역)
 const STEPS = [
@@ -22,13 +24,17 @@ const STEPS = [
 ];
 
 // 동작 방식: 모바일은 세로, PC 는 가로로 단계를 잇는 연결선 표시
+// - 화면에 들어오면 제목 → 단계 순서로 떠오르고, 연결선은 다음 단계 쪽으로 그려짐
 const StepsSection = () => {
   const { i18n } = useLingui();
 
   return (
-    <section className="px-5 py-14 pc:py-24">
+    <RevealSection className="px-5 py-14 pc:py-24">
       <div className="flex flex-col gap-8 pc:mx-auto pc:max-w-7xl pc:gap-12">
-        <h2 className="text-[26px] leading-[1.35] font-bold tracking-[-1px] text-ink pc:text-[40px] pc:tracking-[-1.6px]">
+        <h2
+          data-reveal
+          className="text-[26px] leading-[1.35] font-bold tracking-[-1px] text-ink pc:text-[40px] pc:tracking-[-1.6px]"
+        >
           <Trans>바로 시작해보세요.</Trans>
         </h2>
         <ol className="flex flex-col pc:flex-row pc:gap-8">
@@ -38,12 +44,16 @@ const StepsSection = () => {
             return (
               <li
                 key={step.title.id}
+                data-reveal
+                style={revealOrder(index + 1)}
                 className="relative flex gap-4 pt-5 pb-7 pc:flex-1 pc:flex-col pc:gap-5.5 pc:pb-0"
               >
                 {/* 다음 단계 번호까지 잇는 연결선 (모바일: 세로, PC: 가로) */}
                 {!isLast && (
                   <span
                     aria-hidden="true"
+                    data-reveal="line"
+                    style={revealOrder(index + 2)}
                     className="absolute top-15 -bottom-5 left-[19.25px] w-[1.5px] bg-connector pc:top-[39.25px] pc:bottom-auto pc:left-10 pc:h-[1.5px] pc:w-[calc(100%-8px)]"
                   />
                 )}
@@ -63,7 +73,7 @@ const StepsSection = () => {
           })}
         </ol>
       </div>
-    </section>
+    </RevealSection>
   );
 };
 

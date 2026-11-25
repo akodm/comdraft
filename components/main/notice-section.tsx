@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import { msg } from '@lingui/core/macro';
 import { Trans, useLingui } from '@lingui/react/macro';
+import { revealOrder } from '@/components/main/motion-order';
+import RevealSection from '@/components/main/reveal-section';
 
 // 초안 생성 전 주의사항
 const NOTICES = [
@@ -14,9 +16,9 @@ const NoticeSection = () => {
   const { i18n } = useLingui();
 
   return (
-    <section className="px-5 py-14 pc:pt-24 pc:pb-26">
+    <RevealSection className="px-5 py-14 pc:pt-24 pc:pb-26">
       <div className="flex flex-col gap-7 bg-white p-5 pc:mx-auto pc:max-w-7xl pc:flex-row pc:gap-16 pc:p-12">
-        <div className="flex flex-col gap-4 pc:w-85 pc:shrink-0">
+        <div data-reveal className="flex flex-col gap-4 pc:w-85 pc:shrink-0">
           <Image
             src="/images/main/triangle-alert.svg"
             alt=""
@@ -34,6 +36,8 @@ const NoticeSection = () => {
           {NOTICES.map((notice, index) => (
             <li
               key={notice.id}
+              data-reveal
+              style={revealOrder(index + 1)}
               className="flex gap-3 border-b border-line py-5 pc:gap-6 pc:py-5.5"
             >
               <span className="font-mono text-[12px] leading-[1.9] whitespace-nowrap">
@@ -46,7 +50,7 @@ const NoticeSection = () => {
           ))}
         </ol>
       </div>
-    </section>
+    </RevealSection>
   );
 };
 
