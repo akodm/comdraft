@@ -1,8 +1,9 @@
 'use server';
 
-import { and, count, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, isNotNull, or, sql } from 'drizzle-orm';
 import { refresh } from 'next/cache';
 import { headers } from 'next/headers';
+import { resetBoundaryForBranch } from '@/lib/auto-draft/store';
 import { requireSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { draft, draftPrompt, post, userRepository } from '@/lib/db/schema';
@@ -45,7 +46,9 @@ const ownedDraftCondition = (userId: string, repositoryId: string) =>
 
 const historyColumns = {
   id: draftPrompt.id,
-  draftId: draft.id,
+  draftId: draftPrompt.draftId,
+  source: draftPrompt.source,
+  triggerSha: draftPrompt.triggerSha,
   kind: draftPrompt.kind,
   prompt: draftPrompt.prompt,
   commitShas: draftPrompt.commitShas,
@@ -75,10 +78,17 @@ const loadPromptHistoryPage = async (
   const jobRows = await db
     .select(historyColumns)
     .from(draftPrompt)
-    .innerJoin(draft, eq(draftPrompt.draftId, draft.id))
+    .leftJoin(draft, eq(draftPrompt.draftId, draft.id))
     .where(
       and(
-        owned,
+        // 초안을 만들기 전에 실패한 자동 실행은 draftId 가 없으므로 요청 행의 소유로 판단
+        eq(draftPrompt.userId, userId),
+        // repository_id 컬럼 추가 전 코드가 남긴 행은 값이 없으므로 초안의 저장소로 판단
+        sql`coalesce(${draftPrompt.repositoryId}, ${draft.repositoryId}) = ${repositoryId}`,
+        or(
+          isNotNull(draftPrompt.draftId),
+          eq(draftPrompt.source, 'commit_trigger'),
+        ),
         visibleToUser,
         eq(draftPrompt.kind, 'draft'),
         cursor === null
@@ -98,19 +108,24 @@ const loadPromptHistoryPage = async (
   }
 
   // 같은 초안들에서 이 페이지의 가장 오래된 요청 이후에 보낸 요청 (빈칸 채우기를 알맞은 요청에 붙이는 데 씀)
+  const draftIds = [
+    ...new Set(pageRows.flatMap((row) => (row.draftId ? [row.draftId] : []))),
+  ];
   const [relatedRows, quota] = await Promise.all([
-    db
-      .select(historyColumns)
-      .from(draftPrompt)
-      .innerJoin(draft, eq(draftPrompt.draftId, draft.id))
-      .where(
-        and(
-          owned,
-          visibleToUser,
-          inArray(draft.id, [...new Set(pageRows.map((row) => row.draftId))]),
-          sql`(${draftPrompt.createdAt}, ${draftPrompt.id}) >= ${anchorRow(oldest.id)}`,
-        ),
-      ),
+    draftIds.length === 0
+      ? Promise.resolve([])
+      : db
+          .select(historyColumns)
+          .from(draftPrompt)
+          .innerJoin(draft, eq(draftPrompt.draftId, draft.id))
+          .where(
+            and(
+              owned,
+              visibleToUser,
+              inArray(draft.id, draftIds),
+              sql`(${draftPrompt.createdAt}, ${draftPrompt.id}) >= ${anchorRow(oldest.id)}`,
+            ),
+          ),
     getUserQuota(userId),
   ]);
 
@@ -118,6 +133,9 @@ const loadPromptHistoryPage = async (
   const toItem = (row: (typeof jobRows)[number]): PromptHistoryItem => ({
     id: row.id,
     draftId: row.draftId,
+    source: row.source,
+    triggerSha: row.triggerSha,
+    errorCode: isGenerationErrorCode(row.errorCode) ? row.errorCode : null,
     kind: row.kind,
     prompt: row.prompt,
     commitShas: row.commitShas,
@@ -285,6 +303,11 @@ export async function changeRepositoryBranch(
     return { status: 'invalid' };
   }
 
+  // 이미 추적 중인 브랜치면 그대로 둠 (오래된 화면의 재요청으로 경계가 옮겨지지 않게)
+  if (branch === repository.branch) {
+    return { status: 'changed', branch };
+  }
+
   try {
     const branches = await loadBranches(user.id, repository);
 
@@ -304,6 +327,9 @@ export async function changeRepositoryBranch(
         eq(userRepository.repositoryId, repository.id),
       ),
     );
+
+  // 자동 초안이 설정돼 있으면 새 브랜치 최신 커밋으로 경계를 다시 잡음
+  await resetBoundaryForBranch(user.id, repository.id);
 
   refresh();
 

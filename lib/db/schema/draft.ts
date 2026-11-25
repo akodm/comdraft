@@ -53,6 +53,10 @@ export const DRAFT_PROMPT_STATUSES = [
 ] as const;
 export type DraftPromptStatus = (typeof DRAFT_PROMPT_STATUSES)[number];
 
+// 작성 요청 출처 (studio: 스튜디오에서 직접 요청, commit_trigger: 커밋 트리거 자동 요청)
+export const DRAFT_PROMPT_SOURCES = ['studio', 'commit_trigger'] as const;
+export type DraftPromptSource = (typeof DRAFT_PROMPT_SOURCES)[number];
+
 // 완료한 단계 (0: 시작 전, 1: 구분, 2: 분석, 3: 작성)
 export const DRAFT_PROMPT_LAST_STEP = 3;
 
@@ -111,6 +115,15 @@ export const draftPrompt = comdraftSchema.table(
     }),
     // 작업 종류 (draft: 초안 작성, fill: 빈칸 하나 다듬기, 빈칸 작업은 편집 잠금 대상이 아님)
     kind: text('kind').$type<GenerationJobKind>().default('draft').notNull(),
+    // 요청한 저장소 (초안 없이 실패한 자동 요청을 저장소별로 보여주기 위함, 저장소 연동을 해제해도 행이 남도록 FK 없음)
+    repositoryId: text('repository_id'),
+    // 요청 출처 (studio: 직접 요청, commit_trigger: 커밋 트리거)
+    source: text('source')
+      .$type<DraftPromptSource>()
+      .default('studio')
+      .notNull(),
+    // 커밋 트리거 요청을 일으킨 커밋 SHA (같은 커밋의 중복 요청 방지, studio 요청은 null)
+    triggerSha: text('trigger_sha'),
     prompt: text('prompt').notNull(),
     // 기본 옵션 값 (lib/studio/options.ts 의 키)
     tone: text('tone').notNull(),
@@ -195,6 +208,14 @@ export const draftPrompt = comdraftSchema.table(
     ),
     check('draft_prompt_kind_check', sql`${table.kind} in ('draft', 'fill')`),
     check('draft_prompt_locale_check', sql`${table.locale} in ('ko', 'en')`),
+    // 같은 사용자의 같은 트리거 커밋은 한 번만 요청 (웹훅 재전송 중복 방지)
+    uniqueIndex('draft_prompt_user_trigger_unique')
+      .on(table.userId, table.triggerSha)
+      .where(sql`${table.triggerSha} is not null`),
+    check(
+      'draft_prompt_source_check',
+      sql`${table.source} in ('studio', 'commit_trigger')`,
+    ),
     check(
       'draft_prompt_model_check',
       sql`${table.model} in ('haiku', 'sonnet', 'opus')`,

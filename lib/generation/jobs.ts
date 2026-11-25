@@ -661,25 +661,36 @@ export const reserveGenerationSlot = async (
     .select({ total: count() })
     .from(draftPrompt)
     .where(
-      and(eq(draftPrompt.userId, userId), gte(draftPrompt.createdAt, since)),
+      and(
+        eq(draftPrompt.userId, userId),
+        gte(draftPrompt.createdAt, since),
+        // 초안 없이 끝난 자동 초안 시도(웹훅이 만든 실패 기록)는 사용자의 시간당 한도에서 제외
+        sql`not (${draftPrompt.source} = 'commit_trigger' and ${draftPrompt.draftId} is null)`,
+      ),
     );
 
   return decideGenerationSlot({ recentJobs, activeJobs });
 };
 
-// 진행 중 작업 유일 인덱스에 걸린 오류인지 (같은 초안에 이미 진행 중인 작업이 있음)
-export const isActiveJobConflict = (error: unknown) => {
+// 유일 인덱스(constraint) 위반 오류인지 (오류 자신 또는 cause 가 23505)
+const isUniqueViolation = (error: unknown, constraint: string) => {
   const candidates = [error, (error as { cause?: unknown } | null)?.cause];
 
   return candidates.some((candidate) => {
     const { code, constraint_name: constraintName } = (candidate ??
       {}) as Record<string, unknown>;
 
-    return (
-      code === '23505' && constraintName === 'draft_prompt_draft_active_unique'
-    );
+    return code === '23505' && constraintName === constraint;
   });
 };
+
+// 진행 중 작업 유일 인덱스에 걸린 오류인지 (같은 초안에 이미 진행 중인 작업이 있음)
+export const isActiveJobConflict = (error: unknown) =>
+  isUniqueViolation(error, 'draft_prompt_draft_active_unique');
+
+// 같은 커밋(SHA)으로 이미 자동 초안을 만든 경우 (사용자별 트리거 SHA 유일 인덱스)
+export const isTriggerDuplicateConflict = (error: unknown) =>
+  isUniqueViolation(error, 'draft_prompt_user_trigger_unique');
 
 /* ---------- 작성기(Runner)가 쓰는 상태 전이 ---------- */
 

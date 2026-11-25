@@ -16,3 +16,6 @@ export const getGithubAppEnv = () => ({
   // 예: https://github.com/apps/comdraft-dev
   publicLink: requireEnv('GITHUB_PUBLIC_LINK').replace(/\/$/, ''),
 });
+
+// 웹훅 수신 경로에서만 필요하므로 getGithubAppEnv 와 분리 (다른 경로는 이 변수 없이 동작)
+export const getGithubWebhookSecret = () => requireEnv('GITHUB_WEBHOOK_SECRET');

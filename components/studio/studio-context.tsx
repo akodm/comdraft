@@ -14,6 +14,10 @@ import {
   type CommitHistory,
 } from '@/hooks/use-commit-history';
 import {
+  useAutoDraftState,
+  type AutoDraftState,
+} from '@/hooks/use-auto-draft-state';
+import {
   useRemovedDrafts,
   type RemovedDrafts,
 } from '@/hooks/use-removed-drafts';
@@ -31,6 +35,8 @@ interface StudioContextValue extends RemovedDrafts {
   // 스튜디오 기준 경로 (로케일 접두사 제외)
   basePath: string;
   commitHistory: CommitHistory;
+  // 커밋 목록에 보여 줄 자동 초안 상태 (기준점·자동 대상·제외)
+  autoDraft: AutoDraftState;
   selectedShas: ReadonlySet<string>;
   // 선택한 커밋 (커밋 내역 순서, 최신순)
   selectedCommits: StudioCommit[];
@@ -78,6 +84,7 @@ export const StudioProvider = ({
 }: StudioProviderProps) => {
   const pathname = usePathname();
   const commitHistory = useCommitHistory(repository.id, repository.branch);
+  const autoDraft = useAutoDraftState(repository.id, repository.branch);
   const [selectedShas, setSelectedShas] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -198,6 +205,7 @@ export const StudioProvider = ({
       repository,
       basePath: `/dashboard/repositories/${repository.id}/drafts`,
       commitHistory,
+      autoDraft,
       selectedShas,
       selectedCommits,
       toggleCommit,
@@ -220,6 +228,7 @@ export const StudioProvider = ({
     [
       repository,
       commitHistory,
+      autoDraft,
       selectedShas,
       selectedCommits,
       toggleCommit,

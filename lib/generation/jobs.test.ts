@@ -108,6 +108,16 @@ describe('reserveGenerationSlot', () => {
     expect(calls[2].sql).toContain('"created_at" >=');
   });
 
+  it('시간당 집계에서 초안 없이 끝난 자동 초안 시도를 제외', async () => {
+    const { tx, calls } = setupTx([0, 0]);
+
+    await jobs.reserveGenerationSlot(tx as never, 'u1');
+
+    expect(calls[2].sql).toContain(
+      `not ("comdraft"."draft_prompt"."source" = 'commit_trigger' and "comdraft"."draft_prompt"."draft_id" is null)`,
+    );
+  });
+
   it('진행 중 작업이 2개면 too_many_active', async () => {
     const { tx } = setupTx([2, 2]);
 
@@ -156,5 +166,31 @@ describe('requeueAwaitingJob', () => {
     const { tx } = setupTx([0], []);
 
     await expect(requeue(tx)).resolves.toBe('not_found');
+  });
+});
+
+describe('isTriggerDuplicateConflict', () => {
+  const violation = (constraint_name: string) => ({
+    code: '23505',
+    constraint_name,
+  });
+
+  it('트리거 SHA 유일 인덱스 충돌만 true (cause 도 확인)', () => {
+    expect(
+      jobs.isTriggerDuplicateConflict(
+        violation('draft_prompt_user_trigger_unique'),
+      ),
+    ).toBe(true);
+    expect(
+      jobs.isTriggerDuplicateConflict({
+        cause: violation('draft_prompt_user_trigger_unique'),
+      }),
+    ).toBe(true);
+    expect(
+      jobs.isTriggerDuplicateConflict(
+        violation('draft_prompt_draft_active_unique'),
+      ),
+    ).toBe(false);
+    expect(jobs.isTriggerDuplicateConflict(null)).toBe(false);
   });
 });

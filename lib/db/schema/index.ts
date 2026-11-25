@@ -5,3 +5,4 @@ export * from '@/lib/db/schema/post';
 export * from '@/lib/db/schema/quota';
 export * from '@/lib/db/schema/image';
 export * from '@/lib/db/schema/admin';
+export * from '@/lib/db/schema/auto-draft';

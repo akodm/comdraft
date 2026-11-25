@@ -1,5 +1,7 @@
+import type { DraftPromptSource } from '@/lib/db/schema/draft';
 import type {
   CodeInputMeta,
+  GenerationErrorCode,
   GenerationJobKind,
   GenerationStatus,
 } from '@/lib/generation/contract';
@@ -11,7 +13,11 @@ import type {
 // 내역 한 줄 (요청 문구, 사용한 커밋과 직접 입력 코드, 주간 제공량 대비 사용 비율)
 export interface PromptHistoryItem {
   id: string;
-  draftId: string;
+  // 자동 실행이 초안을 만들기 전에 실패했으면 null
+  draftId: string | null;
+  source: DraftPromptSource;
+  // 자동 실행의 트리거 커밋 (스튜디오 요청은 null)
+  triggerSha: string | null;
   kind: GenerationJobKind;
   // 초안 작성은 요청 문구, 빈칸 채우기는 작성자가 적은 답
   prompt: string;
@@ -19,6 +25,7 @@ export interface PromptHistoryItem {
   // 직접 입력 코드의 이름·줄 수 (코드 원문은 저장하지 않음)
   codeInputs: CodeInputMeta[];
   status: GenerationStatus;
+  errorCode: GenerationErrorCode | null;
   // ISO
   createdAt: string;
   // 주간 제공량 대비 이 요청이 쓴 비율 (0 이상, 1 을 넘을 수 있음, 등급 정책이 없으면 null)
@@ -55,7 +62,10 @@ export const groupPromptHistory = (
 
     // 입력이 최신순이라 처음 만나는, 이 요청보다 이른 같은 초안의 작성 요청이 가장 가까움
     const parent = draftJobs.find(
-      (job) => job.draftId === item.draftId && time(job) <= time(item),
+      (job) =>
+        item.draftId !== null &&
+        job.draftId === item.draftId &&
+        time(job) <= time(item),
     );
 
     if (parent) {

@@ -16,6 +16,8 @@ import { Plural, Trans, useLingui } from '@lingui/react/macro';
 import OnboardingSelect from '@/components/onboarding/onboarding-select';
 import ConfirmDialog from '@/components/shared/confirm-dialog';
 import Spinner from '@/components/shared/spinner';
+import AutoDraftSettingsSection from '@/components/studio/auto-draft-settings-section';
+import { GENERATION_ERROR_MESSAGES } from '@/components/studio/generation-progress';
 import { useStudio } from '@/components/studio/studio-context';
 import {
   OUTLINE_BUTTON_CLASS,
@@ -58,6 +60,20 @@ const BRANCH_NOTICES: Record<BranchNotice, MessageDescriptor> = {
   error: msg`브랜치를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.`,
   invalid: msg`선택한 브랜치를 찾을 수 없습니다. 목록을 다시 열어 주세요.`,
   changed: msg`브랜치를 바꿨습니다. 커밋 내역을 다시 불러옵니다.`,
+};
+
+// 사용량 소진은 초기화 시각이 필요해 공용 문구에 없으므로, 내역에서는 시각 없는 짧은 문구
+const QUOTA_EXCEEDED_MESSAGE = msg`사용량이 모두 소진되어 작성하지 못했습니다.`;
+
+// 실패한 항목의 안내 문구 (사유 코드를 모르면 null, 화면은 그냥 "실패")
+const getFailureMessage = (item: PromptHistoryItem) => {
+  if (item.status !== 'failed' || !item.errorCode) {
+    return null;
+  }
+
+  return item.errorCode === 'quota_exceeded'
+    ? QUOTA_EXCEEDED_MESSAGE
+    : GENERATION_ERROR_MESSAGES[item.errorCode];
 };
 
 const SHORT_SHA_LENGTH = 7;
@@ -110,18 +126,50 @@ const HistoryItem = ({
   htmlUrl: string;
 }) => {
   const locale = useLocale();
+  const { i18n } = useLingui();
+  const isAuto = item.source === 'commit_trigger';
+  const failure = getFailureMessage(item);
+  const failureText = failure ? i18n._(failure) : null;
 
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <p className="line-clamp-4 text-[13px] leading-[1.6] break-words whitespace-pre-line text-ink">
-        {item.kind === 'fill' && (
-          <span className="mr-1.5 text-[11px] font-medium text-ink-faint">
-            <Trans>빈칸</Trans>
-          </span>
-        )}
-        {item.prompt}
-      </p>
+      {(item.kind === 'fill' || isAuto || item.prompt) && (
+        <p className="line-clamp-4 text-[13px] leading-[1.6] break-words whitespace-pre-line text-ink">
+          {item.kind === 'fill' && (
+            <span className="mr-1.5 text-[11px] font-medium text-ink-faint">
+              <Trans>빈칸</Trans>
+            </span>
+          )}
+          {isAuto && (
+            <span className="mr-1.5 inline-flex items-center gap-1 align-middle text-[11px] font-medium text-ink-faint">
+              <Image
+                src="/images/studio/git-commit.svg"
+                alt=""
+                width={12}
+                height={12}
+              />
+              <Trans>자동</Trans>
+            </span>
+          )}
+          {item.prompt}
+        </p>
+      )}
+      {failureText && (
+        <p className="text-[12px] leading-[1.6] break-keep text-danger">
+          {failureText}
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] leading-[normal] text-ink-faint">
+        {isAuto && item.triggerSha && (
+          <a
+            href={toCommitUrl(htmlUrl, item.triggerSha)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-ink-muted underline-offset-2 hover:underline"
+          >
+            {item.triggerSha.slice(0, SHORT_SHA_LENGTH)}
+          </a>
+        )}
         {item.commitShas.map((sha) => (
           <a
             key={sha}
@@ -154,7 +202,7 @@ const HistoryItem = ({
           <UsageLabel ratio={item.usageRatio} />
         </span>
         <span>{formatHistoryDate(item.createdAt, locale)}</span>
-        {item.status === 'failed' && (
+        {item.status === 'failed' && !failureText && (
           <span className="text-ink-subtle">
             <Trans>실패</Trans>
           </span>
@@ -496,7 +544,7 @@ const LoadingContent = () => (
 );
 
 /**
- * 저장소 설정 탭: 프롬프트 내역, 연동 브랜치 변경, 저장소 삭제
+ * 저장소 설정 탭: 프롬프트 내역, 커밋으로 초안 만들기, 연동 브랜치 변경, 저장소 삭제
  * - 열 때 한 번 조회 (내역, 삭제 확인에 쓸 초안·게시글 수)
  */
 const RepositorySettingsPanel = () => {
@@ -557,6 +605,7 @@ const RepositorySettingsPanel = () => {
           htmlUrl={repository.htmlUrl}
         />
       </section>
+      <AutoDraftSettingsSection />
       <BranchSection />
       <DeleteSection
         draftCount={settings.draftCount}
