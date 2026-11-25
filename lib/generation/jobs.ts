@@ -514,6 +514,35 @@ export const syncDraftJobs = async (
   }
 };
 
+/**
+ * 저장소의 초안 중 완료했지만 아직 본문에 반영하지 않은 초안 작성 작업을 반영
+ * - 커밋 트리거 자동 초안처럼 화면 밖에서 끝난 작업도 목록에서 바로 제목이 보이도록 (스튜디오 레이아웃이 목록을 읽기 전에 호출)
+ * - 반영은 applyCompletedJob 이 작업마다 한 번만 하므로 초안 화면과 동시에 불려도 됨
+ */
+export const applyPendingDraftJobs = async (
+  userId: string,
+  repositoryId: string,
+) => {
+  const pending = await db
+    .select({ id: draftPrompt.id })
+    .from(draftPrompt)
+    .innerJoin(draft, eq(draft.id, draftPrompt.draftId))
+    .where(
+      and(
+        eq(draft.userId, userId),
+        eq(draft.repositoryId, repositoryId),
+        eq(draftPrompt.kind, 'draft'),
+        eq(draftPrompt.status, 'completed'),
+        isNull(draftPrompt.appliedAt),
+      ),
+    )
+    .orderBy(asc(draftPrompt.createdAt));
+
+  for (const { id } of pending) {
+    await applyCompletedJob(id);
+  }
+};
+
 // 초안을 바꿀 수 없는 상태인지 (정리 후 진행 중인 초안 작성 작업이 남아 있으면 잠금, 빈칸 채우기는 잠그지 않음)
 export const isDraftLocked = async (draftId: string) => {
   await syncDraftJobs(draftId);

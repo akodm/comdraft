@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import StudioShell from '@/components/studio/studio-shell';
 import { requireSession } from '@/lib/auth/session';
 import { initLingui } from '@/lib/i18n/server';
+import { applyPendingDraftJobs } from '@/lib/generation/jobs';
 import { getStudioRepository, listStudioDrafts } from '@/lib/studio/queries';
 
 interface StudioLayoutProps {
@@ -27,6 +28,8 @@ export default async function StudioLayout({
     notFound();
   }
 
+  // 화면 밖에서 끝난 초안 작성(자동 초안 등)을 먼저 반영해 목록에 제목이 보이게 함
+  await applyPendingDraftJobs(user.id, repository.id);
   const drafts = await listStudioDrafts(user.id, repository.id);
 
   return (
