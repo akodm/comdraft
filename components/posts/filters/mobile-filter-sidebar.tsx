@@ -12,6 +12,10 @@ import Image from 'next/image';
 import { useLingui } from '@lingui/react/macro';
 import PostFilterTitle from '@/components/posts/filters/post-filter-title';
 import { useModalPanel } from '@/hooks/use-modal-panel';
+import { usePresence } from '@/hooks/use-presence';
+
+// 닫힘 애니메이션 시간 (duration-300 과 같은 값)
+const SIDEBAR_EXIT_MS = 300;
 
 interface MobileFilterSidebarProps {
   // 걸린 필터가 있으면 여는 버튼에 표시
@@ -25,6 +29,7 @@ interface MobileFilterSidebarProps {
  * - PC 레이아웃에서는 렌더링하지 않음 (PC 는 목록 오른쪽 패널)
  * - 필터 링크를 누르면 바로 닫혀 걸러진 목록이 보임
  * - Escape, 닫기 버튼, PC 폭으로 넓어지면 닫힘, 닫으면 여는 버튼으로 포커스 복귀
+ * - 오른쪽에서 밀려 들어오고, 닫힐 때도 오른쪽으로 밀려 나감
  */
 const MobileFilterSidebar = ({
   hasActiveFilters,
@@ -36,6 +41,7 @@ const MobileFilterSidebar = ({
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const { isRendered, isClosing } = usePresence(isOpen, SIDEBAR_EXIT_MS);
 
   const close = useCallback(() => {
     setIsOpen(false);
@@ -80,7 +86,7 @@ const MobileFilterSidebar = ({
           />
         )}
       </button>
-      {isOpen && (
+      {isRendered && (
         // 클릭은 안쪽 링크에서 올라온 것만 처리 (키보드 Enter 로 링크를 눌러도 click 이 발생하므로 키 처리 불필요)
         // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
         <div
@@ -89,7 +95,10 @@ const MobileFilterSidebar = ({
           aria-modal="true"
           aria-labelledby={titleId}
           onClick={handlePanelClick}
-          className="fixed inset-0 z-50 flex flex-col bg-white transition-transform duration-200 ease-out motion-reduce:transition-none starting:translate-x-full pc:hidden"
+          inert={isClosing}
+          className={`fixed inset-0 z-50 flex flex-col bg-white transition-[translate] duration-300 ease-out starting:translate-x-full pc:hidden ${
+            isClosing ? 'translate-x-full ease-in' : ''
+          }`}
         >
           <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-5">
             <PostFilterTitle id={titleId} />

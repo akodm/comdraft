@@ -210,13 +210,29 @@ body {
 
 @utility animate-dropdown {
   transform-origin: top;
-  animation: dropdown-in 180ms var(--ease-out) both;
+  animation: dropdown-in 180ms var(--ease-out) backwards;
 }
 
 @utility animate-dropup {
   --dropdown-shift: 6px;
   transform-origin: bottom;
-  animation: dropdown-in 180ms var(--ease-out) both;
+  animation: dropdown-in 180ms var(--ease-out) backwards;
+}
+
+/*
+ * 스튜디오 사이드바 등장 (PC): 화면을 처음 열 때 왼쪽에서 살짝 밀려 들어옴, 커밋 내역은 --sidebar-delay 만큼 늦게
+ * - translate 는 모바일 여닫기에 쓰므로 transform 을 움직임
+ */
+@keyframes sidebar-in {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+}
+
+@utility animate-sidebar-in {
+  animation: sidebar-in 500ms var(--ease-out) var(--sidebar-delay, 0ms)
+    backwards;
 }
 
 /*

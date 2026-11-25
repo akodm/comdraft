@@ -52,14 +52,15 @@ const StudioFrame = ({ drafts, userName, children }: StudioFrameProps) => {
 
   return (
     <div className="flex min-h-dvh bg-white pc:h-dvh pc:overflow-hidden">
-      {openPanel && (
-        <button
-          type="button"
-          aria-label={t`사이드바 닫기`}
-          onClick={() => setOpenPanel(null)}
-          className="fixed inset-0 z-30 bg-ink/33 pc:hidden"
-        />
-      )}
+      {/* 모바일 사이드바 뒤 배경: 열고 닫을 때 서서히 어두워지고 밝아짐 (닫혀 있으면 보이지 않고 누를 수 없음) */}
+      <button
+        type="button"
+        aria-label={t`사이드바 닫기`}
+        onClick={() => setOpenPanel(null)}
+        className={`fixed inset-0 z-30 bg-ink/33 transition-[opacity,visibility] duration-300 pc:hidden ${
+          openPanel ? 'opacity-100' : 'invisible opacity-0'
+        }`}
+      />
       <DraftSidebar
         drafts={drafts}
         userName={userName}

@@ -318,7 +318,8 @@ const CommitSidebar = ({ isOpen }: CommitSidebarProps) => {
   return (
     <aside
       aria-label={t`커밋 내역`}
-      className={`w-70 pc:gap-3 pc:p-3 ${getSidebarClass(isOpen)}`}
+      // 초안 목록보다 조금 늦게 들어옴
+      className={`w-70 pc:gap-3 pc:p-3 pc:[--sidebar-delay:90ms] ${getSidebarClass(isOpen)}`}
       style={{ '--sidebar-width': `${sidebarWidth.width}px` } as CSSProperties}
     >
       {/* 모바일 헤더: 제목 + 닫기, 선택 개수 */}
