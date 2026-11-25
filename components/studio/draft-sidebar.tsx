@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, type CSSProperties } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { Trans, useLingui } from '@lingui/react/macro';
@@ -15,7 +15,9 @@ import {
   ICON_BUTTON_CLASS,
   THIN_SCROLL_CLASS,
 } from '@/components/studio/studio-styles';
+import SidebarResizeHandle from '@/components/studio/sidebar-resize-handle';
 import { useDraftDeletion } from '@/hooks/use-draft-deletion';
+import { useSidebarWidth } from '@/hooks/use-sidebar-width';
 import type { DraftStatus } from '@/lib/db/schema';
 import type { StudioDraftSummary } from '@/lib/studio/queries';
 
@@ -70,11 +72,13 @@ const DraftSidebar = ({ drafts, userName, isOpen }: DraftSidebarProps) => {
   );
   const { ownerLogin, name, htmlUrl, branch } = repository;
   const repositoryLinkLabel = t`GitHub 에서 저장소 열기`;
+  const sidebarWidth = useSidebarWidth('drafts');
 
   return (
     <aside
       aria-label={t`초안 목록`}
-      className={`w-68 pc:w-70 ${getSidebarClass(isOpen)}`}
+      className={`w-68 ${getSidebarClass(isOpen)}`}
+      style={{ '--sidebar-width': `${sidebarWidth.width}px` } as CSSProperties}
     >
       <div className="flex flex-col gap-4 px-5 pt-6 pb-5">
         <div className="flex items-center gap-2">
@@ -210,6 +214,12 @@ const DraftSidebar = ({ drafts, userName, isOpen }: DraftSidebarProps) => {
       <div className="border-t border-line p-3">
         <StudioProfileMenu userName={userName} />
       </div>
+      <SidebarResizeHandle
+        label={t`초안 목록 너비 조절`}
+        width={sidebarWidth.width}
+        onPreview={sidebarWidth.preview}
+        onCommit={sidebarWidth.commit}
+      />
     </aside>
   );
 };
