@@ -3,7 +3,7 @@
 import { requireSession } from '@/lib/auth/session';
 import type { SkipReason } from '@/lib/auto-draft/batch';
 import { computeAutoDraftBatch } from '@/lib/auto-draft/batch-server';
-import { getBranchHead, getFirstParent } from '@/lib/auto-draft/github';
+import { getBranchHead, getCommitParents } from '@/lib/auto-draft/github';
 import {
   excludeCommits,
   getAutoDraftRepo,
@@ -222,7 +222,7 @@ export type AutoDraftCommitActionResult =
 /**
  * 커밋 줄 동작: 이 커밋부터 자동 대상으로 삼도록 기준점을 옮김
  * - 경계(마지막으로 쓴 커밋, 제외) = 그 커밋의 첫 부모, 이전 경계와 무관하게 덮어씀
- * - 부모가 없는 루트 커밋이거나 커밋을 찾을 수 없으면 invalid
+ * - 부모가 없는 루트 커밋, 머지 커밋(자동 대상이 아님), 커밋을 찾을 수 없으면 invalid
  */
 export async function setAutoDraftAnchor(
   repositoryId: string,
@@ -247,13 +247,13 @@ export async function setAutoDraftAnchor(
   }
 
   try {
-    const parentSha = await getFirstParent(repo, sha);
+    const parentShas = await getCommitParents(repo, sha);
 
-    if (parentSha === null) {
+    if (parentShas === null || parentShas.length !== 1) {
       return { status: 'invalid' };
     }
 
-    await setBoundary(user.id, repositoryId, parentSha);
+    await setBoundary(user.id, repositoryId, parentShas[0]);
 
     return { status: 'ok' };
   } catch {

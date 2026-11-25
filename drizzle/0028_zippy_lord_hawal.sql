@@ -1,0 +1,1 @@
+CREATE INDEX "draft_prompt_user_repository_trigger_idx" ON "comdraft"."draft_prompt" USING btree ("user_id","repository_id") WHERE "comdraft"."draft_prompt"."source" = 'commit_trigger';

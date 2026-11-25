@@ -76,6 +76,7 @@ const makeDeps = (over: Partial<RunDeps> = {}) => {
     failJob: vi.fn(async () => null),
     recordFailure: vi.fn(async () => 'recorded' as const),
     moveBoundary: vi.fn(async () => true),
+    getBoundary: vi.fn(async (): Promise<string | null> => OLD),
     getLocale: vi.fn(async () => 'en' as const),
     ...over,
   };
@@ -371,11 +372,91 @@ describe('runAutoDraft', () => {
     expect(deps.moveBoundary).not.toHaveBeenCalled();
   });
 
-  it('선점 CAS 가 실패하면 no_commits, 작업을 만들지 않음', async () => {
+  it('선점 CAS 가 계속 실패하면 3번 다시 계산한 뒤 no_commits, 작업을 만들지 않음', async () => {
     const deps = makeDeps({ moveBoundary: vi.fn(async () => false) });
     const out = await runAutoDraft(target(), push('c3'), deps);
     expect(out).toEqual({ status: 'skipped', errorCode: 'no_commits' });
+    expect(deps.compare).toHaveBeenCalledTimes(3);
+    expect(deps.getBoundary).toHaveBeenCalledTimes(2);
     expect(deps.createDraftJob).not.toHaveBeenCalled();
+  });
+
+  it('다른 트리거가 먼저 경계를 옮겼으면 새 경계로 다시 계산해 남은 커밋으로 실행', async () => {
+    const compare = vi.fn(async (_repo: unknown, base: string) => ({
+      status: 'ok' as const,
+      // 새 경계(c2) 이후에는 c3 만 남음
+      commits: base === 'c2' ? [commit(3)] : [commit(1), commit(2), commit(3)],
+    }));
+    const deps = makeDeps({
+      compare: compare as unknown as RunDeps['compare'],
+      moveBoundary: vi
+        .fn<RunDeps['moveBoundary']>()
+        .mockResolvedValueOnce(false)
+        .mockResolvedValue(true),
+      getBoundary: vi.fn(async () => 'c2'),
+    });
+    const out = await runAutoDraft(target(), push('c3'), deps);
+    expect(out).toEqual({ status: 'started', jobId: 'j1' });
+    expect(compare).toHaveBeenLastCalledWith(expect.anything(), 'c2', 'c3');
+    expect(deps.moveBoundary).toHaveBeenLastCalledWith('u1', 'r1', 'c2', 'c3');
+    expect(deps.createDraftJob).toHaveBeenCalledWith(
+      'u1',
+      'r1',
+      expect.objectContaining({ commitShas: ['c3'] }),
+      'en',
+    );
+  });
+
+  it('다시 읽은 경계가 없으면 anchor_missing', async () => {
+    const deps = makeDeps({
+      moveBoundary: vi.fn(async () => false),
+      getBoundary: vi.fn(async () => null),
+    });
+    const out = await runAutoDraft(target(), push('c3'), deps);
+    expect(out).toEqual({ status: 'skipped', errorCode: 'anchor_missing' });
+    expect(deps.createDraftJob).not.toHaveBeenCalled();
+  });
+
+  it('20개에서 잘린 묶음이 다른 트리거와 겹치면(overlap) 사용된 커밋을 빼고 다음 묶음으로 실행', async () => {
+    const commits = Array.from({ length: 25 }, (_, i) => commit(i + 1));
+    const used = new Set(commits.slice(0, 20).map((c) => c.sha));
+    const findConsumedShas = vi
+      .fn<RunDeps['findConsumedShas']>()
+      .mockResolvedValueOnce(new Set())
+      .mockResolvedValue(used);
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({ status: 'ok' as const, commits })),
+      findConsumedShas,
+      createDraftJob: vi
+        .fn<RunDeps['createDraftJob']>()
+        .mockResolvedValueOnce({ status: 'overlap' })
+        .mockResolvedValue({ status: 'created', draftId: 'd1', jobId: 'j1' }),
+    });
+    const out = await runAutoDraft(target(), push('c25'), deps);
+    expect(out).toEqual({ status: 'started', jobId: 'j1' });
+    expect(deps.createDraftJob).toHaveBeenLastCalledWith(
+      'u1',
+      'r1',
+      expect.objectContaining({
+        commitShas: ['c25', 'c24', 'c23', 'c22', 'c21'],
+      }),
+      'en',
+    );
+    // 두 번째 묶음은 끝까지 봐서 경계를 푸시 끝으로 선점
+    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c25');
+  });
+
+  it('끝까지 본 묶음이 overlap 이면 선점한 경계를 되돌린 뒤 다시 계산', async () => {
+    const deps = makeDeps({
+      createDraftJob: vi
+        .fn<RunDeps['createDraftJob']>()
+        .mockResolvedValue({ status: 'overlap' }),
+    });
+    const out = await runAutoDraft(target(), push('c3'), deps);
+    expect(out).toEqual({ status: 'skipped', errorCode: 'no_commits' });
+    expect(deps.createDraftJob).toHaveBeenCalledTimes(3);
+    expect(deps.moveBoundary).toHaveBeenLastCalledWith('u1', 'r1', 'c3', OLD);
+    expect(deps.startRunner).not.toHaveBeenCalled();
   });
 
   it('slot rate_limited 면 실패 기록 + 경계 되돌림', async () => {

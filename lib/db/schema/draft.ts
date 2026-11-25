@@ -212,6 +212,10 @@ export const draftPrompt = comdraftSchema.table(
     uniqueIndex('draft_prompt_user_trigger_unique')
       .on(table.userId, table.triggerSha)
       .where(sql`${table.triggerSha} is not null`),
+    // 자동 초안에 이미 쓴 커밋 조회 (사용자·저장소의 자동 초안 행만)
+    index('draft_prompt_user_repository_trigger_idx')
+      .on(table.userId, table.repositoryId)
+      .where(sql`${table.source} = 'commit_trigger'`),
     check(
       'draft_prompt_source_check',
       sql`${table.source} in ('studio', 'commit_trigger')`,

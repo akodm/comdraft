@@ -4,6 +4,7 @@ import { computeAutoDraftBatch } from '@/lib/auto-draft/batch-server';
 import { compareBranch, findEmptyCommits } from '@/lib/auto-draft/github';
 import {
   findConsumedShas,
+  getAutoDraftSetting,
   listExcludedShas,
   moveBoundary,
   type PushTarget,
@@ -33,6 +34,7 @@ import type { PromptOptions } from '@/lib/studio/options';
  * - 끝까지 봤으면 작업을 만들기 전에 경계를 푸시 끝으로 먼저 옮겨(선점) 다른 트리거가 같은 커밋을 쓰지 않게 함
  *   → 작업을 만들지 못하거나 실행기를 시작하지 못하면 원래 경계로 되돌림
  * - 20개에서 잘렸으면 경계를 옮기지 않음 (쓴 커밋은 consumed 로 다음 계산에서 빠짐)
+ * - 다른 트리거가 먼저 경계를 옮겼거나 같은 커밋을 썼으면 지금 경계로 다시 계산 (최대 3번)
  * - 시작 전에 막힌 경우는 초안 없이 실패 행(draft_prompt)만 남김 (커밋 메시지는 저장하지 않음)
  */
 
@@ -74,6 +76,8 @@ export interface RunDeps {
   failJob: (jobId: string, errorCode: GenerationErrorCode) => Promise<unknown>;
   recordFailure: (record: FailureRecord) => Promise<'recorded' | 'duplicate'>;
   moveBoundary: typeof moveBoundary;
+  // 지금 경계 (설정 행이 없으면 null)
+  getBoundary: (userId: string, repositoryId: string) => Promise<string | null>;
   getLocale: (userId: string) => Promise<Locale>;
 }
 
@@ -138,6 +142,8 @@ export const defaultRunDeps: RunDeps = {
   recordFailure: insertFailure,
   moveBoundary: (userId, repositoryId, from, to) =>
     moveBoundary(userId, repositoryId, from, to),
+  getBoundary: async (userId, repositoryId) =>
+    (await getAutoDraftSetting(userId, repositoryId))?.boundarySha ?? null,
   getLocale: getLatestLocale,
 };
 
@@ -217,8 +223,59 @@ export async function runAutoDraft(
     return skip('model_locked');
   }
 
-  const boundary = setting.boundarySha;
   const excluded = await deps.listExcludedShas(userId, repositoryId);
+  let boundary = setting.boundarySha;
+
+  for (let attempt = 1; ; attempt += 1) {
+    const result = await tryStartBatch(target, push, deps, {
+      boundary,
+      excluded,
+      options,
+      locale,
+      githubToken: gate.githubToken,
+    });
+
+    if (result.status === 'skip') return skip(result.errorCode);
+    if (result.status !== 'conflict') return result;
+
+    // 다른 트리거가 먼저 경계를 옮기거나 커밋을 썼음 → 지금 경계로 다시 계산
+    if (attempt >= MAX_BATCH_ATTEMPTS) return skip('no_commits');
+
+    const latest = await deps.getBoundary(userId, repositoryId);
+    if (latest === null) return skip('anchor_missing');
+    boundary = latest;
+  }
+}
+
+// 다른 트리거와 겹쳤을 때 묶음을 다시 계산하는 최대 횟수
+const MAX_BATCH_ATTEMPTS = 3;
+
+interface BatchAttempt {
+  boundary: string;
+  excluded: ReadonlyMap<string, unknown>;
+  options: PromptOptions;
+  locale: Locale;
+  githubToken: string;
+}
+
+type AttemptResult =
+  | Exclude<RunOutcome, { status: 'skipped' }>
+  | { status: 'skipped'; errorCode: 'runner_unavailable' }
+  | { status: 'skip'; errorCode: GenerationErrorCode }
+  | { status: 'conflict' };
+
+/**
+ * 경계 하나로 묶음 계산 → 경계 선점 → 작업 생성 → 실행기 시작 (한 번의 시도)
+ * - 다른 트리거가 먼저 경계를 옮겼거나(선점 실패) 묶음 커밋을 먼저 썼으면(overlap) conflict
+ *   → 선점한 경계는 되돌린 뒤 반환
+ */
+async function tryStartBatch(
+  target: PushTarget,
+  push: TriggerPush,
+  deps: RunDeps,
+  { boundary, excluded, options, locale, githubToken }: BatchAttempt,
+): Promise<AttemptResult> {
+  const { userId, repositoryId, setting } = target;
   const plan = await computeAutoDraftBatch(
     target.repo,
     {
@@ -230,25 +287,23 @@ export async function runAutoDraft(
     },
     deps,
   );
-  if (plan.status !== 'ok') return skip(plan.status);
+  if (plan.status !== 'ok') return { status: 'skip', errorCode: plan.status };
 
   // 웹훅 재전송이면 경계가 이미 푸시 끝이라 여기서 끝남 (작업 행과 trigger_sha 가 겹쳐 duplicate)
   const { batchShas } = plan;
-  if (batchShas.length === 0) return skip('no_commits');
+  if (batchShas.length === 0) {
+    return { status: 'skip', errorCode: 'no_commits' };
+  }
 
   // 끝까지 봤을 때만 경계를 푸시 끝으로 선점 (건너뛴 커밋도 다시 보지 않음)
   // 20개에서 잘렸으면 경계는 그대로 → 남은 커밋은 다음 묶음, 쓴 커밋은 consumed 로 빠짐
   const claimTo = plan.exhausted ? push.headSha : null;
 
-  if (claimTo !== null) {
-    // 다른 트리거가 먼저 경계를 옮겼으면 이 묶음은 이미 그쪽 몫
-    const claimed = await deps.moveBoundary(
-      userId,
-      repositoryId,
-      boundary,
-      claimTo,
-    );
-    if (!claimed) return skip('no_commits');
+  if (
+    claimTo !== null &&
+    !(await deps.moveBoundary(userId, repositoryId, boundary, claimTo))
+  ) {
+    return { status: 'conflict' };
   }
 
   // 선점했을 때만 되돌림 (선점하지 않았으면 경계를 건드리지 않음)
@@ -272,7 +327,7 @@ export async function runAutoDraft(
         referenceUrls: [],
         draftId: null,
         source: 'commit_trigger',
-        triggerSha,
+        triggerSha: push.trigger.sha,
       },
       locale,
     );
@@ -285,16 +340,14 @@ export async function runAutoDraft(
   if (created.status !== 'created') {
     await revert();
 
-    return created.status === 'duplicate'
-      ? { status: 'duplicate' }
-      : skip(slotErrorCode(created.status));
+    if (created.status === 'duplicate') return { status: 'duplicate' };
+    if (created.status === 'overlap') return { status: 'conflict' };
+
+    return { status: 'skip', errorCode: slotErrorCode(created.status) };
   }
 
   try {
-    await deps.startRunner({
-      jobId: created.jobId,
-      githubToken: gate.githubToken,
-    });
+    await deps.startRunner({ jobId: created.jobId, githubToken });
   } catch {
     // 작업 행이 이미 있으므로 실패 행을 따로 남기지 않음
     // 경계를 먼저 되돌려 failJob 이 실패해도 항상 복구
