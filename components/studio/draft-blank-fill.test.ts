@@ -157,7 +157,7 @@ describe('빈칸 다듬기 편집기 확장', () => {
           paragraph('다듬은 첫 문단'),
           paragraph('다듬은 둘째 문단'),
         ]),
-      ).toBe(true);
+      ).toEqual({ from: 6, to: 27 });
       expect(editor.getJSON().content).toEqual([
         paragraph('앞 문단'),
         paragraph('다듬은 첫 문단'),
@@ -175,7 +175,7 @@ describe('빈칸 다듬기 편집기 확장', () => {
 
       expect(
         replaceBlankWithParagraphs(editor, ID_B, [paragraph('결과')]),
-      ).toBe(false);
+      ).toBeNull();
       expect(editor.getJSON()).toEqual(before);
     });
   });

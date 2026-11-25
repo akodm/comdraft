@@ -26,4 +26,8 @@ describe('createSparkleSpecs', () => {
       expect(spec.duration).toBeLessThanOrEqual(1500);
     }
   });
+
+  it('좁은 영역은 최소 개수를 낮춰 지정할 수 있음', () => {
+    expect(createSparkleSpecs(100, 60, Math.random, 8)).toHaveLength(8);
+  });
 });

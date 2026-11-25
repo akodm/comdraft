@@ -16,7 +16,11 @@ import type { JSONContent } from '@tiptap/core';
 import type { Transaction } from '@tiptap/pm/state';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import { assignBlankIds } from '@/components/studio/draft-blank-fill';
-import { playDraftReveal } from '@/components/studio/draft-reveal';
+import {
+  getBlockElements,
+  playBlankFillReveal,
+  playDraftReveal,
+} from '@/components/studio/draft-reveal';
 import { getDraftStatusLabel } from '@/components/studio/draft-status';
 import DraftTags from '@/components/studio/draft-tags';
 import { createEditorExtensions } from '@/components/studio/editor-extensions';
@@ -538,6 +542,18 @@ const DraftEditor = ({
   const revealRef = useRef<HTMLDivElement>(null);
   useAppliedContent(editor, draft, revealRef);
 
+  // 빈칸 채우기 결과가 들어간 자리에만 반영 효과
+  const handleFilled = useCallback(
+    ({ from, to }: { from: number; to: number }) => {
+      const container = revealRef.current;
+
+      if (editor && !editor.isDestroyed && container) {
+        playBlankFillReveal(container, getBlockElements(editor.view, from, to));
+      }
+    },
+    [editor],
+  );
+
   const { requestFill, handleSaved } = useBlankFill({
     editor,
     repositoryId,
@@ -548,6 +564,7 @@ const DraftEditor = ({
     saveNow: flush,
     onStarted: onFillStarted,
     onDone: onFillDone,
+    onFilled: handleFilled,
   });
 
   useEffect(() => {
