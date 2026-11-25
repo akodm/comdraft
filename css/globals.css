@@ -196,6 +196,120 @@ body {
   }
 }
 
+/*
+ * AI 초안 반영 효과 (components/studio/draft-reveal.ts 가 편집기 바깥 틀에 data-draft-reveal 을 잠시 닮)
+ * - 본문 블록: 흐릿하게 아래에서 떠오르며 위에서부터 차례로 (16번째 블록부터는 같은 시각)
+ * - 스캔 줄: 옅은 브랜드색 띠가 본문 위→아래로 한 번 지나감 (클릭을 막지 않음)
+ */
+@keyframes draft-write-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+    filter: blur(3px);
+  }
+}
+
+@keyframes draft-scan {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% - 7rem);
+    opacity: 0;
+  }
+}
+
+[data-draft-reveal] .ProseMirror > * {
+  animation: draft-write-in 560ms var(--ease-out) both;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(2) {
+  animation-delay: 60ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(3) {
+  animation-delay: 120ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(4) {
+  animation-delay: 180ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(5) {
+  animation-delay: 240ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(6) {
+  animation-delay: 300ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(7) {
+  animation-delay: 360ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(8) {
+  animation-delay: 420ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(9) {
+  animation-delay: 480ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(10) {
+  animation-delay: 540ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(11) {
+  animation-delay: 600ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(12) {
+  animation-delay: 660ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(13) {
+  animation-delay: 720ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(14) {
+  animation-delay: 780ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(15) {
+  animation-delay: 840ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(16) {
+  animation-delay: 900ms;
+}
+
+[data-draft-reveal] .ProseMirror > :nth-child(n + 17) {
+  animation-delay: 960ms;
+}
+
+[data-draft-reveal]::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  height: 7rem;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in oklab, var(--color-brand) 9%, transparent) 70%,
+    color-mix(in oklab, var(--color-brand) 28%, transparent) 70% calc(70% + 1px),
+    transparent calc(70% + 1px)
+  );
+  animation: draft-scan 1400ms var(--ease-in-out) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *:not(.keep-motion),
   *:not(.keep-motion)::before,
