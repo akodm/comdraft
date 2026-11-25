@@ -10,6 +10,7 @@ const MARKER_ICONS: Record<CommitMarker['kind'], string> = {
   anchor: '/images/studio/flag.svg',
   auto: '/images/studio/layers.svg',
   excluded: '/images/studio/circle-slash.svg',
+  consumed: '/images/studio/circle-check.svg',
   not_collected: '/images/studio/git-merge.svg',
 };
 
@@ -18,7 +19,7 @@ interface CommitMarkersProps {
 }
 
 /**
- * 커밋 줄의 자동 초안 표시 아이콘 (기준점, 자동 대상, 제외됨, 수집 안 됨)
+ * 커밋 줄의 자동 초안 표시 아이콘 (기준점, 자동 대상, 제외됨, 이미 사용됨, 수집 안 됨)
  * - 아이콘마다 같은 문구의 툴팁과 aria-label, 키보드로 포커스해 툴팁을 볼 수 있음
  */
 const CommitMarkers = ({ markers }: CommitMarkersProps) => {
@@ -38,8 +39,10 @@ const CommitMarkers = ({ markers }: CommitMarkersProps) => {
         return marker.reason === 'force_push'
           ? t`force push 로 올라와 제외된 커밋입니다`
           : t`제외한 커밋입니다. 자동 대상에 들어가지 않습니다`;
+      case 'consumed':
+        return t`이미 자동 초안에 사용한 커밋입니다`;
       case 'not_collected':
-        return t`머지로 들어온 커밋이나 머지 커밋, GitHub 에서 만든 커밋은 자동 대상에 들어가지 않습니다`;
+        return t`머지 커밋은 내용이 없어 자동 대상에 들어가지 않습니다`;
     }
   };
 

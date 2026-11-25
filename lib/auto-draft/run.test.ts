@@ -41,22 +41,21 @@ const commit = (n: number, message = `커밋 ${n}`): BranchCommit => ({
   sha: `c${n}`,
   parentShas: [`c${n - 1}`],
   message,
-  committerLogin: 'dev',
 });
 
-// 트리거 후보 하나인 푸시 (끝 SHA 기본값은 후보 자신)
+// 트리거 하나인 푸시 (끝 SHA 기본값은 트리거 자신)
 const push = (
   sha: string,
   options: TriggerOptions = {},
   headSha: string = sha,
-): TriggerPush => ({ headSha, candidates: [{ sha, options }] });
+): TriggerPush => ({ headSha, trigger: { sha, options } });
 
 // 부모를 직접 지정하는 커밋
 const node = (
   sha: string,
   parentShas: string[],
   message = sha,
-): BranchCommit => ({ sha, parentShas, message, committerLogin: 'dev' });
+): BranchCommit => ({ sha, parentShas, message });
 
 const makeDeps = (over: Partial<RunDeps> = {}) => {
   const deps = {
@@ -65,6 +64,7 @@ const makeDeps = (over: Partial<RunDeps> = {}) => {
       commits: [commit(1), commit(2), commit(3, '[comdraft]')],
     })),
     findEmptyCommits: vi.fn(async () => new Set<string>()),
+    findConsumedShas: vi.fn(async () => new Set<string>()),
     listExcludedShas: vi.fn(async () => new Map()),
     gate: vi.fn(async () => ({ status: 'ok' as const, githubToken: 'tok' })),
     createDraftJob: vi.fn(async () => ({
@@ -136,12 +136,26 @@ describe('runAutoDraft', () => {
     expect(out).toEqual({ status: 'skipped', errorCode: 'model_locked' });
   });
 
-  it('compare 가 anchor_missing 이면 anchor_missing', async () => {
+  it('compare 가 anchor_missing(diverged·404) 이면 anchor_missing, 경계는 그대로', async () => {
     const deps = makeDeps({
       compare: vi.fn(async () => ({ status: 'anchor_missing' as const })),
     });
     const out = await runAutoDraft(target(), push('c3'), deps);
     expect(out).toEqual({ status: 'skipped', errorCode: 'anchor_missing' });
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
+  });
+
+  it('compare 에 커밋이 없으면(identical·behind) no_commits, 트리거 SHA 로 기록', async () => {
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({ status: 'ok' as const, commits: [] })),
+    });
+    const out = await runAutoDraft(target(), push('c3'), deps);
+    expect(out).toEqual({ status: 'skipped', errorCode: 'no_commits' });
+    expect(deps.recordFailure).toHaveBeenCalledWith(
+      expect.objectContaining({ errorCode: 'no_commits', triggerSha: 'c3' }),
+    );
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
+    expect(deps.createDraftJob).not.toHaveBeenCalled();
   });
 
   it('묶음이 비면 no_commits, 경계는 건드리지 않음', async () => {
@@ -157,96 +171,35 @@ describe('runAutoDraft', () => {
     expect(deps.moveBoundary).not.toHaveBeenCalled();
   });
 
-  it('빈 트리거 확인은 트리거 커밋에만, 끝까지 봤으면 경계는 트리거 커밋으로', async () => {
-    const deps = makeDeps({
-      findEmptyCommits: vi.fn(async () => new Set(['c3'])),
-    });
-    const out = await runAutoDraft(target(), push('c3'), deps);
-    expect(deps.findEmptyCommits).toHaveBeenCalledWith(expect.anything(), [
-      'c3',
-    ]);
-    expect(out).toMatchObject({ status: 'started' });
-    expect(deps.createDraftJob).toHaveBeenCalledWith(
-      'u1',
-      'r1',
-      expect.objectContaining({ commitShas: ['c2', 'c1'] }),
-      'en',
-    );
-    // 묶음 마지막(c2)이 아니라 끝 커밋(c3)까지 옮겨 빈 트리거를 다시 보지 않음
-    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c3');
-  });
-
-  it('20개에서 잘리면 경계는 묶음 마지막 커밋으로, 되돌릴 때도 같은 값', async () => {
-    const commits = Array.from({ length: 25 }, (_, i) =>
-      commit(i + 1, i === 24 ? '[comdraft]' : undefined),
-    );
-    const deps = makeDeps({
-      compare: vi.fn(async () => ({ status: 'ok' as const, commits })),
-      createDraftJob: vi.fn(async () => ({ status: 'rate_limited' as const })),
-    });
-    await runAutoDraft(target(), push('c25'), deps);
-    expect(deps.moveBoundary).toHaveBeenNthCalledWith(
-      1,
-      'u1',
-      'r1',
-      OLD,
-      'c20',
-    );
-    expect(deps.moveBoundary).toHaveBeenLastCalledWith('u1', 'r1', 'c20', OLD);
-  });
-
-  it('머지로 들어온 커밋은 묶음에 넣지 않음 (첫 부모 사슬만)', async () => {
-    // c0 → c1 → m(c1, f1) → c3
+  it('정상: compare(경계, 푸시 끝), 최신순 commitShas, 끝까지 봤으면 경계 → 푸시 끝, 러너 시작', async () => {
+    // 같은 푸시에서 트리거(c3) 뒤에 c4·c5 가 와도 모두 이번 묶음
     const deps = makeDeps({
       compare: vi.fn(async () => ({
         status: 'ok' as const,
         commits: [
-          { ...commit(9), sha: 'f1', parentShas: [OLD] },
           commit(1),
-          { ...commit(2), sha: 'm', parentShas: ['c1', 'f1'] },
-          { ...commit(3, '[comdraft]'), parentShas: ['m'] },
+          commit(2),
+          commit(3, '[comdraft] friendly'),
+          commit(4),
+          commit(5),
         ],
       })),
     });
-    const out = await runAutoDraft(target(), push('c3'), deps);
-    expect(out).toMatchObject({ status: 'started' });
-    expect(deps.createDraftJob).toHaveBeenCalledWith(
-      'u1',
-      'r1',
-      expect.objectContaining({ commitShas: ['c3', 'c1'] }),
-      'en',
-    );
-    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c3');
-  });
-
-  it('첫 부모 사슬이 경계에 닿지 않으면 anchor_missing', async () => {
-    const deps = makeDeps({
-      compare: vi.fn(async () => ({
-        status: 'ok' as const,
-        commits: [{ ...commit(3, '[comdraft]'), parentShas: ['zz'] }],
-      })),
-    });
-    const out = await runAutoDraft(target(), push('c3'), deps);
-    expect(out).toEqual({ status: 'skipped', errorCode: 'anchor_missing' });
-    expect(deps.moveBoundary).not.toHaveBeenCalled();
-  });
-
-  it('정상: 최신순 commitShas, 경계 선점 한 번, 러너 시작', async () => {
-    const deps = makeDeps();
     const out = await runAutoDraft(
       target(),
-      push('c3', { tone: 'friendly' }),
+      push('c3', { tone: 'friendly' }, 'c5'),
       deps,
     );
     expect(out).toEqual({ status: 'started', jobId: 'j1' });
+    expect(deps.compare).toHaveBeenCalledWith(expect.anything(), OLD, 'c5');
     expect(deps.moveBoundary).toHaveBeenCalledTimes(1);
-    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c3');
+    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c5');
     expect(deps.createDraftJob).toHaveBeenCalledWith(
       'u1',
       'r1',
       expect.objectContaining({
         prompt: '프리셋',
-        commitShas: ['c3', 'c2', 'c1'],
+        commitShas: ['c5', 'c4', 'c3', 'c2', 'c1'],
         codeInputs: [],
         referenceUrls: [],
         draftId: null,
@@ -263,6 +216,161 @@ describe('runAutoDraft', () => {
     expect(deps.recordFailure).not.toHaveBeenCalled();
   });
 
+  it('빈 트리거 확인은 트리거 커밋에만, 빈 트리거는 묶음에서 빠지고 경계는 푸시 끝', async () => {
+    const deps = makeDeps({
+      findEmptyCommits: vi.fn(async () => new Set(['c3'])),
+    });
+    const out = await runAutoDraft(target(), push('c3'), deps);
+    expect(deps.findEmptyCommits).toHaveBeenCalledWith(expect.anything(), [
+      'c3',
+    ]);
+    expect(out).toMatchObject({ status: 'started' });
+    expect(deps.createDraftJob).toHaveBeenCalledWith(
+      'u1',
+      'r1',
+      expect.objectContaining({ commitShas: ['c2', 'c1'] }),
+      'en',
+    );
+    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c3');
+  });
+
+  it('PR 머지 커밋 흐름: PR 안의 [comdraft] 로 실행, PR 커밋도 묶음, 머지 커밋은 빠짐', async () => {
+    // main: c0 → c1, PR: f1 → f2([comdraft] long) 를 m(c1, f2) 로 머지
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({
+        status: 'ok' as const,
+        commits: [
+          node('f1', [OLD]),
+          commit(1),
+          node('f2', ['f1'], '[comdraft] long'),
+          node('m', ['c1', 'f2']),
+        ],
+      })),
+    });
+    const out = await runAutoDraft(
+      target(),
+      push('f2', { length: 'long' }, 'm'),
+      deps,
+    );
+    expect(out).toEqual({ status: 'started', jobId: 'j1' });
+    expect(deps.compare).toHaveBeenCalledWith(expect.anything(), OLD, 'm');
+    expect(deps.createDraftJob).toHaveBeenCalledWith(
+      'u1',
+      'r1',
+      expect.objectContaining({
+        commitShas: ['f2', 'c1', 'f1'],
+        triggerSha: 'f2',
+        options: expect.objectContaining({ length: 'long' }),
+      }),
+      'en',
+    );
+    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'm');
+  });
+
+  it('squash 머지 흐름: GitHub 가 만든 squash 커밋이 대상이자 트리거', async () => {
+    const deps = makeDeps({
+      compare: vi.fn(async () => ({
+        status: 'ok' as const,
+        commits: [commit(1), commit(2, '[comdraft] lecture PR 제목 (#3)')],
+      })),
+    });
+    const out = await runAutoDraft(
+      target(),
+      push('c2', { postType: 'lecture' }),
+      deps,
+    );
+    expect(out).toEqual({ status: 'started', jobId: 'j1' });
+    expect(deps.createDraftJob).toHaveBeenCalledWith(
+      'u1',
+      'r1',
+      expect.objectContaining({
+        commitShas: ['c2', 'c1'],
+        triggerSha: 'c2',
+        options: expect.objectContaining({ postType: 'lecture' }),
+      }),
+      'en',
+    );
+    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c2');
+  });
+
+  it('이미 자동 초안에 쓴 커밋은 이 사용자·저장소로 조회해 묶음에서 뺌', async () => {
+    const deps = makeDeps({
+      findConsumedShas: vi.fn(async () => new Set(['c1'])),
+    });
+    await runAutoDraft(target(), push('c3'), deps);
+    expect(deps.findConsumedShas).toHaveBeenCalledWith('u1', 'r1', [
+      'c1',
+      'c2',
+      'c3',
+    ]);
+    expect(deps.createDraftJob).toHaveBeenCalledWith(
+      'u1',
+      'r1',
+      expect.objectContaining({ commitShas: ['c3', 'c2'] }),
+      'en',
+    );
+  });
+
+  // 25개 커밋, c25 가 트리거
+  const capped = () => {
+    const commits = Array.from({ length: 25 }, (_, i) =>
+      commit(i + 1, i === 24 ? '[comdraft]' : undefined),
+    );
+    return vi.fn(async () => ({ status: 'ok' as const, commits }));
+  };
+
+  it('20개에서 잘리면 경계를 옮기지 않고 작업을 만듦', async () => {
+    const deps = makeDeps({ compare: capped() });
+    const out = await runAutoDraft(target(), push('c25'), deps);
+    expect(out).toEqual({ status: 'started', jobId: 'j1' });
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
+    expect(deps.createDraftJob).toHaveBeenCalledWith(
+      'u1',
+      'r1',
+      expect.objectContaining({
+        commitShas: Array.from({ length: 20 }, (_, i) => `c${20 - i}`),
+        triggerSha: 'c25',
+      }),
+      'en',
+    );
+  });
+
+  it('20개에서 잘린 뒤 작업을 못 만들면 실패 기록만, 경계는 건드리지 않음', async () => {
+    const deps = makeDeps({
+      compare: capped(),
+      createDraftJob: vi.fn(async () => ({ status: 'rate_limited' as const })),
+    });
+    const out = await runAutoDraft(target(), push('c25'), deps);
+    expect(out).toEqual({ status: 'skipped', errorCode: 'rate_limited' });
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
+  });
+
+  it('20개에서 잘린 뒤 실행기를 시작하지 못하면 작업 실패 처리, 경계는 건드리지 않음', async () => {
+    const deps = makeDeps({
+      compare: capped(),
+      startRunner: vi.fn(async () => {
+        throw new Error('down');
+      }),
+    });
+    const out = await runAutoDraft(target(), push('c25'), deps);
+    expect(out).toEqual({ status: 'skipped', errorCode: 'runner_unavailable' });
+    expect(deps.failJob).toHaveBeenCalledWith('j1', 'runner_unavailable');
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
+  });
+
+  it('20개에서 잘린 뒤 createDraftJob 이 던지면 원래 오류, 경계는 건드리지 않음', async () => {
+    const deps = makeDeps({
+      compare: capped(),
+      createDraftJob: vi.fn(async () => {
+        throw new Error('orig');
+      }),
+    });
+    await expect(runAutoDraft(target(), push('c25'), deps)).rejects.toThrow(
+      'orig',
+    );
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
+  });
+
   it('선점 CAS 가 실패하면 no_commits, 작업을 만들지 않음', async () => {
     const deps = makeDeps({ moveBoundary: vi.fn(async () => false) });
     const out = await runAutoDraft(target(), push('c3'), deps);
@@ -274,7 +382,7 @@ describe('runAutoDraft', () => {
     const deps = makeDeps({
       createDraftJob: vi.fn(async () => ({ status: 'rate_limited' as const })),
     });
-    const out = await runAutoDraft(target(), push('c3'), deps);
+    const out = await runAutoDraft(target(), push('c3', {}, 'c3'), deps);
     expect(out).toEqual({ status: 'skipped', errorCode: 'rate_limited' });
     expect(deps.moveBoundary).toHaveBeenLastCalledWith('u1', 'r1', 'c3', OLD);
     expect(deps.recordFailure).toHaveBeenCalledWith(
@@ -346,241 +454,25 @@ describe('runAutoDraft', () => {
     expect(moveBoundary).toHaveBeenLastCalledWith('u1', 'r1', 'c3', OLD);
   });
 
-  it('20개에서 잘리면 트리거 뒤 커밋과 무관하게 경계는 묶음 마지막', async () => {
-    const commits = Array.from({ length: 26 }, (_, i) =>
-      commit(i + 1, i === 24 ? '[comdraft]' : undefined),
-    );
-    const deps = makeDeps({
-      compare: vi.fn(async () => ({ status: 'ok' as const, commits })),
-    });
-    await runAutoDraft(target(), push('c25', {}, 'c26'), deps);
-    expect(deps.compare).toHaveBeenCalledWith(expect.anything(), OLD, 'c26');
-    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c20');
-  });
-
-  it('후보가 모두 머지로 들어온 커밋이면 trigger_not_on_branch, 경계는 그대로', async () => {
-    // c0 → c1 → m(c1, f1), f1([comdraft]) 은 PR 로 들어옴
-    const deps = makeDeps({
-      compare: vi.fn(async () => ({
-        status: 'ok' as const,
-        commits: [
-          commit(1),
-          node('f1', [OLD], '[comdraft] long'),
-          node('m', ['c1', 'f1']),
-        ],
-      })),
-    });
-    const out = await runAutoDraft(
-      target(),
-      push('f1', { length: 'long' }, 'm'),
-      deps,
-    );
-    expect(out).toEqual({
-      status: 'skipped',
-      errorCode: 'trigger_not_on_branch',
-    });
-    expect(deps.compare).toHaveBeenCalledTimes(1);
-    expect(deps.compare).toHaveBeenCalledWith(expect.anything(), OLD, 'm');
-    expect(deps.recordFailure).toHaveBeenCalledWith(
-      expect.objectContaining({
-        errorCode: 'trigger_not_on_branch',
-        triggerSha: 'f1',
-        options: expect.objectContaining({ length: 'long' }),
-      }),
-    );
-    expect(deps.findEmptyCommits).not.toHaveBeenCalled();
-    expect(deps.moveBoundary).not.toHaveBeenCalled();
-    expect(deps.createDraftJob).not.toHaveBeenCalled();
-  });
-
-  it('직접 올린 트리거 뒤에 머지가 오면 트리거 커밋이 끝, 옵션도 그 커밋 것', async () => {
-    // c0 → t([comdraft] friendly) → m(t, f1), f1([comdraft] long) 은 머지로 들어옴
-    const deps = makeDeps({
-      compare: vi.fn(async () => ({
-        status: 'ok' as const,
-        commits: [
-          node('t', [OLD], '[comdraft] friendly'),
-          node('f1', [OLD], '[comdraft] long'),
-          node('m', ['t', 'f1']),
-        ],
-      })),
-    });
-    const out = await runAutoDraft(
-      target(),
-      {
-        headSha: 'm',
-        candidates: [
-          { sha: 'f1', options: { length: 'long' } },
-          { sha: 't', options: { tone: 'friendly' } },
-        ],
-      },
-      deps,
-    );
-    expect(out).toEqual({ status: 'started', jobId: 'j1' });
-    expect(deps.createDraftJob).toHaveBeenCalledWith(
-      'u1',
-      'r1',
-      expect.objectContaining({
-        commitShas: ['t'],
-        triggerSha: 't',
-        options: expect.objectContaining({
-          tone: 'friendly',
-          length: DEFAULT_PROMPT_OPTIONS.length,
-        }),
-      }),
-      'en',
-    );
-    // 끝까지 봤어도 푸시 끝(m)이 아니라 트리거 커밋(t)까지만
-    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 't');
-  });
-
-  it('사슬 위 [comdraft] 가 squash 머지(web-flow) 커밋이면 trigger_not_on_branch, 경계는 그대로', async () => {
-    const deps = makeDeps({
-      compare: vi.fn(async () => ({
-        status: 'ok' as const,
-        commits: [
-          commit(1),
-          { ...commit(2, '[comdraft] long'), committerLogin: 'web-flow' },
-        ],
-      })),
-    });
-    const out = await runAutoDraft(
-      target(),
-      push('c2', { length: 'long' }),
-      deps,
-    );
-    expect(out).toEqual({
-      status: 'skipped',
-      errorCode: 'trigger_not_on_branch',
-    });
-    expect(deps.moveBoundary).not.toHaveBeenCalled();
-    expect(deps.createDraftJob).not.toHaveBeenCalled();
-  });
-
-  it('제목이 [comdraft] 인 머지 커밋은 trigger_not_on_branch', async () => {
-    const deps = makeDeps({
-      compare: vi.fn(async () => ({
-        status: 'ok' as const,
-        commits: [
-          commit(1),
-          node('f1', [OLD]),
-          node('m', ['c1', 'f1'], '[comdraft]'),
-        ],
-      })),
-    });
-    const out = await runAutoDraft(target(), push('m'), deps);
-    expect(out).toEqual({
-      status: 'skipped',
-      errorCode: 'trigger_not_on_branch',
-    });
-    expect(deps.moveBoundary).not.toHaveBeenCalled();
-  });
-
-  it('직접 올린 후보가 더 최신인 web-flow 후보보다 우선', async () => {
-    const deps = makeDeps({
-      compare: vi.fn(async () => ({
-        status: 'ok' as const,
-        commits: [
-          commit(1, '[comdraft] friendly'),
-          { ...commit(2, '[comdraft] long'), committerLogin: 'web-flow' },
-        ],
-      })),
-    });
-    await runAutoDraft(
-      target(),
-      {
-        headSha: 'c2',
-        candidates: [
-          { sha: 'c2', options: { length: 'long' } },
-          { sha: 'c1', options: { tone: 'friendly' } },
-        ],
-      },
-      deps,
-    );
-    expect(deps.createDraftJob).toHaveBeenCalledWith(
-      'u1',
-      'r1',
-      expect.objectContaining({
-        commitShas: ['c1'],
-        triggerSha: 'c1',
-        options: expect.objectContaining({ tone: 'friendly' }),
-      }),
-      'en',
-    );
-    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c1');
-  });
-
-  it('직접 올린 후보가 둘이면 사슬에서 가장 최신 것', async () => {
-    const deps = makeDeps({
-      compare: vi.fn(async () => ({
-        status: 'ok' as const,
-        commits: [
-          commit(1),
-          commit(2, '[comdraft] short'),
-          commit(3),
-          commit(4, '[comdraft] long'),
-        ],
-      })),
-    });
-    await runAutoDraft(
-      target(),
-      {
-        headSha: 'c4',
-        candidates: [
-          { sha: 'c4', options: { length: 'long' } },
-          { sha: 'c2', options: { length: 'short' } },
-        ],
-      },
-      deps,
-    );
-    expect(deps.createDraftJob).toHaveBeenCalledWith(
-      'u1',
-      'r1',
-      expect.objectContaining({
-        commitShas: ['c4', 'c3', 'c2', 'c1'],
-        triggerSha: 'c4',
-        options: expect.objectContaining({ length: 'long' }),
-      }),
-      'en',
-    );
-    expect(deps.moveBoundary).toHaveBeenCalledWith('u1', 'r1', OLD, 'c4');
-  });
-
-  it('PR 머지의 [comdraft] 는 실행하지 않고, 다음 직접 트리거는 사슬 커밋만 쓰고 그다음 실행은 다시 쓰지 않음', async () => {
-    // main: c0(B) → c1, PR: f1([comdraft]) → m(c1, f1) 로 머지, 그 뒤 main 에 직접 t([comdraft])
-    const history = [
-      commit(1),
-      node('f1', [OLD], '[comdraft]'),
-      node('m', ['c1', 'f1']),
-      node('t', ['m'], '[comdraft]'),
-      node('c4', ['t']),
-      node('t2', ['c4'], '[comdraft]'),
-    ];
-    // compare(base, head): head 의 조상 중 base 의 조상이 아닌 커밋 (오래된 순)
-    const ancestors = (sha: string): Set<string> => {
-      const seen = new Set<string>();
-      const stack = [sha];
-      while (stack.length > 0) {
-        const current = stack.pop() as string;
-        const found = history.find((c) => c.sha === current);
-        if (!found || seen.has(current)) continue;
-        seen.add(current);
-        stack.push(...found.parentShas);
-      }
-      return seen;
-    };
+  // 웹훅 재전송 시뮬레이션: 작업 행·실패 행이 같은 (user, trigger_sha) 유일 인덱스를 나눠 씀
+  const redeliveryDeps = (commits: BranchCommit[]) => {
     let boundary = OLD;
+    const triggerShas = new Set<string>();
+    const consumed = new Set<string>();
     const deps = makeDeps({
       compare: vi.fn(async (_repo: unknown, base: string, head: string) => {
-        const exclude = ancestors(base);
-        const inHead = ancestors(head);
+        const from = commits.findIndex((c) => c.sha === base);
+        const to = commits.findIndex((c) => c.sha === head);
+        // 경계가 이미 푸시 끝이면 identical → 커밋 없음
         return {
           status: 'ok' as const,
-          commits: history.filter(
-            (c) => inHead.has(c.sha) && !exclude.has(c.sha),
-          ),
+          commits: base === head ? [] : commits.slice(from + 1, to + 1),
         };
       }),
+      findConsumedShas: vi.fn(
+        async (_u: string, _r: string, shas: string[]) =>
+          new Set(shas.filter((sha) => consumed.has(sha))),
+      ),
       moveBoundary: vi.fn(
         async (_u: string, _r: string, from: string | null, to: string) => {
           if (from !== boundary) return false;
@@ -588,36 +480,79 @@ describe('runAutoDraft', () => {
           return true;
         },
       ),
+      createDraftJob: vi.fn(
+        async (
+          _u: string,
+          _r: string,
+          request: { triggerSha: string | null; commitShas: string[] },
+        ) => {
+          if (triggerShas.has(request.triggerSha as string)) {
+            return { status: 'duplicate' as const };
+          }
+          triggerShas.add(request.triggerSha as string);
+          for (const sha of request.commitShas) consumed.add(sha);
+          return { status: 'created' as const, draftId: 'd1', jobId: 'j1' };
+        },
+      ),
+      recordFailure: vi.fn(async (record: { triggerSha: string }) =>
+        triggerShas.has(record.triggerSha)
+          ? ('duplicate' as const)
+          : ('recorded' as const),
+      ),
     });
+    return { deps, getBoundary: () => boundary };
+  };
 
-    // 1) PR 머지 푸시: 후보 f1 은 사슬 밖 → 실행 안 함
-    expect(await runAutoDraft(target(), push('f1', {}, 'm'), deps)).toEqual({
-      status: 'skipped',
-      errorCode: 'trigger_not_on_branch',
+  it('재전송(끝까지 본 뒤): 경계가 이미 푸시 끝이라 no_commits 행이 작업의 trigger_sha 와 충돌 → duplicate', async () => {
+    const commits = [commit(0), commit(1), commit(2), commit(3, '[comdraft]')];
+    const { deps, getBoundary } = redeliveryDeps(commits);
+
+    expect(await runAutoDraft(target(), push('c3'), deps)).toEqual({
+      status: 'started',
+      jobId: 'j1',
     });
-    expect(boundary).toBe(OLD);
+    expect(getBoundary()).toBe('c3');
 
-    // 2) 직접 트리거 t: 묶음 [c1, t] (m 은 머지 커밋, f1 은 side), 경계 → t
     expect(
-      await runAutoDraft(target({ boundarySha: boundary }), push('t'), deps),
-    ).toMatchObject({ status: 'started' });
-    expect(deps.createDraftJob).toHaveBeenLastCalledWith(
-      'u1',
-      'r1',
-      expect.objectContaining({ commitShas: ['t', 'c1'], triggerSha: 't' }),
-      'en',
+      await runAutoDraft(
+        target({ boundarySha: getBoundary() }),
+        push('c3'),
+        deps,
+      ),
+    ).toEqual({ status: 'duplicate' });
+    expect(deps.createDraftJob).toHaveBeenCalledTimes(1);
+    expect(deps.recordFailure).toHaveBeenCalledWith(
+      expect.objectContaining({ errorCode: 'no_commits', triggerSha: 'c3' }),
     );
-    expect(boundary).toBe('t');
+  });
 
-    // 3) 경계 t 이후의 다음 트리거: 앞에서 쓴 커밋을 다시 쓰지 않음
-    await runAutoDraft(target({ boundarySha: boundary }), push('t2'), deps);
+  it('재전송(20개에서 잘린 뒤): 경계는 그대로, 쓴 커밋은 사용됨으로 빠지고 같은 트리거라 duplicate', async () => {
+    const commits = [
+      commit(0),
+      ...Array.from({ length: 25 }, (_, i) =>
+        commit(i + 1, i === 24 ? '[comdraft]' : undefined),
+      ),
+    ];
+    const { deps, getBoundary } = redeliveryDeps(commits);
+
+    await runAutoDraft(target(), push('c25'), deps);
+    expect(deps.moveBoundary).not.toHaveBeenCalled();
+    expect(getBoundary()).toBe(OLD);
+
+    expect(await runAutoDraft(target(), push('c25'), deps)).toEqual({
+      status: 'duplicate',
+    });
+    // 두 번째 계산은 c21~c25 만 묶음으로 봄
     expect(deps.createDraftJob).toHaveBeenLastCalledWith(
       'u1',
       'r1',
-      expect.objectContaining({ commitShas: ['t2', 'c4'], triggerSha: 't2' }),
+      expect.objectContaining({
+        commitShas: ['c25', 'c24', 'c23', 'c22', 'c21'],
+      }),
       'en',
     );
-    expect(boundary).toBe('t2');
+    // 남은 커밋을 끝까지 봐서 선점했다가 duplicate 로 되돌림 → 경계는 그대로
+    expect(getBoundary()).toBe(OLD);
   });
 
   it('실패 기록이 duplicate 이면 duplicate', async () => {

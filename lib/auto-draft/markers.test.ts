@@ -3,9 +3,13 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('@lingui/core/macro', () => ({ msg: (id: unknown) => id }));
 
 import type { SkipReason } from '@/lib/auto-draft/batch';
-import { getCommitMarkers, isCollectable } from '@/lib/auto-draft/markers';
+import {
+  getCommitMarkers,
+  getCommitMenu,
+  isCollectable,
+} from '@/lib/auto-draft/markers';
 
-const base = { sha: 'a', parentShas: ['p'], committerLogin: 'dev' };
+const base = { sha: 'a', parentShas: ['p'] };
 const state = {
   anchorSha: 'a',
   batchShas: ['a', 'b'],
@@ -27,6 +31,19 @@ describe('getCommitMarkers', () => {
     ]);
   });
 
+  it('범위 안의 PR 로 들어온 커밋(부모 하나)도 묶음에 있으면 자동 대상', () => {
+    // b → f1(PR) → m(머지), 서버 계산 묶음 [c1, f1]
+    const prState = {
+      ...state,
+      anchorSha: 'c1',
+      batchShas: ['c1', 'f1'],
+      skipped: new Map<string, SkipReason>([['m', 'merge']]),
+    };
+    expect(getCommitMarkers({ sha: 'f1', parentShas: ['b'] }, prState)).toEqual(
+      [{ kind: 'auto', position: 2 }],
+    );
+  });
+
   it('묶음 밖 커밋은 표시가 없다', () => {
     expect(getCommitMarkers({ ...base, sha: 'z' }, state)).toEqual([]);
   });
@@ -45,23 +62,30 @@ describe('getCommitMarkers', () => {
     ).toEqual([{ kind: 'excluded', reason: 'force_push' }]);
   });
 
-  it('범위 안에서는 서버가 계산한 사유(merge·github·side)로 수집 안 됨을 정한다', () => {
-    const excluded = new Map([['s', 'user' as const]]);
-    const skipped = new Map<string, SkipReason>([
-      ['m', 'merge'],
-      ['w', 'github'],
-      // 머지로 들어온 커밋: 커밋 자체는 평범해 보여도 수집 안 됨
-      ['s', 'side'],
-    ]);
+  it('머지 커밋만 수집 안 됨 (범위 안은 서버 사유, 범위 밖은 부모 수)', () => {
+    const skipped = new Map<string, SkipReason>([['m', 'merge']]);
+    const excluded = new Map([['q', 'user' as const]]);
 
-    for (const sha of ['m', 'w', 's']) {
-      expect(
-        getCommitMarkers({ ...base, sha }, { ...state, skipped, excluded }),
-      ).toEqual([{ kind: 'not_collected' }]);
-    }
+    expect(
+      getCommitMarkers({ ...base, sha: 'm' }, { ...state, skipped }),
+    ).toEqual([{ kind: 'not_collected' }]);
+    expect(
+      getCommitMarkers(
+        { sha: 'q', parentShas: ['p', 'r'] },
+        { ...state, excluded },
+      ),
+    ).toEqual([{ kind: 'not_collected' }]);
   });
 
-  it('범위 안의 빈 트리거·제외는 수집 안 됨이 아니다', () => {
+  it('이미 자동 초안에 쓴 커밋은 이미 사용됨 표시', () => {
+    const skipped = new Map<string, SkipReason>([['u', 'consumed']]);
+
+    expect(
+      getCommitMarkers({ ...base, sha: 'u' }, { ...state, skipped }),
+    ).toEqual([{ kind: 'consumed' }]);
+  });
+
+  it('범위 안의 빈 트리거는 표시가 없고, 제외가 사용됨보다 먼저', () => {
     const skipped = new Map<string, SkipReason>([
       ['e', 'empty_trigger'],
       ['x', 'excluded'],
@@ -76,23 +100,6 @@ describe('getCommitMarkers', () => {
     ).toEqual([{ kind: 'excluded', reason: 'user' }]);
   });
 
-  it('범위 밖이면 커밋 자체 정보로 머지·web-flow 를 수집 안 됨으로 본다', () => {
-    const excluded = new Map([['m', 'user' as const]]);
-
-    expect(
-      getCommitMarkers(
-        { sha: 'm', parentShas: ['p', 'q'], committerLogin: 'dev' },
-        { ...state, excluded },
-      ),
-    ).toEqual([{ kind: 'not_collected' }]);
-    expect(
-      getCommitMarkers(
-        { sha: 'w', parentShas: ['p'], committerLogin: 'web-flow' },
-        state,
-      ),
-    ).toEqual([{ kind: 'not_collected' }]);
-  });
-
   it('기준점이 없으면 기준점 표시도 없다', () => {
     expect(
       getCommitMarkers(base, { ...state, anchorSha: null, batchShas: [] }),
@@ -101,22 +108,51 @@ describe('getCommitMarkers', () => {
 });
 
 describe('isCollectable', () => {
-  it('범위 밖은 머지·web-flow 가 아니면 수집 대상이다', () => {
+  it('머지 커밋이 아니면 수집 대상이다', () => {
     expect(isCollectable({ ...base, sha: 'z' }, state)).toBe(true);
     expect(
       isCollectable({ ...base, sha: 'z', parentShas: ['p', 'q'] }, state),
     ).toBe(false);
-    expect(
-      isCollectable({ ...base, sha: 'z', committerLogin: 'web-flow' }, state),
-    ).toBe(false);
   });
 
   it('범위 안은 서버 사유를 따른다', () => {
-    const skipped = new Map<string, SkipReason>([['s', 'side']]);
+    const skipped = new Map<string, SkipReason>([
+      ['m', 'merge'],
+      ['u', 'consumed'],
+    ]);
 
-    expect(isCollectable({ ...base, sha: 's' }, { ...state, skipped })).toBe(
+    expect(isCollectable({ ...base, sha: 'm' }, { ...state, skipped })).toBe(
       false,
     );
-    expect(isCollectable(base, { ...state, skipped })).toBe(true);
+    expect(isCollectable({ ...base, sha: 'u' }, { ...state, skipped })).toBe(
+      true,
+    );
+  });
+});
+
+describe('getCommitMenu', () => {
+  it('머지 커밋에는 메뉴가 없다', () => {
+    expect(getCommitMenu({ sha: 'm', parentShas: ['p', 'q'] }, state)).toBe(
+      null,
+    );
+  });
+
+  it('일반 커밋은 기준점과 제외, 제외한 커밋은 기준점과 제외 취소', () => {
+    expect(getCommitMenu(base, state)).toEqual({ exclude: 'exclude' });
+    expect(
+      getCommitMenu(base, {
+        ...state,
+        excluded: new Map([['a', 'user' as const]]),
+      }),
+    ).toEqual({ exclude: 'restore' });
+  });
+
+  it('이미 사용된 커밋은 기준점만 (제외 없음)', () => {
+    expect(
+      getCommitMenu(base, {
+        ...state,
+        skipped: new Map<string, SkipReason>([['a', 'consumed']]),
+      }),
+    ).toEqual({ exclude: null });
   });
 });

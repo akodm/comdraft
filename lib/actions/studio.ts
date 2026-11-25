@@ -39,8 +39,6 @@ export interface StudioCommit {
   htmlUrl: string;
   // 머지 커밋 판정용 (부모가 둘 이상)
   parentShas: string[];
-  // GitHub 가 직접 만든 커밋 판정용 (web-flow)
-  committerLogin: string | null;
 }
 
 export type StudioCommitsResult =
@@ -83,15 +81,12 @@ export async function loadStudioCommits(
     return {
       status: 'ok',
       hasNextPage: result.hasNextPage,
-      commits: result.commits.map(
-        ({ sha, message, htmlUrl, parentShas, committerLogin }) => ({
-          sha,
-          subject: getCommitSubject(message),
-          htmlUrl,
-          parentShas,
-          committerLogin,
-        }),
-      ),
+      commits: result.commits.map(({ sha, message, htmlUrl, parentShas }) => ({
+        sha,
+        subject: getCommitSubject(message),
+        htmlUrl,
+        parentShas,
+      })),
     };
   } catch (error) {
     if (error instanceof GithubUserTokenError) {

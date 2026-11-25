@@ -17,7 +17,7 @@ import type { AutoDraftCommitAction } from '@/hooks/use-auto-draft-state';
 import type { StudioCommit } from '@/lib/actions/studio';
 import {
   getCommitMarkers,
-  isCollectable,
+  getCommitMenu,
   type MarkerState,
 } from '@/lib/auto-draft/markers';
 import { MAX_GENERATION_COMMITS } from '@/lib/generation/limits';
@@ -47,6 +47,7 @@ const CommitRow = ({
 }: CommitRowProps) => {
   const { t } = useLingui();
   const sha = shortSha(commit.sha);
+  const menu = autoDraft ? getCommitMenu(commit, autoDraft.markerState) : null;
 
   return (
     <li
@@ -84,11 +85,11 @@ const CommitRow = ({
           <CommitMarkers
             markers={getCommitMarkers(commit, autoDraft.markerState)}
           />
-          {/* 수집 안 됨(머지·GitHub·머지로 들어온 커밋)은 기준점·제외 대상이 아니라 메뉴 자리만 둠 */}
-          {isCollectable(commit, autoDraft.markerState) ? (
+          {/* 머지 커밋은 기준점·제외 대상이 아니라 메뉴 자리만 둠 */}
+          {menu ? (
             <CommitRowMenu
               shortSha={sha}
-              isExcluded={autoDraft.markerState.excluded.has(commit.sha)}
+              exclude={menu.exclude}
               isPending={autoDraft.isPending}
               onAction={(action) => autoDraft.onAction(action, commit.sha)}
             />

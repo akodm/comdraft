@@ -22,12 +22,13 @@ export interface TriggerCandidate {
 
 /**
  * 트리거가 있는 푸시 (실행기 입력)
- * - candidates: 트리거 커밋 전부, 최신순 (하나 이상)
- * - 실제 트리거는 실행기가 headSha 의 첫 부모 사슬 위에 있는 후보 중에서 고름 (머지로 들어온 커밋 제외)
+ * - headSha: 푸시 끝(after), 묶음 범위의 끝
+ * - trigger: 푸시 커밋 중 가장 최신 트리거 커밋 (옵션과 중복 방지 키)
+ *   → PR 안 커밋, 제목을 고친 머지 커밋, squash 커밋, 직접 올린 커밋 모두 트리거가 될 수 있음
  */
 export interface TriggerPush {
   headSha: string;
-  candidates: [TriggerCandidate, ...TriggerCandidate[]];
+  trigger: TriggerCandidate;
 }
 
 export type PushPlan =
@@ -104,19 +105,18 @@ export function planPushEvent(
     return { kind: 'exclude_forced', shas: event.commits.map((c) => c.id) };
   }
 
-  // 트리거 커밋을 모두 후보로 (최신순), 어느 것을 쓸지는 실행기가 브랜치 사슬을 보고 정함
-  const candidates: TriggerCandidate[] = [];
+  // 페이로드 커밋은 오래된 순 → 마지막 트리거 커밋이 가장 최신
   for (let i = event.commits.length - 1; i >= 0; i -= 1) {
     const commit = event.commits[i];
     const options = parseTrigger(commit.message);
-    if (options) candidates.push({ sha: commit.id, options });
+    if (options) {
+      return {
+        kind: 'trigger',
+        headSha: event.after,
+        trigger: { sha: commit.id, options },
+      };
+    }
   }
 
-  const [newest, ...rest] = candidates;
-  if (!newest) return { kind: 'ignore' };
-  return {
-    kind: 'trigger',
-    headSha: event.after,
-    candidates: [newest, ...rest],
-  };
+  return { kind: 'ignore' };
 }

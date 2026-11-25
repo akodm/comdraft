@@ -262,10 +262,16 @@ const SettingsForm = ({ initial }: { initial: Loaded }) => {
           [comdraft] friendly short
         </code>
         <OptionValueTable />
+        <p className="text-[12px] leading-[1.6] break-keep text-ink-muted">
+          <Trans>
+            PR 제목이나 병합 커밋 제목을 [comdraft] 로 시작해도 병합될 때 한 번
+            실행됩니다.
+          </Trans>
+        </p>
         <p className="text-[12px] leading-[1.6] break-keep text-ink-faint">
           <Trans>
-            머지로 들어온 커밋(PR 머지 포함), 머지 커밋, GitHub 에서 만든 커밋,
-            force push 로 올라온 커밋은 모이지 않습니다.
+            머지 커밋과 force push 로 올라온 커밋은 모이지 않습니다. 다른
+            브랜치에서 작업해 PR 로 병합한 커밋도 모입니다.
           </Trans>
         </p>
       </div>

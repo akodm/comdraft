@@ -98,6 +98,7 @@ export const GENERATION_ERROR_CODES = [
   // 자동 초안: 현재 등급에서 쓸 수 없는 모델
   'model_locked',
   // 자동 초안: [comdraft] 커밋이 브랜치에 직접 올린 커밋이 아님 (머지로 들어옴)
+  // → 머지로 들어온 커밋도 트리거가 되면서 더는 만들지 않음, 이전 내역 행을 그리기 위해 남겨 둠
   'trigger_not_on_branch',
 ] as const;
 export type GenerationErrorCode = (typeof GENERATION_ERROR_CODES)[number];
