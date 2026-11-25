@@ -118,11 +118,11 @@ function event(overrides: Partial<PushEvent> = {}): PushEvent {
 }
 
 describe('planPushEvent', () => {
-  it('트리거 커밋이면 trigger, 푸시 끝 SHA 와 후보를 함께', () => {
+  it('트리거 커밋이면 trigger, 푸시 끝 SHA 와 트리거를 함께', () => {
     expect(planPushEvent(event(), target)).toEqual({
       kind: 'trigger',
       headSha: HEAD,
-      candidates: [{ sha: 'a1', options: { length: 'short' } }],
+      trigger: { sha: 'a1', options: { length: 'short' } },
     });
   });
 
@@ -177,7 +177,7 @@ describe('planPushEvent', () => {
     ).toEqual({ kind: 'ignore' });
   });
 
-  it('트리거 후보는 모든 트리거 커밋을 최신순으로, 옵션도 후보마다', () => {
+  it('트리거가 여럿이면 페이로드 마지막(가장 최신) 트리거 하나, 옵션도 그 커밋 것', () => {
     const e = event({
       commits: [
         { id: 'a1', message: '[comdraft] short' },
@@ -189,10 +189,59 @@ describe('planPushEvent', () => {
     expect(planPushEvent(e, target)).toEqual({
       kind: 'trigger',
       headSha: HEAD,
-      candidates: [
-        { sha: 'a3', options: { length: 'long' } },
-        { sha: 'a1', options: { length: 'short' } },
-      ],
+      trigger: { sha: 'a3', options: { length: 'long' } },
+    });
+  });
+
+  it('PR 머지 푸시: 머지로 들어온 커밋·머지 커밋·GitHub 가 만든 커밋도 트리거 후보', () => {
+    const merged = 'e'.repeat(40);
+    // PR 안의 [comdraft] 커밋
+    expect(
+      planPushEvent(
+        event({
+          after: merged,
+          commits: [
+            { id: 'f1', message: 'feat: x' },
+            { id: 'f2', message: '[comdraft] friendly' },
+            { id: 'm', message: 'Merge pull request #3 from o/feat' },
+          ],
+        }),
+        target,
+      ),
+    ).toEqual({
+      kind: 'trigger',
+      headSha: merged,
+      trigger: { sha: 'f2', options: { tone: 'friendly' } },
+    });
+    // 제목을 [comdraft] 로 고친 머지 커밋이 가장 최신
+    expect(
+      planPushEvent(
+        event({
+          after: merged,
+          commits: [
+            { id: 'f1', message: '[comdraft] short' },
+            { id: 'm', message: '[comdraft] long\n\nMerge pull request #3' },
+          ],
+        }),
+        target,
+      ),
+    ).toEqual({
+      kind: 'trigger',
+      headSha: merged,
+      trigger: { sha: 'm', options: { length: 'long' } },
+    });
+    // squash 머지 커밋 (web-flow, 제목은 PR 제목)
+    expect(
+      planPushEvent(
+        event({
+          commits: [{ id: 's', message: '[comdraft] lecture (#3)' }],
+        }),
+        target,
+      ),
+    ).toEqual({
+      kind: 'trigger',
+      headSha: HEAD,
+      trigger: { sha: 's', options: { postType: 'lecture' } },
     });
   });
 });

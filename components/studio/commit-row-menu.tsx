@@ -12,19 +12,21 @@ const MENU_ITEM_CLASS =
 
 interface CommitRowMenuProps {
   shortSha: string;
-  isExcluded: boolean;
+  // 제외 / 제외 취소 / 없음 (이미 자동 초안에 쓴 커밋)
+  exclude: 'exclude' | 'restore' | null;
   isPending: boolean;
   onAction: (action: AutoDraftCommitAction) => void;
 }
 
 /**
  * 커밋 줄의 더보기 메뉴 (여기를 기준점으로, 제외 / 제외 취소)
- * - 자동 대상이 될 수 있는 커밋에만 붙임 (수집 안 됨 커밋은 줄에서 메뉴를 그리지 않음)
+ * - 자동 대상이 될 수 있는 커밋에만 붙임 (머지 커밋은 줄에서 메뉴를 그리지 않음)
+ * - 이미 자동 초안에 쓴 커밋은 기준점만 (제외 항목 없음)
  * - 동작이 진행되는 동안 항목을 비활성화하고, 누르면 메뉴를 닫음
  */
 const CommitRowMenu = ({
   shortSha,
-  isExcluded,
+  exclude,
   isPending,
   onAction,
 }: CommitRowMenuProps) => {
@@ -86,24 +88,30 @@ const CommitRowMenu = ({
             />
             <Trans>여기를 기준점으로</Trans>
           </button>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => run(isExcluded ? 'restore' : 'exclude')}
-            className={MENU_ITEM_CLASS}
-          >
-            <Image
-              src={
-                isExcluded
-                  ? '/images/studio/undo-2.svg'
-                  : '/images/studio/circle-slash.svg'
-              }
-              alt=""
-              width={16}
-              height={16}
-            />
-            {isExcluded ? <Trans>제외 취소</Trans> : <Trans>제외</Trans>}
-          </button>
+          {exclude && (
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => run(exclude)}
+              className={MENU_ITEM_CLASS}
+            >
+              <Image
+                src={
+                  exclude === 'restore'
+                    ? '/images/studio/undo-2.svg'
+                    : '/images/studio/circle-slash.svg'
+                }
+                alt=""
+                width={16}
+                height={16}
+              />
+              {exclude === 'restore' ? (
+                <Trans>제외 취소</Trans>
+              ) : (
+                <Trans>제외</Trans>
+              )}
+            </button>
+          )}
         </div>
       )}
     </div>

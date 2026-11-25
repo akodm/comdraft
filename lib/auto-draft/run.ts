@@ -3,12 +3,13 @@ import { desc, eq } from 'drizzle-orm';
 import { computeAutoDraftBatch } from '@/lib/auto-draft/batch-server';
 import { compareBranch, findEmptyCommits } from '@/lib/auto-draft/github';
 import {
+  findConsumedShas,
   listExcludedShas,
   moveBoundary,
   type PushTarget,
 } from '@/lib/auto-draft/store';
 import { mergeTriggerOptions } from '@/lib/auto-draft/trigger';
-import type { TriggerCandidate, TriggerPush } from '@/lib/auto-draft/webhook';
+import type { TriggerPush } from '@/lib/auto-draft/webhook';
 import { db } from '@/lib/db';
 import { draftPrompt } from '@/lib/db/schema';
 import type { GenerationErrorCode } from '@/lib/generation/contract';
@@ -27,11 +28,11 @@ import type { PromptOptions } from '@/lib/studio/options';
 
 /**
  * 커밋 트리거 자동 초안 실행 (웹훅이 after() 안에서 호출)
- * - 순서: 프리셋 → gate → 모델 → 묶음(첫 부모 사슬) → 경계 선점 → 작업 생성 → 실행기 시작
- * - 트리거는 푸시 끝의 첫 부모 사슬 위에 있는 후보 중 가장 최신 것 (머지로 들어온 [comdraft] 는 실행하지 않음)
- *   → 사슬을 보기 전에 막힌 실패 행은 가장 최신 후보로 남김
- * - 경계는 작업을 만들기 전에 먼저 옮겨(선점) 서로 다른 트리거가 같은 커밋을 두 번 쓰지 않게 함
+ * - 순서: 프리셋 → gate → 모델 → 묶음(경계...푸시 끝) → 경계 선점(끝까지 봤을 때만) → 작업 생성 → 실행기 시작
+ * - 트리거는 웹훅이 고른 푸시의 가장 최신 [comdraft] 커밋 (PR·머지·squash 커밋 포함), 옵션과 trigger_sha 로 씀
+ * - 끝까지 봤으면 작업을 만들기 전에 경계를 푸시 끝으로 먼저 옮겨(선점) 다른 트리거가 같은 커밋을 쓰지 않게 함
  *   → 작업을 만들지 못하거나 실행기를 시작하지 못하면 원래 경계로 되돌림
+ * - 20개에서 잘렸으면 경계를 옮기지 않음 (쓴 커밋은 consumed 로 다음 계산에서 빠짐)
  * - 시작 전에 막힌 경우는 초안 없이 실패 행(draft_prompt)만 남김 (커밋 메시지는 저장하지 않음)
  */
 
@@ -54,6 +55,7 @@ export interface FailureRecord {
 export interface RunDeps {
   compare: typeof compareBranch;
   findEmptyCommits: typeof findEmptyCommits;
+  findConsumedShas: typeof findConsumedShas;
   listExcludedShas: typeof listExcludedShas;
   gate: (
     user: PushTarget['user'],
@@ -124,6 +126,8 @@ const insertFailure = async (
 export const defaultRunDeps: RunDeps = {
   compare: (repo, base, head) => compareBranch(repo, base, head),
   findEmptyCommits: (repo, shas) => findEmptyCommits(repo, shas),
+  findConsumedShas: (userId, repositoryId, shas) =>
+    findConsumedShas(userId, repositoryId, shas),
   listExcludedShas: (userId, repositoryId) =>
     listExcludedShas(userId, repositoryId),
   gate: (user, headers) => checkGenerationGate(user, headers),
@@ -153,7 +157,6 @@ const slotErrorCode = (
 
 /**
  * 실행 중 예상 밖 오류가 났을 때 internal 실패 행을 남김 (웹훅 after() 에서 호출)
- * - 어느 후보를 골랐는지 알 수 없으므로 가장 최신 후보로 남김
  * - 같은 트리거 SHA 의 행(작업 행이나 실패 행)이 이미 있으면 그대로 둠
  */
 export async function recordUnexpectedFailure(
@@ -162,15 +165,14 @@ export async function recordUnexpectedFailure(
   deps: Pick<RunDeps, 'getLocale' | 'recordFailure'> = defaultRunDeps,
 ): Promise<void> {
   const { userId, repositoryId, setting } = target;
-  const [newest] = push.candidates;
 
   await deps.recordFailure({
     userId,
     repositoryId,
-    triggerSha: newest.sha,
+    triggerSha: push.trigger.sha,
     errorCode: 'internal',
     prompt: setting.prompt,
-    options: mergeTriggerOptions(setting.options, newest.options),
+    options: mergeTriggerOptions(setting.options, push.trigger.options),
     locale: await deps.getLocale(userId),
   });
 }
@@ -181,21 +183,20 @@ export async function runAutoDraft(
   deps: RunDeps = defaultRunDeps,
 ): Promise<RunOutcome> {
   const { userId, repositoryId, setting } = target;
-  const [newest] = push.candidates;
+  const { trigger } = push;
+  const triggerSha = trigger.sha;
+  const options = mergeTriggerOptions(setting.options, trigger.options);
   const locale = await deps.getLocale(userId);
 
   // 시작 전 실패: 행을 남기고 결과로 변환
-  const skipAs = async (
-    trigger: TriggerCandidate,
-    errorCode: GenerationErrorCode,
-  ): Promise<RunOutcome> => {
+  const skip = async (errorCode: GenerationErrorCode): Promise<RunOutcome> => {
     const recorded = await deps.recordFailure({
       userId,
       repositoryId,
-      triggerSha: trigger.sha,
+      triggerSha,
       errorCode,
       prompt: setting.prompt,
-      options: mergeTriggerOptions(setting.options, trigger.options),
+      options,
       locale,
     });
 
@@ -203,8 +204,6 @@ export async function runAutoDraft(
       ? { status: 'duplicate' }
       : { status: 'skipped', errorCode };
   };
-  // 트리거를 고르기 전에는 가장 최신 후보로 기록
-  const skip = (errorCode: GenerationErrorCode) => skipAs(newest, errorCode);
 
   if (setting.prompt.trim() === '') return skip('no_preset');
   // 경계가 없으면 범위를 알 수 없으므로 "제한 없음" 으로 보지 않음
@@ -213,7 +212,7 @@ export async function runAutoDraft(
   const gate = await deps.gate(target.user, null);
   if (gate.status !== 'ok') return skip(gateErrorCode(gate.status));
 
-  // 모델은 커밋 옵션으로 바꿀 수 없어 후보와 무관
+  // 모델은 커밋 옵션으로 바꿀 수 없음
   if (!isModelAllowed(target.user.role, setting.options.model)) {
     return skip('model_locked');
   }
@@ -223,42 +222,41 @@ export async function runAutoDraft(
   const plan = await computeAutoDraftBatch(
     target.repo,
     {
+      userId,
+      repositoryId,
       boundarySha: boundary,
-      headSha: push.headSha,
+      endSha: push.headSha,
       excluded,
-      triggerShas: push.candidates.map((candidate) => candidate.sha),
     },
     deps,
   );
   if (plan.status !== 'ok') return skip(plan.status);
 
-  // 사슬 위에서 고른 후보 (endSha 는 항상 후보 중 하나)
-  const trigger =
-    push.candidates.find((candidate) => candidate.sha === plan.endSha) ??
-    newest;
-  const triggerSha = trigger.sha;
-  const options = mergeTriggerOptions(setting.options, trigger.options);
-
+  // 웹훅 재전송이면 경계가 이미 푸시 끝이라 여기서 끝남 (작업 행과 trigger_sha 가 겹쳐 duplicate)
   const { batchShas } = plan;
-  const last = batchShas.at(-1);
-  if (last === undefined) return skipAs(trigger, 'no_commits');
+  if (batchShas.length === 0) return skip('no_commits');
 
-  // 끝까지 봤으면 트리거 커밋까지, 20개에서 잘렸으면 묶음 마지막 커밋까지 경계를 옮김
-  // → 건너뛴 커밋(빈 트리거·머지 등)을 다음 실행에서 다시 보지 않음
-  // → 같은 푸시에서 트리거 뒤에 온 커밋은 다음 묶음 몫으로 남김
-  const claimTo = plan.exhausted ? triggerSha : last;
+  // 끝까지 봤을 때만 경계를 푸시 끝으로 선점 (건너뛴 커밋도 다시 보지 않음)
+  // 20개에서 잘렸으면 경계는 그대로 → 남은 커밋은 다음 묶음, 쓴 커밋은 consumed 로 빠짐
+  const claimTo = plan.exhausted ? push.headSha : null;
 
-  // 묶음 선점: 다른 트리거가 먼저 경계를 옮겼으면 이 묶음은 이미 그쪽 몫
-  const claimed = await deps.moveBoundary(
-    userId,
-    repositoryId,
-    boundary,
-    claimTo,
-  );
-  if (!claimed) return skipAs(trigger, 'no_commits');
+  if (claimTo !== null) {
+    // 다른 트리거가 먼저 경계를 옮겼으면 이 묶음은 이미 그쪽 몫
+    const claimed = await deps.moveBoundary(
+      userId,
+      repositoryId,
+      boundary,
+      claimTo,
+    );
+    if (!claimed) return skip('no_commits');
+  }
 
-  const revert = () =>
-    deps.moveBoundary(userId, repositoryId, claimTo, boundary);
+  // 선점했을 때만 되돌림 (선점하지 않았으면 경계를 건드리지 않음)
+  const revert = async () => {
+    if (claimTo !== null) {
+      await deps.moveBoundary(userId, repositoryId, claimTo, boundary);
+    }
+  };
 
   let created: CreateDraftJobResult;
   try {
@@ -289,7 +287,7 @@ export async function runAutoDraft(
 
     return created.status === 'duplicate'
       ? { status: 'duplicate' }
-      : skipAs(trigger, slotErrorCode(created.status));
+      : skip(slotErrorCode(created.status));
   }
 
   try {

@@ -9,31 +9,21 @@ const commit = (sha: string): BranchCommit => ({
   sha,
   parentShas: [],
   message: sha,
-  committerLogin: null,
 });
 
 describe('toBranchCommit', () => {
-  it('부모와 committer 를 변환한다', () => {
+  it('SHA·부모·메시지만 변환한다', () => {
     expect(
       toBranchCommit({
         sha: 'a',
         parents: [{ sha: 'p1' }, { sha: 'p2' }],
         commit: { message: 'msg' },
-        committer: { login: 'web-flow' },
       }),
     ).toEqual({
       sha: 'a',
       parentShas: ['p1', 'p2'],
       message: 'msg',
-      committerLogin: 'web-flow',
     });
-  });
-
-  it('committer 가 없으면 null', () => {
-    expect(
-      toBranchCommit({ sha: 'a', parents: [], commit: { message: '' } })
-        .committerLogin,
-    ).toBeNull();
   });
 });
 

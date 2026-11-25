@@ -146,7 +146,7 @@ export type AutoDraftStateResult =
       // 묶음의 첫 커밋 (대상이 없으면 null)
       anchorSha: string | null;
       batchShas: string[];
-      // 범위 안에서 건너뛴 커밋 (수집 안 됨 표시용)
+      // 범위 안에서 건너뛴 커밋 (수집 안 됨·이미 사용됨 표시용)
       skipped: AutoDraftSkipped[];
       excluded: AutoDraftExcluded[];
     }
@@ -156,7 +156,7 @@ const toExcludedList = (excluded: Map<string, ExcludedCommitReason>) =>
   Array.from(excluded, ([sha, reason]) => ({ sha, reason }));
 
 /**
- * 스튜디오 커밋 목록 표시용: 경계 다음 커밋부터 자동 대상 묶음을 계산 (실행기와 같은 계산)
+ * 스튜디오 커밋 목록 표시용: 경계 다음 커밋부터 브랜치 끝까지 자동 대상 묶음을 계산 (실행기와 같은 계산)
  * - 꺼져 있으면 off, 경계가 없거나 사라졌으면 anchor_missing
  * - GitHub 조회 실패는 error (표시만 생략)
  */
@@ -186,8 +186,10 @@ export async function loadAutoDraftState(
     const head = await getBranchHead(repo);
     const plan = head
       ? await computeAutoDraftBatch(repo, {
+          userId: user.id,
+          repositoryId,
           boundarySha: setting.boundarySha,
-          headSha: head,
+          endSha: head,
           excluded,
         })
       : ({ status: 'anchor_missing' } as const);

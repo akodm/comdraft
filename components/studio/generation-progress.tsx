@@ -46,6 +46,7 @@ export const GENERATION_ERROR_MESSAGES: Record<
   too_many_active: msg`진행 중인 작업이 많아 실행하지 않았습니다.`,
   quota_unavailable: msg`사용량 정책을 확인할 수 없어 실행하지 않았습니다.`,
   model_locked: msg`지금 등급에서 쓸 수 없는 모델이라 실행하지 않았습니다. 저장소 설정의 기본 옵션을 확인해 주세요.`,
+  // 더는 만들지 않는 코드 (이전 내역 행 표시용)
   trigger_not_on_branch: msg`[comdraft] 커밋이 브랜치에 직접 올린 커밋이 아니라서(머지로 들어온 커밋) 실행하지 않았습니다.`,
 };
 

@@ -5,16 +5,14 @@ export interface GithubCommitJson {
   sha: string;
   parents: Array<{ sha: string }>;
   commit: { message: string };
-  committer?: { login: string } | null;
 }
 
-// GitHub 커밋 JSON 을 판정용 커밋으로 변환 (committer 는 최상위 값, GitHub 계정이 없으면 null)
+// GitHub 커밋 JSON 을 판정용 커밋으로 변환
 export function toBranchCommit(json: GithubCommitJson): BranchCommit {
   return {
     sha: json.sha,
     parentShas: json.parents.map((parent) => parent.sha),
     message: json.commit.message,
-    committerLogin: json.committer?.login ?? null,
   };
 }
 

@@ -63,8 +63,12 @@ const requestCompare = (
   });
 };
 
-// base(제외) 에서 head 까지의 커밋 (오래된 순), base 가 사라졌거나 조상이 아니면 anchor_missing
-// - 커밋이 많으면 compare 자체를 페이지 단위로 이어 받음 (커밋 목록 API 는 커미터 날짜순이라 쓰지 않음)
+/**
+ * base(제외) 에서 head 까지의 커밋 (compare 순서, 오래된 순)
+ * - ahead: 범위의 커밋 전부 (머지로 들어온 커밋 포함), identical·behind: 커밋 없음
+ * - diverged·404: anchor_missing (base 가 사라졌거나 head 의 조상이 아님)
+ * - 커밋이 많으면 compare 자체를 페이지 단위로 이어 받음 (커밋 목록 API 는 커미터 날짜순이라 쓰지 않음)
+ */
 export async function compareBranch(
   repo: AutoDraftRepo,
   baseSha: string,
@@ -74,9 +78,16 @@ export async function compareBranch(
   const response = await nullOnNotFound(
     requestCompare(octokit, repo, baseSha, headSha, 1),
   );
+  const result = response
+    ? compareStatusToResult(response.data.status)
+    : 'anchor_missing';
 
-  if (!response || compareStatusToResult(response.data.status) !== 'ok') {
+  if (!response || result === 'anchor_missing') {
     return { status: 'anchor_missing' };
+  }
+
+  if (result === 'empty') {
+    return { status: 'ok', commits: [] };
   }
 
   const first = (response.data.commits as GithubCommitJson[]).map(

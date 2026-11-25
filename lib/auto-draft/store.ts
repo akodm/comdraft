@@ -1,10 +1,12 @@
 import 'server-only';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, arrayOverlaps, eq, inArray, isNull, sql } from 'drizzle-orm';
 import type { ExcludedCommitReason } from '@/lib/db/schema/auto-draft';
+import type { DraftPromptStatus } from '@/lib/db/schema/draft';
 import { getBranchHead, type AutoDraftRepo } from '@/lib/auto-draft/github';
 import { db } from '@/lib/db';
 import {
   account,
+  draftPrompt,
   githubInstallation,
   githubRepository,
   repositoryAutoDraft,
@@ -259,6 +261,45 @@ export async function listExcludedShas(
     );
 
   return new Map(rows.map((row) => [row.sha, row.reason]));
+}
+
+// 커밋을 "사용됨" 으로 보는 자동 초안 작업 상태 (실패한 작업의 커밋은 다시 대상이 됨)
+const CONSUMING_STATUSES: DraftPromptStatus[] = [
+  'queued',
+  'running',
+  'awaiting_input',
+  'completed',
+];
+
+/**
+ * 주어진 SHA 중 이 사용자·저장소의 이전 자동 초안(commit_trigger) 작업에 이미 쓴 것
+ * - 진행 중·되묻기·완료 작업만 (실패한 작업은 커밋을 놓아줌), 스키마 변경 없이 commit_shas 로 판정
+ * - 범위 SHA 와 겹치는 행만 읽어 쌓인 이력 전체를 보지 않음
+ */
+export async function findConsumedShas(
+  userId: string,
+  repositoryId: string,
+  shas: string[],
+): Promise<Set<string>> {
+  if (shas.length === 0) return new Set();
+
+  const rows = await db
+    .select({ commitShas: draftPrompt.commitShas })
+    .from(draftPrompt)
+    .where(
+      and(
+        eq(draftPrompt.userId, userId),
+        eq(draftPrompt.repositoryId, repositoryId),
+        eq(draftPrompt.source, 'commit_trigger'),
+        inArray(draftPrompt.status, CONSUMING_STATUSES),
+        arrayOverlaps(draftPrompt.commitShas, shas),
+      ),
+    );
+  const wanted = new Set(shas);
+
+  return new Set(
+    rows.flatMap((row) => row.commitShas).filter((sha) => wanted.has(sha)),
+  );
 }
 
 // 커밋을 자동 초안 대상에서 제외 (이미 제외된 SHA 는 무시)
