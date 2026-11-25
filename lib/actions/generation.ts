@@ -197,8 +197,8 @@ export async function requestDraftGeneration(
     await getRequestLocale(),
   );
 
-  // 스튜디오 요청은 트리거 SHA 가 없어 duplicate 가 될 수 없음 (있다면 진행 중 충돌과 같이 busy)
-  if (created.status === 'duplicate') {
+  // 스튜디오 요청은 트리거 SHA 가 없고 자동 초안도 아니라 duplicate·overlap 이 될 수 없음 (있다면 busy)
+  if (created.status === 'duplicate' || created.status === 'overlap') {
     return { status: 'busy' };
   }
 

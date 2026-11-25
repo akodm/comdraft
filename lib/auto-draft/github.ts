@@ -158,11 +158,11 @@ export async function getBranchHead(
   return response?.data.commit.sha ?? null;
 }
 
-// 커밋의 첫 번째 부모 SHA (루트 커밋이거나 커밋이 없으면 null)
-export async function getFirstParent(
+// 커밋의 부모 SHA 목록 (커밋이 없으면 null, 루트 커밋이면 빈 배열)
+export async function getCommitParents(
   repo: AutoDraftRepo,
   sha: string,
-): Promise<string | null> {
+): Promise<string[] | null> {
   const octokit = await getInstallationOctokit(repo.installationId);
   const response = await nullOnNotFound(
     octokit.request('GET /repos/{owner}/{repo}/commits/{ref}', {
@@ -172,5 +172,5 @@ export async function getFirstParent(
     }),
   );
 
-  return response?.data.parents[0]?.sha ?? null;
+  return response ? response.data.parents.map((parent) => parent.sha) : null;
 }

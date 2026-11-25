@@ -14,6 +14,7 @@ import {
   user,
   userRepository,
 } from '@/lib/db/schema';
+import type { JobTransaction } from '@/lib/generation/jobs';
 import {
   DEFAULT_PROMPT_OPTIONS,
   parsePromptOptions,
@@ -280,10 +281,12 @@ export async function findConsumedShas(
   userId: string,
   repositoryId: string,
   shas: string[],
+  // 작업 생성 트랜잭션 안에서 다시 확인할 때는 그 트랜잭션
+  executor: typeof db | JobTransaction = db,
 ): Promise<Set<string>> {
   if (shas.length === 0) return new Set();
 
-  const rows = await db
+  const rows = await executor
     .select({ commitShas: draftPrompt.commitShas })
     .from(draftPrompt)
     .where(

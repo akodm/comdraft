@@ -1,6 +1,7 @@
 import 'server-only';
 import { asc, eq } from 'drizzle-orm';
 import { getAiGenerationSetting } from '@/lib/admin/service-setting';
+import { findConsumedShas } from '@/lib/auto-draft/store';
 import { db } from '@/lib/db';
 import {
   draft,
@@ -58,13 +59,16 @@ export interface DraftJobRequest extends ParsedRequest {
   triggerSha: string | null;
 }
 
-// 초안 작업 만들기 결과 (같은 트리거 SHA 로 이미 만들었으면 duplicate)
+// 초안 작업 만들기 결과
+// - duplicate: 같은 트리거 SHA 로 이미 만듦
+// - overlap: 자동 초안 커밋 중 일부를 다른 자동 초안이 먼저 씀 (묶음을 다시 계산해야 함)
 export type CreateDraftJobResult =
   | CreateJobResult<{
       draftId: string;
       jobId: string;
     }>
-  | { status: 'duplicate' };
+  | { status: 'duplicate' }
+  | { status: 'overlap' };
 
 /**
  * 작업(queued)을 만들고 초안 id 와 작업 id 반환 (새 초안이면 초안과 참고 링크도 함께 생성)
@@ -72,6 +76,8 @@ export type CreateDraftJobResult =
  *   (한도에 걸리면 아무것도 만들지 않고 rate_limited·too_many_active)
  * - 같은 초안에 진행 중인 작업이 있으면 유일 인덱스에 걸려 'busy'
  * - 같은 트리거 SHA 로 이미 만든 작업이 있으면 유일 인덱스에 걸려 'duplicate'
+ * - 자동 초안은 사용자 잠금을 잡은 뒤 커밋이 이미 다른 자동 초안에 쓰였는지 다시 확인해 'overlap'
+ *   (거의 동시에 온 두 트리거가 같은 커밋 묶음으로 초안을 두 번 만들지 않게)
  */
 export const createDraftJob = async (
   userId: string,
@@ -88,6 +94,14 @@ export const createDraftJob = async (
 
       if (reserved !== 'ok') {
         return reserved;
+      }
+
+      if (
+        request.source === 'commit_trigger' &&
+        (await findConsumedShas(userId, repositoryId, request.commitShas, tx))
+          .size > 0
+      ) {
+        return 'overlap';
       }
 
       // 요청 시점의 참고 링크 (작성기는 이 목록만 읽음)
