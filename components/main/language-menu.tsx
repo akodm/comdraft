@@ -96,7 +96,7 @@ const LanguageMenu = ({ variant = 'header' }: LanguageMenuProps) => {
       {isOpen && (
         <div
           id={menuId}
-          className={`absolute top-[calc(100%+8px)] right-0 w-40 ${DROPDOWN_PANEL_CLASS}`}
+          className={`animate-dropdown absolute top-[calc(100%+8px)] right-0 w-40 ${DROPDOWN_PANEL_CLASS}`}
         >
           <ul className="flex flex-col gap-1">
             {LOCALES.map((locale) => {

@@ -141,6 +141,160 @@ body {
   background-size: 1rem;
 }
 
+/*
+ * 메인 페이지 등장 모션
+ * - 첫 화면(히어로): JS 없이 CSS 애니메이션으로 바로 떠오름 (animate-rise, 순서는 --rise-order)
+ * - 아래 섹션: 화면에 들어오면 RevealSection 이 data-revealed 를 달고, 안의 [data-reveal] 이 순서대로(--reveal-order) 떠오름
+ *   스크립트가 꺼져 있으면 숨기지 않음 (scripting 미디어 쿼리)
+ * - data-reveal="line": 단계 연결선을 모바일은 위→아래, PC 는 왼쪽→오른쪽으로 그림
+ * - 움직임 줄이기 설정이면 아래 prefers-reduced-motion 규칙이 시간을 없애 바로 보임
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+}
+
+@utility animate-rise {
+  animation: rise 720ms var(--ease-out) both;
+  animation-delay: calc(var(--rise-order, 0) * 110ms);
+}
+
+[data-reveal] {
+  transition:
+    opacity 700ms var(--ease-out),
+    translate 700ms var(--ease-out),
+    scale 900ms var(--ease-in-out);
+  transition-delay: calc(var(--reveal-order, 0) * 110ms);
+}
+
+@media (scripting: enabled) {
+  [data-reveal] {
+    opacity: 0;
+    translate: 0 22px;
+  }
+
+  [data-reveal='line'] {
+    opacity: 1;
+    translate: none;
+    scale: 1 0;
+    transform-origin: top;
+  }
+
+  @media (width >= 1320px) {
+    [data-reveal='line'] {
+      scale: 0 1;
+      transform-origin: left;
+    }
+  }
+
+  [data-revealed] [data-reveal] {
+    opacity: 1;
+    translate: none;
+    scale: none;
+  }
+}
+
+/*
+ * 드롭다운 메뉴 열림: 버튼 쪽에서 살짝 밀려 나오며 나타남 (닫힐 때는 바로 사라짐)
+ * - animate-dropdown: 버튼 아래로 열리는 메뉴, animate-dropup: 버튼 위로 열리는 메뉴
+ * - translate 대신 transform 을 움직여 메뉴의 위치 지정용 translate(-translate-x-1/2 등)와 겹치지 않음
+ */
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--dropdown-shift, -6px)) scale(0.96);
+  }
+}
+
+@utility animate-dropdown {
+  transform-origin: top;
+  animation: dropdown-in 180ms var(--ease-out) backwards;
+}
+
+@utility animate-dropup {
+  --dropdown-shift: 6px;
+  transform-origin: bottom;
+  animation: dropdown-in 180ms var(--ease-out) backwards;
+}
+
+/*
+ * 스튜디오 사이드바 등장 (PC): 화면을 처음 열 때 왼쪽에서 살짝 밀려 들어옴, 커밋 내역은 --sidebar-delay 만큼 늦게
+ * - translate 는 모바일 여닫기에 쓰므로 transform 을 움직임
+ */
+@keyframes sidebar-in {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+}
+
+@utility animate-sidebar-in {
+  animation: sidebar-in 500ms var(--ease-out) var(--sidebar-delay, 0ms)
+    backwards;
+}
+
+/*
+ * AI 초안 반영 효과 (components/studio/draft-reveal.ts 가 편집기 바깥 틀에 data-draft-reveal 을 잠시 닮)
+ * - 본문: 전체가 한 번에 천천히(1.4초) 페이드인
+ * - 반짝이: 본문 위 여기저기서 작은 별(4갈래)이 커졌다 작아지며 반짝임 (위치·크기·시점은 스크립트가 정함)
+ * - 반짝이 층은 클릭을 막지 않음, 움직임 줄이기 설정이면 반짝이를 만들지 않음
+ */
+@keyframes draft-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes draft-sparkle {
+  0% {
+    opacity: 0;
+    scale: 0;
+    rotate: 0deg;
+  }
+  45% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 0;
+    rotate: 180deg;
+    translate: 0 -10px;
+  }
+}
+
+[data-draft-reveal] .ProseMirror {
+  animation: draft-fade-in 1400ms var(--ease-in-out) both;
+}
+
+.draft-sparkles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.draft-sparkle {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  background: radial-gradient(circle, white 0 6%, var(--color) 22%);
+  clip-path: polygon(
+    50% 0%,
+    61% 39%,
+    100% 50%,
+    61% 61%,
+    50% 100%,
+    39% 61%,
+    0% 50%,
+    39% 39%
+  );
+  filter: drop-shadow(0 0 3px var(--color)) drop-shadow(0 0 8px var(--color));
+  animation: draft-sparkle var(--duration) var(--ease-in-out) var(--delay) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *:not(.keep-motion),
   *:not(.keep-motion)::before,

@@ -65,7 +65,7 @@ const AdminProfileMenu = ({
       {isOpen && (
         <div
           id={menuId}
-          className={`absolute top-[calc(100%+8px)] right-0 w-60 ${DROPDOWN_PANEL_CLASS}`}
+          className={`animate-dropdown absolute top-[calc(100%+8px)] right-0 w-60 ${DROPDOWN_PANEL_CLASS}`}
         >
           <div className="flex flex-col gap-1 px-3 py-1">
             <p className="truncate font-mono text-[13px] leading-[1.4] font-semibold text-ink">

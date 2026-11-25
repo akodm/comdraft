@@ -135,7 +135,7 @@ const SelectedCommitsMenu = () => {
       {isOpen && (
         <div
           id={menuId}
-          className={`absolute bottom-[calc(100%+6px)] left-0 w-72 max-w-[calc(100vw-90px)] ${DROPDOWN_PANEL_CLASS}`}
+          className={`animate-dropup absolute bottom-[calc(100%+6px)] left-0 w-72 max-w-[calc(100vw-90px)] ${DROPDOWN_PANEL_CLASS}`}
         >
           <p className="text-[12px] leading-[1.2] font-bold text-ink">
             <Trans>선택한 커밋</Trans>

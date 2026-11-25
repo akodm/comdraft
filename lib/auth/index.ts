@@ -35,6 +35,17 @@ const requireEnv = (key: string) => {
  */
 export const auth = betterAuth({
   appName: 'comdraft',
+  // 앱이 쓰지 않는 HTTP 엔드포인트는 닫음 (서버 안의 auth.api 직접 호출은 영향 없음)
+  // - update-user: 게시글 작성자 이름·사진을 GitHub 프로필과 다르게 바꿀 수 있어 사칭에 쓰일 수 있음
+  // - get-access-token 등: 브라우저 스크립트가 사용자의 GitHub 토큰·계정 정보를 받아 갈 수 있음
+  disabledPaths: [
+    '/update-user',
+    '/get-access-token',
+    '/refresh-token',
+    '/account-info',
+    '/list-accounts',
+    '/unlink-account',
+  ],
   baseURL: requireEnv('BETTER_AUTH_URL'),
   secret: requireEnv('BETTER_AUTH_SECRET'),
   database: drizzleAdapter(db, {

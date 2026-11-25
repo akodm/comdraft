@@ -137,7 +137,7 @@ const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
         {isOpen && (
           <div
             id={menuId}
-            className={`absolute top-[calc(100%+8px)] right-0 w-60 ${DROPDOWN_PANEL_CLASS}`}
+            className={`animate-dropdown absolute top-[calc(100%+8px)] right-0 w-60 ${DROPDOWN_PANEL_CLASS}`}
           >
             <p className="text-[12px] leading-[1.2] font-bold whitespace-nowrap text-ink">
               <Trans>프로필 메뉴</Trans>

@@ -16,6 +16,11 @@ import type { JSONContent } from '@tiptap/core';
 import type { Transaction } from '@tiptap/pm/state';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import { assignBlankIds } from '@/components/studio/draft-blank-fill';
+import {
+  getBlockElements,
+  playBlankFillReveal,
+  playDraftReveal,
+} from '@/components/studio/draft-reveal';
 import { getDraftStatusLabel } from '@/components/studio/draft-status';
 import DraftTags from '@/components/studio/draft-tags';
 import { createEditorExtensions } from '@/components/studio/editor-extensions';
@@ -316,13 +321,14 @@ const useEditorLock = (editor: Editor | null, isEditable: boolean) => {
 };
 
 /**
- * AI 작성 결과가 본문에 반영되면(contentRevision 변경) 새 본문으로 교체
+ * AI 작성 결과가 본문에 반영되면(contentRevision 변경) 새 본문으로 교체하고 등장 효과 재생
  * - 편집기는 초안이 바뀔 때만 다시 만들어지므로, 같은 초안의 새 본문은 여기서 넣음
  * - 사이드바 목록 제목과 게시 상태도 서버 값으로 맞춤 (자동 저장·게시로 바꾼 값보다 우선)
  */
 const useAppliedContent = (
   editor: Editor | null,
   draft: StudioDraft | null,
+  revealRef: RefObject<HTMLDivElement | null>,
 ) => {
   const { setDraftTitle, setDraftPublishState } = useStudio();
   const revision = draft?.contentRevision ?? null;
@@ -340,10 +346,18 @@ const useAppliedContent = (
 
     appliedRevisionRef.current = revision;
     editor.commands.setContent(draft.content, { emitUpdate: false });
+
+    // 새 본문이 생겼음을 알 수 있게 첫 줄로 이동하고 등장 효과를 재생
+    const container = revealRef.current;
+    if (container) {
+      container.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      playDraftReveal(container);
+    }
+
     setDraftTitle(draft.id, draft.title);
     // 게시 중이던 초안은 결과 반영으로 '임시'가 되므로 화면에서 바꿔 둔 게시 상태도 서버 값으로 맞춤
     setDraftPublishState(draft.id, { status: draft.status, post: draft.post });
-  }, [editor, draft, revision, setDraftTitle, setDraftPublishState]);
+  }, [editor, draft, revision, revealRef, setDraftTitle, setDraftPublishState]);
 };
 
 // 작성하지 않은 빈칸 개수 (편집기 내용이 바뀔 때마다 갱신)
@@ -524,7 +538,21 @@ const DraftEditor = ({
   const hasSaveNotice = saveState === 'saving' || saveState === 'error';
 
   useEditorLock(editor, Boolean(draft) && !isLocked);
-  useAppliedContent(editor, draft);
+  // AI 결과 반영 효과를 다는 본문 틀 (ProseMirror 가 관리하지 않는 바깥 요소)
+  const revealRef = useRef<HTMLDivElement>(null);
+  useAppliedContent(editor, draft, revealRef);
+
+  // 빈칸 채우기 결과가 들어간 자리에만 반영 효과
+  const handleFilled = useCallback(
+    ({ from, to }: { from: number; to: number }) => {
+      const container = revealRef.current;
+
+      if (editor && !editor.isDestroyed && container) {
+        playBlankFillReveal(container, getBlockElements(editor.view, from, to));
+      }
+    },
+    [editor],
+  );
 
   const { requestFill, handleSaved } = useBlankFill({
     editor,
@@ -536,6 +564,7 @@ const DraftEditor = ({
     saveNow: flush,
     onStarted: onFillStarted,
     onDone: onFillDone,
+    onFilled: handleFilled,
   });
 
   useEffect(() => {
@@ -699,10 +728,12 @@ const DraftEditor = ({
           <div className="mx-auto flex w-full max-w-260 flex-1 flex-col">
             {draft ? (
               <>
-                <EditorContent
-                  editor={editor}
-                  className="flex flex-1 flex-col"
-                />
+                <div ref={revealRef} className="relative flex flex-1 flex-col">
+                  <EditorContent
+                    editor={editor}
+                    className="flex flex-1 flex-col"
+                  />
+                </div>
                 {/* AI 결과가 반영되면(contentRevision 변경) 새 태그로 다시 시작 */}
                 <DraftTags
                   key={`${draft.id}:${draft.contentRevision}`}

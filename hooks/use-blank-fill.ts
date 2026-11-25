@@ -41,6 +41,8 @@ interface UseBlankFillOptions {
   onStarted: (job: GenerationJobView) => void;
   // 결과를 그 빈칸에 넣었음 (또는 빈칸이 없어 버림)
   onDone: (jobId: string) => void;
+  // 결과 문단을 넣은 문서 범위 (그 자리에 반영 효과를 보여 줌)
+  onFilled?: (range: { from: number; to: number }) => void;
 }
 
 /**
@@ -64,6 +66,7 @@ export const useBlankFill = ({
   saveNow,
   onStarted,
   onDone,
+  onFilled,
 }: UseBlankFillOptions) => {
   const { i18n } = useLingui();
   const locale = useLocale();
@@ -234,13 +237,24 @@ export const useBlankFill = ({
       return;
     }
 
+    onFilled?.(replaced);
+
     unmarkedJobIdsRef.current.add(jobId);
     void saveNow().then((isSaved) => {
       if (isSaved) {
         handleSaved();
       }
     });
-  }, [editor, job, fillResult, onDone, saveNow, markApplied, handleSaved]);
+  }, [
+    editor,
+    job,
+    fillResult,
+    onDone,
+    onFilled,
+    saveNow,
+    markApplied,
+    handleSaved,
+  ]);
 
   return { requestFill, handleSaved };
 };

@@ -2,9 +2,9 @@
  * 초안 작성 스튜디오 공통 스타일
  */
 
-// 사이드바: PC 는 항상 보이는 고정 열, 모바일은 왼쪽에서 열리는 패널 (닫혀 있으면 화면 밖 + 포커스 불가)
+// 사이드바: PC 는 항상 보이는 열(너비는 --sidebar-width, 오른쪽 가장자리로 조절, 처음 열 때 왼쪽에서 들어옴), 모바일은 왼쪽에서 열리는 패널 (닫혀 있으면 화면 밖 + 포커스 불가)
 export const getSidebarClass = (isOpen: boolean) =>
-  `fixed inset-y-0 left-0 z-40 flex flex-col border-r border-line bg-panel transition-[translate,visibility] duration-200 pc:visible pc:static pc:z-auto pc:translate-x-0 pc:transition-none ${
+  `fixed inset-y-0 left-0 z-40 flex flex-col pc:w-(--sidebar-width) pc:shrink-0 border-r border-line bg-panel transition-[translate,visibility] duration-300 ease-out pc:visible pc:animate-sidebar-in pc:relative pc:z-auto pc:translate-x-0 pc:transition-none ${
     isOpen ? 'translate-x-0' : 'invisible -translate-x-full'
   }`;
 

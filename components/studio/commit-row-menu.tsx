@@ -71,7 +71,7 @@ const CommitRowMenu = ({
       {isOpen && (
         <div
           id={menuId}
-          className="absolute top-[calc(100%+4px)] right-0 z-20 w-44 rounded border border-line bg-white p-1 shadow-md"
+          className="animate-dropdown absolute top-[calc(100%+4px)] right-0 z-20 w-44 rounded border border-line bg-white p-1 shadow-md"
         >
           <button
             ref={firstItemRef}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, type CSSProperties } from 'react';
 import Image from 'next/image';
 import { Trans, useLingui } from '@lingui/react/macro';
 import LocalizedLink from '@/components/shared/localized-link';
@@ -13,7 +13,9 @@ import {
   ICON_BUTTON_CLASS,
   THIN_SCROLL_CLASS,
 } from '@/components/studio/studio-styles';
+import SidebarResizeHandle from '@/components/studio/sidebar-resize-handle';
 import type { AutoDraftCommitAction } from '@/hooks/use-auto-draft-state';
+import { useSidebarWidth } from '@/hooks/use-sidebar-width';
 import type { StudioCommit } from '@/lib/actions/studio';
 import {
   getCommitMarkers,
@@ -241,6 +243,7 @@ const CommitSidebar = ({ isOpen }: CommitSidebarProps) => {
     useStudio();
   const { commits, state, hasMore, loadMore } = commitHistory;
   const selectedCount = selectedShas.size;
+  const sidebarWidth = useSidebarWidth('commits');
   const listRef = useRef<HTMLUListElement>(null);
   const sentinelRef = useRef<HTMLLIElement>(null);
   const loadedCount = `${commits.length}${hasMore && commits.length > 0 ? '+' : ''}`;
@@ -315,7 +318,9 @@ const CommitSidebar = ({ isOpen }: CommitSidebarProps) => {
   return (
     <aside
       aria-label={t`커밋 내역`}
-      className={`w-70 pc:gap-3 pc:p-3 ${getSidebarClass(isOpen)}`}
+      // 초안 목록보다 조금 늦게 들어옴
+      className={`w-70 pc:gap-3 pc:p-3 pc:[--sidebar-delay:90ms] ${getSidebarClass(isOpen)}`}
+      style={{ '--sidebar-width': `${sidebarWidth.width}px` } as CSSProperties}
     >
       {/* 모바일 헤더: 제목 + 닫기, 선택 개수 */}
       <div className="flex h-16 shrink-0 items-center justify-between px-4 pc:hidden">
@@ -372,6 +377,12 @@ const CommitSidebar = ({ isOpen }: CommitSidebarProps) => {
           <CommitListStatus />
         </li>
       </ul>
+      <SidebarResizeHandle
+        label={t`커밋 내역 너비 조절`}
+        width={sidebarWidth.width}
+        onPreview={sidebarWidth.preview}
+        onCommit={sidebarWidth.commit}
+      />
     </aside>
   );
 };

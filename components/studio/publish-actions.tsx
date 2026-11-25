@@ -236,7 +236,7 @@ const PublishActions = ({
           {isOpen && (
             <div
               id={menuId}
-              className="absolute top-[calc(100%+8px)] right-0 z-20 w-33 rounded border border-line bg-white"
+              className="animate-dropdown absolute top-[calc(100%+8px)] right-0 z-20 w-33 rounded border border-line bg-white"
             >
               {canView && publishState.post && (
                 <LocalizedAnchor

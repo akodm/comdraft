@@ -6,9 +6,13 @@ import { usePathname } from 'next/navigation';
 import { Trans, useLingui } from '@lingui/react/macro';
 import BrandLogo from '@/components/main/brand-logo';
 import LocalizedLink from '@/components/shared/localized-link';
+import { usePresence } from '@/hooks/use-presence';
 
 // PC 레이아웃 기준 (css/globals.css 의 --breakpoint-pc 와 같은 값)
 const PC_MEDIA_QUERY = '(min-width: 1320px)';
+
+// 닫힘 애니메이션 시간 (duration-300 과 같은 값)
+const MENU_EXIT_MS = 300;
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -29,6 +33,7 @@ const MobileMenu = () => {
   // 연 시점의 경로를 기억해 경로가 바뀌면 자동으로 닫힌 상태가 되도록 함
   const [openedPath, setOpenedPath] = useState<string | null>(null);
   const isOpen = openedPath !== null && openedPath === pathname;
+  const { isRendered, isClosing } = usePresence(isOpen, MENU_EXIT_MS);
 
   const close = () => {
     setOpenedPath(null);
@@ -111,20 +116,26 @@ const MobileMenu = () => {
       >
         <Image src="/images/main/menu.svg" alt="" width={22} height={22} />
       </button>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 pc:hidden">
-          {/* 배경 클릭으로 닫기 (키보드 사용자는 닫기 버튼/Escape 사용) */}
+      {isRendered && (
+        // 닫히는 중에는 포커스·클릭을 받지 않음
+        <div inert={isClosing} className="fixed inset-0 z-50 pc:hidden">
+          {/* 배경 클릭으로 닫기 (키보드 사용자는 닫기 버튼/Escape 사용), 열릴 때 서서히 어두워짐 */}
           <div
             aria-hidden="true"
             onClick={close}
-            className="absolute inset-0 bg-ink/40"
+            className={`absolute inset-0 bg-ink/40 transition-opacity duration-300 starting:opacity-0 ${
+              isClosing ? 'opacity-0' : ''
+            }`}
           />
+          {/* 오른쪽에서 밀려 들어오고, 닫힐 때 다시 밀려 나감 */}
           <div
             ref={panelRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="absolute inset-y-0 right-0 flex w-70 max-w-full flex-col bg-white"
+            className={`absolute inset-y-0 right-0 flex w-70 max-w-full flex-col bg-white transition-[translate] duration-300 ease-out starting:translate-x-full ${
+              isClosing ? 'translate-x-full ease-in' : ''
+            }`}
           >
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-5">
               <h2 id={titleId}>

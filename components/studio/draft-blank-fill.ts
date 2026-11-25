@@ -256,21 +256,22 @@ export const assignBlankIds = (editor: Editor): boolean => {
 
 /**
  * id 가 맞는 빈칸 하나를 문단들로 바꿈 (다듬는 중 잠금을 건너뜀, 실행 취소로 답을 되돌릴 수 있음)
- * - 빈칸이 없거나 문단이 이 문서 스키마에 맞지 않으면 아무것도 바꾸지 않고 false
+ * - 바꿔 넣은 문단들의 문서 범위를 돌려줌 (반영 효과를 그 자리에만 보여 주려고)
+ * - 빈칸이 없거나 문단이 이 문서 스키마에 맞지 않으면 아무것도 바꾸지 않고 null
  */
 export const replaceBlankWithParagraphs = (
   editor: Editor,
   blankId: string,
   paragraphs: JSONContent[],
-): boolean => {
+): { from: number; to: number } | null => {
   if (editor.isDestroyed || paragraphs.length === 0) {
-    return false;
+    return null;
   }
 
   const target = findBlankById(editor.state.doc, blankId);
 
   if (!target) {
-    return false;
+    return null;
   }
 
   try {
@@ -284,9 +285,11 @@ export const replaceBlankWithParagraphs = (
 
     editor.view.dispatch(tr);
 
-    return true;
+    const size = nodes.reduce((total, node) => total + node.nodeSize, 0);
+
+    return { from: target.pos, to: target.pos + size };
   } catch {
-    return false;
+    return null;
   }
 };
 
