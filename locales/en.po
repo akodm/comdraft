@@ -61,7 +61,7 @@ msgstr "Search by email or GitHub username"
 msgid "사용 토큰"
 msgstr "Tokens used"
 
-#: components/onboarding/repository-connect-form.tsx:243
+#: components/onboarding/repository-connect-form.tsx:256
 msgid "브랜치 목록을 불러오지 못했습니다."
 msgstr "Could not load the branch list."
 
@@ -285,11 +285,7 @@ msgstr "Open {host} in a new tab"
 msgid "기본 등급 정책이 없어 최근 7일 기준이에요 ({0} 부터)"
 msgstr "No default plan policy, so this uses the last 7 days (since {0})"
 
-#: components/onboarding/repository-select.tsx:35
-msgid "선택할 수 있는 저장소가 없습니다. <0>GitHub App 에서 저장소 권한 추가하기</0>"
-msgstr "No repositories available. <0>Add repository access in the GitHub App</0>"
-
-#: components/onboarding/repository-connect-form.tsx:255
+#: components/onboarding/repository-connect-form.tsx:268
 msgid "저장소에서 브랜치를 찾을 수 없습니다. 다른 브랜치를 선택해주세요."
 msgstr "Branch not found in this repository. Please choose another branch."
 
@@ -421,6 +417,10 @@ msgstr "New draft"
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:212
 msgid "다시 적용"
 msgstr "Reapply"
+
+#: components/onboarding/repository-connect-form.tsx:221
+msgid "찾는 저장소가 없나요? <0>GitHub App 에서 저장소 권한 추가하기</0>"
+msgstr "Can't find your repository? <0>Add repository access in the GitHub App</0>"
 
 #: components/studio/draft-sidebar.tsx:178
 msgid "AI 가 작성 중인 초안은 작성이 끝난 뒤 삭제할 수 있습니다."
@@ -718,7 +718,7 @@ msgstr "Profile menu"
 msgid "HTML 파일로 내보내기"
 msgstr "Export as HTML file"
 
-#: components/onboarding/repository-select.tsx:33
+#: components/onboarding/repository-select.tsx:58
 msgid "저장소를 선택하세요"
 msgstr "Select a repository"
 
@@ -840,7 +840,7 @@ msgstr "Couldn't save"
 
 #: app/[lang]/error.tsx:33
 #: components/dashboard/repository-list.tsx:110
-#: components/onboarding/repository-connect-form.tsx:249
+#: components/onboarding/repository-connect-form.tsx:262
 #: components/studio/account-settings-panel.tsx:281
 #: components/studio/auto-draft-settings-section.tsx:348
 #: components/studio/commit-sidebar.tsx:146
@@ -877,7 +877,7 @@ msgstr "Close"
 msgid "이번 주 새 사용자"
 msgstr "New users this week"
 
-#: components/onboarding/repository-connect-form.tsx:230
+#: components/onboarding/repository-connect-form.tsx:243
 msgid "선택할 수 있는 브랜치가 없습니다. 커밋이 있는 저장소인지 확인해주세요."
 msgstr "No branches to choose from. Make sure the repository has at least one commit."
 
@@ -1046,6 +1046,10 @@ msgstr "Prompt history"
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:129
 msgid "이번 주 사용량"
 msgstr "This week's usage"
+
+#: components/onboarding/repository-select.tsx:37
+msgid "협업 저장소"
+msgstr "Collaborator repository"
 
 #: components/studio/draft-sidebar.tsx:74
 msgid "GitHub 에서 저장소 열기"
@@ -1245,7 +1249,7 @@ msgstr "Reading"
 msgid "사용 비용"
 msgstr "Cost used"
 
-#: components/posts/post-toc.tsx:149
+#: components/posts/post-toc.tsx:166
 msgid "목차"
 msgstr "Table of contents"
 
@@ -1934,7 +1938,7 @@ msgid "[comdraft] 커밋이 브랜치에 직접 올린 커밋이 아니라서(�
 msgstr "Not run because the [comdraft] commit came in through a merge, not a direct push to the branch."
 
 #: components/dashboard/repository-card.tsx:71
-#: components/onboarding/repository-connect-form.tsx:221
+#: components/onboarding/repository-connect-form.tsx:234
 #: components/studio/draft-sidebar.tsx:143
 msgid "브랜치"
 msgstr "Branch"
@@ -1947,6 +1951,10 @@ msgstr "Removing..."
 msgctxt "admin role"
 msgid "관리자"
 msgstr "Admin"
+
+#: components/onboarding/repository-select.tsx:33
+msgid "{owner} 님의 저장소입니다. 협업자로 등록되어 있어 연동할 수 있습니다."
+msgstr "This repository belongs to {owner}. You can connect it because you're a collaborator."
 
 #: app/[lang]/admin/[adminKey]/(console)/page.tsx:62
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:106
@@ -2089,6 +2097,10 @@ msgstr "You're uploading images too often. Please try again in a moment."
 msgid "무엇을 확인할까요?"
 msgstr "What should you check?"
 
+#: components/onboarding/repository-select.tsx:59
+msgid "선택할 수 있는 저장소가 없습니다."
+msgstr "No repositories available."
+
 #: components/dashboard/repository-card.tsx:113
 msgid "초안 보기"
 msgstr "View drafts"
@@ -2188,7 +2200,7 @@ msgstr "Jobs that haven't finished can't be hidden"
 msgid "로그인 세션"
 msgstr "Sign-in sessions"
 
-#: components/onboarding/repository-connect-form.tsx:170
+#: components/onboarding/repository-connect-form.tsx:171
 msgid "브랜치를 선택하세요"
 msgstr "Select a branch"
 
@@ -2500,7 +2512,7 @@ msgstr "Add reference link"
 msgid "자동 초안은 이 커밋부터 위로 최대 {max}개를 사용합니다"
 msgstr "Automatic drafts use up to {max} commits, counting up from this one"
 
-#: components/onboarding/repository-connect-form.tsx:167
+#: components/onboarding/repository-connect-form.tsx:168
 msgid "브랜치 목록을 불러오는 중..."
 msgstr "Loading branches..."
 
@@ -2595,7 +2607,7 @@ msgid "저장소를 더 불러오는 중..."
 msgstr "Loading more repositories..."
 
 #: components/dashboard/status-message.tsx:44
-#: components/onboarding/repository-connect-form.tsx:213
+#: components/onboarding/repository-connect-form.tsx:214
 msgid "접근 권한이 없거나 설치에 포함되지 않은 저장소입니다."
 msgstr "You don't have access to this repository, or it isn't part of the installation."
 
@@ -2646,7 +2658,7 @@ msgstr "Private repository"
 msgid "게시글 언어"
 msgstr "Post language"
 
-#: components/onboarding/repository-connect-form.tsx:187
+#: components/onboarding/repository-connect-form.tsx:188
 msgid "저장소"
 msgstr "Repository"
 
@@ -2803,7 +2815,7 @@ msgstr "Add+"
 msgid "이 저장소의 {draftCount, plural, other {초안 #개}}와 {postCount, plural, other {게시글 #개}}가 함께 삭제됩니다. 되돌릴 수 없습니다."
 msgstr "{draftCount, plural, one {# draft} other {# drafts}} and {postCount, plural, one {# post} other {# posts}} in this repository will be deleted too. This can't be undone."
 
-#: components/onboarding/repository-connect-form.tsx:272
+#: components/onboarding/repository-connect-form.tsx:285
 msgid "저장소 연동 중..."
 msgstr "Connecting repository..."
 
@@ -2934,7 +2946,7 @@ msgstr "Select commits"
 msgid "초안 하나에 이미지는 10장까지 넣을 수 있습니다"
 msgstr "A draft can have up to 10 images."
 
-#: components/onboarding/repository-connect-form.tsx:163
+#: components/onboarding/repository-connect-form.tsx:164
 msgid "저장소를 먼저 선택하세요"
 msgstr "Select a repository first"
 
