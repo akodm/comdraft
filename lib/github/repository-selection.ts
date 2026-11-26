@@ -33,18 +33,20 @@ interface GithubReauthResult {
   status: 'github_reauth';
 }
 
-// 정지되지 않은 설치의 저장소를 선택 드롭다운 항목으로 (이름순)
+// 정지되지 않은 설치의 저장소를 선택 드롭다운 항목으로 (이름순, 협업 저장소도 같은 목록에 포함)
 export const toRepositoryOptions = (
   installations: InstallationWithRepositories[],
 ): OnboardingRepositoryOption[] => {
   return installations
     .filter(({ installation }) => !installation.suspended_at)
-    .flatMap(({ installation, repositories }) =>
+    .flatMap(({ installation, repositories, isCollaboration }) =>
       repositories.map((repository) => ({
         value: `${installation.id}:${repository.id}`,
         installationId: installation.id,
         githubRepoId: repository.id,
         fullName: repository.full_name,
+        // 협업 저장소면 드롭다운에 표시 (본인 저장소와 같은 목록에 섞어서 보여줌)
+        collaborationOwner: isCollaboration ? repository.owner.login : null,
       })),
     )
     .sort((a, b) => a.fullName.localeCompare(b.fullName));

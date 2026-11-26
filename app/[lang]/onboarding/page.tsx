@@ -9,7 +9,10 @@ import { requireOnboardingSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { userRepository } from '@/lib/db/schema';
 import { toRepositoryOptions } from '@/lib/github/repository-selection';
-import { loadUserInstallations } from '@/lib/github/user-installations';
+import {
+  hasOwnInstallation,
+  loadUserInstallations,
+} from '@/lib/github/user-installations';
 import { localizedRedirect } from '@/lib/i18n/request';
 import { initLingui } from '@/lib/i18n/server';
 import { ONBOARDING_TITLE } from '@/lib/seo/copy';
@@ -45,7 +48,8 @@ const loadOnboardingState = async (
     return localizedRedirect('/sign-in?error=github_reauth');
   }
 
-  if (installations.length === 0) {
+  // 협업자로 접근하는 남의 설치만 있으면 본인 계정에 앱을 설치하는 1단계부터 안내
+  if (!hasOwnInstallation(installations)) {
     return { step: 1, repositories: [] };
   }
 

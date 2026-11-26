@@ -11,6 +11,8 @@ import {
 export interface OnboardingSelectOption {
   value: string;
   label: string;
+  // 항목 오른쪽 끝에 붙는 표시 (예: 협업 저장소 아이콘), 선택 값 표시 영역에도 함께 보임
+  adornment?: ReactNode;
 }
 
 interface OnboardingSelectProps {
@@ -168,9 +170,12 @@ const OnboardingSelect = ({
       >
         <span
           id={valueId}
-          className={`min-w-0 flex-1 truncate ${selected ? '' : 'text-ink-faint'}`}
+          className={`flex min-w-0 flex-1 items-center gap-3 ${selected ? '' : 'text-ink-faint'}`}
         >
-          {selected ? selected.label : placeholder}
+          <span className="min-w-0 flex-1 truncate">
+            {selected ? selected.label : placeholder}
+          </span>
+          {selected?.adornment}
         </span>
         <Image
           src="/images/onboarding/chevron-down.svg"
@@ -209,9 +214,14 @@ const OnboardingSelect = ({
                     select(option);
                   }
                 }}
-                className={`${DROPDOWN_ITEM_CLASS} wrap-anywhere aria-selected:font-medium aria-selected:text-ink`}
+                className={`${DROPDOWN_ITEM_CLASS} aria-selected:font-medium aria-selected:text-ink`}
               >
-                {option.label}
+                <span className="flex items-center gap-3">
+                  <span className="min-w-0 flex-1 wrap-anywhere">
+                    {option.label}
+                  </span>
+                  {option.adornment}
+                </span>
               </li>
             ))}
           </ul>

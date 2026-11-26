@@ -47,6 +47,20 @@ describe('PostContent', () => {
     expect(html).toContain('rel="noopener noreferrer nofollow"');
   });
 
+  it('제목에 attrs.id 가 있으면 id 로 그린다', () => {
+    const html = renderToStaticMarkup(
+      <PostContent
+        content={doc(
+          { ...h(2, '소개'), attrs: { level: 2, id: '소개' } },
+          h(3, '아이디 없음'),
+        )}
+      />,
+    );
+
+    expect(html).toContain('<h2 id="소개">소개</h2>');
+    expect(html).toContain('<h3>아이디 없음</h3>');
+  });
+
   it('코드 블록은 언어 이름을 표시하고, 언어가 없으면 표시하지 않는다', () => {
     const withLanguage = renderToStaticMarkup(
       <PostContent content={doc(codeBlock('ts', 'const a = 1;'))} />,

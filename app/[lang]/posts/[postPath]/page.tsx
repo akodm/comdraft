@@ -7,6 +7,7 @@ import PageLayout from '@/components/layout/page-layout';
 import MainFooter from '@/components/main/main-footer';
 import MainHeader from '@/components/main/main-header';
 import PostContent from '@/components/posts/post-content';
+import PostToc from '@/components/posts/post-toc';
 import PostViewRecorder from '@/components/posts/post-view-recorder';
 import { getSession } from '@/lib/auth/session';
 import { formatDate } from '@/lib/dashboard/format';
@@ -18,6 +19,7 @@ import { buildPostMetadata, getSiteOrigin } from '@/lib/posts/metadata';
 import { buildBlogPostingJsonLd, serializeJsonLd } from '@/lib/seo/json-ld';
 import { localizePath } from '@/lib/i18n/config';
 import { removeLeadingTitle } from '@/lib/posts/post-content';
+import { buildPostOutline, getTocHeadings } from '@/lib/posts/post-outline';
 import { getEncodedPostPath, parsePostPath } from '@/lib/posts/post-path';
 import { getPublishedPost } from '@/lib/posts/queries';
 
@@ -111,6 +113,10 @@ export default async function PostPage({ params }: PostPageProps) {
       tags: post.tags,
       locale: post.locale,
     });
+  // 머리에 제목을 보여 주므로 본문 맨 앞의 같은 제목은 빼고, 남은 제목에 앵커 id 를 붙임
+  const outline = buildPostOutline(
+    removeLeadingTitle(post.content, post.title),
+  );
   const author = (
     <>
       {isGithubAvatar(post.author.image) && (
@@ -133,7 +139,7 @@ export default async function PostPage({ params }: PostPageProps) {
       header={<MainHeader isSignedIn={Boolean(session)} />}
       footer={<MainFooter />}
     >
-      <article className="mx-auto w-full max-w-3xl px-5 pt-8 pb-12 pc:px-0 pc:pt-14 pc:pb-20">
+      <article className="relative mx-auto w-full max-w-3xl px-5 pt-8 pb-12 pc:px-0 pc:pt-14 pc:pb-20">
         <header className="mb-8 flex flex-col gap-4 pc:mb-12">
           <h1 className="text-[23px] leading-[1.5] font-bold tracking-[-0.8px] wrap-break-word text-ink pc:text-[32px] pc:tracking-[-1px]">
             {post.title}
@@ -168,8 +174,9 @@ export default async function PostPage({ params }: PostPageProps) {
             )}
           </div>
         </header>
-        {/* 머리에 제목을 보여 주므로 본문 맨 앞의 같은 제목은 빼고 그림 */}
-        <PostContent content={removeLeadingTitle(post.content, post.title)} />
+        {/* PC 에서만 본문 오른쪽에 붙는 목차 (H2 가 없으면 그리지 않음) */}
+        <PostToc headings={getTocHeadings(outline.headings)} />
+        <PostContent content={outline.content} />
         <PostViewRecorder postId={post.id} />
         {jsonLd && (
           <script

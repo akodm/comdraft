@@ -15,6 +15,7 @@ import RepositorySelect, {
   type OnboardingRepositoryOption,
 } from '@/components/onboarding/repository-select';
 import { PRIMARY_BUTTON_CLASS } from '@/components/shared/button-styles';
+import LocalizedAnchor from '@/components/shared/localized-anchor';
 import Spinner from '@/components/shared/spinner';
 import type {
   ConnectRepositoryResult,
@@ -215,6 +216,18 @@ const RepositoryConnectForm = ({
                 </Trans>
               </p>
             )}
+            {/* 목록이 비어 있지 않아도(협업 저장소만 보이는 경우 등) 내 계정에 앱을 설치할 수 있게 항상 노출 */}
+            <p className="text-[13px] leading-[1.6] text-ink-muted">
+              <Trans>
+                찾는 저장소가 없나요?{' '}
+                <LocalizedAnchor
+                  href="/api/github/install"
+                  className="text-ink underline"
+                >
+                  GitHub App 에서 저장소 권한 추가하기
+                </LocalizedAnchor>
+              </Trans>
+            </p>
           </div>
           <div className="flex flex-col gap-3">
             <span id={branchLabelId} className={FIELD_LABEL_CLASS}>
