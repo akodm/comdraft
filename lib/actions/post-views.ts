@@ -8,6 +8,7 @@ import { verifyViewerCookie } from '@/lib/posts/viewer-cookie';
 import { consumeAnonymousViewAttempt } from '@/lib/posts/view-limit';
 import { getPostAuthorId, recordViewIfDue } from '@/lib/posts/views';
 import { getClientIp } from '@/lib/request-ip';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * 게시글 상세가 브라우저에서 열린 뒤 조회를 기록한다 (화면에 결과를 알리지 않음)
@@ -44,7 +45,8 @@ export async function recordPostView(postId: string): Promise<void> {
     }
 
     await recordViewIfDue(postId, viewerKey);
-  } catch {
+  } catch (error) {
     // 조회 기록 실패는 글 읽기에 영향을 주지 않음
+    reportError(error, 'posts.record-view', { postId });
   }
 }

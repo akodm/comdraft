@@ -43,6 +43,7 @@ import { saveDraftContent } from '@/lib/actions/studio';
 import type { GenerationJobView } from '@/lib/generation/jobs';
 import { countEmptyBlanks } from '@/lib/studio/draft-blank';
 import type { StudioDraft } from '@/lib/studio/queries';
+import { reportError } from '@/lib/observability/report-error';
 
 // 마지막 입력 후 이 시간이 지나면 자동 저장
 const AUTOSAVE_DELAY = 1000;
@@ -160,7 +161,8 @@ const useDraftAutosave = (
 
         setDraftTitle(draftId, result.title);
         setDraftStatus(draftId, result.draftStatus);
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.draft.save', { draftId });
         // 실패한 내용은 다음 입력 때 다시 저장되도록 되돌려 둠
         pendingRef.current ??= content;
         setSaveState('error');

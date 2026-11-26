@@ -10,6 +10,7 @@ import {
 import type { Locale } from '@/lib/i18n/config';
 import { isUuid } from '@/lib/images/rules';
 import { normalizeBlankAttrs, type BlankKind } from '@/lib/studio/draft-blank';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * 빈칸 채우기 (순수 함수: 요청 검증, 본문 스냅숏, 결과 → 문단)
@@ -183,7 +184,8 @@ export const fillResultToParagraphs = (
       .slice(0, MAX_FILL_PARAGRAPHS);
 
     return JSON.parse(JSON.stringify(paragraphs)) as JSONContent[];
-  } catch {
+  } catch (error) {
+    reportError(error, 'blank-fill.convert', {}, { omitMessage: true });
     return [];
   }
 };

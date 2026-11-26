@@ -20,6 +20,7 @@ import type {
   ConnectRepositoryResult,
   RepositoryBranchesResult,
 } from '@/lib/github/repository-selection';
+import { reportError } from '@/lib/observability/report-error';
 
 interface SubmitResult extends ConnectRepositoryResult {
   // 오류를 제출한 값 그대로일 때만 보여주기 위해 함께 기억
@@ -109,7 +110,8 @@ const RepositoryConnectForm = ({
           ? result.defaultBranch
           : (result.branches[0] ?? null),
       );
-    } catch {
+    } catch (error) {
+      reportError(error, 'onboarding.branches');
       if (isLatest()) {
         setBranchList({ repository: repository.value, status: 'error' });
       }

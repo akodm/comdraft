@@ -16,6 +16,7 @@ import { useDropdown } from '@/hooks/use-dropdown';
 import { useLocalizedRouter } from '@/hooks/use-localized-router';
 import { DELETE_CONFIRM_DELAY_MS } from '@/lib/account/delete-account-rules';
 import { deleteAccount } from '@/lib/actions/account';
+import { reportError } from '@/lib/observability/report-error';
 
 interface ProfileMenuProps {
   isSignedIn: boolean;
@@ -101,7 +102,8 @@ const ProfileMenu = ({ isSignedIn }: ProfileMenuProps) => {
       }
 
       setHasDeleteError(true);
-    } catch {
+    } catch (error) {
+      reportError(error, 'account.delete');
       setHasDeleteError(true);
     } finally {
       setIsDeleting(false);

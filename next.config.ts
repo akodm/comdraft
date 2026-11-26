@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { withSentryConfig } from '@sentry/nextjs/config';
 import { linguiMacroSwcPlugin } from '@lingui/swc-plugin/options';
 
 /**
@@ -36,4 +37,22 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+/**
+ * Sentry 빌드 설정
+ * - SENTRY_AUTH_TOKEN 이 있을 때만 소스맵을 올림 (없으면 업로드 없이 빌드, 스택은 번들 기준으로 보임)
+ * - 올린 뒤 브라우저용 소스맵은 배포 결과에서 지움 (원본 코드를 공개하지 않음)
+ */
+export default withSentryConfig(nextConfig, {
+  org: 'akodm',
+  project: 'comdraft',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  telemetry: false,
+  widenClientFileUpload: true,
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+    deleteSourcemapsAfterUpload: true,
+  },
+  // 화면 이동 추적을 쓰지 않으므로 경고를 끔
+  suppressOnRouterTransitionStartWarning: true,
+});

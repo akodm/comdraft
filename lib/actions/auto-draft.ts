@@ -24,6 +24,7 @@ import {
   type PromptOptions,
 } from '@/lib/studio/options';
 import { getStudioRepository } from '@/lib/studio/queries';
+import { reportError } from '@/lib/observability/report-error';
 
 export type AutoDraftSettingsResult =
   | {
@@ -205,7 +206,8 @@ export async function loadAutoDraftState(
       skipped: Array.from(plan.skipped, ([sha, reason]) => ({ sha, reason })),
       excluded: toExcludedList(excluded),
     };
-  } catch {
+  } catch (error) {
+    reportError(error, 'auto-draft.load-state', { repositoryId });
     return { status: 'error' };
   }
 }
@@ -256,7 +258,8 @@ export async function setAutoDraftAnchor(
     await setBoundary(user.id, repositoryId, parentShas[0]);
 
     return { status: 'ok' };
-  } catch {
+  } catch (error) {
+    reportError(error, 'auto-draft.set-anchor', { repositoryId });
     return { status: 'error' };
   }
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadStudioCommits, type StudioCommit } from '@/lib/actions/studio';
+import { reportError } from '@/lib/observability/report-error';
 
 export type CommitHistoryState =
   | 'idle'
@@ -94,7 +95,8 @@ export const useCommitHistory = (
           state: 'idle',
         };
       });
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.commits.load');
       setLoaded((previous) =>
         previous.key === key ? { ...previous, state: 'error' } : previous,
       );

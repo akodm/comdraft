@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useStudio } from '@/components/studio/studio-context';
 import { useLocalizedRouter } from '@/hooks/use-localized-router';
 import { deleteDraft } from '@/lib/actions/studio';
+import { reportError } from '@/lib/observability/report-error';
 
 interface DraftListEntry {
   id: string;
@@ -58,7 +59,8 @@ export const useDraftDeletion = (
         if (result.status === 'deleted' && draftId === activeDraftId) {
           router.replace(nextDraftId ? `${basePath}/${nextDraftId}` : basePath);
         }
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.draft.delete', { draftId });
         unmarkDraftRemoved(draftId);
         setError('failed');
       }

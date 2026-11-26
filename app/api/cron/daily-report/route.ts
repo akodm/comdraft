@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { runDailyReport } from '@/lib/report/run';
 import { isAuthorizedCronRequest } from '@/lib/seo/cron';
+import { flushReports, reportError } from '@/lib/observability/report-error';
 
 /**
  * 일일 현황 보고 (Vercel Schedules `daily-report`, vercel.json: 매일 08시 한국 시간, 15분 안의 지연 허용)
@@ -25,6 +26,8 @@ export async function GET(request: NextRequest) {
       '[daily-report] 보고 실패:',
       error instanceof Error ? error.message : error,
     );
+    reportError(error, 'cron.daily-report');
+    await flushReports();
     return Response.json({ error: 'daily_report_failed' }, { status: 500 });
   }
 }

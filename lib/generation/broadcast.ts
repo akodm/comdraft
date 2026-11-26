@@ -3,6 +3,7 @@ import {
   GENERATION_BROADCAST_EVENT,
   type GenerationBroadcastPayload,
 } from '@/lib/generation/contract';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * 작업 진행 신호를 Supabase Realtime Broadcast 로 전송 (REST API)
@@ -39,7 +40,9 @@ export const sendGenerationSignal = async (
     });
 
     return response.ok;
-  } catch {
+  } catch (error) {
+    // 신호는 덤이라 실패해도 작업을 멈추지 않음 (화면이 주기적으로 다시 조회)
+    reportError(error, 'generation.broadcast');
     return false;
   }
 };

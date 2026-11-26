@@ -24,6 +24,7 @@ import {
 } from '@/lib/studio/prompt-history';
 import { parseCodeInputMeta } from '@/lib/generation/code-input';
 import { getStudioRepository } from '@/lib/studio/queries';
+import { reportError } from '@/lib/observability/report-error';
 
 export interface PromptHistoryPage {
   entries: PromptHistoryEntry[];
@@ -244,6 +245,9 @@ const toBranchError = (
   }
 
   if (error instanceof GithubApiError) {
+    reportError(error, 'repository-settings.branches', {
+      status: error.status,
+    });
     return { status: 'error' };
   }
 

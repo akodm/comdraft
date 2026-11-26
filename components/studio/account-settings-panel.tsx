@@ -16,6 +16,7 @@ import {
 } from '@/lib/actions/account';
 import { formatQuotaReset } from '@/lib/generation/quota-format';
 import { OUTLINE_BUTTON_CLASS } from '@/components/studio/studio-styles';
+import { reportError } from '@/lib/observability/report-error';
 
 // 등급 이름 (제품 등급 이름이라 번역하지 않음, 모르는 등급은 첫 글자만 대문자로)
 const PLAN_NAMES: Record<string, string> = {
@@ -252,7 +253,8 @@ const AccountSettingsPanel = () => {
         settings,
         clockOffsetMs: new Date(settings.serverNow).getTime() - Date.now(),
       });
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.account-settings.load');
       setState({ status: 'error' });
     }
   }, []);

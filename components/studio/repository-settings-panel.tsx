@@ -38,6 +38,7 @@ import {
   toUsagePercentLabel,
   type PromptHistoryItem,
 } from '@/lib/studio/prompt-history';
+import { reportError } from '@/lib/observability/report-error';
 
 type LoadState =
   | { status: 'loading' }
@@ -265,7 +266,8 @@ const PromptHistoryList = ({
       });
       setNextCursor(result.nextCursor);
       setMoreState('idle');
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.repository.history-more');
       setMoreState('error');
     } finally {
       isLoadingRef.current = false;
@@ -386,7 +388,8 @@ const BranchSection = () => {
         // 다음에 펼칠 때 다시 시도할 수 있게
         requestedRef.current = false;
       }
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.repository.branches');
       setNotice('error');
       requestedRef.current = false;
     } finally {
@@ -409,7 +412,8 @@ const BranchSection = () => {
       try {
         const result = await changeRepositoryBranch(repository.id, branch);
         setNotice(result.status);
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.repository.change-branch');
         setNotice('error');
       }
     });
@@ -484,7 +488,8 @@ const DeleteSection = ({
         formData.set('repositoryId', repository.id);
         // 성공하면 서버가 대시보드로 이동시킴
         await disconnectRepository(formData);
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.repository.disconnect');
         setHasError(true);
       }
     });
@@ -561,7 +566,8 @@ const RepositorySettingsPanel = () => {
           ? { status: 'ready', settings: result }
           : { status: 'error' },
       );
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.repository.settings-load');
       setState({ status: 'error' });
     }
   }, [repository.id]);

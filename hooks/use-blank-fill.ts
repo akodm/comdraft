@@ -25,6 +25,7 @@ import type { GenerationJobView } from '@/lib/generation/jobs';
 import { formatQuotaReset } from '@/lib/generation/quota-format';
 import { getBlankFillLock } from '@/lib/studio/blank-fill-state';
 import { getBlankAnswer } from '@/lib/studio/draft-blank';
+import { reportError } from '@/lib/observability/report-error';
 
 interface UseBlankFillOptions {
   editor: Editor | null;
@@ -167,7 +168,8 @@ export const useBlankFill = ({
         // 작업이 생기면 그 작업이 빈칸을 막음
         onStarted(result.job);
         setPendingBlankId(null);
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.blank-fill.request');
         fail(failureMessage);
       } finally {
         requestingRef.current = false;
@@ -189,7 +191,8 @@ export const useBlankFill = ({
   const markApplied = useCallback(async (jobId: string) => {
     try {
       await markFillApplied(jobId);
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.blank-fill.mark-applied', { jobId });
       // 네트워크 오류는 서버 정리에 맡김
     }
   }, []);

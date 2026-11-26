@@ -21,6 +21,7 @@ import {
   TONES,
   type PromptOptions as PromptOptionsValue,
 } from '@/lib/studio/options';
+import { reportError } from '@/lib/observability/report-error';
 
 type Loaded = Extract<AutoDraftSettingsResult, { status: 'ok' }>;
 
@@ -117,7 +118,8 @@ const SettingsForm = ({ initial }: { initial: Loaded }) => {
         } else {
           setToggleNotice(t`저장소를 찾을 수 없습니다.`);
         }
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.auto-draft.toggle');
         setToggleNotice(t`설정을 바꾸지 못했습니다. 다시 시도해 주세요.`);
       }
     });
@@ -150,7 +152,8 @@ const SettingsForm = ({ initial }: { initial: Loaded }) => {
             message: t`저장소를 찾을 수 없습니다.`,
           });
         }
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.auto-draft.save');
         setSaveNotice({
           kind: 'error',
           message: t`저장하지 못했습니다. 다시 시도해 주세요.`,
@@ -305,7 +308,8 @@ const AutoDraftSettingsSection = () => {
           );
         }
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        reportError(error, 'studio.auto-draft.load');
         if (!isStale) {
           setState({ status: 'error' });
         }

@@ -67,6 +67,7 @@ import {
 } from '@/lib/studio/options';
 import { getStudioRepository, isOwnedDraft } from '@/lib/studio/queries';
 import { parseReferenceUrls } from '@/lib/studio/reference-link';
+import { reportError } from '@/lib/observability/report-error';
 
 export interface RequestDraftGenerationInput {
   repositoryId: string;
@@ -212,7 +213,11 @@ export async function requestDraftGeneration(
       githubToken: gate.githubToken,
       ...codeInputsField(request.codeInputs),
     });
-  } catch {
+  } catch (error) {
+    reportError(error, 'generation.start-runner', {
+      jobId: created.jobId,
+      kind: 'draft',
+    });
     await failJob(created.jobId, 'runner_unavailable');
     refresh();
     return { status: 'runner_unavailable' };
@@ -521,7 +526,8 @@ export async function requestBlankFill(
       jobId,
       githubToken: gate.githubToken,
     });
-  } catch {
+  } catch (error) {
+    reportError(error, 'generation.start-runner', { jobId, kind: 'fill' });
     await failJob(jobId, 'runner_unavailable');
     return { status: 'runner_unavailable' };
   }
@@ -671,7 +677,8 @@ export async function resumeClarifiedJob(
       githubToken,
       ...codeInputsField(code.inputs),
     });
-  } catch {
+  } catch (error) {
+    reportError(error, 'generation.start-runner', { jobId, kind: 'clarified' });
     await failJob(jobId, 'runner_unavailable');
     refresh();
     return {

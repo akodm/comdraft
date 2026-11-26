@@ -26,6 +26,7 @@ import { failJob, isTriggerDuplicateConflict } from '@/lib/generation/jobs';
 import { isModelAllowed } from '@/lib/generation/models';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n/config';
 import type { PromptOptions } from '@/lib/studio/options';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * 커밋 트리거 자동 초안 실행 (웹훅이 after() 안에서 호출)
@@ -332,8 +333,10 @@ async function tryStartBatch(
       locale,
     );
   } catch (error) {
-    // 되돌리기가 실패해도 원래 오류를 던짐
-    await revert().catch(() => undefined);
+    // 되돌리기가 실패해도 원래 오류를 던짐 (원래 오류는 호출한 쪽이 보고)
+    await revert().catch((revertError: unknown) =>
+      reportError(revertError, 'auto-draft.revert-boundary', { repositoryId }),
+    );
     throw error;
   }
 
@@ -348,7 +351,11 @@ async function tryStartBatch(
 
   try {
     await deps.startRunner({ jobId: created.jobId, githubToken });
-  } catch {
+  } catch (error) {
+    reportError(error, 'auto-draft.start-runner', {
+      jobId: created.jobId,
+      repositoryId,
+    });
     // 작업 행이 이미 있으므로 실패 행을 따로 남기지 않음
     // 경계를 먼저 되돌려 failJob 이 실패해도 항상 복구
     await revert();

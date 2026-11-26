@@ -26,6 +26,7 @@ import type { PostVisibility } from '@/lib/db/schema';
 import { checkPublishable } from '@/lib/posts/post-content';
 import { getPostPath } from '@/lib/posts/post-path';
 import type { StudioDraft } from '@/lib/studio/queries';
+import { reportError } from '@/lib/observability/report-error';
 
 const DEFAULT_VISIBILITY: PostVisibility = 'public';
 
@@ -38,7 +39,8 @@ const inspectContent = (editor: Editor | null) => {
       blankCount: check.status === 'has_blanks' ? check.count : 0,
       hasNoTitle: check.status === 'no_title',
     };
-  } catch {
+  } catch (error) {
+    reportError(error, 'studio.publish.inspect', {}, { omitMessage: true });
     return { blankCount: 0, hasNoTitle: true };
   }
 };
@@ -167,7 +169,8 @@ const PublishActions = ({
       }
 
       setFailure(result.status);
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.publish');
       onResave(editor);
       setFailure('error');
     } finally {
@@ -193,7 +196,8 @@ const PublishActions = ({
       }
 
       setHasUnpublishError(true);
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.unpublish');
       setHasUnpublishError(true);
     } finally {
       setIsPending(false);

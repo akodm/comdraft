@@ -14,8 +14,10 @@ import { getUserQuota } from '@/lib/generation/quota-queries';
 import {
   getAuthenticatedGithubUser,
   getGithubUserToken,
+  GithubUserTokenError,
 } from '@/lib/github/user-api';
 import { revalidateSitemap } from '@/lib/seo/revalidate-sitemap';
+import { flushReports, reportError } from '@/lib/observability/report-error';
 
 // 연동한 GitHub 계정 (GitHub 조회에 실패하면 null)
 export interface AccountGithubProfile {
@@ -53,7 +55,12 @@ const loadGithubProfile = async (
       avatarUrl: profile.avatar_url,
       htmlUrl: profile.html_url,
     };
-  } catch {
+  } catch (error) {
+    // 토큰 만료(재로그인 필요)는 오류가 아님
+    if (!(error instanceof GithubUserTokenError)) {
+      reportError(error, 'account.github-profile');
+    }
+
     return null;
   }
 };
@@ -108,7 +115,19 @@ const revokeGithubGrant = async (accessToken: string | null) => {
     accessToken,
   );
 
-  await fetch(url, init).catch(() => undefined);
+  const response = await fetch(url, init).catch((error: unknown) => {
+    reportError(error, 'account.revoke-github-grant');
+    return null;
+  });
+
+  // 404 는 이미 철회된 권한
+  if (response && !response.ok && response.status !== 404) {
+    reportError(
+      new Error(`GitHub 권한 철회 실패 (${response.status})`),
+      'account.revoke-github-grant',
+      { status: response.status },
+    );
+  }
 };
 
 /**
@@ -120,18 +139,31 @@ const revokeGithubGrant = async (accessToken: string | null) => {
 export async function deleteAccount(): Promise<DeleteAccountResult> {
   const { user } = await requireSession();
   const accessToken = await getGithubUserToken(user.id, await headers()).catch(
-    () => null,
+    (error: unknown) => {
+      if (!(error instanceof GithubUserTokenError)) {
+        reportError(error, 'account.delete.github-token');
+      }
+
+      return null;
+    },
   );
 
   try {
     await deleteUserData(user.id);
-  } catch {
+  } catch (error) {
+    reportError(error, 'account.delete.user-data');
     return { status: 'error' };
   }
 
   after(async () => {
-    await revokeGithubGrant(accessToken);
-    await removeUserFiles(user.id);
+    try {
+      await revokeGithubGrant(accessToken);
+      await removeUserFiles(user.id);
+    } catch (error) {
+      reportError(error, 'account.delete.cleanup');
+    }
+
+    await flushReports();
   });
   revalidateSitemap();
 

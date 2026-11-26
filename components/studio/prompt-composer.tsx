@@ -42,6 +42,7 @@ import {
 import { formatQuotaReset } from '@/lib/generation/quota-format';
 import { shortSha, stripCommitType } from '@/lib/studio/draft-content';
 import type { PromptOptions } from '@/lib/studio/options';
+import { reportError } from '@/lib/observability/report-error';
 
 // 작성 요청 영역에 바로 보이는 선택한 커밋 수 (나머지는 +N 으로 표시)
 const PC_SUMMARY_COUNT = 3;
@@ -352,7 +353,8 @@ const PromptComposer = ({
         }
 
         onJobStarted(result.job);
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.generation.request');
         setNotice('error');
       }
     });
