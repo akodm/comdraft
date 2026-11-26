@@ -7,6 +7,8 @@ import {
   summarizeModelUsage,
 } from '@/lib/admin/stats';
 import type { ModelUsage } from '@/lib/admin/stats';
+import { viewRangeStart, type ViewRange } from '@/lib/admin/post-views';
+import { fillDailySignups, type DailySignups } from '@/lib/admin/user-trend';
 import { countSince } from '@/lib/admin/stats-sql';
 import { db } from '@/lib/db';
 import { adminAccount, adminActionLog } from '@/lib/db/schema/admin';
@@ -208,4 +210,23 @@ export const getRecentAdminActions = async (
     .leftJoin(adminAccount, eq(adminAccount.id, adminActionLog.adminId))
     .orderBy(desc(adminActionLog.createdAt))
     .limit(limit);
+};
+
+/**
+ * 일별 새 사용자와 그날 가입한 이메일 (오늘을 포함한 days 일, 한국 시간 날짜별)
+ * - 기간이 최대 90일이고 가입 수가 많지 않아 행을 그대로 읽어 날짜별로 묶음
+ */
+export const getDailySignups = async (
+  days: ViewRange,
+  now: Date = new Date(),
+): Promise<DailySignups[]> => {
+  // 페이지를 거치지 않는 호출(에이전트 도구 등)도 여기서 조회 권한(view)을 확인
+  await requireAdmin('view');
+
+  const rows = await db
+    .select({ createdAt: user.createdAt, email: user.email })
+    .from(user)
+    .where(gte(user.createdAt, viewRangeStart(now, days)));
+
+  return fillDailySignups(rows, now, days);
 };

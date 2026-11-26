@@ -1,9 +1,13 @@
 import type { ReactNode } from 'react';
+import { msg } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import { ADMIN_TITLE_CLASS } from '@/components/admin/admin-styles';
 import AdminTable from '@/components/admin/admin-table';
+import DailyLineChart from '@/components/admin/daily-line-chart';
+import RangeNav from '@/components/admin/range-nav';
 import RefreshButton from '@/components/admin/refresh-button';
 import { requireAdmin } from '@/lib/admin/guard';
+import { parseViewRange } from '@/lib/admin/post-views';
 import {
   formatElapsed,
   formatMicroUsd,
@@ -11,13 +15,28 @@ import {
 } from '@/lib/admin/stats';
 import {
   getActiveJobs,
+  getDailySignups,
   getDashboardStats,
   getRecentAdminActions,
 } from '@/lib/admin/stats-queries';
+import { getDailyTraffic } from '@/lib/admin/traffic';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 
 const SECTION_TITLE_CLASS =
   'text-[15px] leading-[1.4] font-bold tracking-[-0.3px] text-ink';
+
+const CHART_TITLE_CLASS = 'text-[13px] font-bold text-ink';
+
+// 트래픽 그래프 계열 색 (색약 구분·명도 검사를 통과한 순서, 범례와 표로 보기를 함께 둠)
+const TRAFFIC_COLORS = {
+  activeUsers: 'var(--color-brand)',
+  sessions: '#1baf7a',
+  pageViews: '#eb6834',
+};
+
+interface AdminDashboardPageProps {
+  searchParams: Promise<{ range?: string }>;
+}
 
 // 날짜와 시각 (어드민은 한국 시간 기준으로 보여 줌)
 const formatDateTime = (date: Date, locale: string) =>
@@ -62,17 +81,34 @@ const VisibilityLabel = ({ visibility }: { visibility: string }) =>
   visibility === 'public' ? <Trans>전체 공개</Trans> : <Trans>일부 공개</Trans>;
 
 // 어드민 대시보드: 화면을 열 때 한 번 읽고, 새로고침 버튼을 눌렀을 때만 다시 읽음
-export default async function AdminDashboardPage() {
-  await initLingui();
+export default async function AdminDashboardPage({
+  searchParams,
+}: AdminDashboardPageProps) {
+  const i18n = await initLingui();
   await requireAdmin('view');
 
   const locale = await getLocale();
   const now = new Date();
-  const [stats, jobs, actions] = await Promise.all([
+  // 추이 그래프 기간 (?range=7|30|90, 기본 30일)
+  const range = parseViewRange((await searchParams).range);
+  const [stats, jobs, actions, signups, traffic] = await Promise.all([
     getDashboardStats(now),
     getActiveJobs(now),
     getRecentAdminActions(20),
+    getDailySignups(range, now),
+    getDailyTraffic(range, now),
   ]);
+  const signupTotal = signups.reduce((sum, day) => sum + day.count, 0);
+  const trafficTotals =
+    traffic.status === 'ok'
+      ? traffic.data.reduce(
+          (sum, day) => ({
+            sessions: sum.sessions + day.sessions,
+            pageViews: sum.pageViews + day.pageViews,
+          }),
+          { sessions: 0, pageViews: 0 },
+        )
+      : null;
 
   return (
     <div className="flex flex-col gap-8">
@@ -110,6 +146,119 @@ export default async function AdminDashboardPage() {
               </p>
             ))}
           </StatCard>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className={SECTION_TITLE_CLASS}>
+            <Trans>추이</Trans>
+          </h2>
+          <RangeNav range={range} label={i18n._(msg`기간`)} />
+        </div>
+
+        <div className="flex flex-col gap-2 border border-line bg-panel p-4">
+          <h3 className={CHART_TITLE_CLASS}>
+            <Trans>새 사용자</Trans>
+          </h3>
+          <p className="text-[12px] text-ink-muted">
+            <Trans>
+              최근 {range}일 {signupTotal.toLocaleString(locale)}명 (한국 시간
+              기준, 탈퇴한 사용자는 빠져요)
+            </Trans>
+          </p>
+          <DailyLineChart
+            data={signups.map((day) => ({
+              date: day.date,
+              values: { signups: day.count },
+              details:
+                day.moreCount > 0
+                  ? [...day.emails, i18n._(msg`외 ${day.moreCount}명`)]
+                  : day.emails,
+            }))}
+            series={[
+              {
+                key: 'signups',
+                label: i18n._(msg`새 사용자`),
+                color: 'var(--color-brand)',
+              },
+            ]}
+            labels={{
+              date: i18n._(msg`날짜`),
+              table: i18n._(msg`표로 보기`),
+              details: i18n._(msg`이메일`),
+              summary: i18n._(
+                msg`최근 ${range}일 일별 새 사용자, 합계 ${signupTotal}`,
+              ),
+            }}
+            locale={locale}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2 border border-line bg-panel p-4">
+          <h3 className={CHART_TITLE_CLASS}>
+            <Trans>사이트 트래픽</Trans>
+          </h3>
+          {traffic.status === 'ok' && trafficTotals ? (
+            <>
+              <p className="text-[12px] text-ink-muted">
+                <Trans>
+                  GA4 기준 최근 {range}일 세션{' '}
+                  {trafficTotals.sessions.toLocaleString(locale)} · 페이지뷰{' '}
+                  {trafficTotals.pageViews.toLocaleString(locale)} (1시간마다
+                  새로 읽고, 오늘 값은 아직 집계 중일 수 있어요)
+                </Trans>
+              </p>
+              <DailyLineChart
+                data={traffic.data.map((day) => ({
+                  date: day.date,
+                  values: {
+                    activeUsers: day.activeUsers,
+                    sessions: day.sessions,
+                    pageViews: day.pageViews,
+                  },
+                }))}
+                series={[
+                  {
+                    key: 'activeUsers',
+                    label: i18n._(msg`방문자`),
+                    color: TRAFFIC_COLORS.activeUsers,
+                  },
+                  {
+                    key: 'sessions',
+                    label: i18n._(msg`세션`),
+                    color: TRAFFIC_COLORS.sessions,
+                  },
+                  {
+                    key: 'pageViews',
+                    label: i18n._(msg`페이지뷰`),
+                    color: TRAFFIC_COLORS.pageViews,
+                  },
+                ]}
+                labels={{
+                  date: i18n._(msg`날짜`),
+                  table: i18n._(msg`표로 보기`),
+                  summary: i18n._(
+                    msg`최근 ${range}일 일별 방문자·세션·페이지뷰 (GA4)`,
+                  ),
+                }}
+                locale={locale}
+              />
+            </>
+          ) : (
+            <p className="text-[12px] text-ink-muted">
+              {traffic.status === 'unconfigured' ? (
+                <Trans>
+                  GA4 조회 설정(GOOGLE_REPORT_CREDENTIALS)이 없어 트래픽을 볼 수
+                  없어요
+                </Trans>
+              ) : (
+                <Trans>
+                  GA4 트래픽을 불러오지 못했어요. 잠시 뒤 새로고침해 주세요
+                </Trans>
+              )}
+            </p>
+          )}
         </div>
       </section>
 

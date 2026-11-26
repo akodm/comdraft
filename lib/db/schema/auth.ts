@@ -59,6 +59,19 @@ export const user = comdraftSchema.table(
   ],
 );
 
+// 회원 탈퇴 기록 (언제 탈퇴했는지만 남김)
+// - 탈퇴하면 개인정보를 지체 없이 파기하므로(개인정보처리방침) 이메일·GitHub 아이디·사용자 id 는 남기지 않음
+export const userWithdrawal = comdraftSchema.table(
+  'user_withdrawal',
+  {
+    id: text('id').primaryKey(),
+    withdrawnAt: timestamp('withdrawn_at', { withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [index('user_withdrawal_withdrawn_at_idx').on(table.withdrawnAt)],
+);
+
 // 로그인 세션 (DB 저장형 세션, 쿠키에는 불투명 토큰만 저장)
 export const session = comdraftSchema.table(
   'session',

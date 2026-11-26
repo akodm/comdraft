@@ -1,10 +1,12 @@
 import { callGoogleApi } from '@/lib/report/google-auth';
-import type { ReportPeriod } from '@/lib/report/period';
+import { addDays } from '@/lib/report/period';
+import type { DateRange, ReportPeriod } from '@/lib/report/period';
 
 /**
  * GA4 Data API 로 방문 현황 조회 (comdraft GA4 속성)
  * - 합계: 어제·그제·최근 7일·그 전 7일을 이름 붙인 기간으로 한 번에 조회
  * - 순위: 최근 7일 인기 페이지와 유입 경로 (상위 5개)
+ * - 일별: 어드민 트래픽 그래프용 날짜별 합계
  */
 
 // comdraft GA4 속성 ID (측정 ID G-RBN7WKJY1V 와 다른 값, 비밀값 아님)
@@ -153,4 +155,66 @@ export const fetchTrafficSummary = async (
     topPages: groupPagePaths(parseGa4Ranking(pagesReport), RANKING_LIMIT),
     topSources: parseGa4Ranking(sourcesReport),
   };
+};
+
+export interface DailyTraffic extends TrafficTotals {
+  // YYYY-MM-DD
+  date: string;
+}
+
+// 기간의 모든 날짜 (양 끝 포함)
+const listDates = ({ start, end }: DateRange) => {
+  const dates: string[] = [];
+
+  for (let date = start; date <= end; date = addDays(date, 1)) {
+    dates.push(date);
+  }
+
+  return dates;
+};
+
+// GA4 date 차원은 YYYYMMDD. 데이터가 없는 날은 행이 없어 0 으로 채움
+export const parseGa4Daily = (
+  report: Ga4Report,
+  range: DateRange,
+): DailyTraffic[] => {
+  const byDate = new Map<string, TrafficTotals>();
+
+  for (const row of report.rows ?? []) {
+    const raw = row.dimensionValues?.[0]?.value ?? '';
+    const [activeUsers, sessions, pageViews] = (row.metricValues ?? []).map(
+      (metric) => toNumber(metric.value),
+    );
+
+    byDate.set(`${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`, {
+      activeUsers: activeUsers ?? 0,
+      sessions: sessions ?? 0,
+      pageViews: pageViews ?? 0,
+    });
+  }
+
+  return listDates(range).map((date) => ({
+    date,
+    ...(byDate.get(date) ?? { activeUsers: 0, sessions: 0, pageViews: 0 }),
+  }));
+};
+
+export const fetchDailyTraffic = async (
+  accessToken: string,
+  range: DateRange,
+): Promise<DailyTraffic[]> => {
+  const report = await runReport(accessToken, {
+    dateRanges: [{ startDate: range.start, endDate: range.end }],
+    dimensions: [{ name: 'date' }],
+    metrics: [
+      { name: 'activeUsers' },
+      { name: 'sessions' },
+      { name: 'screenPageViews' },
+    ],
+    orderBys: [{ dimension: { dimensionName: 'date' } }],
+    // 기간 최대 90일보다 넉넉히
+    limit: 400,
+  });
+
+  return parseGa4Daily(report, range);
 };
