@@ -7,7 +7,7 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: ko\n"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:244
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:228
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:201
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:277
 msgid "관련 조치 기록"
@@ -15,8 +15,8 @@ msgstr "관련 조치 기록"
 
 #: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:51
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:200
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:259
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:257
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:408
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:241
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:214
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:290
 msgid "삭제된 어드민"
@@ -39,8 +39,8 @@ msgid "넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다�
 msgstr "넣은 코드가 처음과 다릅니다. 직접 입력한 코드를 다시 넣어 주세요."
 
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:189
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:249
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:248
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:398
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:232
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:205
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:75
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:251
@@ -69,11 +69,11 @@ msgstr "브랜치 목록을 불러오지 못했습니다."
 msgid "작성 요청(프롬프트)은 서비스 품질 개선을 위해 저장됩니다. 요청 문구에는 비공개 코드를 넣지 마세요."
 msgstr "작성 요청(프롬프트)은 서비스 품질 개선을 위해 저장됩니다. 요청 문구에는 비공개 코드를 넣지 마세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:209
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:358
 msgid "단계"
 msgstr "단계"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:104
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:105
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:84
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:110
 #: components/studio/publish-dialog.tsx:106
@@ -96,7 +96,7 @@ msgstr "초안을 삭제하지 못했습니다. 다시 시도해주세요."
 msgid "현재 사용량"
 msgstr "현재 사용량"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:133
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:282
 msgid "임시 조치(밴)"
 msgstr "임시 조치(밴)"
 
@@ -118,7 +118,7 @@ msgstr "Github 연결"
 msgid "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
 msgstr "화면에 보이는 이미지부터 불러오도록 로딩 방식을 바꿨습니다. 이번 글에서는 구현 과정과 확인할 점을 정리합니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:220
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:204
 msgid "게시글 삭제"
 msgstr "게시글 삭제"
 
@@ -148,7 +148,7 @@ msgstr "저장소를 추가하고 초안을 만들어보세요"
 msgid "현재 비밀번호"
 msgstr "현재 비밀번호"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:118
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:119
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:115
 msgid "조회 수"
 msgstr "조회 수"
@@ -165,11 +165,11 @@ msgstr "태그 {tag} 삭제"
 msgid "기술 개발 블로그 습관"
 msgstr "기술 개발 블로그 습관"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:210
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:359
 msgid "시작 시각"
 msgstr "시작 시각"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:115
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:116
 msgid "마지막 게시"
 msgstr "마지막 게시"
 
@@ -177,7 +177,7 @@ msgstr "마지막 게시"
 msgid "설명 필요"
 msgstr "설명 필요"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:226
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:375
 msgid "멈춤 의심"
 msgstr "멈춤 의심"
 
@@ -281,7 +281,7 @@ msgid "새 탭에서 {host} 열기"
 msgstr "새 탭에서 {host} 열기"
 
 #. placeholder {0}: formatDateTime(stats.windowStart, locale)
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:155
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:304
 msgid "기본 등급 정책이 없어 최근 7일 기준이에요 ({0} 부터)"
 msgstr "기본 등급 정책이 없어 최근 7일 기준이에요 ({0} 부터)"
 
@@ -385,6 +385,11 @@ msgstr "초안 목록"
 msgid "태그는 10개까지 넣을 수 있습니다"
 msgstr "태그는 10개까지 넣을 수 있습니다"
 
+#. placeholder {0}: day.moreCount
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:176
+msgid "외 {0}명"
+msgstr "외 {0}명"
+
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:63
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:22
 msgid "적용 안 됨"
@@ -397,6 +402,11 @@ msgstr "초안 목록 열기"
 #: app/[lang]/admin/[adminKey]/(console)/layout.tsx:22
 msgid "사용량이 한도를 넘은 사용자 찾기"
 msgstr "사용량이 한도를 넘은 사용자 찾기"
+
+#. placeholder {0}: signupTotal.toLocaleString(locale)
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:165
+msgid "최근 {range}일 {0}명 (한국 시간 기준, 탈퇴한 사용자는 빠져요)"
+msgstr "최근 {range}일 {0}명 (한국 시간 기준, 탈퇴한 사용자는 빠져요)"
 
 #: components/studio/repository-settings-panel.tsx:440
 msgid "브랜치가 없습니다."
@@ -430,12 +440,16 @@ msgstr "AI 가 작성 중인 초안은 작성이 끝난 뒤 삭제할 수 있습
 msgid "연동된 저장소가 없습니다."
 msgstr "연동된 저장소가 없습니다."
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:251
+msgid "GA4 조회 설정(GOOGLE_REPORT_CREDENTIALS)이 없어 트래픽을 볼 수 없어요"
+msgstr "GA4 조회 설정(GOOGLE_REPORT_CREDENTIALS)이 없어 트래픽을 볼 수 없어요"
+
 #: components/studio/profile-menu.tsx:91
 #: components/studio/settings-dialog.tsx:18
 msgid "저장소 설정"
 msgstr "저장소 설정"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:239
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:388
 msgid "진행 중인 작업이 없어요"
 msgstr "진행 중인 작업이 없어요"
 
@@ -473,6 +487,7 @@ msgstr "저장소와 브랜치를<0/>선택하세요."
 msgid "수정 이력이 없어요"
 msgstr "수정 이력이 없어요"
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:229
 #: components/studio/draft-sidebar.tsx:169
 msgid "세션"
 msgstr "세션"
@@ -510,9 +525,9 @@ msgstr "초기화까지 {hours}시간 {minutes}분"
 msgid "완료"
 msgstr "완료"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:251
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:192
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:250
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:400
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:176
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:234
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:173
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:207
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:163
@@ -535,7 +550,7 @@ msgid "{0} 코드 빼기"
 msgstr "{0} 코드 빼기"
 
 #. placeholder {0}: formatDateTime(stats.windowStart, locale)
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:160
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:309
 msgid "이번 주 기준이에요 ({0} 부터)"
 msgstr "이번 주 기준이에요 ({0} 부터)"
 
@@ -547,7 +562,7 @@ msgstr "첫 저장소 연동이<0/>완료되었습니다."
 msgid "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 msgstr "간단하게 시작하고 초안을 만들어 꾸준히 글을 만들어보세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:111
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:112
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:94
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:111
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:116
@@ -567,6 +582,10 @@ msgstr "굵게"
 msgid "AI 작성 시간이 초과되었습니다. 다시 시도해주세요."
 msgstr "AI 작성 시간이 초과되었습니다. 다시 시도해주세요."
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:256
+msgid "GA4 트래픽을 불러오지 못했어요. 잠시 뒤 새로고침해 주세요"
+msgstr "GA4 트래픽을 불러오지 못했어요. 잠시 뒤 새로고침해 주세요"
+
 #: components/studio/generation-progress.tsx:22
 msgid "작성·검토"
 msgstr "작성·검토"
@@ -583,7 +602,7 @@ msgstr "민감한 코드가 포함된 커밋이나 코드를 보내지 않도록
 msgid "상태 페이지를 불러오지 못했어요."
 msgstr "상태 페이지를 불러오지 못했어요."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:172
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:321
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:65
 #: components/admin/prompt-status.tsx:17
 #: components/studio/repository-settings-panel.tsx:208
@@ -594,21 +613,21 @@ msgstr "실패"
 msgid "빈칸을 다듬지 못했습니다. 다시 시도해 주세요."
 msgstr "빈칸을 다듬지 못했습니다. 다시 시도해 주세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:267
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:262
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:416
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:246
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:219
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:295
 msgid "조치 기록이 없어요"
 msgstr "조치 기록이 없어요"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:91
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:121
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:127
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:270
 #: components/posts/filters/language-filter.tsx:64
 msgid "전체"
 msgstr "전체"
 
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/page.tsx:77
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:208
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:357
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:118
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:108
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:80
@@ -678,7 +697,7 @@ msgstr "올리지 못한 이미지가 있습니다"
 msgid "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 msgstr "커밋은 한 번에 {MAX_GENERATION_COMMITS}개까지 선택할 수 있습니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:118
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:267
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:64
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:110
 #: app/[lang]/posts/page.tsx:101
@@ -740,7 +759,7 @@ msgstr "이름"
 msgid "수정본을 지우고 기본 문장을 써요. 지금 수정본은 이력에 남아요."
 msgstr "수정본을 지우고 기본 문장을 써요. 지금 수정본은 이력에 남아요."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:221
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:205
 #: components/studio/draft-list-item.tsx:79
 #: components/studio/draft-list-item.tsx:153
 #: components/studio/repository-settings-panel.tsx:527
@@ -816,7 +835,7 @@ msgstr "답은 1,000자까지 적을 수 있습니다"
 msgid "바로 시작해보세요."
 msgstr "바로 시작해보세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:237
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:221
 msgid "목록으로"
 msgstr "목록으로"
 
@@ -873,7 +892,7 @@ msgstr "로그아웃"
 msgid "닫기"
 msgstr "닫기"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:97
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:133
 msgid "이번 주 새 사용자"
 msgstr "이번 주 새 사용자"
 
@@ -941,7 +960,7 @@ msgstr "회원가입 / 로그인"
 msgid "권한: {roleLabel}"
 msgstr "권한: {roleLabel}"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:139
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:288
 msgid "최근 7일 새 게시글"
 msgstr "최근 7일 새 게시글"
 
@@ -954,7 +973,7 @@ msgstr "이미지 넣기"
 msgid "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 msgstr "초안을 찾을 수 없습니다. 새로고침 후 다시 시도해주세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:129
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:130
 msgid "공개 화면"
 msgstr "공개 화면"
 
@@ -988,6 +1007,11 @@ msgstr "1시간 요청 한도를 넘어 실행하지 않았습니다."
 msgid "{0} 답 직접 입력"
 msgstr "{0} 답 직접 입력"
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:162
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:182
+msgid "새 사용자"
+msgstr "새 사용자"
+
 #: components/auth/auth-intro.tsx:11
 #: components/main/hero-section.tsx:17
 msgid "작업 과정을 <0>글 초안으로.</0>"
@@ -1005,7 +1029,7 @@ msgstr "커밋 제목을 [comdraft] 로 시작하고, 뒤에 옵션을 공백으
 msgid "초기화까지 {days}일 {hours}시간"
 msgstr "초기화까지 {days}일 {hours}시간"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:51
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:70
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:54
 #: components/admin/prompt-status.tsx:6
 msgid "대기"
@@ -1023,7 +1047,7 @@ msgstr "기본값 사용 중"
 msgid "게시하지 못했습니다. 다시 시도해주세요."
 msgstr "게시하지 못했습니다. 다시 시도해주세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:112
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:113
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:112
 msgid "게시일"
 msgstr "게시일"
@@ -1074,6 +1098,7 @@ msgstr "진행 중인 작성이 끝난 뒤 다시 요청해 주세요. (동시�
 msgid "제목 2"
 msgstr "제목 2"
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:189
 #: app/[lang]/admin/[adminKey]/(console)/users/page.tsx:76
 #: components/legal/legal-document.tsx:57
 msgid "이메일"
@@ -1092,7 +1117,7 @@ msgctxt "admin role"
 msgid "조회"
 msgstr "조회"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:223
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:207
 msgid "게시글이 지워지고 원래 초안은 작성 중 상태로 돌아가요. 되돌릴 수 없어요."
 msgstr "게시글이 지워지고 원래 초안은 작성 중 상태로 돌아가요. 되돌릴 수 없어요."
 
@@ -1150,8 +1175,8 @@ msgstr "서비스 이해를 위한 샘플 저장소와 초안입니다."
 msgid "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 msgstr "작성하지 않은 빈칸이 {count}개 있어요. 그대로 내보낼까요?"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:62
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:108
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:81
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:109
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:89
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:136
 #: components/studio/publish-dialog.tsx:45
@@ -1184,6 +1209,10 @@ msgstr "주요 메뉴"
 #: app/[lang]/admin/[adminKey]/(console)/ai-control/page.tsx:49
 msgid "마지막 변경: {0} · {1}"
 msgstr "마지막 변경: {0} · {1}"
+
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:191
+msgid "최근 {range}일 일별 새 사용자, 합계 {signupTotal}"
+msgstr "최근 {range}일 일별 새 사용자, 합계 {signupTotal}"
 
 #: components/studio/prompt-composer.tsx:245
 msgid "+{pcRest}개"
@@ -1245,6 +1274,10 @@ msgstr "조건에 맞는 사용자가 없어요"
 msgid "읽는 중"
 msgstr "읽는 중"
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:200
+msgid "사이트 트래픽"
+msgstr "사이트 트래픽"
+
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:140
 msgid "사용 비용"
 msgstr "사용 비용"
@@ -1257,7 +1290,9 @@ msgstr "목차"
 msgid "{charCount} / {maxChars}자"
 msgstr "{charCount} / {maxChars}자"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:179
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:187
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:239
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:163
 msgid "날짜"
 msgstr "날짜"
 
@@ -1293,6 +1328,7 @@ msgstr "비밀번호 확인이 일치하지 않아요."
 msgid "더 보기"
 msgstr "더 보기"
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:157
 #: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:148
 msgid "기간"
 msgstr "기간"
@@ -1309,7 +1345,7 @@ msgstr "지금 이후에 만든 작업만 이번 주 사용량으로 셈해요. 
 msgid "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
 msgstr "작성 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:141
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:290
 msgid "이번 주 새 게시글"
 msgstr "이번 주 새 게시글"
 
@@ -1346,6 +1382,10 @@ msgstr "제목 3"
 msgid "브랜치를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
 msgstr "브랜치를 불러오지 못했습니다. 잠시 후 다시 시도해주세요."
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:224
+msgid "방문자"
+msgstr "방문자"
+
 #: components/main/hero-section.tsx:37
 msgid "GitHub로 시작하기"
 msgstr "GitHub로 시작하기"
@@ -1378,7 +1418,7 @@ msgstr "로그인을 여러 번 실패해 잠시 잠겼어요. 15분 뒤에 다�
 msgid "비밀번호를 바꾸면 지금 쓰는 곳을 뺀 다른 곳의 로그인이 모두 끝나요."
 msgstr "비밀번호를 바꾸면 지금 쓰는 곳을 뺀 다른 곳의 로그인이 모두 끝나요."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:123
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:272
 msgid "공개 범위별"
 msgstr "공개 범위별"
 
@@ -1454,11 +1494,11 @@ msgstr "Github 계정으로 로그인합니다"
 msgid "이 부분에 작업 계기를 작성해 주세요"
 msgstr "이 부분에 작업 계기를 작성해 주세요"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:196
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:345
 msgid "이 기간의 AI 작업이 없어요"
 msgstr "이 기간의 AI 작업이 없어요"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:81
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:117
 #: app/[lang]/dashboard/repositories/[repositoryId]/page.tsx:40
 #: components/admin/admin-sidebar.tsx:27
 #: components/main/profile-menu.tsx:155
@@ -1585,6 +1625,10 @@ msgstr "코드를 붙여 넣거나 입력해주세요."
 msgid "기울임"
 msgstr "기울임"
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:234
+msgid "페이지뷰"
+msgstr "페이지뷰"
+
 #: lib/seo/copy.ts:31
 msgid "comdraft 가 처리하는 개인정보 항목과 이용 목적, AI 초안 작성을 위한 제3자 전송, 보유 기간과 이용자의 권리를 안내합니다."
 msgstr "comdraft 가 처리하는 개인정보 항목과 이용 목적, AI 초안 작성을 위한 제3자 전송, 보유 기간과 이용자의 권리를 안내합니다."
@@ -1623,18 +1667,18 @@ msgstr "작성 요청을 보내는 중..."
 msgid "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
 msgstr "저장소나 커밋에 접근할 수 없어 작성하지 못했습니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:151
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:300
 #: components/studio/account-settings-panel.tsx:299
 msgid "AI 사용량"
 msgstr "AI 사용량"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:245
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:394
 msgid "최근 조치 기록"
 msgstr "최근 조치 기록"
 
 #: app/[lang]/admin/[adminKey]/(console)/ai-prompts/[locale]/[key]/page.tsx:190
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:250
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:249
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:399
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:233
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:206
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:282
 #: app/[lang]/admin/[adminKey]/layout.tsx:8
@@ -1669,11 +1713,13 @@ msgstr "이용이 제한된 계정이에요."
 
 #. placeholder {0}: rangeTotal.toLocaleString(locale)
 #. placeholder {1}: rangePeak.toLocaleString(locale)
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:167
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:151
 msgid "최근 {range}일 합계 {0} · 하루 최고 {1} (한국 시간 기준, 같은 방문자는 30일에 한 번만 셈)"
 msgstr "최근 {range}일 합계 {0} · 하루 최고 {1} (한국 시간 기준, 같은 방문자는 30일에 한 번만 셈)"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:180
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:188
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:240
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:164
 msgid "표로 보기"
 msgstr "표로 보기"
 
@@ -1734,7 +1780,7 @@ msgstr "이 초안은 이미 AI 가 작성하고 있습니다. 끝난 뒤 다시
 msgid "수정"
 msgstr "수정"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:169
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:318
 msgid "비용 합"
 msgstr "비용 합"
 
@@ -1750,8 +1796,8 @@ msgstr "직접 입력"
 msgid "내역 숨기기"
 msgstr "내역 숨기기"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:253
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:251
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:402
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:235
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:208
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:284
 msgid "요약"
@@ -1769,11 +1815,21 @@ msgstr "초안 목록 너비 조절"
 msgid "공개 저장소"
 msgstr "공개 저장소"
 
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:155
+msgid "추이"
+msgstr "추이"
+
+#. placeholder {0}: trafficTotals.sessions.toLocaleString(locale)
+#. placeholder {1}: trafficTotals.pageViews.toLocaleString(locale)
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:205
+msgid "GA4 기준 최근 {range}일 세션 {0} · 페이지뷰 {1} (1시간마다 새로 읽고, 오늘 값은 아직 집계 중일 수 있어요)"
+msgstr "GA4 기준 최근 {range}일 세션 {0} · 페이지뷰 {1} (1시간마다 새로 읽고, 오늘 값은 아직 집계 중일 수 있어요)"
+
 #: components/studio/generation-progress.tsx:140
 msgid "AI 초안 작성 중"
 msgstr "AI 초안 작성 중"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:90
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:91
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:100
 msgid "기본 정보"
 msgstr "기본 정보"
@@ -1782,7 +1838,7 @@ msgstr "기본 정보"
 msgid "새로 작성하면 지금 본문이 AI 결과로 바뀝니다. 직접 고친 내용도 사라집니다."
 msgstr "새로 작성하면 지금 본문이 AI 결과로 바뀝니다. 직접 고친 내용도 사라집니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:184
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:333
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:83
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:256
 msgid "비용"
@@ -1822,7 +1878,7 @@ msgstr "연동 저장소"
 msgid "취소"
 msgstr "취소"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:161
+#: components/admin/range-nav.tsx:30
 msgid "{days}일"
 msgstr "{days}일"
 
@@ -1834,13 +1890,17 @@ msgstr "refactor: 이미지 로딩 훅 분리"
 msgid "관찰 로직을 재사용 가능한 훅으로 분리"
 msgstr "관찰 로직을 재사용 가능한 훅으로 분리"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:178
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:162
 msgid "조회"
 msgstr "조회"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:202
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:351
 msgid "진행 중인 AI 작업"
 msgstr "진행 중인 AI 작업"
+
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:242
+msgid "최근 {range}일 일별 방문자·세션·페이지뷰 (GA4)"
+msgstr "최근 {range}일 일별 방문자·세션·페이지뷰 (GA4)"
 
 #: components/main/hero-section.tsx:26
 msgid "Github Commit 을 기술 블로그의 초안으로 활용하고, <0/>다듬어 어디든 게시하세요."
@@ -1956,8 +2016,8 @@ msgstr "관리자"
 msgid "{owner} 님의 저장소입니다. 협업자로 등록되어 있어 연동할 수 있습니다."
 msgstr "{owner} 님의 저장소입니다. 협업자로 등록되어 있어 연동할 수 있습니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:62
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:106
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:81
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:107
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:88
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:134
 msgid "전체 공개"
@@ -1971,7 +2031,7 @@ msgstr "{blankCount, plural, other {빈칸 #개를 채우고 완료를 눌러야
 msgid "확인 불가"
 msgstr "확인 불가"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:124
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:125
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:119
 msgid "밴 사유"
 msgstr "밴 사유"
@@ -1984,8 +2044,8 @@ msgstr "자동 대상 {count}/{max}"
 msgid "사용"
 msgstr "사용"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:176
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:207
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:325
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:356
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:115
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:79
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:252
@@ -2027,7 +2087,7 @@ msgstr "저장 중..."
 msgid "제목"
 msgstr "제목"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:58
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:77
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:62
 #: components/admin/prompt-status.tsx:14
 #: components/studio/draft-list-item.tsx:131
@@ -2059,7 +2119,7 @@ msgctxt "admin role"
 msgid "편집"
 msgstr "편집"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:199
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:183
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:170
 msgid "해제"
 msgstr "해제"
@@ -2153,7 +2213,7 @@ msgstr "취소선"
 msgid "전체 {total}건"
 msgstr "전체 {total}건"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:94
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:95
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:109
 msgid "작성자"
 msgstr "작성자"
@@ -2178,8 +2238,8 @@ msgstr "다시 로그인"
 msgid "빈칸 {emptyBlankCount}개"
 msgstr "빈칸 {emptyBlankCount}개"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:88
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:206
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:124
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:355
 #: app/[lang]/admin/[adminKey]/(console)/prompts/[jobId]/page.tsx:96
 #: app/[lang]/admin/[adminKey]/(console)/prompts/page.tsx:76
 #: app/[lang]/admin/[adminKey]/(console)/users/page.tsx:56
@@ -2224,7 +2284,7 @@ msgstr "눌러서 status.claude.com 열기"
 msgid "넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 다만 작성된 초안에 인용된 부분은 초안 내용으로 저장되고, 요청 문구에 붙인 코드도 저장됩니다."
 msgstr "넣은 코드는 저장하지 않고 AI 작성에만 씁니다. 다만 작성된 초안에 인용된 부분은 초안 내용으로 저장되고, 요청 문구에 붙인 코드도 저장됩니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:182
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:166
 msgid "최근 {range}일 일별 조회 수, 합계 {rangeTotal}"
 msgstr "최근 {range}일 일별 조회 수, 합계 {rangeTotal}"
 
@@ -2334,7 +2394,7 @@ msgstr "검토 후 게시 및 내보내기"
 msgid "저장소 정보를 불러오지 못했습니다."
 msgstr "저장소 정보를 불러오지 못했습니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:55
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:74
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:58
 #: components/admin/prompt-status.tsx:10
 msgid "진행 중"
@@ -2348,7 +2408,7 @@ msgstr "게시할 수 없는 본문입니다. 내용을 확인해주세요."
 msgid "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 msgstr "연동을 해제하고 이 저장소의 초안과 게시글을 모두 삭제합니다."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:104
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:140
 msgid "등급별"
 msgstr "등급별"
 
@@ -2562,7 +2622,7 @@ msgstr "삭제됨"
 msgid "편집 서식"
 msgstr "편집 서식"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:145
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:146
 msgid "일별 조회 수"
 msgstr "일별 조회 수"
 
@@ -2680,12 +2740,12 @@ msgstr "로그인 중..."
 msgid "커밋 내역"
 msgstr "커밋 내역"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:121
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:122
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:116
 msgid "밴 시각"
 msgstr "밴 시각"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:252
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:401
 msgid "대상"
 msgstr "대상"
 
@@ -2737,10 +2797,10 @@ msgstr "글 보기"
 msgid "되돌리기"
 msgstr "되돌리기"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:102
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:83
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:205
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:206
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:138
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:84
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:189
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:190
 #: app/[lang]/admin/[adminKey]/(console)/posts/page.tsx:143
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:93
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:176
@@ -2848,7 +2908,7 @@ msgstr "초기화"
 msgid "이미지를 올리지 못했습니다. 다시 시도합니다"
 msgstr "이미지를 올리지 못했습니다. 다시 시도합니다"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:198
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:182
 #: app/[lang]/admin/[adminKey]/(console)/users/[userId]/page.tsx:169
 msgid "밴 해제"
 msgstr "밴 해제"
@@ -2887,7 +2947,7 @@ msgstr "기본 옵션"
 msgid "사유: {0}"
 msgstr "사유: {0}"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:95
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:131
 msgid "최근 7일 새 사용자"
 msgstr "최근 7일 새 사용자"
 
@@ -2954,7 +3014,7 @@ msgstr "저장소를 먼저 선택하세요"
 msgid "아직 게시된 글이 없습니다"
 msgstr "아직 게시된 글이 없습니다"
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:211
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:360
 msgid "경과"
 msgstr "경과"
 
@@ -2970,12 +3030,12 @@ msgstr "새 비밀번호 확인"
 msgid "{host} 링크 삭제"
 msgstr "{host} 링크 삭제"
 
-#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:208
+#: app/[lang]/admin/[adminKey]/(console)/posts/[postId]/page.tsx:192
 msgid "목록과 사이트맵에서 빠지고 상세에는 안내만 보여요."
 msgstr "목록과 사이트맵에서 빠지고 상세에는 안내만 보여요."
 
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:167
-#: app/[lang]/admin/[adminKey]/(console)/page.tsx:179
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:316
+#: app/[lang]/admin/[adminKey]/(console)/page.tsx:328
 msgid "작업 수"
 msgstr "작업 수"
 

@@ -7,12 +7,14 @@ import {
   postView,
   user,
   userRepository,
+  userWithdrawal,
 } from '@/lib/db/schema';
 import { removeUserImageFolders } from '@/lib/images/storage';
 
 /**
  * 회원과 그 데이터를 한 트랜잭션에서 삭제
  * - user 행을 지우면 세션, GitHub 계정(토큰), 초안·게시글(과 그 조회 기록), AI 작업, 이미지 행, 저장소 연동이 함께 지워짐
+ * - 탈퇴 시각만 user_withdrawal 에 남김 (이메일 등 개인정보는 남기지 않음)
  * - 따로 지우는 것: 본인이 남긴 조회 기록(user:{id}), 남은 사용자가 없는 저장소 정보,
  *   본인이 설치했고 남은 저장소가 없는 GitHub App 설치 정보
  */
@@ -29,6 +31,8 @@ export const deleteUserData = async (userId: string): Promise<void> => {
 
     await tx.delete(postView).where(eq(postView.viewerKey, `user:${userId}`));
     await tx.delete(user).where(eq(user.id, userId));
+    // 누가 탈퇴했는지는 남기지 않고 탈퇴 시각만 기록
+    await tx.insert(userWithdrawal).values({ id: crypto.randomUUID() });
 
     if (repositories.length > 0) {
       await tx.delete(githubRepository).where(

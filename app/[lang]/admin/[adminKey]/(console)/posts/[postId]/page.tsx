@@ -9,13 +9,14 @@ import { banPost, deletePost, unbanPost } from '@/lib/actions/admin/posts';
 import { requireAdmin, requireAdminKey } from '@/lib/admin/guard';
 import { adminPath } from '@/lib/admin/path-key';
 import { getPostDailyViews, getPostDetail } from '@/lib/admin/post-queries';
-import { parseViewRange, VIEW_RANGES } from '@/lib/admin/post-views';
+import { parseViewRange } from '@/lib/admin/post-views';
 import { canPerform } from '@/lib/admin/roles';
 import { summarizeActionDetail } from '@/lib/admin/stats';
 import { localizePath } from '@/lib/i18n/config';
 import { getLocale, initLingui } from '@/lib/i18n/server';
 import { getPostPath } from '@/lib/posts/post-path';
 import LocalizedLink from '@/components/shared/localized-link';
+import RangeNav from '@/components/admin/range-nav';
 import ViewsLineChart from '@/components/admin/views-line-chart';
 
 interface AdminPostDetailPageProps {
@@ -144,24 +145,7 @@ export default async function AdminPostDetailPage({
           <h2 className={SECTION_TITLE_CLASS}>
             <Trans>일별 조회 수</Trans>
           </h2>
-          {/* 기간 고르기 (그래프 위 한 줄) */}
-          <nav className="flex gap-1" aria-label={i18n._(msg`기간`)}>
-            {VIEW_RANGES.map((days) => (
-              <LocalizedLink
-                key={days}
-                href={`?range=${days}`}
-                scroll={false}
-                aria-current={days === range ? 'page' : undefined}
-                className={`border px-2.5 py-1 text-[12px] ${
-                  days === range
-                    ? 'border-brand bg-brand-soft text-ink'
-                    : 'border-line text-ink-muted hover:text-ink'
-                }`}
-              >
-                <Trans>{days}일</Trans>
-              </LocalizedLink>
-            ))}
-          </nav>
+          <RangeNav range={range} label={i18n._(msg`기간`)} />
         </div>
         <p className="text-[12px] text-ink-muted">
           <Trans>

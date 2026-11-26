@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { buildDailyReport } from '@/lib/report/format';
 import {
   groupPagePaths,
+  parseGa4Daily,
   parseGa4Ranking,
   parseGa4Totals,
 } from '@/lib/report/ga4';
@@ -103,6 +104,38 @@ describe('parseGa4Ranking', () => {
 
   it('행이 없으면 빈 목록', () => {
     expect(parseGa4Ranking({})).toEqual([]);
+  });
+});
+
+describe('parseGa4Daily', () => {
+  it('YYYYMMDD 를 날짜로 바꾸고 데이터가 없는 날은 0 으로 채운다', () => {
+    expect(
+      parseGa4Daily(
+        {
+          rows: [
+            {
+              dimensionValues: [{ value: '20261120' }],
+              metricValues: [{ value: '3' }, { value: '4' }, { value: '9' }],
+            },
+          ],
+        },
+        { start: '2026-11-19', end: '2026-11-20' },
+      ),
+    ).toEqual([
+      { date: '2026-11-19', activeUsers: 0, sessions: 0, pageViews: 0 },
+      { date: '2026-11-20', activeUsers: 3, sessions: 4, pageViews: 9 },
+    ]);
+  });
+
+  it('월을 넘는 기간도 모든 날을 채운다', () => {
+    const days = parseGa4Daily({}, { start: '2026-10-30', end: '2026-11-02' });
+
+    expect(days.map((day) => day.date)).toEqual([
+      '2026-10-30',
+      '2026-10-31',
+      '2026-11-01',
+      '2026-11-02',
+    ]);
   });
 });
 
