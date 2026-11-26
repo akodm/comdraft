@@ -1,3 +1,4 @@
+import { Extension } from '@tiptap/core';
 import type { JSONContent } from '@tiptap/core';
 import { renderToReactElement } from '@tiptap/static-renderer/pm/react';
 import type { ReactNode } from 'react';
@@ -38,6 +39,28 @@ const renderCodeBlock = ({
   );
 };
 
+/**
+ * 제목 앵커: 본문에 붙여 둔 attrs.id 를 제목 요소의 id 로 그림 (목차에서 이동할 위치)
+ * - id 는 buildPostOutline 이 붙임 (게시 본문에는 저장하지 않음)
+ */
+const HeadingAnchor = Extension.create({
+  name: 'headingAnchor',
+  addGlobalAttributes: () => [
+    {
+      types: ['heading'],
+      attributes: {
+        id: {
+          default: null,
+          renderHTML: (attributes) =>
+            typeof attributes.id === 'string' && attributes.id
+              ? { id: attributes.id }
+              : {},
+        },
+      },
+    },
+  ],
+});
+
 const toPositiveInteger = (value: unknown) =>
   typeof value === 'number' && Number.isInteger(value) && value > 0
     ? value
@@ -77,13 +100,16 @@ const renderImage = ({
  * 게시글 본문 (서버에서 Tiptap 문서를 편집기와 같은 스키마로 그림)
  * - 편집기와 같은 prose 클래스를 써서 모양을 맞춤
  * - 편집기(ProseMirror 기본 스타일)처럼 긴 URL·인라인 코드도 줄을 바꿔 모바일에서 화면 밖으로 밀리지 않게 함
+ * - 제목에 attrs.id 가 있으면 id 로 그리고, 앵커로 이동할 때 화면 맨 위에 붙지 않게 여백을 둠
  */
 const PostContent = ({ content }: PostContentProps) => {
   return (
-    <div className={`${PROSE_CLASS} wrap-break-word`}>
+    <div
+      className={`${PROSE_CLASS} wrap-break-word [&_:is(h1,h2,h3,h4,h5,h6)]:scroll-mt-8`}
+    >
       {renderToReactElement({
         content,
-        extensions: createDraftSchemaExtensions(),
+        extensions: [...createDraftSchemaExtensions(), HeadingAnchor],
         options: {
           nodeMapping: { codeBlock: renderCodeBlock, image: renderImage },
         },
