@@ -101,8 +101,12 @@ pnpm dev                # http://localhost:3003
 | `GOOGLE_REPORT_CREDENTIALS`, `DAILY_REPORT_TOPIC_ARN` | 일일 현황 보고 (GA4·Search Console 조회용 서비스 계정, SNS 토픽) |
 | `MODERATION_SECRET` | 게시글 검수 API(`POST /api/moderation/posts`) 인증 |
 | `ADMIN_PATH_KEY` | 어드민 주소 키 (`/[lang]/admin/<키>`), 영문·숫자·`-`·`_` 16자 이상. 없으면 어드민 전체 403 |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry 오류 보고 (comdraft 프로젝트). 비우면 보내지 않음 |
+| `SENTRY_AUTH_TOKEN` | (선택, 빌드 때만) 소스맵 업로드용 Sentry 토큰. 없으면 업로드 없이 빌드 |
 
 로컬에서는 `GENERATION_RUNNER` 를 비워 두면 가짜 실행기가 고정된 초안을 만들어, Lambda 없이 전체 흐름을 확인할 수 있습니다.
+
+오류는 Sentry 로 보냅니다(`lib/observability/`). 처리되지 않은 서버 오류는 `instrumentation.ts` 의 `onRequestError` 가, 화면이 처리한 오류는 `reportError(error, area, context)` 가 보내며 `area` 태그로 기능 지점을 구분합니다. SDK 의 자동 수집(헤더·쿠키·본문·쿼리·지역 변수)은 모두 끄고, 보내기 전에 토큰 형태와 DB 쿼리 값을 지웁니다. 성능 추적과 세션 리플레이는 쓰지 않습니다.
 
 ### 자주 쓰는 명령
 

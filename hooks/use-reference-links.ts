@@ -8,6 +8,7 @@ import {
   parseReferenceUrl,
   type ReferenceLink,
 } from '@/lib/studio/reference-link';
+import { reportError } from '@/lib/observability/report-error';
 
 export type AddReferenceLinkStatus =
   | 'added'
@@ -60,7 +61,8 @@ export const useReferenceLinks = (
         }
 
         return result.status;
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.reference-link.add', { draftId });
         return 'error';
       }
     },
@@ -92,7 +94,8 @@ export const useReferenceLinks = (
         }
 
         return true;
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.reference-link.remove', { draftId });
         setLinks(previousLinks);
         return false;
       }

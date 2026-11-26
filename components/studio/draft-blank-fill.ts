@@ -11,6 +11,7 @@ import { Decoration, DecorationSet } from '@tiptap/pm/view';
 import { insertsNode } from '@/components/studio/editor-images';
 import { isUuid } from '@/lib/images/rules';
 import type { BlankFillLock } from '@/lib/studio/blank-fill-state';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * 편집기 빈칸의 AI 다듬기 상태 (ProseMirror 플러그인)
@@ -288,7 +289,8 @@ export const replaceBlankWithParagraphs = (
     const size = nodes.reduce((total, node) => total + node.nodeSize, 0);
 
     return { from: target.pos, to: target.pos + size };
-  } catch {
+  } catch (error) {
+    reportError(error, 'studio.blank-fill.replace', {}, { omitMessage: true });
     return null;
   }
 };

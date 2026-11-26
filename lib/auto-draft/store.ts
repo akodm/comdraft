@@ -20,6 +20,7 @@ import {
   parsePromptOptions,
   type PromptOptions,
 } from '@/lib/studio/options';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * 자동 초안 설정·경계·제외 커밋 저장소 계층
@@ -168,7 +169,8 @@ export async function setAutoDraftEnabled(
   if (enabled && !existing?.boundarySha) {
     try {
       head = await getBranchHead(repo);
-    } catch {
+    } catch (error) {
+      reportError(error, 'auto-draft.branch-head', { repositoryId });
       return 'unavailable';
     }
 
@@ -426,7 +428,8 @@ export async function resetBoundaryForBranch(
 
   try {
     head = repo ? await getBranchHead(repo) : null;
-  } catch {
+  } catch (error) {
+    reportError(error, 'auto-draft.branch-head', { repositoryId });
     head = null;
   }
 

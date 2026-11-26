@@ -25,6 +25,7 @@ import {
 } from '@/lib/images/storage';
 import { getSupabaseUrl } from '@/lib/supabase/server';
 import { isOwnedDraft } from '@/lib/studio/queries';
+import { reportError } from '@/lib/observability/report-error';
 
 export type RequestImageUploadResult =
   | { status: 'ok'; uploadId: string; path: string; token: string }
@@ -183,6 +184,7 @@ export async function finalizeImageUpload(
       return { status: 'unsupported', reason: error.reason };
     }
 
+    reportError(error, 'images.finish-upload', { draftId });
     return { status: 'failed' };
   }
 }

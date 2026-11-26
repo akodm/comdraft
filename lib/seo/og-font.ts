@@ -1,4 +1,5 @@
 import 'server-only';
+import { reportError } from '@/lib/observability/report-error';
 
 interface OgFont {
   name: string;
@@ -35,7 +36,9 @@ const loadGoogleFont = async (
     const response = await fetch(src);
 
     return response.ok ? await response.arrayBuffer() : null;
-  } catch {
+  } catch (error) {
+    // 글꼴 없이도 이미지는 기본 글꼴로 만들어짐
+    reportError(error, 'og.load-font', { family });
     return null;
   }
 };

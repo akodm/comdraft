@@ -7,6 +7,7 @@ import {
   type AutoDraftCommitActionResult,
   type AutoDraftStateResult,
 } from '@/lib/actions/auto-draft';
+import { reportError } from '@/lib/observability/report-error';
 
 export type AutoDraftCommitAction = 'anchor' | 'exclude' | 'restore';
 
@@ -51,7 +52,8 @@ export const useAutoDraftState = (
       const result = await loadAutoDraftState(repositoryId);
 
       if (requestId === requestRef.current) setState(result);
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.auto-draft.state', { repositoryId });
       if (requestId === requestRef.current) setState({ status: 'error' });
     }
   }, [repositoryId]);
@@ -70,7 +72,11 @@ export const useAutoDraftState = (
         const result = await ACTIONS[action](repositoryId, sha);
 
         setHasActionError(result.status !== 'ok');
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.auto-draft.commit-action', {
+          repositoryId,
+          action,
+        });
         setHasActionError(true);
       }
 

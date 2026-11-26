@@ -7,6 +7,7 @@ import {
   verifyWebhookSignature,
 } from '@/lib/auto-draft/webhook';
 import { getGithubWebhookSecret } from '@/lib/github/env';
+import { flushReports, reportError } from '@/lib/observability/report-error';
 
 const BRANCH_REF_PREFIX = 'refs/heads/';
 
@@ -89,6 +90,11 @@ export async function POST(request: NextRequest) {
             '[github-webhook] 자동 초안 실행 중 예상하지 못한 오류:',
             toErrorMessage(error),
           );
+          const context = {
+            repositoryId: target.repositoryId,
+            triggerSha: plan.trigger.sha,
+          };
+          reportError(error, 'auto-draft.run', context);
           // 내역에서 보이도록 internal 실패 행을 남김 (같은 트리거 행이 이미 있으면 그대로)
           await recordUnexpectedFailure(target, plan).catch(
             (recordError: unknown) => {
@@ -96,8 +102,11 @@ export async function POST(request: NextRequest) {
                 '[github-webhook] 실패 기록을 남기지 못함:',
                 toErrorMessage(recordError),
               );
+              reportError(recordError, 'auto-draft.record-failure', context);
             },
           );
+          // 응답 뒤 실행이라 함수가 멈추기 전에 전송을 마침
+          await flushReports();
         }
       });
     }

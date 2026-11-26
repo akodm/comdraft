@@ -29,6 +29,7 @@ import {
   toClarificationAnswers,
   type ClarificationChoice,
 } from '@/lib/studio/clarification-form';
+import { reportError } from '@/lib/observability/report-error';
 
 // 직접 입력 보기를 고른 상태 (보기 번호가 아닌 별도 표시)
 const CUSTOM = 'custom';
@@ -216,7 +217,8 @@ const ClarificationCard = ({
         }
 
         setError(result.status);
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.clarification.answer', { jobId: job.id });
         setError('error');
       }
     });
@@ -234,7 +236,8 @@ const ClarificationCard = ({
         }
 
         setError(result.status);
-      } catch {
+      } catch (error) {
+        reportError(error, 'studio.clarification.cancel', { jobId: job.id });
         setError('error');
       }
     });

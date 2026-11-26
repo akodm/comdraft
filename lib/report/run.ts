@@ -9,6 +9,7 @@ import { getReportPeriod } from '@/lib/report/period';
 import { fetchSearchSummary } from '@/lib/report/search-console';
 import { fetchServiceStats } from '@/lib/report/service-stats';
 import { publishToSns } from '@/lib/report/sns';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * 일일 현황 보고 실행 (매일 아침 Vercel Schedules `daily-report`)
@@ -65,6 +66,7 @@ const settled = <T>(label: string, result: PromiseSettledResult<T>) => {
     `[daily-report] ${label} 조회 실패:`,
     result.reason instanceof Error ? result.reason.message : result.reason,
   );
+  reportError(result.reason, 'daily-report.source', { source: label });
   return null;
 };
 

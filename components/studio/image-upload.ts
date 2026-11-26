@@ -9,6 +9,7 @@ import {
   IMAGE_MAX_PER_DRAFT,
   removeDisallowedImages,
 } from '@/lib/images/rules';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * 편집기 이미지 올리기의 순수 함수 (Lingui·React 없음, 테스트 대상)
@@ -201,7 +202,8 @@ export const uploadImageFile = async (
       case 'not_found':
         return { status: 'stopped' };
     }
-  } catch {
+  } catch (error) {
+    reportError(error, 'studio.image.upload');
     return { status: 'failed' };
   }
 };

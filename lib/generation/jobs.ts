@@ -47,6 +47,7 @@ import { normalizeTags } from '@/lib/posts/tags';
 import { ensureBlankIds, replaceBlank } from '@/lib/studio/draft-blank';
 import { extractDraftTitle, isDraftDocument } from '@/lib/studio/draft-content';
 import { getSupabaseUrl } from '@/lib/supabase/server';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * AI 작성 작업(draft_prompt) 저장소
@@ -269,7 +270,13 @@ export const applyCompletedJob = async (jobId: string) => {
             (src) => parseImagePath(supabaseUrl, src, owner.userId) !== null,
           )
         : null;
-    } catch {
+    } catch (error) {
+      reportError(
+        error,
+        'generation.apply-result',
+        { jobId },
+        { omitMessage: true },
+      );
       content = null;
     }
 

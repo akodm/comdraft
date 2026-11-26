@@ -6,6 +6,7 @@ import RepositoryCard from '@/components/dashboard/repository-card';
 import Spinner from '@/components/shared/spinner';
 import { loadDashboardRepositories } from '@/lib/actions/repositories';
 import type { DashboardRepositoryPage } from '@/lib/dashboard/queries';
+import { reportError } from '@/lib/observability/report-error';
 
 // 목록 끝이 화면 아래 이만큼 가까워지면 미리 다음 페이지 요청
 const PRELOAD_MARGIN = '400px';
@@ -52,7 +53,8 @@ const RepositoryList = ({ initialPage }: RepositoryListProps) => {
       });
       setNextCursor(page.nextCursor);
       setLoadState('idle');
-    } catch {
+    } catch (error) {
+      reportError(error, 'dashboard.repositories.more');
       setLoadState('error');
     } finally {
       isLoadingRef.current = false;

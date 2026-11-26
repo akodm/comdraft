@@ -7,6 +7,7 @@ import { useStudio } from '@/components/studio/studio-context';
 import { OUTLINE_BUTTON_CLASS } from '@/components/studio/studio-styles';
 import { saveDraftTags } from '@/lib/actions/studio';
 import { addTag } from '@/lib/posts/tags';
+import { reportError } from '@/lib/observability/report-error';
 
 interface DraftTagsProps {
   repositoryId: string;
@@ -61,7 +62,8 @@ const DraftTags = ({
       // AI 작성이 시작되어 잠긴 경우는 오류로 표시하지 않음 (본문 자동 저장과 같음)
       setNotice(result.status === 'locked' ? null : 'error');
       return false;
-    } catch {
+    } catch (error) {
+      reportError(error, 'studio.draft.tags', { draftId });
       setTags(previous);
       setNotice('error');
       return false;

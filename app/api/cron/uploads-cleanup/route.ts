@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { removeExpiredUploads } from '@/lib/images/storage';
 import { isAuthorizedCronRequest } from '@/lib/seo/cron';
+import { flushReports, reportError } from '@/lib/observability/report-error';
 
 /**
  * 임시 업로드 정리 (Vercel Schedules `uploads-cleanup`, vercel.json: 매일 04시 한국 시간)
@@ -26,6 +27,8 @@ export async function GET(request: NextRequest) {
       '[uploads-cleanup] 정리 실패:',
       error instanceof Error ? error.message : error,
     );
+    reportError(error, 'cron.uploads-cleanup');
+    await flushReports();
     return Response.json({ error: 'uploads_cleanup_failed' }, { status: 500 });
   }
 }

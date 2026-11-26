@@ -10,6 +10,7 @@ import {
 } from '@/lib/github/user-api';
 import type { InstallationWithRepositories } from '@/lib/github/user-installations';
 import { parseGithubId } from '@/utils';
+import { reportError } from '@/lib/observability/report-error';
 
 /**
  * 저장소 + 브랜치 선택 화면(온보딩 2단계, 대시보드 저장소 추가)의 공통 서버 로직
@@ -104,6 +105,12 @@ export const listSelectableRepositoryBranches = async ({
 
     // 404: 설치/저장소 접근 권한 없음, 그 외(403 rate limit, 5xx)는 일시적 오류
     if (error instanceof GithubApiError) {
+      if (error.status !== 404) {
+        reportError(error, 'repository-selection.branches', {
+          status: error.status,
+        });
+      }
+
       return {
         status: error.status === 404 ? 'invalid_repository' : 'error',
       };
