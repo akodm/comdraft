@@ -1,0 +1,32 @@
+# gitleaks 비밀값 검사 설정
+# 기본 규칙을 그대로 쓰고, 의존성·빌드 결과물·lock·캐시 파일은 검사하지 않는다.
+# 테스트에 넣은 가짜 값은 .gitleaksignore 에 지문으로 등록하거나 해당 줄에 `gitleaks:allow` 주석을 단다.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "의존성, 빌드 결과물, lock, 캐시 파일"
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)\.pnpm-store/''',
+  '''(^|/)\.next/''',
+  '''(^|/)out/''',
+  '''(^|/)build/''',
+  '''(^|/)dist/''',
+  '''(^|/)coverage/''',
+  '''(^|/)\.vercel/''',
+  '''(^|/)\.turbo/''',
+  '''(^|/)\.cache/''',
+  '''(^|/)\.superpowers/''',
+  '''(^|/)\.hallmark/''',
+  '''(^|/)\.ua/''',
+  '''(^|/)\.terraform/''',
+  '''(^|/)[^/]*-lock\.ya?ml$''',
+  '''(^|/)package-lock\.json$''',
+  '''(^|/)yarn\.lock$''',
+  '''(^|/)\.terraform\.lock\.hcl$''',
+  '''\.tsbuildinfo$''',
+  '''(^|/)\.eslintcache$''',
+  '''(^|/)\.DS_Store$''',
+]
