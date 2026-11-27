@@ -1,0 +1,16 @@
+# gitleaks 가 잡지만 실제 비밀값이 아닌 항목 (테스트·문서의 가짜 값)
+# 형식: 커밋:파일:규칙:줄. 새 가짜 값은 해당 줄에 gitleaks:allow 주석을 다는 편이 낫다.
+0b67ee18eb58577b004e7e042cf8dece5caf5ee2:lib/actions/admin/users.test.ts:generic-api-key:84
+28e05e1c10083971063a66301668a3cd1c472cc6:lib/admin/guard.test.ts:generic-api-key:29
+380b5898d97b00e0529e17bd58c22e8276254d5e:docs/superpowers/plans/2026-11-10-ai-draft-prompt.md:aws-access-token:331
+380b5898d97b00e0529e17bd58c22e8276254d5e:docs/superpowers/plans/2026-11-10-ai-draft-prompt.md:generic-api-key:332
+44c1de9e730d815525dc3432f077ff5f261efe92:lib/actions/admin/ai-control.test.ts:generic-api-key:53
+44c1de9e730d815525dc3432f077ff5f261efe92:lib/actions/admin/ai-prompts.test.ts:generic-api-key:83
+7779a38f20e640bf6e10e95d9c694eef98908615:lib/admin/path-key.test.ts:generic-api-key:8
+7f914ab03a1b6b620b15ed4915aeb77ad337c9f5:lib/report/report.test.ts:private-key:201
+8327b00185b68a623db24eb4ace79daed06eb248:lib/report/report.test.ts:private-key:213
+8bef6beaa9cc293708258dfb55d766bcbdd64c00:lib/observability/scrub.test.ts:jwt:19
+c3120bf6728c5906541926f8adabd45cb50a54ba:docs/superpowers/plans/2026-11-19-admin-console.md:generic-api-key:158
+e6487d13b338a8d1b910044c040174a7aa76273f:lib/actions/admin/posts.test.ts:generic-api-key:93
+e6487d13b338a8d1b910044c040174a7aa76273f:lib/actions/admin/prompt-history.test.ts:generic-api-key:75
+f46fd911150c9ba3f2750d1a372281619c6b7e0c:lib/admin/agent-request.test.ts:generic-api-key:77
